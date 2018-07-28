@@ -1,0 +1,4 @@
+RESTRICTION: || (== net461) (== netcoreapp2.0) (== netstandard2.0)
+NUGET
+  remote: https://www.nuget.org/api/v2
+    FSharp.Core (4.5.2)
