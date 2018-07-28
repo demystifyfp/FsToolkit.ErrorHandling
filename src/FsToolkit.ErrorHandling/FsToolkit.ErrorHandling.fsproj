@@ -14,6 +14,7 @@
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="ResultOption.fs" />
+    <Compile Include="Validation.fs" />
     <Compile Include="Async.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>

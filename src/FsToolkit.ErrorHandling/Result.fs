@@ -1,7 +1,28 @@
 namespace FsToolkit.ErrorHandling
 
+module ResultComputationExpression =
+
+  type ResultBuilder() =
+    member __.Return value = Ok value
+    member __.ReturnFrom value = value
+
+    member __.Bind (result, binder) =
+      Result.bind binder result
+
+    member __.Combine(r1, r2) =
+      r1
+      |> Result.bind (fun _ -> r2)
+
+    member __.Delay f = f ()
+
+
+  let result = ResultBuilder()
+
+
+
 [<RequireQualifiedAccess>]
 module Result =
+  open ResultComputationExpression
 
   let apply f x =
     Result.bind (fun f' ->
@@ -13,13 +34,33 @@ module Result =
   let map3 f x y z =
     apply (map2 f x y) z
 
-  let traverseSeq f seq =
+  let traverseListA f xs =
     let cons head tail = head :: tail
     let initState = Ok []
     let folder head tail =
-      map2 cons (f head) tail
-    Seq.foldBack folder seq initState
-    |> Result.map List.toSeq
+      map2 cons (f head) (tail)
+    List.foldBack folder xs initState
+  
+  let traverseListM f xs =
+    let cons head tail = head :: tail
+    let initState = Ok []
+    let folder head tail = result {
+      let! h = f head
+      let! t = tail
+      return (cons h t)
+    }
+    List.foldBack folder xs initState
+
+
+  let traverseSeqA f xs =
+    List.ofSeq xs
+    |> traverseListA f
+    |> Result.map Seq.ofList
+  
+  let traverseSeqM f xs =
+    List.ofSeq xs
+    |> traverseListM f
+    |> Result.map Seq.ofList
 
   let traverseOption f opt =
     match opt with
