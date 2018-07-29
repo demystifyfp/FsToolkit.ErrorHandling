@@ -34,40 +34,6 @@ module Result =
   let map3 f x y z =
     apply (map2 f x y) z
 
-  let traverseListA f xs =
-    let cons head tail = head :: tail
-    let initState = Ok []
-    let folder head tail =
-      map2 cons (f head) (tail)
-    List.foldBack folder xs initState
-  
-  let traverseListM f xs =
-    let cons head tail = head :: tail
-    let initState = Ok []
-    let folder head tail = result {
-      let! h = f head
-      let! t = tail
-      return (cons h t)
-    }
-    List.foldBack folder xs initState
-
-
-  let traverseSeqA f xs =
-    List.ofSeq xs
-    |> traverseListA f
-    |> Result.map Seq.ofList
-  
-  let traverseSeqM f xs =
-    List.ofSeq xs
-    |> traverseListM f
-    |> Result.map Seq.ofList
-
-  let traverseOption f opt =
-    match opt with
-    | None -> Ok None
-    | Some v -> f v |> Result.map Some
-
-
 
 module ResultOperators =
 

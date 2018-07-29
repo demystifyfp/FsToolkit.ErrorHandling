@@ -1,12 +1,24 @@
 #load "Result.fs"
+#load "Validation.fs"
+#load "List.fs"
 open FsToolkit.ErrorHandling
 
 
-let toR x =
-  match x with
-  | 1 -> Ok 1
-  | 2 -> Ok 2
-  | x -> Error x
+let tryParseInt x =
+  match System.Int32.TryParse x with
+  | true, x -> Ok x
+  | false, _ -> 
+    sprintf "%s is not a valid integer" x
+    |> Error
 
-Result.traverseListM toR [3;1;2;1]
 
+let add a b c = 
+  a + b + c
+
+open ValidationOperators
+
+let test =
+  Validation.retn add 
+  <*^> (tryParseInt "1") 
+  <*^> (tryParseInt "2")
+  <*^> (tryParseInt "3")
