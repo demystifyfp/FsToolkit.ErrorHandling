@@ -8,7 +8,7 @@ module List =
     let cons head tail = head :: tail
     let initState = Ok []
     let folder head tail =
-      Result.map2 cons (f head) (tail)
+      Result.map2 cons (f head) tail
     List.foldBack folder xs initState 
 
   let traverseResultM f xs =
@@ -23,9 +23,8 @@ module List =
 
   let traverseValidationA f xs =
     let cons head tail = head :: tail
-    let initState = Ok []
-    let (<*>) = Validation.apply
+    let initState = Validation.retn []
     let folder head tail =
-      Ok cons <*> (f head) <*> tail
+      Validation.map2 cons (f head) tail
     List.foldBack folder xs initState
  
