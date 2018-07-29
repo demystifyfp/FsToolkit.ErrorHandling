@@ -9,7 +9,7 @@ module List =
     let initState = Ok []
     let folder head tail =
       Result.map2 cons (f head) tail
-    List.foldBack folder xs initState 
+    List.foldBack folder xs initState
 
   let traverseResultM f xs =
     let cons head tail = head :: tail

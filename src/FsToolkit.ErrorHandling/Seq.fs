@@ -15,4 +15,4 @@ module Seq =
   let traverseValidationA f xs =
     List.ofSeq xs
     |> List.traverseValidationA f
-    |> Validation.map Seq.ofList
+    |> Result.map Seq.ofList
