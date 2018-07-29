@@ -35,6 +35,17 @@ module Result =
     apply (map2 f x y) z
 
 
+  let fold onOk onError r =
+    match r with
+    | Ok x -> onOk x
+    | Error y -> onError y
+
+  let ofChoice c =
+    match c with
+    | Choice1Of2 x -> Ok x
+    | Choice2Of2 x -> Error x
+
+
 module ResultOperators =
 
   let inline (<!>) f x = Result.map f x

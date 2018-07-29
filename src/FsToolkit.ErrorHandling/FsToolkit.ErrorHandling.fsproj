@@ -14,10 +14,12 @@
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="ResultOption.fs" />
+    <Compile Include="Async.fs" />
+    <Compile Include="AsyncResult.fs" />
+    <Compile Include="AsyncResultOption.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Seq.fs" />
-    <Compile Include="Async.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
