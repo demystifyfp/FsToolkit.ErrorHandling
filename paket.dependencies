@@ -8,3 +8,8 @@ group Test
 source https://www.nuget.org/api/v2
 nuget Expecto
 nuget FSharp.Core
+
+group Build
+source https://www.nuget.org/api/v2
+storage: none
+clitool dotnet-fake
