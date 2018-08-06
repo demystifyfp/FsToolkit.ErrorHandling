@@ -3,6 +3,7 @@ module ResultTests
 open Expecto
 open SampleDomain
 open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.ResultComputationExpression
 
 
 let lat = 13.067439
@@ -15,8 +16,8 @@ let validLng = Longitude.TryCreate lng
 let invalidLng = Longitude.TryCreate 200.
 let invalidLngMsg = "200.0 is a invalid longitude value"
 let validTweet = Tweet.TryCreate "Hello, World!"
-
 let emptyInvalidTweet = Tweet.TryCreate ""
+let emptyTweetErrMsg = "Tweet shouldn't be empty"
 
 
 [<Tests>]
@@ -66,7 +67,7 @@ let map3Tests =
 
     testCase "map3 with (Ok, Ok, Error)" <| fun _ ->
       Result.map3 post validLat validLng emptyInvalidTweet
-      |> Expect.hasErrorValue "Tweet shouldn't be empty"
+      |> Expect.hasErrorValue emptyTweetErrMsg
     
     testCase "map3 with (Error, Error, Error)" <| fun _ ->
       Result.map3 post invalidLat invalidLng emptyInvalidTweet
@@ -75,14 +76,74 @@ let map3Tests =
 
 [<Tests>]
 let applyTests =
-  let inc a = a + 1
 
   testList "Result.apply tests" [
     testCase "apply with Ok" <| fun _ ->
-      Result.apply (Ok inc) (Ok 1)
-      |> Expect.hasOkValue 2
+      Tweet.TryCreate "foobar"
+      |> Result.apply (Ok remainingCharacters) 
+      |> Expect.hasOkValue 274
     
     testCase "apply with Error" <| fun _ ->
-      Result.apply (Ok inc) (Error 1)
+      Result.apply (Ok remainingCharacters) emptyInvalidTweet
+      |> Expect.hasErrorValue emptyTweetErrMsg
+  ]
+
+[<Tests>]
+let foldTests =
+
+  testList "Result.fold tests" [
+    testCase "fold with Ok" <| fun _ ->
+      let actual =
+        Tweet.TryCreate "foobar"
+        |> Result.fold (fun t -> t.Value) id
+      Expect.equal actual "foobar" "fold to string should succeed"
+    
+    testCase "fold with Error" <| fun _ ->
+      let actual =
+        Tweet.TryCreate ""
+        |> Result.fold (fun t -> t.Value) id
+      Expect.equal actual emptyTweetErrMsg "fold to string should fail"
+  ]
+
+
+[<Tests>]
+let ofChoiceTests =
+
+  testList "Result.ofChoice tests" [
+    testCase "ofChoice with Choice1Of2" <| fun _ ->
+      Result.ofChoice (Choice1Of2 1)
+      |> Expect.hasOkValue 1
+    
+    testCase "ofChoice with Choice2Of2" <| fun _ ->
+      Result.ofChoice (Choice2Of2 1)
       |> Expect.hasErrorValue 1
+  ]
+
+
+[<Tests>]
+let resultCETests =
+  testList "result Computation Expression tests" [
+    testCase "bind with all Ok" <| fun _ ->
+      let post = result {
+        let! lat = validLat 
+        let! lng = validLng 
+        let! tweet = validTweet
+        return post lat lng tweet
+      }
+      ((fun post -> 
+        post.Location.Latitude.Value = lat && 
+        post.Location.Longitude.Value = lng && 
+        post.Tweet.Value = "Hello, World!"), post)
+      ||> Expect.hasOkValuePredicate 
+
+    testCase "bind with Error" <| fun _ -> 
+      let post = result {
+        let! lat = invalidLat
+        Tests.failtestf "this should not get executed!"
+        let! lng = validLng 
+        let! tweet = validTweet
+        return post lat lng tweet
+      }
+      post
+      |> Expect.hasErrorValue invalidLatMsg
   ]

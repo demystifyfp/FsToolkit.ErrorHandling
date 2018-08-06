@@ -22,7 +22,6 @@ module ResultComputationExpression =
 
 [<RequireQualifiedAccess>]
 module Result =
-  open ResultComputationExpression
 
   let apply f x =
     Result.bind (fun f' ->

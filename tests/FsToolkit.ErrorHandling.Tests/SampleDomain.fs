@@ -45,6 +45,9 @@ type Tweet = private Tweet of string with
       Error "Tweet shouldn't contain more than 280 characters"
     | x -> Ok (Tweet x)
 
+let remainingCharacters (tweet : Tweet) =
+  280 - tweet.Value.Length
+
 
 type Post = {
   Tweet : Tweet
