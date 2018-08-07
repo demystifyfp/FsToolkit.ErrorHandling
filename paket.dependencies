@@ -1,15 +1,21 @@
 source https://www.nuget.org/api/v2
 
 framework: netstandard2.0, netcoreapp2.0, net461
+storage: none
+clitool dotnet-fake
 
 nuget FSharp.Core
 
 group Test
 source https://www.nuget.org/api/v2
+storage: none
 nuget Expecto
 nuget FSharp.Core
 
 group Build
 source https://www.nuget.org/api/v2
 storage: none
-clitool dotnet-fake
+nuget Fake.Core.Target
+nuget Fake.DotNet.Cli
+nuget Fake.DotNet.MSBuild
+nuget Fake.DotNet.Testing.Expecto 

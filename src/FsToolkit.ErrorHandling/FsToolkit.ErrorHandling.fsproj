@@ -11,6 +11,7 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
+
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="ResultOption.fs" />
