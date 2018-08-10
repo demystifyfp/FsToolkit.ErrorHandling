@@ -33,6 +33,16 @@ Target.create "Build" (fun _ ->
   MSBuild.build setParams solutionFile
 )
 
+Target.create "Restore" (fun _ ->
+  use __ = Trace.traceTask "Restore" "Running dotnet restore"
+  let exitCode =
+    Process.execSimple (fun info -> 
+      {info with 
+        FileName = "dotnet"
+        Arguments = "restore"}) System.TimeSpan.MaxValue
+  if exitCode = 0 then __.MarkSuccess() else __.MarkFailed()
+)
+
 let runTestAssembly setParams testAssembly =
   let exitCode =
     let fakeStartInfo testAssembly (args : Expecto.Params) =
@@ -79,6 +89,7 @@ Target.create "RunTests" (fun _ ->
 
 // *** Define Dependencies ***
 "Clean"
+  ==> "Restore"
   ==> "Build"
   ==> "RunTests"
 
