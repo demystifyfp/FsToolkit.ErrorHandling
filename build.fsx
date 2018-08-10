@@ -83,4 +83,4 @@ Target.create "RunTests" (fun _ ->
   ==> "RunTests"
 
 // *** Start Build ***
-Target.runOrDefault "RunTests"
+Target.runOrDefault "Build"
