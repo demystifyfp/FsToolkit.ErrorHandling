@@ -1,5 +1,10 @@
 language: csharp
 
+addons:
+  apt:
+    packages:
+       - msbuild
+
 sudo: false # use the new container-based Travis infrastructure
 dist: trusty # Ubuntu 14.04
 dotnet: 2.1
