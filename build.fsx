@@ -9,6 +9,7 @@ open Fake.Core.TargetOperators
 open Fake.DotNet.Testing
 open Fake.IO.Globbing.Operators
 
+
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
@@ -16,31 +17,29 @@ Target.create "Clean" (fun _ ->
   Shell.cleanDirs ["bin"]
 )
 
-
+if not (Environment.isWindows) then
+  let inferFrameworkPathOverride () =
+    let mscorlib = "mscorlib.dll"
+    let possibleFrameworkPaths =
+      [ 
+        "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.5/"
+        "/usr/local/Cellar/mono/4.6.12/lib/mono/4.5/"
+        "/usr/lib/mono/4.5/"
+      ]
+    possibleFrameworkPaths
+    |> Seq.find (fun p -> System.IO.File.Exists(p @@ mscorlib))
+  Environment.setEnvironVar "FrameworkPathOverride" (inferFrameworkPathOverride())
 
 Target.create "Build" (fun _ ->
-  let setParams (defaults:MSBuildParams) =
+  let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
-            Verbosity = Some(Quiet)
-            Targets = ["Build"]
-            Properties =
-                [
-                    "Optimize", "True"
-                    "DebugSymbols", "True"
-                    "Configuration", configuration
-                ]
-         }
-  MSBuild.build setParams solutionFile
+            Configuration = DotNet.BuildConfiguration.fromString configuration}
+  DotNet.build setParams solutionFile
 )
 
+
 Target.create "Restore" (fun _ ->
-  use __ = Trace.traceTask "Restore" "Running dotnet restore"
-  let exitCode =
-    Process.execSimple (fun info -> 
-      {info with 
-        FileName = "dotnet"
-        Arguments = "restore"}) System.TimeSpan.MaxValue
-  if exitCode = 0 then __.MarkSuccess() else __.MarkFailed()
+  DotNet.restore id solutionFile
 )
 
 let runTestAssembly setParams testAssembly =
