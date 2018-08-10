@@ -7,7 +7,7 @@ addons:
 
 sudo: false # use the new container-based Travis infrastructure
 dist: trusty # Ubuntu 14.04
-dotnet: 2.0.0
+dotnet: 2.1
 
 script:
   - dotnet --info
