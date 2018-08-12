@@ -49,10 +49,21 @@ let remainingCharacters (tweet : Tweet) =
   280 - tweet.Value.Length
 
 
-type Post = {
+type CreatePostRequest = {
   Tweet : Tweet
-  Location : Location
+  Location : Location option
 }
 
-let post lat long tweet =
-  {Tweet = tweet; Location = location lat long}
+let createPostRequest lat long tweet =
+  {Tweet = tweet; Location = Some(location lat long)}
+
+
+type LocationDto = {
+  Latitude : double
+  Longitude : double
+}
+
+type CreatePostRequestDto = {
+  Tweet : string
+  Location : LocationDto option
+}
