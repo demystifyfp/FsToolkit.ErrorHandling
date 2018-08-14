@@ -45,4 +45,4 @@ module ResultOptionOperators =
 
   let inline (<!>) f x = ResultOption.map f x
   let inline (<*>) f x = ResultOption.apply f x
-  let inline (>>=) f x = ResultOption.bind f x
+  let inline (>>=) x f = ResultOption.bind f x

@@ -63,3 +63,9 @@ module AsyncResultComputationExpression =
   let asyncResult = AsyncResultBuilder() 
 
 
+module AsyncResultOperators =
+
+  let inline (<!>) f x = AsyncResult.map f x
+  let inline (<*>) f x = AsyncResult.apply f x
+  let inline (>>=) x f = AsyncResult.bind f x
+

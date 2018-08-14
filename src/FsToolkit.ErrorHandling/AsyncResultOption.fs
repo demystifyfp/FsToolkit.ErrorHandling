@@ -21,6 +21,9 @@ module AsyncResultOption =
   let retn value =
     async { return Ok (Some value) }
 
+  let apply fARO xARO =
+    map2 (fun f x -> f x) fARO xARO
+
 module AsyncResultOptionComputationExpression =
 
   type AsyncResultOptionBuilder() =
@@ -37,3 +40,10 @@ module AsyncResultOptionComputationExpression =
       async.Delay f
 
   let asyncResultOption = new AsyncResultOptionBuilder()
+
+
+module AsyncResultOptionOperators =
+
+  let inline (<!>) f x = AsyncResultOption.map f x
+  let inline (<*>) f x = AsyncResultOption.apply f x
+  let inline (>>=) x f = AsyncResultOption.bind f x

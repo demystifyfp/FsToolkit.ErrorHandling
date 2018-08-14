@@ -23,4 +23,4 @@ module AsyncOperators =
 
   let inline (<!>) f x = Async.map f x
   let inline (<*>) f x = Async.apply f x
-  let inline (>>=) f x = Async.bind f x
+  let inline (>>=) x f = Async.bind f x

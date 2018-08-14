@@ -11,22 +11,19 @@ open FsToolkit.ErrorHandling.ResultComputationExpression
 let map2Tests =
   testList "Result.map2 Tests" [
     testCase "map2 with two ok parts" <| fun _ ->
-      let location = Result.map2 location validLat validLng
-      ((fun (location : Location) -> 
-        location.Latitude.Value = lat && 
-        location.Longitude.Value = lng), location)
-      ||> Expect.hasOkValuePredicate 
+      Result.map2 location validLatR validLngR
+      |> Expect.hasOkValue validLocation 
 
     testCase "map2 with one Error and one Ok parts" <| fun _ -> 
-      Result.map2 location invalidLat validLng
+      Result.map2 location invalidLatR validLngR
       |> Expect.hasErrorValue invalidLatMsg
     
     testCase "map2 with one Ok and one Error parts" <| fun _ ->
-      Result.map2 location validLat invalidLng
+      Result.map2 location validLatR invalidLngR
       |> Expect.hasErrorValue invalidLngMsg
 
     testCase "map2 with two Error parts" <| fun _ -> 
-      Result.map2 location invalidLat invalidLng
+      Result.map2 location invalidLatR invalidLngR
       |> Expect.hasErrorValue invalidLatMsg
   ]
 
@@ -36,28 +33,24 @@ let map3Tests =
   testList "Result.map3 Tests" [
     testCase "map3 with three ok parts" <| fun _ ->
       
-      let post = Result.map3 createPostRequest validLat validLng validTweet
-      ((fun (post : CreatePostRequest) -> 
-        post.Location.Value.Latitude.Value = lat && 
-        post.Location.Value.Longitude.Value = lng && 
-        post.Tweet.Value = "Hello, World!"), post)
-      ||> Expect.hasOkValuePredicate 
+      Result.map3 createPostRequest validLatR validLngR validTweetR
+      |> Expect.hasOkValue validCreatePostRequest
 
     testCase "map3 with (Error, Ok, Ok)" <| fun _ ->
-      Result.map3 createPostRequest invalidLat validLng validTweet
-      |> Expect.hasErrorValue invalidLatMsg
+      Result.map3 createPostRequest invalidLatR validLngR validTweetR
+      |> Expect.hasErrorValue  invalidLatMsg
     
     testCase "map3 with (Ok, Error, Ok)" <| fun _ ->
-      Result.map3 createPostRequest validLat invalidLng validTweet
+      Result.map3 createPostRequest validLatR invalidLngR  validTweetR
       |> Expect.hasErrorValue invalidLngMsg
 
 
     testCase "map3 with (Ok, Ok, Error)" <| fun _ ->
-      Result.map3 createPostRequest validLat validLng emptyInvalidTweet
+      Result.map3 createPostRequest validLatR validLngR emptyInvalidTweetR
       |> Expect.hasErrorValue emptyTweetErrMsg
     
     testCase "map3 with (Error, Error, Error)" <| fun _ ->
-      Result.map3 createPostRequest invalidLat invalidLng emptyInvalidTweet
+      Result.map3 createPostRequest invalidLatR invalidLngR  emptyInvalidTweetR
       |> Expect.hasErrorValue invalidLatMsg
   ]
 
@@ -71,7 +64,7 @@ let applyTests =
       |> Expect.hasOkValue 274
     
     testCase "apply with Error" <| fun _ ->
-      Result.apply (Ok remainingCharacters) emptyInvalidTweet
+      Result.apply (Ok remainingCharacters) emptyInvalidTweetR
       |> Expect.hasErrorValue emptyTweetErrMsg
   ]
 
@@ -111,26 +104,42 @@ let ofChoiceTests =
 let resultCETests =
   testList "result Computation Expression tests" [
     testCase "bind with all Ok" <| fun _ ->
-      let post = result {
-        let! lat = validLat 
-        let! lng = validLng 
-        let! tweet = validTweet
+      let createPostRequest = result {
+        let! lat = validLatR 
+        let! lng = validLngR 
+        let! tweet = validTweetR
         return createPostRequest lat lng tweet
       }
-      ((fun (post : CreatePostRequest) -> 
-        post.Location.Value.Latitude.Value = lat && 
-        post.Location.Value.Longitude.Value = lng && 
-        post.Tweet.Value = "Hello, World!"), post)
-      ||> Expect.hasOkValuePredicate 
+      Expect.hasOkValue validCreatePostRequest createPostRequest 
 
     testCase "bind with Error" <| fun _ -> 
       let post = result {
-        let! lat = invalidLat
+        let! lat = invalidLatR
         Tests.failtestf "this should not get executed!"
-        let! lng = validLng 
-        let! tweet = validTweet
+        let! lng = validLngR 
+        let! tweet = validTweetR
         return createPostRequest lat lng tweet
       }
       post
       |> Expect.hasErrorValue invalidLatMsg
+  ]
+
+open ResultOperators
+[<Tests>]
+let resultOperatorsTests =
+
+  testList "Result Operators Tests" [
+    testCase "map & apply operators" <| fun _ ->
+      createPostRequest <!> validLatR <*> validLngR <*> validTweetR
+      |> Expect.hasOkValue validCreatePostRequest
+    
+    testCase "bind operator" <| fun _ ->
+      validLatR
+      >>= (fun lat -> 
+            validLngR
+            >>= (fun lng ->
+                  validTweetR
+                  >>= (fun tweet ->
+                        Ok (createPostRequest lat lng tweet))))
+      |> Expect.hasOkValue validCreatePostRequest
   ]

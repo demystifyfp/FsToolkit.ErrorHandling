@@ -1,15 +1,6 @@
 module Expect
 
 open Expecto
-let hasOkValuePredicate f x =
-  match x with
-  | Result.Ok v -> 
-    if f v then 
-      () 
-    else 
-      Tests.failtestf "Predicate failed for Ok's Value"
-  | Result.Error x -> 
-    Tests.failtestf "Expected Ok, was Error(%A)." x
 
 let hasErrorValue v x =
   match x with
