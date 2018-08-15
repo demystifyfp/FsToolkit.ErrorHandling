@@ -1,5 +1,6 @@
 module SampleDomain
 
+open FsToolkit.ErrorHandling
 open System
 
 type Latitude = private Latitude of double with
@@ -30,6 +31,16 @@ type Location = {
 let location lat lng =
   {Latitude = lat; Longitude = lng}
 
+type Url = private Url of string with
+  member this.Value =
+    let (Url url) = this
+    url
+  
+  static member TryCreate (url : string) =
+    if Uri.IsWellFormedUriString(url, UriKind.Absolute) then 
+      Ok (Url url)
+    else
+      sprintf "%s is a invalid URL" url |> Error
 
 
 type Tweet = private Tweet of string with
@@ -47,6 +58,11 @@ type Tweet = private Tweet of string with
 
 let remainingCharacters (tweet : Tweet) =
   280 - tweet.Value.Length
+
+let firstURLInTweet (tweet : Tweet) =
+  tweet.Value.Split([|' '|])
+  |> Array.tryFind (fun s -> Uri.IsWellFormedUriString(s, UriKind.Absolute))
+  |> Option.traverseResult Url.TryCreate
 
 
 type CreatePostRequest = {
@@ -67,3 +83,4 @@ type CreatePostRequestDto = {
   Tweet : string
   Location : LocationDto option
 }
+

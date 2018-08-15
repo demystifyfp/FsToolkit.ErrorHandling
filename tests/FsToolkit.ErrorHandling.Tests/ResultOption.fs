@@ -56,3 +56,41 @@ let map3Tests =
       ResultOption.map3 createPostRequest (Ok (Some validLat)) (Error (Some validLng)) (Ok None)
       |> Expect.hasErrorValue (Some validLng)
   ]
+
+
+[<Tests>]
+let applyTests = 
+  testList "ResultOption.apply Tests" [
+    testCase "apply with Ok(Some x)" <| fun _ ->
+      Ok (Some validTweet)
+      |> ResultOption.apply (Ok (Some remainingCharacters)) 
+      |> Expect.hasOkValue (Some 267)
+    
+    testCase "apply with Ok(None)" <| fun _ ->
+      Ok None
+      |> ResultOption.apply (Ok (Some remainingCharacters)) 
+      |> Expect.hasOkValue None
+  ]
+
+[<Tests>]
+let mapTests =
+  testList "ResultOption.map Tests" [
+    testCase "map with Ok(Some x)" <| fun _ ->
+      Ok (Some validTweet)
+      |> ResultOption.map remainingCharacters
+      |> Expect.hasOkValue (Some 267)
+    
+    testCase "map with Ok(None)" <| fun _ ->
+      Ok None
+      |> ResultOption.map remainingCharacters
+      |> Expect.hasOkValue None
+  ]
+
+[<Tests>]
+let bindTests =
+  testList "ResultOption.bind Tests" [
+    testCase "bind with Ok(Some x)" <| fun _ ->
+      Ok (Some validTweet2)
+      |> ResultOption.bind firstURLInTweet
+      |> Expect.hasOkValue (Some validURL)
+  ]

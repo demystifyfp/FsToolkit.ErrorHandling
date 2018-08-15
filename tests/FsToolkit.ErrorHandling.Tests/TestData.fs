@@ -22,7 +22,11 @@ let invalidLngMsg = "200.0 is a invalid longitude value"
 let validLocation : Location = 
   {Latitude = validLat; Longitude = validLng}
 let validTweetR = Tweet.TryCreate "Hello, World!"
+let validTweet2R = Tweet.TryCreate "A link http://bit.ly/test"
 let validTweet = okOrFail validTweetR
+let validTweet2 = okOrFail validTweet2R
+
+let validURL = Url.TryCreate "http://bit.ly/test" |> okOrFail
 
 let validCreatePostRequest : CreatePostRequest = 
   {Tweet = validTweet; Location = Some validLocation}
