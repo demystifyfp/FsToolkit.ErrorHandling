@@ -29,8 +29,13 @@ module ResultOptionComputationExpression =
     member __.Return value = ResultOption.retn value
     member __.ReturnFrom value = value
 
+    member __.Bind (resultOpt, binder) =
+      ResultOption.bind binder resultOpt
+
     member __.Bind (result, binder) =
-      ResultOption.bind binder result
+      result
+      |> Result.map Some
+      |> ResultOption.bind binder
 
     member __.Combine(r1, r2) =
       r1

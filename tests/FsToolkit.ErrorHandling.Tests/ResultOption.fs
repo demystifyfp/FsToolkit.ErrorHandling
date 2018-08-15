@@ -94,3 +94,43 @@ let bindTests =
       |> ResultOption.bind firstURLInTweet
       |> Expect.hasOkValue (Some validURL)
   ]
+
+
+[<Tests>]
+let resultOptionCETests =
+  testList "resultOption Computation Expression tests" [
+    testCase "bind with all Ok" <| fun _ ->
+      let createPostRequest = resultOption {
+        let! lat = Ok (Some validLat) 
+        let! lng = Ok (Some validLng)
+        let! tweet = validTweetR
+        return createPostRequest lat lng tweet
+      }
+      Expect.hasOkValue (Some validCreatePostRequest) createPostRequest 
+
+    testCase "bind with Error" <| fun _ -> 
+      let post = resultOption {
+        let! lat = invalidLatR
+        Tests.failtestf "this should not get executed!"
+        let! lng = Ok (Some validLng)
+        let! tweet = validTweetR
+        return createPostRequest lat lng tweet
+      }
+      post
+      |> Expect.hasErrorValue invalidLatMsg
+  ]
+
+open ResultOptionOperators
+[<Tests>]
+let resultOptionOperatorsTests =
+
+  testList "ResultOption Operators Tests" [
+    testCase "map & apply operators" <| fun _ ->
+      createPostRequest <!> Ok (Some validLat) <*> Ok (Some validLng) <*> Ok (Some validTweet)
+      |> Expect.hasOkValue (Some validCreatePostRequest)
+    
+    testCase "bind operator" <| fun _ ->
+      Ok (Some validTweet2)
+      >>= firstURLInTweet
+      |> Expect.hasOkValue (Some validURL)
+  ]
