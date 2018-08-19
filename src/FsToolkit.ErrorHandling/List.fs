@@ -6,10 +6,7 @@ open AsyncResultComputationExpression
 [<RequireQualifiedAccess>]
 module List =
 
-  let private cons' head tail = head :: tail
-  
-
-  let rec private traverseResult' state f xs =
+  let rec private traverseResultM' state f xs =
     match xs with
     | [] -> state
     | x :: xs -> 
@@ -19,14 +16,34 @@ module List =
         return ys @ [y]
       }  
       match r with
-      | Ok _ -> traverseResult' r f xs
+      | Ok _ -> traverseResultM' r f xs
       | Error _ -> r
 
-  let traverseResult f xs =
-    traverseResult' (Ok []) f xs
+  let traverseResultM f xs =
+    traverseResultM' (Ok []) f xs
+  
+  let sequenceResultM xs =
+    traverseResultM id xs
 
-  let sequenceResult xs =
-    traverseResult id xs
+  let rec private traverseResultA' state f xs =
+    match xs with
+    | [] -> state
+    | x :: xs ->
+      let fR = 
+        f x |> Result.mapError List.singleton
+      match state, fR with
+      | Ok ys, Ok y -> 
+        traverseResultA' (Ok (ys @ [y])) f xs
+      | Error errs, Error e -> 
+        traverseResultA' (Error (e @ errs)) f xs
+      | Ok _, Error e | Error e , Ok _  -> 
+        traverseResultA' (Error e) f xs
+
+  let traverseResultA f xs =
+    traverseResultA' (Ok []) f xs
+
+  let sequenceResultA xs =
+    traverseResultA id xs
 
   let traverseValidationA f xs =
     let cons head tail = head :: tail

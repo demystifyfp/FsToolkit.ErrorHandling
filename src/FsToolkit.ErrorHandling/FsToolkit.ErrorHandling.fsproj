@@ -21,7 +21,6 @@
     <Compile Include="Validation.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
-    <Compile Include="Seq.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
