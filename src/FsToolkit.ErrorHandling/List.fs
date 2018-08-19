@@ -5,28 +5,28 @@ open AsyncResultComputationExpression
 
 [<RequireQualifiedAccess>]
 module List =
-  let traverseResultA f xs =
-    let cons head tail = head :: tail
-    let initState = Ok []
-    let folder head tail =
-      Result.map2 cons (f head) tail
-    List.foldBack folder xs initState
 
-  let sequenceResultA xs =
-    traverseResultA id xs
+  let private cons' head tail = head :: tail
+  
 
-  let traverseResultM f xs =
-    let cons head tail = head :: tail
-    let initState = Ok []
-    let folder head tail = result {
-      let! h = f head
-      let! t = tail
-      return (cons h t)
-    }
-    List.foldBack folder xs initState
+  let rec private traverseResult' state f xs =
+    match xs with
+    | [] -> state
+    | x :: xs -> 
+      let r = result {
+        let! y = f x
+        let! ys = state
+        return ys @ [y]
+      }  
+      match r with
+      | Ok _ -> traverseResult' r f xs
+      | Error _ -> r
 
-  let sequenceResultM xs =
-    traverseResultM id xs
+  let traverseResult f xs =
+    traverseResult' (Ok []) f xs
+
+  let sequenceResult xs =
+    traverseResult id xs
 
   let traverseValidationA f xs =
     let cons head tail = head :: tail

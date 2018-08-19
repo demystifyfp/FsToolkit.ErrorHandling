@@ -2,22 +2,14 @@ namespace FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
 module Seq =
-
-  let traverseResultA f xs =
-    List.ofSeq xs
-    |> List.traverseResultA f
-    |> Result.map Seq.ofList
-
-  let sequenceResultA xs =
-    traverseResultA id xs
   
-  let traverseResultM f xs =
+  let traverseResult f xs =
     List.ofSeq xs
-    |> List.traverseResultM f
+    |> List.traverseResult f
     |> Result.map Seq.ofList
 
   let sequenceResultM xs =
-    traverseResultM id xs
+    traverseResult id xs
   
   let traverseAsyncResultA f xs =
     List.ofSeq xs

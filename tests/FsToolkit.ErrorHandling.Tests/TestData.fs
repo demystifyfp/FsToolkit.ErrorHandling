@@ -26,9 +26,15 @@ let validTweet2R = Tweet.TryCreate "A link http://bit.ly/test"
 let validTweet = okOrFail validTweetR
 let validTweet2 = okOrFail validTweet2R
 
+let tweet twit  = Tweet.TryCreate twit |> okOrFail
+
 let validURL = Url.TryCreate "http://bit.ly/test" |> okOrFail
 
 let validCreatePostRequest : CreatePostRequest = 
   {Tweet = validTweet; Location = Some validLocation}
 let emptyInvalidTweetR = Tweet.TryCreate ""
 let emptyTweetErrMsg = "Tweet shouldn't be empty"
+let longerTweetErrMsg = "Tweet shouldn't contain more than 280 characters"
+
+let aLongerInvalidTweet = [1..100] |> List.map string |> String.concat ","
+
