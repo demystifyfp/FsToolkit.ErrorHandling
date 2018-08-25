@@ -37,4 +37,3 @@ let emptyTweetErrMsg = "Tweet shouldn't be empty"
 let longerTweetErrMsg = "Tweet shouldn't contain more than 280 characters"
 
 let aLongerInvalidTweet = [1..100] |> List.map string |> String.concat ","
-

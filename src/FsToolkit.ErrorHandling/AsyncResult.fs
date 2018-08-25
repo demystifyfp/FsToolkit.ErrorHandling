@@ -22,7 +22,7 @@ module AsyncResult =
     f r 
     |> Async.singleton
 
-  let fold onSuccess onError ar =
+  let foldResult onSuccess onError ar =
     Async.map (Result.fold onSuccess onError) ar
 
   let ofTask aTask = 

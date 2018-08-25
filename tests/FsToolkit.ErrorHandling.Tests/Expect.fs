@@ -18,3 +18,15 @@ let hasOkValue v x =
   | Error x -> 
     Tests.failtestf "Expected Ok, was Error(%A)." x
 
+
+let hasAsyncOkValue v asyncX = 
+  let x = Async.RunSynchronously asyncX
+  hasOkValue v x
+
+let hasAsyncErrorValue v asyncX = 
+  let x = Async.RunSynchronously asyncX
+  hasErrorValue v x
+
+let same expected actual =
+  Expect.equal actual expected "expected and actual should be same"
+

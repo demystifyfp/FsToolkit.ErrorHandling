@@ -74,6 +74,41 @@ let createPostRequest lat long tweet =
   {Tweet = tweet; Location = Some(location lat long)}
 
 
+let newPostId = Guid.NewGuid()
+
+type PostId = PostId of Guid
+
+let createPostSuccess (_ : CreatePostRequest) = async {
+  return Ok (PostId newPostId)
+}
+
+type UserId = UserId of Guid
+
+let followerIds = [UserId (Guid.NewGuid()); UserId (Guid.NewGuid())]
+
+let getFollowersSuccess (UserId _) = async {
+  return Ok followerIds
+}
+
+let commonEx = new Exception("something went wrong!")
+let getFollowersEx = new Exception("unable to fetch followers!")
+
+let getFollowersFailure (UserId _) = async {
+  return Error getFollowersEx
+}
+
+let createPostFailure (_ : CreatePostRequest) = async {
+  return Error commonEx
+}
+
+type NotifyNewPostRequest = {
+  UserIds : UserId list
+  NewPostId : PostId
+}
+
+let newPostRequest userIds newPostsId =
+  {UserIds = userIds; NewPostId = newPostsId}
+
 type LocationDto = {
   Latitude : double
   Longitude : double
@@ -84,3 +119,10 @@ type CreatePostRequestDto = {
   Location : LocationDto option
 }
 
+type Response = {
+  Id : Guid
+}
+
+type ErrorResponse = {
+  Message : string
+}
