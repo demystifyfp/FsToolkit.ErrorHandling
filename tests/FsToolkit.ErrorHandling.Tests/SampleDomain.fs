@@ -111,6 +111,15 @@ let createPostFailure (_ : CreatePostRequest) = async {
   return Error commonEx
 }
 
+
+let notifyNewPostSuccess (PostId _) (UserId _) = async {
+  return Ok ()
+}
+
+let notifyNewPostFailure (PostId _) (UserId _) = async {
+  return Error "notification_error"
+}
+
 type NotifyNewPostRequest = {
   UserIds : UserId list
   NewPostId : PostId

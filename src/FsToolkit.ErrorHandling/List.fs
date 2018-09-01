@@ -19,11 +19,36 @@ module List =
       | Ok _ -> traverseResultM' r f xs
       | Error _ -> r
 
+  let rec private traverseAsyncResultM' state f xs =
+    match xs with
+    | [] -> state
+    | x :: xs -> 
+      async {
+        let! r = asyncResult {
+          let! y = f x
+          let! ys = state
+          return ys @ [y]
+        }  
+        match r with
+        | Ok _ -> 
+          return! traverseAsyncResultM' (Async.singleton r) f xs
+        | Error _ -> return r
+      }
+      
+  
+
   let traverseResultM f xs =
     traverseResultM' (Ok []) f xs
   
   let sequenceResultM xs =
     traverseResultM id xs
+
+  let traverseAsyncResultM f xs =
+    traverseAsyncResultM' (AsyncResult.retn []) f xs
+
+  let sequenceAsyncResultM xs =
+    traverseAsyncResultM id xs
+  
 
   let rec private traverseResultA' state f xs =
     match xs with
@@ -38,6 +63,22 @@ module List =
         traverseResultA' (Error (e @ errs)) f xs
       | Ok _, Error e | Error e , Ok _  -> 
         traverseResultA' (Error e) f xs
+
+  let rec private traverseAsyncResultA' state f xs =
+    match xs with
+    | [] -> state
+    | x :: xs ->
+      async {
+        let! s = state
+        let! fR = f x |> AsyncResult.mapError List.singleton
+        match s, fR with
+        | Ok ys, Ok y -> 
+          return! traverseAsyncResultA' (AsyncResult.retn (ys @ [y])) f xs
+        | Error errs, Error e -> 
+          return! traverseAsyncResultA' (AsyncResult.returnError (e @ errs)) f xs
+        | Ok _, Error e | Error e , Ok _  -> 
+          return! traverseAsyncResultA' (AsyncResult.returnError  e) f xs
+      }
 
   let traverseResultA f xs =
     traverseResultA' (Ok []) f xs
@@ -57,29 +98,7 @@ module List =
 
 
   let traverseAsyncResultA f xs =
-    let cons head tail = head :: tail
-    let initState = AsyncResult.retn []
-    let folder head tail = 
-      AsyncResult.map2 cons (f head) tail
-    List.foldBack folder xs initState
+    traverseAsyncResultA' (AsyncResult.retn []) f xs
 
   let sequenceAsyncResultA xs =
     traverseAsyncResultA id xs
-  
-
-  let traverseAsyncResultM f xs =
-    let cons head tail = head :: tail
-    let initState = AsyncResult.retn []
-    let folder head tail = asyncResult {
-      let! h = f head
-      let! t = tail
-      return (cons h t)
-    }
-    List.foldBack folder xs initState
-
- 
-  let sequenceAsyncResultM xs =
-    traverseAsyncResultM id xs
-
-  
- 

@@ -68,3 +68,7 @@ let sequenceResultATests =
       let actual = List.sequenceResultA (List.map Tweet.TryCreate tweets) 
       Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
   ]
+
+
+// [<Tests>]
+// let traverseAsyncResult
