@@ -64,15 +64,28 @@ let firstURLInTweet (tweet : Tweet) =
   |> Array.tryFind (fun s -> Uri.IsWellFormedUriString(s, UriKind.Absolute))
   |> Option.traverseResult Url.TryCreate
 
+type UserId = UserId of Guid
 
 type CreatePostRequest = {
+  UserId : UserId
   Tweet : Tweet
   Location : Location option
 }
 
-let createPostRequest lat long tweet =
-  {Tweet = tweet; Location = Some(location lat long)}
+let sampleUserId = UserId (System.Guid.NewGuid())
 
+let createPostRequest lat long tweet =
+  {Tweet = tweet; Location = Some(location lat long); UserId = sampleUserId}
+
+let commonEx = new Exception("something went wrong!")
+let getFollowersEx = new Exception("unable to fetch followers!")
+
+let allowedToPost userId = async {
+  if (userId = sampleUserId) then 
+    return Ok true
+  else
+    return Error commonEx
+}
 
 let newPostId = Guid.NewGuid()
 
@@ -82,16 +95,13 @@ let createPostSuccess (_ : CreatePostRequest) = async {
   return Ok (PostId newPostId)
 }
 
-type UserId = UserId of Guid
-
 let followerIds = [UserId (Guid.NewGuid()); UserId (Guid.NewGuid())]
 
 let getFollowersSuccess (UserId _) = async {
   return Ok followerIds
 }
 
-let commonEx = new Exception("something went wrong!")
-let getFollowersEx = new Exception("unable to fetch followers!")
+
 
 let getFollowersFailure (UserId _) = async {
   return Error getFollowersEx

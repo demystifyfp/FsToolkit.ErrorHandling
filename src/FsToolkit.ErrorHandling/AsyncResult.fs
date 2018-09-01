@@ -18,10 +18,6 @@ module AsyncResult =
     return! t      
   }
 
-  let bindResult f r =
-    f r 
-    |> Async.singleton
-
   let foldResult onSuccess onError ar =
     Async.map (Result.fold onSuccess onError) ar
 
@@ -33,6 +29,10 @@ module AsyncResult =
   
   let retn x =
     Ok x
+    |> Async.singleton
+  
+  let returnError x =
+    Error x
     |> Async.singleton
 
   let map2 f xR yR =
@@ -48,6 +48,9 @@ module AsyncResult =
 module AsyncResultComputationExpression = 
 
   type AsyncResultBuilder() =
+
+    member __.Return (value : Result<'a,'b>) = async {return value}
+
     member __.Return value = AsyncResult.retn value
     member __.ReturnFrom value = value
     member __.Bind (result, binder) =

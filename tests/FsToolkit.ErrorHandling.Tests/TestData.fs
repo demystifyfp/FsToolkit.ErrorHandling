@@ -1,5 +1,7 @@
 module TestData
 open SampleDomain
+
+let flip f x y = f y x
 let lat = 13.067439
 let lat2 = 14.067439
 let lng = 80.237617 
@@ -31,9 +33,10 @@ let tweet twit  = Tweet.TryCreate twit |> okOrFail
 let validURL = Url.TryCreate "http://bit.ly/test" |> okOrFail
 
 let validCreatePostRequest : CreatePostRequest = 
-  {Tweet = validTweet; Location = Some validLocation}
+  {Tweet = validTweet; Location = Some validLocation; UserId = sampleUserId}
 let emptyInvalidTweetR = Tweet.TryCreate ""
 let emptyTweetErrMsg = "Tweet shouldn't be empty"
 let longerTweetErrMsg = "Tweet shouldn't contain more than 280 characters"
 
 let aLongerInvalidTweet = [1..100] |> List.map string |> String.concat ","
+

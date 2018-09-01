@@ -5,6 +5,8 @@ open Expecto
 open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.AsyncResultComputationExpression
+open FsToolkit.ErrorHandling.AsyncResultOperators
 open System
 
 [<Tests>]
@@ -69,4 +71,91 @@ let foldResultTests =
       |> AsyncResult.foldResult string (fun ex -> ex.Message) 
       |> Async.RunSynchronously
       |> Expect.same (commonEx.Message)
+  ]
+
+
+[<Tests>]
+let mapErrorTests =
+  testList "AsyncResult.mapError tests" [
+    testCase "mapError with Async(Ok x)" <| fun _ ->
+      createPostSuccess validCreatePostRequest
+      |> AsyncResult.mapError id
+      |> Async.RunSynchronously
+      |> flip Expect.isOk "mapError should not map Ok"
+    
+    testCase "mapError with Async(Error x)" <| fun _ ->
+      createPostFailure validCreatePostRequest
+      |> AsyncResult.mapError (fun ex -> ex.Message)
+      |> Expect.hasAsyncErrorValue (commonEx.Message)
+  ]
+
+[<Tests>]
+let bindTests =
+  testList "AsyncResult.bind tests" [
+    testCase "bind with Async(Ok x)" <| fun _ ->
+      allowedToPost sampleUserId
+      |> AsyncResult.bind (fun isAllowed -> async { 
+         if isAllowed then 
+          return! createPostSuccess validCreatePostRequest
+         else
+          return (Error (Exception "not allowed to post"))})
+      |> Expect.hasAsyncOkValue (PostId newPostId)
+
+    testCase "bind with Async(Error x)" <| fun _ ->
+      allowedToPost (UserId (Guid.NewGuid()))
+      |> AsyncResult.bind (fun isAllowed -> async {return Ok isAllowed})
+      |> Expect.hasAsyncErrorValue commonEx
+
+    testCase "bind with Async(Ok x) that returns Async (Error x)" <| fun _ ->
+      let ex = Exception "not allowed to post"
+      allowedToPost sampleUserId
+      |> AsyncResult.bind (fun _ -> async { 
+          return (Error ex)
+        })
+      |> Expect.hasAsyncErrorValue ex
+  ]
+
+
+type CreatePostResult =
+| PostSuccess of NotifyNewPostRequest
+| NotAllowedToPost
+
+[<Tests>]
+let asyncResultCETests =
+  let createPost userId = asyncResult {
+    let! isAllowed = allowedToPost userId
+    if isAllowed then
+      let! postId = createPostSuccess validCreatePostRequest
+      let! followerIds = getFollowersSuccess sampleUserId
+      return PostSuccess {NewPostId = postId; UserIds = followerIds}
+    else
+      return NotAllowedToPost
+  }
+  testList "asyncResult Computation Expression tests" [
+    testCase "bind with all Ok" <| fun _ ->
+      createPost sampleUserId
+      |> Expect.hasAsyncOkValue (PostSuccess {NewPostId = PostId newPostId; UserIds = followerIds})
+
+    testCase "bind with an Error" <| fun _ ->
+      createPost (UserId (System.Guid.NewGuid()))
+      |> Expect.hasAsyncErrorValue commonEx
+  ]
+
+[<Tests>]
+let asyncResultOperatorTests =
+  testList "AsyncResult Operators Tests" [
+    testCase "map & apply operators" <| fun _ ->
+      let getFollowersResult = getFollowersSuccess sampleUserId
+      let createPostResult = createPostSuccess validCreatePostRequest
+      newPostRequest <!> getFollowersResult <*> createPostResult
+      |> Expect.hasAsyncOkValue {NewPostId = PostId newPostId; UserIds = followerIds}
+    
+    testCase "bind operator" <| fun _ ->
+      allowedToPost sampleUserId
+      >>= (fun isAllowed -> 
+            if isAllowed then 
+              createPostSuccess validCreatePostRequest
+            else
+              AsyncResult.returnError (Exception ""))
+      |> Expect.hasAsyncOkValue (PostId newPostId)
   ]
