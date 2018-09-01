@@ -116,8 +116,8 @@ let notifyNewPostSuccess (PostId _) (UserId _) = async {
   return Ok ()
 }
 
-let notifyNewPostFailure (PostId _) (UserId _) = async {
-  return Error "notification_error"
+let notifyNewPostFailure (PostId _) (UserId uId) = async {
+  return sprintf "error: %s" (uId.ToString()) |> Error
 }
 
 type NotifyNewPostRequest = {

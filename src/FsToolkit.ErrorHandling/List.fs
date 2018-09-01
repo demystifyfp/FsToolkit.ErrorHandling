@@ -25,8 +25,8 @@ module List =
     | x :: xs -> 
       async {
         let! r = asyncResult {
-          let! y = f x
           let! ys = state
+          let! y = f x
           return ys @ [y]
         }  
         match r with
@@ -34,8 +34,6 @@ module List =
           return! traverseAsyncResultM' (Async.singleton r) f xs
         | Error _ -> return r
       }
-      
-  
 
   let traverseResultM f xs =
     traverseResultM' (Ok []) f xs
@@ -75,7 +73,7 @@ module List =
         | Ok ys, Ok y -> 
           return! traverseAsyncResultA' (AsyncResult.retn (ys @ [y])) f xs
         | Error errs, Error e -> 
-          return! traverseAsyncResultA' (AsyncResult.returnError (e @ errs)) f xs
+          return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f xs
         | Ok _, Error e | Error e , Ok _  -> 
           return! traverseAsyncResultA' (AsyncResult.returnError  e) f xs
       }
