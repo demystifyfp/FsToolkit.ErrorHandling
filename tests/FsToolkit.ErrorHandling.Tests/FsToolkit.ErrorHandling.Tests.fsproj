@@ -19,6 +19,7 @@
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
     <Compile Include="AsyncResult.fs" />
+    <Compile Include="AsyncResultOption.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

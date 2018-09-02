@@ -5,8 +5,8 @@ open Expecto
 open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.AsyncResultComputationExpression
-open FsToolkit.ErrorHandling.AsyncResultOperators
+open FsToolkit.ErrorHandling.ComputationExpression.AsyncResult
+open FsToolkit.ErrorHandling.Operator.AsyncResult
 open System
 
 [<Tests>]

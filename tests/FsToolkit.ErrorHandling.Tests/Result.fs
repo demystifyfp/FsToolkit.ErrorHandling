@@ -4,7 +4,8 @@ open Expecto
 open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.ResultComputationExpression
+open FsToolkit.ErrorHandling.ComputationExpression.Result
+open FsToolkit.ErrorHandling.Operator.Result
 
 
 [<Tests>]
@@ -124,7 +125,7 @@ let resultCETests =
       |> Expect.hasErrorValue invalidLatMsg
   ]
 
-open ResultOperators
+
 [<Tests>]
 let resultOperatorsTests =
 

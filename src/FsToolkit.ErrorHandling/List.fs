@@ -1,7 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
-open ResultComputationExpression
-open AsyncResultComputationExpression
+open FsToolkit.ErrorHandling.ComputationExpression.Result
+open FsToolkit.ErrorHandling.ComputationExpression.AsyncResult
 
 [<RequireQualifiedAccess>]
 module List =

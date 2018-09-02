@@ -22,32 +22,3 @@ module ResultOption =
   
   let map3 f x y z =
     apply (map2 f x y) z
-
-module ResultOptionComputationExpression =
-
-  type ResultOptionBuilder() =
-    member __.Return value = ResultOption.retn value
-    member __.ReturnFrom value = value
-
-    member __.Bind (resultOpt, binder) =
-      ResultOption.bind binder resultOpt
-
-    member __.Bind (result, binder) =
-      result
-      |> Result.map Some
-      |> ResultOption.bind binder
-
-    member __.Combine(r1, r2) =
-      r1
-      |> ResultOption.bind (fun _ -> r2)
-
-    member __.Delay f = f ()
-
-
-  let resultOption = ResultOptionBuilder()
-
-module ResultOptionOperators =
-
-  let inline (<!>) f x = ResultOption.map f x
-  let inline (<*>) f x = ResultOption.apply f x
-  let inline (>>=) x f = ResultOption.bind f x

@@ -1,6 +1,7 @@
 module SampleDomain
 
 open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.ComputationExpression.Result
 open System
 
 type Latitude = private Latitude of double with
@@ -66,18 +67,62 @@ let firstURLInTweet (tweet : Tweet) =
 
 type UserId = UserId of Guid
 
+type PersonName = private PersonName of string with
+  member this.Value =
+    let (PersonName name) = this
+    name
+
+  static member TryCreate (name : string) =
+    match name with
+    | x when String.IsNullOrEmpty x -> 
+      Error "Name shouldn't be empty"
+    | x when x.Length > 80 ->
+      Error "Name shouldn't contain more than 80 characters"
+    | x -> Ok (PersonName x)
+
+let commonEx = new Exception("something went wrong!")
+
+type User = {
+  Id : UserId
+  Name : PersonName
+}
+
+type UserDto = {
+  Id : Guid
+  Name : string
+} with 
+  static member ToUser (dto : UserDto) = result {
+    let! name = PersonName.TryCreate dto.Name
+    return {User.Id = UserId dto.Id; Name = name}
+  }
+
+let sampleUserGuid = System.Guid.NewGuid()
+let sampleUserId = UserId sampleUserGuid
+
+let samepleUserDto = {Id = sampleUserGuid; Name = "someone"}
+let getUserById (userId : UserId) = async {
+  if userId = sampleUserId then 
+    let user = Some samepleUserDto
+    return Option.traverseResult UserDto.ToUser user
+  elif userId = UserId Guid.Empty then
+    return Error "invalid user id"
+  else
+    return Ok None
+}
+
+
 type CreatePostRequest = {
   UserId : UserId
   Tweet : Tweet
   Location : Location option
 }
 
-let sampleUserId = UserId (System.Guid.NewGuid())
+
 
 let createPostRequest lat long tweet =
   {Tweet = tweet; Location = Some(location lat long); UserId = sampleUserId}
 
-let commonEx = new Exception("something went wrong!")
+
 let getFollowersEx = new Exception("unable to fetch followers!")
 
 let allowedToPost userId = async {

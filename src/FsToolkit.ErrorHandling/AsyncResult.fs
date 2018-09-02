@@ -45,27 +45,6 @@ module AsyncResult =
     map2 (fun f x -> f x) fAR xAR
 
 
-module AsyncResultComputationExpression = 
-
-  type AsyncResultBuilder() =
-
-    member __.Return (value : Result<'a,'b>) = async {return value}
-
-    member __.Return value = AsyncResult.retn value
-    member __.ReturnFrom value = value
-    member __.Bind (result, binder) =
-      AsyncResult.bind binder result
-
-    member __.Combine(ar1, ar2) =
-      ar1
-      |> AsyncResult.bind (fun _ -> ar2)
-
-    member __.Delay f =
-      async.Delay f
-
-  let asyncResult = AsyncResultBuilder() 
-
-
 module AsyncResultOperators =
 
   let inline (<!>) f x = AsyncResult.map f x

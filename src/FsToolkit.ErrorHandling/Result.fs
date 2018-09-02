@@ -1,25 +1,5 @@
 namespace FsToolkit.ErrorHandling
 
-module ResultComputationExpression =
-
-  type ResultBuilder() =
-    member __.Return value = Ok value
-    member __.ReturnFrom value = value
-
-    member __.Bind (result, binder) =
-      Result.bind binder result
-
-    member __.Combine(r1, r2) =
-      r1
-      |> Result.bind (fun _ -> r2)
-
-    member __.Delay f = f ()
-
-
-  let result = ResultBuilder()
-
-
-
 [<RequireQualifiedAccess>]
 module Result =
 
@@ -43,10 +23,3 @@ module Result =
     match c with
     | Choice1Of2 x -> Ok x
     | Choice2Of2 x -> Error x
-
-
-module ResultOperators =
-
-  let inline (<!>) f x = Result.map f x
-  let inline (<*>) f x = Result.apply f x
-  let inline (>>=) x f = Result.bind f x
