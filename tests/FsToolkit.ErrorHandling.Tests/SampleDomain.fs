@@ -2,7 +2,13 @@ module SampleDomain
 
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.ComputationExpression.Result
+open FsToolkit.ErrorHandling.ComputationExpression.ResultOption
 open System
+
+
+let okOrFail = function
+| Ok x -> x
+| Error e -> failwithf "%A" e
 
 type Latitude = private Latitude of double with
   member this.Value =
@@ -99,10 +105,11 @@ type UserDto = {
 let sampleUserGuid = System.Guid.NewGuid()
 let sampleUserId = UserId sampleUserGuid
 
-let samepleUserDto = {Id = sampleUserGuid; Name = "someone"}
+let sampleUserDto = {Id = sampleUserGuid; Name = "someone"}
+let sampleUser = UserDto.ToUser {Id = sampleUserGuid; Name = "someone"} |> okOrFail
 let getUserById (userId : UserId) = async {
   if userId = sampleUserId then 
-    let user = Some samepleUserDto
+    let user = Some sampleUserDto
     return Option.traverseResult UserDto.ToUser user
   elif userId = UserId Guid.Empty then
     return Error "invalid user id"
@@ -135,9 +142,20 @@ let allowedToPost userId = async {
 let newPostId = Guid.NewGuid()
 
 type PostId = PostId of Guid
+let samplePostId = PostId newPostId
+
+type Post = {
+  Id : PostId
+  UserId : UserId
+  Tweet : Tweet
+  Location : Location option
+}
+
+
+
 
 let createPostSuccess (_ : CreatePostRequest) = async {
-  return Ok (PostId newPostId)
+  return Ok samplePostId
 }
 
 let followerIds = [UserId (Guid.NewGuid()); UserId (Guid.NewGuid())]
@@ -176,12 +194,53 @@ let newPostRequest userIds newPostsId =
 type LocationDto = {
   Latitude : double
   Longitude : double
-}
+} with
+  static member ToLocation(dto: LocationDto) = result {
+    let! lat = Latitude.TryCreate dto.Latitude
+    let! lng = Longitude.TryCreate dto.Longitude
+    return {Location.Latitude = lat; Longitude = lng}
+  }
 
 type CreatePostRequestDto = {
   Tweet : string
   Location : LocationDto option
 }
+
+type PostDto = {
+  Id : Guid
+  UserId : Guid
+  Tweet : string
+  Location : LocationDto option
+} with 
+  static member ToPost(dto : PostDto) = result {
+    let! location =
+      dto.Location
+      |> Option.traverseResult LocationDto.ToLocation
+    let! tweet = Tweet.TryCreate dto.Tweet
+    return {
+      Post.Id = PostId dto.Id
+      UserId = UserId dto.UserId
+      Tweet = tweet
+      Location = location
+    }
+  }
+
+let samplePostDto = {
+  Id = newPostId
+  UserId = sampleUserGuid
+  Tweet = "Hello, World!"
+  Location = None
+}
+
+let getPostById postId = async {
+  if postId = samplePostId then
+    return Option.traverseResult PostDto.ToPost (Some samplePostDto)
+  elif postId = (PostId Guid.Empty) then
+    return Error "invalid post id"
+  else
+    return Ok None
+}
+  
 
 type Response = {
   Id : Guid

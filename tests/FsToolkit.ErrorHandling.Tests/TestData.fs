@@ -6,9 +6,7 @@ let lat = 13.067439
 let lat2 = 14.067439
 let lng = 80.237617 
 
-let okOrFail = function
-| Ok x -> x
-| Error e -> failwithf "%A" e
+
 
 let validLatR = Latitude.TryCreate lat
 let validLatR2 = Latitude.TryCreate lat2
