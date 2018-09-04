@@ -1,4 +1,4 @@
-module Validation
+module ValidationTests
 
 open Expecto
 open SampleDomain
