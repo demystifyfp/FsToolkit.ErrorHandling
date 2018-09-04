@@ -1,31 +1,46 @@
 #load "Result.fs"
-open System.Runtime.Remoting.Messaging
+#load "ResultCE.fs"
 #load "Async.fs"
 #load "Validation.fs"
+#load "ValidationOp.fs"
 #load "AsyncResult.fs"
 #load "ResultOption.fs"
-#load "List.fs"
-open System.Threading.Tasks
 
-open FsToolkit.ErrorHandling
+open System
+open FsToolkit.ErrorHandling.Operator.Validation
 
-let t = new Task<int>(fun _ -> 42)
-t.Result
-let a = async {
-  let! r = AsyncResult.ofTask t
-  return r
-}
-Async.RunSynchronously a
+let add a b = a + b
 
 let tryParseInt x =
   match System.Int32.TryParse x with
   | true, x -> 
     printfn "good int: %A" x
-    Ok (Some x)
+    Ok x
   | false, _ -> 
     printfn "bad int: %A" x
-    x |> sprintf "invalid value %A" |> Error
+    x |> sprintf "invalid value %A" |> List.singleton |> Error 
+
+let tryParseInt2 x =
+  match System.Int32.TryParse x with
+  | true, x -> 
+    printfn "good int: %A" x
+    Ok x
+  | false, _ -> 
+    printfn "bad int: %A" x
+    x |> sprintf "invalid value %A" |> Error 
 
 
-List.traverseResultA tryParseInt ["1"; "2"; "3"; "4"; "5"]
-List.traverseResultA tryParseInt ["a"; "2"; "b"; "4"; "c"]
+type PersonName = private PersonName of string with
+  member this.Value =
+    let (PersonName name) = this
+    name
+
+  static member TryCreate (name : string) =
+    match name with
+    | x when String.IsNullOrEmpty x -> 
+      Error "Name shouldn't be empty"
+    | x when x.Length > 80 ->
+      Error "Name shouldn't contain more than 80 characters"
+    | x -> Ok (PersonName x)
+    
+let res = add <!> tryParseInt "10" <*^> tryParseInt2 "b"

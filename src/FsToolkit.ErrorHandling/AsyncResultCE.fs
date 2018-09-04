@@ -1,4 +1,4 @@
-namespace FsToolkit.ErrorHandling.ComputationExpression.AsyncResult
+namespace FsToolkit.ErrorHandling.CE.AsyncResult
 
 open FsToolkit.ErrorHandling
 

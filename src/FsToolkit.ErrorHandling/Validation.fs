@@ -16,11 +16,6 @@ module Validation =
   
   let map2 f x y =
     apply (apply (retn f) x) y
-
-
-module ValidationOperators =
   
-  let inline (<!>) f x = Result.map f x
-  let inline (<*>) f x = Validation.apply f x
-
-  let inline (<*^>) f x = Validation.apply f (Validation.ofResult x)
+  let map3 f x y z =
+    apply (map2 f x y) z

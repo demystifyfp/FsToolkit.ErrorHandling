@@ -1,8 +1,8 @@
 module SampleDomain
 
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.ComputationExpression.Result
-open FsToolkit.ErrorHandling.ComputationExpression.ResultOption
+open FsToolkit.ErrorHandling.CE.Result
+open FsToolkit.ErrorHandling.CE.ResultOption
 open System
 
 
@@ -85,6 +85,34 @@ type PersonName = private PersonName of string with
     | x when x.Length > 80 ->
       Error "Name shouldn't contain more than 80 characters"
     | x -> Ok (PersonName x)
+
+
+type DateOfBirth = private DateOfBirth of DateTime with
+    static member TryCreate (dateTime : DateTime) =
+      match dateTime with
+      | x when x > DateTime.Now ->
+        Error "Date Of Birth Should not be in Future"
+      | x when x = Unchecked.defaultof<DateTime> ->
+        Error "Date Of Birth should not be empty"
+      | _ ->
+        Ok (DateOfBirth dateTime)
+
+    member this.Value =
+      let (DateOfBirth dob) = this
+      dob
+
+type CreateUserRequest = {
+  Name : PersonName
+  DateOfBirth : DateOfBirth
+}
+
+let createUserRequest name dob =
+  {Name = name; DateOfBirth = dob}
+
+type CreateUserRequestDto = {
+  Name : string
+  DateOfBirth : DateTime
+}
 
 let commonEx = new Exception("something went wrong!")
 

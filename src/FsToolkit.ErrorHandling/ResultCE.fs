@@ -1,4 +1,4 @@
-namespace FsToolkit.ErrorHandling.ComputationExpression.Result
+namespace FsToolkit.ErrorHandling.CE.Result
 
 [<AutoOpen>]
 module Result =
