@@ -8,8 +8,11 @@ open Fake.IO.FileSystemOperators
 open Fake.Core.TargetOperators
 open Fake.DotNet.Testing
 open Fake.IO.Globbing.Operators
+open System
+open System.IO
 
-
+let project = "FsToolkit.ErrorHandling"
+let summary = "An opinionated error handling library for F#"
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
@@ -85,9 +88,36 @@ let testAssemblies = "tests/**/bin" </> configuration </> "**" </> "*Tests.dll"
 Target.create "RunTests" (fun _ ->
   runTests id (!! testAssemblies)
 )
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
+
+Target.create "AssemblyInfo" (fun _ ->
+    let getAssemblyInfoAttributes projectName =
+        [ AssemblyInfo.Title (projectName)
+          AssemblyInfo.Product project
+          AssemblyInfo.Description summary
+          AssemblyInfo.Version release.AssemblyVersion
+          AssemblyInfo.FileVersion release.AssemblyVersion
+          AssemblyInfo.Configuration configuration ]
+
+    let getProjectDetails projectPath =
+        let projectName = Path.GetFileNameWithoutExtension(projectPath)
+        ( projectPath,
+          projectName,
+          Path.GetDirectoryName(projectPath),
+          (getAssemblyInfoAttributes projectName)
+        )
+
+    !! "src/**/*.??proj"
+    |> Seq.map getProjectDetails
+    |> Seq.iter (fun (_, _, folderName, attributes) ->
+        AssemblyInfoFile.createFSharp (folderName </> "AssemblyInfo.fs") attributes)
+)
+
+
 
 // *** Define Dependencies ***
 "Clean"
+  ==> "AssemblyInfo"
   ==> "Restore"
   ==> "Build"
   ==> "RunTests"
