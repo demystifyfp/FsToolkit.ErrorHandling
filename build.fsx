@@ -8,6 +8,7 @@ open Fake.IO.FileSystemOperators
 open Fake.Core.TargetOperators
 open Fake.DotNet.Testing
 open Fake.IO.Globbing.Operators
+open Fake.Tools
 open System
 open System.IO
 
@@ -131,6 +132,22 @@ Target.create "NuGet" (fun _ ->
             ReleaseNotes = String.toLines release.Notes})
 )
 
+Target.create "PublishNuget" (fun _ ->
+    Paket.push(fun p ->
+        { p with
+            PublishUrl = "https://www.nuget.org"
+            WorkingDir = "bin" })
+)
+
+Target.create "Release" (fun _ ->
+  Git.Staging.stageAll ""
+  Git.Commit.exec "" (sprintf "Bump version to %s" release.NugetVersion)
+  Git.Branches.push ""
+
+  Git.Branches.tag "" release.NugetVersion
+  Git.Branches.pushTag "" "origin" release.NugetVersion
+)
+
 
 
 // *** Define Dependencies ***
@@ -139,6 +156,11 @@ Target.create "NuGet" (fun _ ->
   ==> "Restore"
   ==> "Build"
   ==> "RunTests"
+  ==> "GenerateDocs"
+  ==> "NuGet"
+  ==> "PublishNuGet"
+  ==> "Release"
+
 
 // *** Start Build ***
 Target.runOrDefault "Build"
