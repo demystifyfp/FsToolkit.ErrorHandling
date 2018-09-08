@@ -54,7 +54,6 @@ let traverseResultATests =
       Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
   ]
 
-
 [<Tests>]
 let sequenceResultATests =
   testList "List.sequenceResultA Tests" [
@@ -67,6 +66,37 @@ let sequenceResultATests =
     testCase "sequenceResultM with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet]
       let actual = List.sequenceResultA (List.map Tweet.TryCreate tweets) 
+      Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
+  ]
+
+[<Tests>]
+let traverseValidationATests =
+  testList "List.traverseValidationA Tests" [
+    testCase "traverseValidationA with a list of valid data" <| fun _ ->
+      let tweets = ["Hi"; "Hello"; "Hola"]
+      let expected = List.map tweet tweets |> Ok
+      let actual = List.traverseValidationA (Tweet.TryCreate >> (Result.mapError List.singleton)) tweets
+      Expect.equal actual expected "Should have a list of valid tweets"
+
+    testCase "traverseValidationA with few invalid data" <| fun _ ->
+      let tweets = [""; "Hello"; aLongerInvalidTweet]
+      let actual = List.traverseValidationA (Tweet.TryCreate >> (Result.mapError List.singleton)) tweets
+      Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
+  ]
+
+[<Tests>]
+let sequenceValidationATests =
+  let tryCreateTweet = Tweet.TryCreate >> (Result.mapError List.singleton)
+  testList "List.sequenceValidationA Tests" [
+    testCase "traverseValidation with a list of valid data" <| fun _ ->
+      let tweets = ["Hi"; "Hello"; "Hola"]
+      let expected = List.map tweet tweets |> Ok
+      let actual = List.sequenceValidationA (List.map tryCreateTweet tweets) 
+      Expect.equal actual expected "Should have a list of valid tweets"
+
+    testCase "sequenceValidationM with few invalid data" <| fun _ ->
+      let tweets = [""; "Hello"; aLongerInvalidTweet]
+      let actual = List.sequenceValidationA (List.map tryCreateTweet tweets) 
       Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
   ]
 

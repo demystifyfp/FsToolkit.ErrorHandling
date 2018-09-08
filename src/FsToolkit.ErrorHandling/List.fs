@@ -84,12 +84,21 @@ module List =
   let sequenceResultA xs =
     traverseResultA id xs
 
+  let rec traverseValidationA' state f xs =
+    match xs with
+    | [] -> state
+    | x  :: xs -> 
+      let fR = f x
+      match state, fR with
+      | Ok ys, Ok y -> 
+        traverseValidationA' (Ok (ys @ [y])) f xs
+      | Error errs1, Error errs2 -> 
+        traverseValidationA' (Error (errs2 @ errs1)) f xs
+      | Ok _, Error errs | Error errs, Ok _  -> 
+        traverseValidationA' (Error errs) f xs
+
   let traverseValidationA f xs =
-    let cons head tail = head :: tail
-    let initState = Validation.retn []
-    let folder head tail =
-      Validation.map2 cons (f head) tail
-    List.foldBack folder xs initState
+    traverseValidationA' (Ok []) f xs
 
   let sequenceValidationA xs =
     traverseValidationA id xs
