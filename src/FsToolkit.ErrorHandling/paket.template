@@ -1,0 +1,23 @@
+type project
+title
+    FsToolkit.ErrorHandling
+owners
+    demystifyfp
+authors 
+    demystifyfp
+projectUrl
+    https://github.com/demystifyfp/FsToolkit.ErrorHandling
+iconUrl
+    https://raw.githubusercontent.com/demystifyfp/FsToolkit.ErrorHandling/master/docs/files/img/logo.png
+licenseUrl
+    https://github.com/demystifyfp/FsToolkit.ErrorHandling/blob/master/License
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2018
+tags
+    fsharp error-handling
+summary
+    An opionionated F# Libary for error handling.
+description
+    An opionionated F# Libary for error handling.
