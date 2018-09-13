@@ -33,16 +33,19 @@ let tryParseInt str =
 
 With the help of `Result.map2` function, we can now do the following
 
-```bash
-> open FsToolkit.ErrorHandling;;
-> Result.map2 add (tryParseInt "40") (tryParseInt "2");;
-val it : Result<int,string> = Ok 42
+```fsharp
+open FsToolkit.ErrorHandling
+
+let result =
+  Result.map2 add (tryParseInt "40") (tryParseInt "2")
+  // returns - Ok 42
 ```
 
-```bash
-> open FsToolkit.ErrorHandling;;
-> Result.map2 add (tryParseInt "40") (tryParseInt "foobar")
-val it : Result<int,string> = Error "unable to parse 'foobar' to integer"
+```fsharp
+open FsToolkit.ErrorHandling
+let result =
+  Result.map2 add (tryParseInt "40") (tryParseInt "foobar")
+  // returns - Error "unable to parse 'foobar' to integer"
 ```
 
 ### A Real World Example
@@ -99,23 +102,23 @@ let location lat lng =
 
 Then, we can use the `Result.map2` function as below to create the location with validation
 
-```bash
-> let validLatR = Latitude.TryCreate 13.067439;;
-> let validLngR = Longitude.TryCreate 80.237617;; 
+```fsharp
+let validLatR = Latitude.TryCreate 13.067439
+let validLngR = Longitude.TryCreate 80.237617 
 
-> open FsToolkit.ErrorHandling;;
+open FsToolkit.ErrorHandling
 
-> Result.map2 location validLatR validLngR;;
-val it : Result<Location,string> =
-  Ok {Latitude = Latitude 13.067439 {Value = 13.067439;};
-      Longitude = Longitude 80.237617 {Value = 80.237617;};}
+let result =
+  Result.map2 location validLatR validLngR
+(* Returns - Ok {Latitude = Latitude {Value = 13.067439;};
+                 Longitude = Longitude {Value = 80.237617;};} *)
 ```
 
 When we try with an invalid latitude value, we'll get the following result
 
-```bash
-> let invalidLatR = Latitude.TryCreate 200.;;
-> Result.map2 location invalidLatR validLngR;;
-val it : Result<Location,string> = 
-  Error "200.0 is a invalid latitude value"
+```fsharp
+let invalidLatR = Latitude.TryCreate 200.
+let result =
+  Result.map2 location invalidLatR validLngR
+  // Returns - Error "200.0 is a invalid latitude value"
 ```
