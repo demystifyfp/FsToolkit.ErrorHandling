@@ -60,6 +60,12 @@ let r = result {
   let! lng = tryCreate2 "lng" 23.0
   return (createPostRequest lat lng t)
 }
+
+let tryParseInt str =
+  match Int32.TryParse str with
+  | true, x -> Ok x
+  | false, _ -> Error (sprintf "unable to parse '%s' to integer" str)
+
 let r2 =
   createPostRequest
   <!^> tryCreate2 "lat" -360.
