@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```fsharp
+```
 ('a -> 'b -> 'c) -> Result<'a, 'd> -> Result<'b, 'd> 
   -> Result<'c, 'd>
 ```
@@ -24,11 +24,13 @@ And an another function that converts string to an integer
 
 ```fsharp
 open System
+
 // string -> Result<int, string>
 let tryParseInt str =
   match Int32.TryParse str with
   | true, x -> Ok x
-  | false, _ -> Error (sprintf "unable to parse '%s' to integer" str)
+  | false, _ -> 
+    Error (sprintf "unable to parse '%s' to integer" str)
 ```
 
 With the help of `Result.map2` function, we can now do the following
@@ -110,7 +112,7 @@ open FsToolkit.ErrorHandling
 
 let result =
   Result.map2 location validLatR validLngR
-(* Returns - Ok {Latitude = Latitude {Value = 13.067439;};
+(* returns - Ok {Latitude = Latitude {Value = 13.067439;};
                  Longitude = Longitude {Value = 80.237617;};} *)
 ```
 
@@ -120,5 +122,5 @@ When we try with an invalid latitude value, we'll get the following result
 let invalidLatR = Latitude.TryCreate 200.
 let result =
   Result.map2 location invalidLatR validLngR
-  // Returns - Error "200.0 is a invalid latitude value"
+  // returns - Error "200.0 is a invalid latitude value"
 ```

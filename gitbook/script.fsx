@@ -50,3 +50,42 @@ type Location = {
 
 let location lat lng =
   {Latitude = lat; Longitude = lng}
+
+type UserId = UserId of Guid
+
+type Tweet = private Tweet of string with
+  member this.Value =
+    let (Tweet tweet) = this
+    tweet
+
+  static member TryCreate (tweet : string) =
+    match tweet with
+    | x when String.IsNullOrEmpty x -> 
+      Error "Tweet shouldn't be empty"
+    | x when x.Length > 280 ->
+      Error "Tweet shouldn't contain more than 280 characters"
+    | x -> Ok (Tweet x)
+
+type CreatePostRequest = {
+  UserId : UserId
+  Tweet : Tweet
+  Location : Location option
+}
+
+let createPostRequest userId lat long tweet =
+  {Tweet = tweet
+   Location = Some(location lat long)
+   UserId = userId}
+
+let validTweetR = Tweet.TryCreate "Hello, World!"
+let userId  = UserId (Guid.NewGuid())
+
+let validLatR = Latitude.TryCreate 13.067439
+let validLngR = Longitude.TryCreate 80.237617
+let resultMap3 =
+  Result.map3 (createPostRequest userId) validLatR validLngR validTweetR
+
+let invalidLatR = Latitude.TryCreate 200.
+
+let resultMap3E =
+  Result.map3 (createPostRequest userId) invalidLatR validLngR validTweetR
