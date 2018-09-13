@@ -3,11 +3,15 @@
 Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
+
 ```fsharp
-('a -> 'b -> 'c) -> Result<'a, 'd> -> Result<'b, 'd> -> Result<'c, 'd>
+('a -> 'b -> 'c) -> Result<'a, 'd> -> Result<'b, 'd> 
+  -> Result<'c, 'd>
 ```
 
-### Examples:
+## Examples:
+
+### Basic Example
 
 Let's assume that we have a `add` function which adds two numbers.
 
@@ -39,4 +43,79 @@ val it : Result<int,string> = Ok 42
 > open FsToolkit.ErrorHandling;;
 > Result.map2 add (tryParseInt "40") (tryParseInt "foobar")
 val it : Result<int,string> = Error "unable to parse 'foobar' to integer"
+```
+
+### A Real World Example
+
+Let's assume that we have the following types
+
+#### Latitude
+
+```fsharp
+type Latitude = private Latitude of double with
+  // double
+  member this.Value =
+    let (Latitude lat) = this
+    lat
+  // double -> Result<Latitude, string>
+  static member TryCreate (lat : double) =
+    if lat > -180. && lat < 180. then
+      Ok (Latitude lat)
+    else
+      sprintf "%A is a invalid latitude value" lat |> Error 
+```
+
+#### Longitude
+
+```fsharp
+type Longitude = private Longitude of double with
+  // double
+  member this.Value =
+    let (Longitude lng) = this
+    lng
+  // double -> Result<Longitude, string>
+  static member TryCreate (lng : double) =
+    if lng > -90. && lng < 90. then
+      Ok (Longitude lng)
+    else
+      sprintf "%A is a invalid longitude value" lng |> Error 
+```
+
+#### Location
+
+```fsharp
+type Location = {
+  Latitude : Latitude
+  Longitude : Longitude
+}
+```
+
+And also a function to create `Location`
+
+```fsharp
+let location lat lng =
+  {Latitude = lat; Longitude = lng}
+```
+
+Then, we can use the `Result.map2` function as below to create the location with validation
+
+```bash
+> let validLatR = Latitude.TryCreate 13.067439;;
+> let validLngR = Longitude.TryCreate 80.237617;; 
+
+> open FsToolkit.ErrorHandling;;
+
+> Result.map2 location validLatR validLngR;;
+val it : Result<Location,string> =
+  Ok {Latitude = Latitude 13.067439 {Value = 13.067439;};
+      Longitude = Longitude 80.237617 {Value = 80.237617;};}
+```
+
+When we try with an invalid latitude value, we'll get the following result
+
+```bash
+> let invalidLatR = Latitude.TryCreate 200.;;
+> Result.map2 location invalidLatR validLngR;;
+val it : Result<Location,string> = 
+  Error "200.0 is a invalid latitude value"
 ```
