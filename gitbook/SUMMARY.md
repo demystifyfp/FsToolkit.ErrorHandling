@@ -2,4 +2,4 @@
 
 * [Introduction](README.md)
 * Result
-  * [map2](result_map2.md)
+  * [map2](result/map2.md)
