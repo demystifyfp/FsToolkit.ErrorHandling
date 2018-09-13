@@ -46,16 +46,6 @@ Target.create "Restore" (fun _ ->
   DotNet.restore id solutionFile
 )
 
-Target.create "GenerateDocs" (fun _ ->
-  let exitCode =
-    Process.execSimple (fun (info : ProcStartInfo) -> 
-                        {info with 
-                          FileName = "gitbook"
-                          Arguments = "build ./gitbook/ ./docs"}) TimeSpan.MaxValue
-  if exitCode <> 0 then
-    failwith "An error occurred while generating the docs"                        
-)
-
 let runTestAssembly setParams testAssembly =
   let exitCode =
     let fakeStartInfo testAssembly (args : Expecto.Params) =
@@ -165,9 +155,6 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "NuGet"
   ==> "PublishNuGet"
   ==> "Release"
-
-"GenerateDocs"  
-  ==> "UpdateDocs"
 
 // *** Start Build ***
 Target.runOrDefault "Build"
