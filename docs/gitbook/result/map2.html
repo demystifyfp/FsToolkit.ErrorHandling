@@ -1,0 +1,356 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>map2 · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="map3.html" />
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" >
+            
+                <span>
+            
+                    
+                    Result
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.2.1" data-path="map2.html">
+            
+                <a href="map2.html">
+            
+                    
+                    map2
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="map3.html">
+            
+                <a href="map3.html">
+            
+                    
+                    map3
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >map2</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h2 id="resultmap2">Result.map2</h2>
+<p>Namespace: <code>FsToolkit.ErrorHandling</code></p>
+<p>Function Signature:</p>
+<pre><code>(&apos;a -&gt; &apos;b -&gt; &apos;c) -&gt; Result&lt;&apos;a, &apos;d&gt; -&gt; Result&lt;&apos;b, &apos;d&gt; 
+  -&gt; Result&lt;&apos;c, &apos;d&gt;
+</code></pre><h2 id="examples">Examples:</h2>
+<h3 id="basic-example">Basic Example</h3>
+<p>Let&apos;s assume that we have a <code>add</code> function which adds two numbers.</p>
+<pre><code class="lang-fsharp"><span class="hljs-comment">// int -&gt; int -&gt; int</span>
+<span class="hljs-keyword">let</span> add a b = a + b
+</code></pre>
+<p>And an another function that converts string to an integer</p>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">open</span> System
+
+<span class="hljs-comment">// string -&gt; Result&lt;int, string&gt;</span>
+<span class="hljs-keyword">let</span> tryParseInt str =
+  <span class="hljs-keyword">match</span> Int32.TryParse str <span class="hljs-keyword">with</span>
+  | <span class="hljs-keyword">true</span>, x -&gt; Ok x
+  | <span class="hljs-keyword">false</span>, _ -&gt; 
+    Error (sprintf <span class="hljs-string">&quot;unable to parse &apos;%s&apos; to integer&quot;</span> str)
+</code></pre>
+<p>With the help of <code>Result.map2</code> function, we can now do the following</p>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">open</span> FsToolkit.ErrorHandling
+
+<span class="hljs-keyword">let</span> result =
+  Result.map2 add (tryParseInt <span class="hljs-string">&quot;40&quot;</span>) (tryParseInt <span class="hljs-string">&quot;2&quot;</span>)
+  <span class="hljs-comment">// returns - Ok 42</span>
+</code></pre>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">open</span> FsToolkit.ErrorHandling
+<span class="hljs-keyword">let</span> result =
+  Result.map2 add (tryParseInt <span class="hljs-string">&quot;40&quot;</span>) (tryParseInt <span class="hljs-string">&quot;foobar&quot;</span>)
+  <span class="hljs-comment">// returns - Error &quot;unable to parse &apos;foobar&apos; to integer&quot;</span>
+</code></pre>
+<h3 id="a-real-world-example">A Real World Example</h3>
+<p>Let&apos;s assume that we have the following types</p>
+<h4 id="latitude">Latitude</h4>
+<pre><code class="lang-fsharp"><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Latitude</span> </span>= <span class="hljs-keyword">private</span> Latitude <span class="hljs-keyword">of</span> double <span class="hljs-keyword">with</span>
+  <span class="hljs-comment">// double</span>
+  <span class="hljs-keyword">member</span> this.Value =
+    <span class="hljs-keyword">let</span> (Latitude lat) = this
+    lat
+  <span class="hljs-comment">// double -&gt; Result&lt;Latitude, string&gt;</span>
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">member</span> TryCreate (lat : double) =
+    <span class="hljs-keyword">if</span> lat &gt; <span class="hljs-number">-180.</span> &amp;&amp; lat &lt; <span class="hljs-number">180.</span> <span class="hljs-keyword">then</span>
+      Ok (Latitude lat)
+    <span class="hljs-keyword">else</span>
+      sprintf <span class="hljs-string">&quot;%A is a invalid latitude value&quot;</span> lat |&gt; Error
+</code></pre>
+<h4 id="longitude">Longitude</h4>
+<pre><code class="lang-fsharp"><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Longitude</span> </span>= <span class="hljs-keyword">private</span> Longitude <span class="hljs-keyword">of</span> double <span class="hljs-keyword">with</span>
+  <span class="hljs-comment">// double</span>
+  <span class="hljs-keyword">member</span> this.Value =
+    <span class="hljs-keyword">let</span> (Longitude lng) = this
+    lng
+  <span class="hljs-comment">// double -&gt; Result&lt;Longitude, string&gt;</span>
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">member</span> TryCreate (lng : double) =
+    <span class="hljs-keyword">if</span> lng &gt; <span class="hljs-number">-90.</span> &amp;&amp; lng &lt; <span class="hljs-number">90.</span> <span class="hljs-keyword">then</span>
+      Ok (Longitude lng)
+    <span class="hljs-keyword">else</span>
+      sprintf <span class="hljs-string">&quot;%A is a invalid longitude value&quot;</span> lng |&gt; Error
+</code></pre>
+<h4 id="location">Location</h4>
+<pre><code class="lang-fsharp"><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">Location</span> </span>= {
+  Latitude : Latitude
+  Longitude : Longitude
+}
+</code></pre>
+<p>And also a function to create <code>Location</code></p>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">let</span> location lat lng =
+  {Latitude = lat; Longitude = lng}
+</code></pre>
+<p>Then, we can use the <code>Result.map2</code> function as below to create the location with validation</p>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">let</span> validLatR = Latitude.TryCreate <span class="hljs-number">13.067439</span>
+<span class="hljs-keyword">let</span> validLngR = Longitude.TryCreate <span class="hljs-number">80.237617</span> 
+
+<span class="hljs-keyword">open</span> FsToolkit.ErrorHandling
+
+<span class="hljs-keyword">let</span> result =
+  Result.map2 location validLatR validLngR
+<span class="hljs-comment">(* returns - Ok {Latitude = Latitude {Value = 13.067439;};
+                 Longitude = Longitude {Value = 80.237617;};} *)</span>
+</code></pre>
+<p>When we try with an invalid latitude value, we&apos;ll get the following result</p>
+<pre><code class="lang-fsharp"><span class="hljs-keyword">let</span> invalidLatR = Latitude.TryCreate <span class="hljs-number">200.</span>
+<span class="hljs-keyword">let</span> result =
+  Result.map2 location invalidLatR validLngR
+  <span class="hljs-comment">// returns - Error &quot;200.0 is a invalid latitude value&quot;</span>
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                
+                <a href="map3.html" class="navigation navigation-next navigation-unique" aria-label="Next page: map3">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"map2","level":"1.2.1","depth":2,"next":{"title":"map3","level":"1.2.2","depth":2,"path":"gitbook/result/map3.md","ref":"gitbook/result/map3.md","articles":[]},"previous":{"title":"Result","level":"1.2","depth":1,"ref":"","articles":[{"title":"map2","level":"1.2.1","depth":2,"path":"gitbook/result/map2.md","ref":"gitbook/result/map2.md","articles":[]},{"title":"map3","level":"1.2.2","depth":2,"path":"gitbook/result/map3.md","ref":"gitbook/result/map3.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"gitbook/result/map2.md","mtime":"2018-09-13T13:14:36.994Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-09-13T15:22:08.150Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook.js"></script>
+    <script src="../theme.js"></script>
+    
+        
+        <script src="../gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

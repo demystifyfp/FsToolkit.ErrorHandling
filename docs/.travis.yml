@@ -1,0 +1,12 @@
+language: csharp
+
+mono: latest
+sudo: false # use the new container-based Travis infrastructure
+dist: trusty # Ubuntu 14.04
+dotnet: 2.1
+
+script:
+  - dotnet --info
+  - dotnet tool install fake-cli -g
+  - export PATH="$PATH:/home/travis/.dotnet/tools"
+  - fake run build.fsx target RunTests
