@@ -148,7 +148,7 @@ Target.create "Release" (fun _ ->
   Git.Branches.pushTag "" "origin" release.NugetVersion
 )
 
-Target.create "CommitDocs" (fun _ ->
+Target.create "UpdateDocs" (fun _ ->
   Git.Staging.stageAll ""
   Git.Commit.exec "" "update docs"
   Git.Branches.push ""
@@ -167,7 +167,7 @@ Target.create "CommitDocs" (fun _ ->
   ==> "Release"
 
 "GenerateDocs"  
-  ==> "CommitDocs"
+  ==> "UpdateDocs"
 
 // *** Start Build ***
 Target.runOrDefault "Build"
