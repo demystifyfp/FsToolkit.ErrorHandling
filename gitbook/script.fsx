@@ -2,11 +2,13 @@
 #load "Create.fs"
 #load "Result.fs"
 #load "ResultCE.fs"
+#load "ResultOp.fs"
 #load "Validation.fs"
 #load "ValidationOp.fs"
 
 open System
 open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.Operator.Result
 let add a b = a + b
 // string -> Result<int, string>
 let tryParseInt str =
@@ -89,3 +91,14 @@ let invalidLatR = Latitude.TryCreate 200.
 
 let resultMap3E =
   Result.map3 (createPostRequest userId) invalidLatR validLngR validTweetR
+
+let remainingCharacters (tweet : Tweet) =
+  280 - tweet.Value.Length
+
+validLatR 
+|> Result.map (createPostRequest userId)
+|> (fun f -> Result.apply f validLngR)
+|> (fun f -> Result.apply f validTweetR)
+
+let t =  (createPostRequest userId) <!> validLatR <*> validLngR <*> validTweetR
+

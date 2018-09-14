@@ -52,7 +52,7 @@ let result =
 
 ### A Real World Example
 
-Let's assume that we have the following types in addition to the types that we saw in the [map2](gitbook/result/map2.md#a-real-world-example) example to model a request for posting a tweet.
+Let's assume that we have the following types in addition to the types that we saw in the [map2](../gitbook/result/map2.md#a-real-world-example) example to model a request for posting a tweet.
 
 #### UserId
 
