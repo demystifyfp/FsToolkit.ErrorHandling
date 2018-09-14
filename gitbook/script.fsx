@@ -102,3 +102,12 @@ validLatR
 
 let t =  (createPostRequest userId) <!> validLatR <*> validLngR <*> validTweetR
 
+
+let tryParseIntOrDefault str =
+  str
+  |> tryParseInt
+  |> Result.fold id (fun _ -> 0)
+
+type HttpResponse<'a, 'b> =
+  | OK of 'a
+  | BadRequest of 'b
