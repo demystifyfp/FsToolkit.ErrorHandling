@@ -6,3 +6,4 @@
   * [apply](result/apply.md)
   * [fold](result/fold.md)
   * [ofChoice](result/ofChoice.md)
+  * [Computation Expression](result/ce.md)

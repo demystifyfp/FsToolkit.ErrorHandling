@@ -9,6 +9,7 @@
 open System
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Result
+open FsToolkit.ErrorHandling.CE.Result
 let add a b = a + b
 // string -> Result<int, string>
 let tryParseInt str =
@@ -86,6 +87,14 @@ let validLatR = Latitude.TryCreate 13.067439
 let validLngR = Longitude.TryCreate 80.237617
 let resultMap3 =
   Result.map3 (createPostRequest userId) validLatR validLngR validTweetR
+
+
+let resultMap3' = result {
+  let! lat = Latitude.TryCreate 13.067439
+  let! lng = Longitude.TryCreate 80.237617
+  let! tweet = Tweet.TryCreate "Hello, World!"
+  return createPostRequest userId lat lng tweet
+}
 
 let invalidLatR = Latitude.TryCreate 200.
 

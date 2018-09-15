@@ -15,10 +15,10 @@ Choice<'a,'b> -> Result<'a, 'b>
 ### Basic Example
 
 ```fsharp
-Result.ofChoice (Choice1Of2 42) // returns Ok 42
+Result.ofChoice (Choice1Of2 42) // returns - Ok 42
 ```
 
 ```fsharp
 Result.ofChoice (Choice2Of2 "Something went wrong!") 
-// returns Error "Something went wrong!"
+// returns - Error "Something went wrong!"
 ```
