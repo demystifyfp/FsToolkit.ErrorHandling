@@ -6,7 +6,7 @@ Namespace: `FsToolkit.ErrorHandling.CE.Result`
 
 ### Basic Example
 
-The example that we saw in the [Result.map3]((../result/map3.md#basic-example)) can be solved using the `result` computation expression as below
+The example that we saw in the [Result.map3](../result/map3.md#basic-example) can be solved using the `result` computation expression as below
 
 ```fsharp
 open FsToolkit.ErrorHandling.CE.Result
@@ -23,7 +23,7 @@ let addResult = result {
 
 ### A Real World Example
 
-The example that we saw in the [Result.map3]((../result/map3.md#a-real-world-example)) can be solved using the `result` computation expression as below
+The example that we saw in the [Result.map3](../result/map3.md#a-real-world-example) can be solved using the `result` computation expression as below
 
 ```fsharp
 // Result<CreatePostRequest,string>

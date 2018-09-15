@@ -7,3 +7,7 @@ It was inspired by the [Chessie](https://github.com/fsprojects/Chessie) and [Cvd
 The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
 
 [![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling) [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
+
+## Note:
+
+This library assumes that are you familiar with the standard functions - map, apply, bind, traverse & sequence and the problem these functions solve. In case, if you are not aware of it, do check out [this excellent tutorial](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html) by Scott Wlaschin on this subject.

@@ -7,3 +7,4 @@
   * [fold](result/fold.md)
   * [ofChoice](result/ofChoice.md)
   * [Computation Expression](result/ce.md)
+  * [Operators](result/operators.md)

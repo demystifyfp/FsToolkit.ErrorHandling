@@ -11,6 +11,7 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Result
 open FsToolkit.ErrorHandling.CE.Result
 let add a b = a + b
+let add3 a b c = a + b + c
 // string -> Result<int, string>
 let tryParseInt str =
   match Int32.TryParse str with
@@ -120,3 +121,35 @@ let tryParseIntOrDefault str =
 type HttpResponse<'a, 'b> =
   | OK of 'a
   | BadRequest of 'b
+
+
+// Result<int, string>
+let addResultOp = result {
+  let! x = tryParseInt "35"
+  let! y = tryParseInt "5"
+  let! z = tryParseInt "2"
+  return add3 x y z
+} // returns - Ok 42
+
+
+let opResult =
+  add3
+  <!> tryParseInt "35"
+  <*> tryParseInt "5"
+  <*> tryParseInt "2"
+
+// int -> Result<int, string>
+let evenInt x =
+  if (x % 2 = 0) then
+    Ok x 
+  else 
+    Error (sprintf "%d is not a even integer" x)
+
+// string -> Result<int,string>
+let tryParseEvenInt str =
+  tryParseInt str
+  >>= evenInt
+
+let tryParseEvenInt2 str =
+  tryParseInt str
+  |> Result.bind evenInt
