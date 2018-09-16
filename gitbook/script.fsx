@@ -4,14 +4,16 @@
 #load "ResultCE.fs"
 #load "ResultOp.fs"
 #load "ResultOption.fs"
+#load "ResultOptionCE.fs"
+#load "ResultOptionOp.fs"
 #load "Validation.fs"
 #load "ValidationOp.fs"
 #load "Option.fs"
 
 open System
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.Operator.Result
 open FsToolkit.ErrorHandling.CE.Result
+open FsToolkit.ErrorHandling.CE.ResultOption
 let add a b = a + b
 let add3 a b c = a + b + c
 // string -> Result<int, string>
@@ -112,9 +114,6 @@ validLatR
 |> (fun f -> Result.apply f validLngR)
 |> (fun f -> Result.apply f validTweetR)
 
-let t =  (createPostRequest userId) <!> validLatR <*> validLngR <*> validTweetR
-
-
 let tryParseIntOrDefault str =
   str
   |> tryParseInt
@@ -134,12 +133,6 @@ let addResultOp = result {
 } // returns - Ok 42
 
 
-let opResult =
-  add3
-  <!> tryParseInt "35"
-  <*> tryParseInt "5"
-  <*> tryParseInt "2"
-
 // int -> Result<int, string>
 let evenInt x =
   if (x % 2 = 0) then
@@ -147,10 +140,6 @@ let evenInt x =
   else 
     Error (sprintf "%d is not a even integer" x)
 
-// string -> Result<int,string>
-let tryParseEvenInt str =
-  tryParseInt str
-  >>= evenInt
 
 let tryParseEvenInt2 str =
   tryParseInt str
@@ -160,3 +149,91 @@ let tryParseEvenInt2 str =
 Option.traverseResult tryParseInt (Some "42")
 
 ResultOption.map2 add (Ok (Some 40)) (Ok (Some 2))
+
+let addResult : Result<int option, string> = resultOption {
+  let! x = Ok (Some 30)
+  let! y = Ok (Some 10)
+  let! z = Ok (Some 2)
+  return add3 x y z
+}
+
+type CreatePostRequest2 = {
+  Tweet : Tweet
+  Location : Location option
+}
+
+let createPostRequest2 tweet location =
+  {Tweet = tweet; Location = location}
+
+type CreatePostRequestDto = {
+  Tweet : string
+  Latitude : double option
+  Longitude : double option
+}
+
+let toCreatePostRequest (dto :CreatePostRequestDto) = 
+
+  // Result<Latitude option, string>
+  let latR = Option.traverseResult Latitude.TryCreate dto.Latitude
+
+  // Result<Longitude option, string>
+  let lngR = Option.traverseResult Longitude.TryCreate dto.Longitude
+
+  // Result<Location option, string>
+  let locationR =
+    ResultOption.map2 location latR lngR
+
+  // Result<Tweet, string>
+  let tweetR = Tweet.TryCreate dto.Tweet
+
+  // Result<CreatePostRequest, string>
+  Result.map2 createPostRequest2 tweetR locationR
+
+
+let toCreatePostRequest2 (dto :CreatePostRequestDto) = 
+
+  // Result<Location option, string>
+  let locationR = resultOption {
+    let! lat = 
+      dto.Latitude
+      |> Option.traverseResult Latitude.TryCreate 
+    let! lng = 
+      dto.Longitude
+      |> Option.traverseResult Longitude.TryCreate
+    return location lat lng
+  }
+
+  // Result<Tweet, string>
+  let tweetR = Tweet.TryCreate dto.Tweet
+
+  // Result<CreatePostRequest, string>
+  Result.map2 createPostRequest2 tweetR locationR
+
+open FsToolkit.ErrorHandling.Operator.ResultOption
+
+let opResult : Result<int option, string> =
+  add3
+  <!> (Ok (Some 30)) 
+  <*> (Ok (Some 10)) 
+  <*> (Ok (Some 2)) 
+
+let toCreatePostRequest3 (dto :CreatePostRequestDto) = 
+
+  // Result<Location option, string>
+  let locationR = 
+    location
+    <!> Option.traverseResult Latitude.TryCreate dto.Latitude
+    <*> Option.traverseResult Longitude.TryCreate dto.Longitude
+
+  // Result<Tweet, string>
+  let tweetR = Tweet.TryCreate dto.Tweet
+
+  // Result<CreatePostRequest, string>
+  Result.map2 createPostRequest2 tweetR locationR
+
+
+let opResult2 : Result<int option, string> =
+  add3
+  <!> (Ok (Some 30)) 
+  <*^> (Ok 10) 
+  <*^> (Ok 2) 

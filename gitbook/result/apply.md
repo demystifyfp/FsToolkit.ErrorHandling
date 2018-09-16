@@ -38,4 +38,4 @@ let remainingCharacters2 (tweetStr : string) =
   |> Result.map remainingCharacters
 ```
 
-> We can get most out of the `apply` function when we use it over a multi-parameter function using its `infix` operator. FsToolkit.ErrorHandling provides this operator as well and the documentation for this can be found [here](TODO).
+> We can get most out of the `apply` function when we use it over a multi-parameter function using its `infix` operator. FsToolkit.ErrorHandling provides this operator as well and the documentation for this can be found [here](../result/operators.md#example-1).

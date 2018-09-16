@@ -16,3 +16,8 @@
 * ResultOption
   * [map](resultOption/map.md)
   * [map2](resultOption/map2.md)
+  * [map3](resultOption/map3.md)
+  * [apply](resultOption/apply.md)
+  * [bind](resultOption/bind.md)
+  * [Computation Expression](resultOption/ce.md)
+  * [Operators](resultOption/operators.md)

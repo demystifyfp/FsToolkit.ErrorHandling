@@ -11,20 +11,11 @@ Function Signature:
 
 ### Example 1
 
-Assume that we have the following functions,
+Assume that we have the following function,
 
 ```fsharp
-open System
-
 // int -> int -> int
 let add a b = a + b
-
-// string -> Result<int, string>
-let tryParseInt str =
-  match Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ -> 
-    Error (sprintf "unable to parse '%s' to integer" str)
 ```
 
 Then using `ResultOption.map2` function, we can achieve the following
@@ -63,17 +54,21 @@ To transform the `CreatePostRequestDto` to `CreatePostRequest` with validation, 
 let toCreatePostRequest (dto :CreatePostRequestDto) = 
 
   // Result<Latitude option, string>
-  let latR = Option.traverseResult dto.Latitude
+  let latR = 
+    dto.Latitude
+    |> Option.traverseResult Latitude.TryCreate 
 
   // Result<Longitude option, string>
-  let lngR = Option.traverseResult dto.Longitude
+  let lngR = 
+    dto.Longitude
+    |> Option.traverseResult Longitude.TryCreate 
 
   // Result<Location option, string>
   let locationR =
     ResultOption.map2 location latR lngR
 
   // Result<Tweet, string>
-  let tweetR = Tweet.tryCreate dto.Tweet
+  let tweetR = Tweet.TryCreate dto.Tweet
 
   // Result<CreatePostRequest, string>
   Result.map2 createPostRequest tweetR locationR

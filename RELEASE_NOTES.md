@@ -1,3 +1,6 @@
+#### 0.0.5 - September 16 2018
+* Remove result option bind overload for result type.
+
 #### 0.0.4 - September 16 2018
 * Package Description Fix
 
