@@ -9,5 +9,10 @@
   * [Computation Expression](result/ce.md)
   * [Operators](result/operators.md)
 
+* Option
+  * [traverseResult](option/traverseResult.md)
+  * [sequenceResult](option/sequenceResult.md)
+
 * ResultOption
+  * [map](resultOption/map.md)
   * [map2](resultOption/map2.md)

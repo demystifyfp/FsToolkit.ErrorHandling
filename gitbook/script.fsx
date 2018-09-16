@@ -3,8 +3,10 @@
 #load "Result.fs"
 #load "ResultCE.fs"
 #load "ResultOp.fs"
+#load "ResultOption.fs"
 #load "Validation.fs"
 #load "ValidationOp.fs"
+#load "Option.fs"
 
 open System
 open FsToolkit.ErrorHandling
@@ -153,3 +155,8 @@ let tryParseEvenInt str =
 let tryParseEvenInt2 str =
   tryParseInt str
   |> Result.bind evenInt
+
+
+Option.traverseResult tryParseInt (Some "42")
+
+ResultOption.map2 add (Ok (Some 40)) (Ok (Some 2))
