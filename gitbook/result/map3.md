@@ -11,7 +11,7 @@ Function Signature:
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
 Let's assume that we have a `add` function which adds three numbers.
 
@@ -50,9 +50,9 @@ let result =
   // returns - Error "unable to parse 'foobar' to integer"
 ```
 
-### A Real World Example
+### Example 2
 
-Let's assume that we have the following types in addition to the types that we saw in the [map2](../result/map2.md#a-real-world-example) example to model a request for posting a tweet.
+Let's assume that we have the following types in addition to the types that we saw in the [map2](../result/map2.md#a-example-2) example to model a request for posting a tweet.
 
 #### UserId
 

@@ -11,7 +11,7 @@ Function Signature:
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
 Let's assume that we have a `add` function which adds two numbers.
 
@@ -50,7 +50,7 @@ let result =
   // returns - Error "unable to parse 'foobar' to integer"
 ```
 
-### A Real World Example
+### Example 2
 
 Let's assume that we have the following types
 

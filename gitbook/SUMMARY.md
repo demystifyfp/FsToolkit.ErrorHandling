@@ -8,3 +8,6 @@
   * [ofChoice](result/ofChoice.md)
   * [Computation Expression](result/ce.md)
   * [Operators](result/operators.md)
+
+* ResultOption
+  * [map2](resultOption/map2.md)

@@ -12,7 +12,7 @@ Choice<'a,'b> -> Result<'a, 'b>
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
 ```fsharp
 Result.ofChoice (Choice1Of2 42) // returns - Ok 42

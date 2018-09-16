@@ -6,9 +6,9 @@ Namespace: `FsToolkit.ErrorHandling.Operator.Result`
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
-The example that we saw in the [Result.map3](../result/map3.md#basic-example) can be solved using the `map` & `apply` operators as below
+The example that we saw in the [Result.map3](../result/map3.md#example-1) can be solved using the `map` & `apply` operators as below
 
 ```fsharp
 open FsToolkit.ErrorHandling.Operator.Result

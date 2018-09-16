@@ -10,7 +10,7 @@ Result<('a -> 'b), 'c> -> Result<'a, 'c> -> Result<'b, 'c>
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
 Assume that we have a function to find the remaining characters of a [Tweet](../result/map3.md#tweet).
 

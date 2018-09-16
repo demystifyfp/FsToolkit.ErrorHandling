@@ -10,7 +10,7 @@ Function Signature:
 
 ## Examples:
 
-### Basic Example
+### Example 1
 
 Let's assume that we have a function `tryParseInt`
 
@@ -38,7 +38,7 @@ tryParseIntOrDefault "42" // returns - 12
 tryParseIntOrDefault "foobar" // returns - 0
 ```
 
-### A Real World Example
+### Example 2
 
 In a typical web application, if there is any request validation error, we send `HTTP 400 Bad Request` as response and `HTTP 200 OK` for successful operation
 
