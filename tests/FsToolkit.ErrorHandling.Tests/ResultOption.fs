@@ -104,17 +104,17 @@ let resultOptionCETests =
       let createPostRequest = resultOption {
         let! lat = Ok (Some validLat) 
         let! lng = Ok (Some validLng)
-        let! tweet = validTweetR
+        let! tweet = validTweetR |> Result.map Some
         return createPostRequest lat lng tweet
       }
       Expect.hasOkValue (Some validCreatePostRequest) createPostRequest 
 
     testCase "bind with Error" <| fun _ -> 
       let post = resultOption {
-        let! lat = invalidLatR
+        let! lat = invalidLatR |> Result.map Some
         Tests.failtestf "this should not get executed!"
         let! lng = Ok (Some validLng)
-        let! tweet = validTweetR
+        let! tweet = validTweetR |> Result.map Some
         return createPostRequest lat lng tweet
       }
       post
@@ -126,7 +126,7 @@ let resultOptionOperatorsTests =
 
   testList "ResultOption Operators Tests" [
     testCase "map & apply operators" <| fun _ ->
-      createPostRequest <!> Ok (Some validLat) <*> Ok (Some validLng) <*> Ok (Some validTweet)
+      createPostRequest <!> Ok (Some validLat) <*> Ok (Some validLng) <*^> Ok validTweet
       |> Expect.hasOkValue (Some validCreatePostRequest)
     
     testCase "bind operator" <| fun _ ->

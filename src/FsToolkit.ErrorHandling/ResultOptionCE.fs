@@ -12,11 +12,6 @@ module ResultOption =
     member __.Bind (resultOpt, binder) =
       ResultOption.bind binder resultOpt
 
-    member __.Bind (result, binder) =
-      result
-      |> Result.map Some
-      |> ResultOption.bind binder
-
     member __.Combine(r1, r2) =
       r1
       |> ResultOption.bind (fun _ -> r2)
