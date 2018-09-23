@@ -12,7 +12,7 @@ Function Signature:
 
 ### Example 1
 
-If we have a value of type `string option` and wants to call the `tryParseInt` function that we defined in the [Result.map2 example](../result/map2#example-1), we can acheive it using the `traverseResult` function as below
+If we have a value of type `string option` and wants to call the `tryParseInt` function that we defined in the [Result.map2 example](../result/map2.md#example-1), we can acheive it using the `traverseResult` function as below
 
 ```fsharp
 // returns - Ok (Some 42)

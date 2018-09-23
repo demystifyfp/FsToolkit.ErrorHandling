@@ -24,4 +24,5 @@
 
 * AsyncResult
   * [map](asyncResult/map.md)
+  * [map2](asyncResult/map2.md)
   * [mapError](asyncResult/mapError.md)

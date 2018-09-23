@@ -13,7 +13,7 @@ Function Signature:
 
 ### Example 1
 
-As a continuation of [Result.map3 (Example 2)](../result/map3#example-2), let's assume that we want to store the created post in the database (using a fake function `createPost`)
+As a continuation of [Result.map3 (Example 2)](../result/map3.md#example-2), let's assume that we want to store the created post in the database (using a fake function `createPost`)
 
 ```fsharp
 // A fake function to represent the DB call

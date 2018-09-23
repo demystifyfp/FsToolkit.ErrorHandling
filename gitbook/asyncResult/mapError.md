@@ -13,7 +13,7 @@ Function Signature:
 
 ### Example 1
 
-From the example [AsyncResult.map](../asyncResult/map#example-1), if we want to the error part alone, we can do it as below
+From the example [AsyncResult.map](../asyncResult/map.md#example-1), if we want to the error part alone, we can do it as below
 
 ```fsharp
 // Async<Result<PostId>, string>
