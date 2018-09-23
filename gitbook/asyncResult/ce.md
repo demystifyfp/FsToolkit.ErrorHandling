@@ -7,6 +7,8 @@ Namespace: `FsToolkit.ErrorHandling.CE.AsyncResult`
 
 ### Example 1
 
+The [AsyncResult.bind example](../asyncResult/bind.md#example-1) can be written using computation expression as below
+
 ```fsharp
 // UserId -> Async<Result<UserId, Exception>>
 let getFollowersIds userId = async {
