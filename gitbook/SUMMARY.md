@@ -21,3 +21,7 @@
   * [bind](resultOption/bind.md)
   * [Computation Expression](resultOption/ce.md)
   * [Operators](resultOption/operators.md)
+
+* AsyncResult
+  * [map](asyncResult/map.md)
+  * [mapError](asyncResult/mapError.md)
