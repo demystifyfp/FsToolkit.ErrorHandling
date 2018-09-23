@@ -25,4 +25,11 @@
 * AsyncResult
   * [map](asyncResult/map.md)
   * [map2](asyncResult/map2.md)
+  * [map3](asyncResult/map3.md)
   * [mapError](asyncResult/mapError.md)
+  * [apply](asyncResult/apply.md)
+  * [foldResult](asyncResult/foldResult.md)
+  * [ofTask](asyncResult/ofTask.md)
+  * [bind](asyncResult/bind.md)
+  * [Computation Expression](asyncResult/ce.md)
+  * [Operators](asyncResult/operators.md)

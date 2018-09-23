@@ -1,12 +1,12 @@
-## AsyncResult.map2
+## ResultOption.bind
 
 Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
 ```
-('a -> 'b -> 'c) -> Async<Result<'a, 'd>> -> Async<Result<'b, 'd>> 
-  -> Async<Result<'c, 'd>>
+('a -> Async<Result<'b, 'c>>) -> Async<Result<'a, 'c>> 
+  -> Async<Result<'b, 'c>>
 ```
 
 ## Examples
@@ -25,23 +25,24 @@ let createPost (req : CreatePostRequest) = async {
 }
 
 type NotifyNewPostRequest = {
-  UserIds : UserId list
-  NewPostId : PostId
+  // ...
 }
 
 let newPostRequest userIds newPostsId =
   {UserIds = userIds; NewPostId = newPostsId}
 
+// NotifyNewPostRequest -> Async<Result<Unit,Exception>>
+let notifyFollowers (req : NotifyNewPostRequest) = async {
+  // ...
+}
 
+// CreatePostRequest -> Async<Result<Unit,Exception>>
 let createPostAndNotifyFollowers (req : CreatePostRequest) = 
   //  Async<Result<UserId, Exception>>
   let getFollowersResult = getFollowersIds req.UserId
   // Async<Result<PostId, Exception>>
   let createPostResult = createPost req
 
-  // Async<Result<NotifyNewPostRequest, Exception>>
-  let newPostRequestResult =
-    AsyncResult.map2 newPostRequest getFollowersResult createPostResult   
-
-  // ...
-  
+  AsyncResult.map2 newPostRequest getFollowersResult createPostResult
+  |> AsyncResult.bind notifyFollowers
+```
