@@ -33,3 +33,12 @@
   * [bind](asyncResult/bind.md)
   * [Computation Expression](asyncResult/ce.md)
   * [Operators](asyncResult/operators.md)
+
+* AsyncResultOption
+  * [map](asyncResultOption/map.md)
+  * [map2](asyncResultOption/map2.md)
+  * [map3](asyncResultOption/map3.md)
+  * [apply](asyncResultOption/apply.md)
+  * [bind](asyncResultOption/bind.md)
+  * [Computation Expression](asyncResultOption/ce.md)
+  * [Operators](asyncResultOption/operators.md)

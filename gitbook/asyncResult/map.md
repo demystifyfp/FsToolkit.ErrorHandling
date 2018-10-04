@@ -20,12 +20,7 @@ As a continuation of [Result.map3 (Example 2)](../result/map3.md#example-2), let
 
 // CreatePostRequest -> Async<Result<PostId, Exception>>
 let createPost (req : CreatePostRequest) = async {
-  let (UserId userId) = req.UserId
-  
-  if ... then
-    return Error (new Exception("something went wrong"))
-  else
-    return Ok samplePostId
+  // ...
 }
 ```
 

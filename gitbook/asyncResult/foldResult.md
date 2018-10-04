@@ -1,4 +1,4 @@
-## Result.foldResult
+## AsyncResult.foldResult
 
 Namespace: `FsToolkit.ErrorHandling`
 

@@ -11,7 +11,7 @@ Namespace: `FsToolkit.ErrorHandling.Operator.AsyncResult`
 The [AsyncResult Computation Expression example](../asyncResult/ce.md#example-1) can be written using operators as below
 
 ```fsharp
-open FsToolkit.ErrorHandling.Operator.Result
+open FsToolkit.ErrorHandling.Operator.AsyncResult
 
 // CreatePostRequest -> Async<Result<Unit,Exception>>
 let createPostAndNotifyFollowers (req : CreatePostRequest) = 

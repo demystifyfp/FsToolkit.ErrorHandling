@@ -1,4 +1,4 @@
-## Result.ofTask
+## AsyncResult.ofTask
 
 Namespace: `FsToolkit.ErrorHandling`
 

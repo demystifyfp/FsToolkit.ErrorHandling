@@ -1,4 +1,4 @@
-## ResultOption.bind
+## AsyncResult.bind
 
 Namespace: `FsToolkit.ErrorHandling`
 
