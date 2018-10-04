@@ -1,3 +1,6 @@
+#### 0.0.6 - October 4 2018
+* Move tryCreate function to Result modoule and drop tryCreate2 function.
+
 #### 0.0.5 - September 16 2018
 * Remove result option bind overload for result type.
 

@@ -1,11 +1,10 @@
-#load "Create.fs"
 #load "Result.fs"
 #load "ResultCE.fs"
 #load "Validation.fs"
 #load "ValidationOp.fs"
 
 open System
-open FsToolkit.ErrorHandling.Create
+open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Validation
 open FsToolkit.ErrorHandling.CE.Result
 
@@ -55,9 +54,9 @@ let createPostRequest lat long tweet =
 
 
 let r = result {
-  let! t = tryCreate2 "tweet" "hello"
-  let! lat = tryCreate2 "lat" 82.0
-  let! lng = tryCreate2 "lng" 23.0
+  let! t = Result.tryCreate "tweet" "hello"
+  let! lat = Result.tryCreate "lat" 82.0
+  let! lng = Result.tryCreate "lng" 23.0
   return (createPostRequest lat lng t)
 }
 
@@ -68,8 +67,8 @@ let tryParseInt str =
 
 let r2 =
   createPostRequest
-  <!^> tryCreate2 "lat" -360.
-  <*^> tryCreate2 "lng" -360.
-  <*^> tryCreate2 "tweet" ""
+  <!^> Result.tryCreate "lat" -360.
+  <*^> Result.tryCreate "lng" -360.
+  <*^> Result.tryCreate "tweet" ""
   |> Result.mapError Map.ofList
 

@@ -30,7 +30,6 @@
     <Compile Include="ValidationOp.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
-    <Compile Include="Create.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -144,3 +144,16 @@ let resultOperatorsTests =
                         Ok (createPostRequest lat lng tweet))))
       |> Expect.hasOkValue validCreatePostRequest
   ]
+
+
+[<Tests>]
+let tryCreateTests =
+  testList "tryCreate Tests" [
+    testCase "tryCreate happy path" <| fun _ ->
+      Result.tryCreate "lat" lat
+      |> Expect.hasOkValue validLat
+    
+    testCase "tryCreate error path" <| fun _ ->
+      let r : Result<Latitude, (string * string)> = Result.tryCreate "lat" 200.
+      Expect.hasErrorValue ("lat", invalidLatMsg) r
+  ]
