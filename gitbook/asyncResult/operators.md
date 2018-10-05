@@ -1,6 +1,6 @@
 ## AsyncResult Infix Operators
 
-FsToolkit.ErrorHandling provides the standard infix operators for the map (`<!>`), apply (`<*>`) & bind (`>>=`) functions.
+FsToolkit.ErrorHandling provides the standard infix operators for the map (`<!>`), apply (`<*>`) & bind (`>>=`) functions of `Async<Result<'a, 'b>>` type.
 
 Namespace: `FsToolkit.ErrorHandling.Operator.AsyncResult`
 

@@ -10,7 +10,8 @@ Supports both .NET Core and .NET Framework 4.6.1.
 
 The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
 
-[![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling) [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
+[![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling) [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling) ![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+
 
 ## Note:
 
