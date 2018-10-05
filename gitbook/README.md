@@ -14,3 +14,6 @@ Supports both .NET Core and .NET Framework 4.6.1.
 
 This library assumes that are you familiar with the standard functions - map, apply, bind, traverse & sequence and the problem these functions solve. In case, if you are not aware of it, do check out [this excellent tutorial](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html) by Scott Wlaschin on this subject.
 
+## Sponsor(s):
+
+![Ajira](Ajira-logo.svg)

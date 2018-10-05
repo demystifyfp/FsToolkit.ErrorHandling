@@ -49,3 +49,4 @@
   * [apply](validation/apply.md)
   * [ofResult](validation/ofResult.md)
   * [Operators](validation/operators.md)
+  * [Result.tryCreate](validation/tryCreate.md)
