@@ -39,6 +39,10 @@
   * [sequenceResultM](list/sequenceResultM.md)
   * [traverseResultA](list/traverseResultA.md)
   * [sequenceResultA](list/sequenceResultA.md)
+  * [traverseAsyncResultM](list/traverseAsyncResultM.md)
+  * [sequenceAsyncResultM](list/sequenceAsyncResultM.md)
+  * [traverseAsyncResultA](list/traverseAsyncResultA.md)
+  * [sequenceAsyncResultA](list/sequenceAsyncResultA.md)
 
 * AsyncResultOption
   * [map](asyncResultOption/map.md)
