@@ -16,4 +16,4 @@ This library assumes that are you familiar with the standard functions - map, ap
 
 ## Sponsor(s):
 
-![Ajira](Ajira-logo.svg)
+![Ajira](./Ajira-logo.svg)
