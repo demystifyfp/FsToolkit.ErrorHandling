@@ -7,3 +7,5 @@ Function Signature:
 ```
 Result<'a, 'b> -> Result<'a, 'b list>
 ```
+
+## Examples
