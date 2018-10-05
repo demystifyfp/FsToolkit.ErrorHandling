@@ -1,3 +1,6 @@
+#### 0.0.7 - October 5 2018
+* Add explict type check for Validation map operator.
+
 #### 0.0.6 - October 4 2018
 * Move tryCreate function to Result modoule and drop tryCreate2 function.
 

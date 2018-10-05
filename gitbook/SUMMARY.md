@@ -42,3 +42,10 @@
   * [bind](asyncResultOption/bind.md)
   * [Computation Expression](asyncResultOption/ce.md)
   * [Operators](asyncResultOption/operators.md)
+
+* [Validation](validation/index.md)
+  * [map2](validation/map2.md)
+  * [map3](validation/map3.md)
+  * [apply](validation/apply.md)
+  * [ofResult](validation/ofResult.md)
+  * [Operators](validation/operators.md)
