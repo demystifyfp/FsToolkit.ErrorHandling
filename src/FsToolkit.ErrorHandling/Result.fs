@@ -23,8 +23,8 @@ module Result =
     | Choice1Of2 x -> Ok x
     | Choice2Of2 x -> Error x
 
-  let inline tryCreate fieldName (x : ^a) : Result< ^b, (string * 'c)> =
+  let inline tryCreate fieldName (x : 'a) : Result< ^b, (string * 'c)> =
     let tryCreate' x = 
-      (^b : (static member TryCreate : ^a -> Result< ^b, 'c>) x)
+      (^b : (static member TryCreate : 'a -> Result< ^b, 'c>) x)
     tryCreate' x
     |> Result.mapError (fun z -> (fieldName, z))

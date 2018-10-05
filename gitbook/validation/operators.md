@@ -41,6 +41,8 @@ let createPostRequest lat long tweet =
 We can make use of the standard operators in the Validation Operators module to perform the validation of the incoming request and capture all the errors as below
 
 ```fsharp
+open FsToolkit.ErrorHandling.Operator.Validation
+
 // double -> double -> string -> Result<CreatePostRequest, string list>
 let validateCreatePostRequest lat lng tweet = 
   createPostRequest
@@ -59,7 +61,7 @@ Error
      "Tweet shouldn't be empty"]
 ```
 
-## Example 2
+### Example 2
 
 In the above Example 1, all the `TryCreate` functions return a string list for error (`Result<'a, string list>`). If in case, these functions return a `Result<'a, string>` we can make use of the other operators (`<*^>` & `<!^>`) operators to achieve what we did there. 
 
@@ -86,6 +88,8 @@ type Tweet = private Tweet of string with
 
 
 ```fsharp
+open FsToolkit.ErrorHandling.Operator.Validation
+
 // double -> double -> string -> Result<CreatePostRequest, string list>
 let validateCreatePostRequest lat lng tweet = 
   createPostRequest

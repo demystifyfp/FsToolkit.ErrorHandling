@@ -1,3 +1,6 @@
+#### 0.0.8 - October 5 2018
+* Remove Statically resolved type constarint on input in tryCreate function.
+
 #### 0.0.7 - October 5 2018
 * Add explict type check for Validation map operator.
 
