@@ -51,7 +51,7 @@ let traverseResultATests =
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet]
       let actual = List.traverseResultA Tweet.TryCreate tweets
-      Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
+      Expect.equal actual (Error [emptyTweetErrMsg;longerTweetErrMsg]) "traverse the list and return all the errors"
   ]
 
 [<Tests>]
@@ -66,7 +66,7 @@ let sequenceResultATests =
     testCase "sequenceResultM with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet]
       let actual = List.sequenceResultA (List.map Tweet.TryCreate tweets) 
-      Expect.equal actual (Error [longerTweetErrMsg;emptyTweetErrMsg]) "traverse the list and return all the errors"
+      Expect.equal actual (Error [emptyTweetErrMsg;longerTweetErrMsg]) "traverse the list and return all the errors"
   ]
 
 [<Tests>]

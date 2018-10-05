@@ -58,7 +58,7 @@ module List =
       | Ok ys, Ok y -> 
         traverseResultA' (Ok (ys @ [y])) f xs
       | Error errs, Error e -> 
-        traverseResultA' (Error (e @ errs)) f xs
+        traverseResultA' (Error (errs @ e)) f xs
       | Ok _, Error e | Error e , Ok _  -> 
         traverseResultA' (Error e) f xs
 

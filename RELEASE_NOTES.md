@@ -1,3 +1,6 @@
+#### 0.0.9 - October 5 2018
+* Fix error message ordering in List.traverseResultA function.
+
 #### 0.0.8 - October 5 2018
 * Remove Statically resolved type constarint on input in tryCreate function.
 

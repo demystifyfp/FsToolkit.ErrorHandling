@@ -22,5 +22,5 @@ let tryParseInt str =
   | false, _ -> 
     Error (sprintf "unable to parse '%s' to integer" str)
 
-["1";"2";"3"]
-|> List.traverseResultM tryParseInt
+["1";"foo";"3";"bar"]
+|> List.traverseResultA tryParseInt 
