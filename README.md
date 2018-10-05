@@ -1,8 +1,12 @@
 # FsToolkit.ErrorHandling
 
-**FsToolkit.ErrorHandling** is a utility library to work with Result type in F# to do error handling. It provides computation expressions, map, bind, apply, traverse, sequence & other utility functions to work with Result, ResultOption, AsyncResult, AsyncResultOption & Validation.
+**FsToolkit.ErrorHandling** is a utility library to work with Result type in F# to do error handling. 
+
+It provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence`, computation expressions and infix operators to work with `Result`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>` & `Result<'a, 'b list>` types.
 
 It was inspired by the [Chessie](https://github.com/fsprojects/Chessie) and [Cvdm.ErrorHandling](https://github.com/cmeeren/Cvdm.ErrorHandling) libraries. 
+
+Supports both .NET Core and .NET Framework 4.6.1.
 
 The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
 

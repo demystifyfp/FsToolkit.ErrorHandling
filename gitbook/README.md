@@ -6,6 +6,8 @@ It provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence
 
 It was inspired by the [Chessie](https://github.com/fsprojects/Chessie) and [Cvdm.ErrorHandling](https://github.com/cmeeren/Cvdm.ErrorHandling) libraries. 
 
+Supports both .NET Core and .NET Framework 4.6.1.
+
 [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
 
 ## Note:
