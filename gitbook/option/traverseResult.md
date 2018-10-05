@@ -5,7 +5,7 @@ Namespace: `FsToolkit.ErrorHandling`
 Function Signature:
 
 ```
-('a -> Result<'b,'c>) -> ('a option) -> Result<'b option, 'c>
+('a -> Result<'b,'c>) -> 'a option -> Result<'b option, 'c>
 ```
 
 ## Examples

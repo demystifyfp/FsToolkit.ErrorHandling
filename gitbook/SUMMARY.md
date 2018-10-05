@@ -34,6 +34,10 @@
   * [Computation Expression](asyncResult/ce.md)
   * [Operators](asyncResult/operators.md)
 
+* List
+  * [traverseResultM](list/traverseResultM.md)
+  * [sequenceResultM](list/sequenceResultM.md)
+
 * AsyncResultOption
   * [map](asyncResultOption/map.md)
   * [map2](asyncResultOption/map2.md)
