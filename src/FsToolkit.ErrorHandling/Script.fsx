@@ -1,4 +1,5 @@
 #load "Result.fs"
+#load "Option.fs"
 #load "ResultCE.fs"
 #load "Validation.fs"
 #load "ValidationOp.fs"
@@ -42,33 +43,38 @@ type Longitude = private Longitude of double with
     else
       sprintf "%A is a invalid longitude value" lng |> Error 
 
-
-type CreatePostRequest = {
-  Tweet : Tweet
+type Location = {
   Latitude : Latitude
   Longitude : Longitude
 }
+let location lat lng =
+  {Latitude = lat; Longitude = lng}
 
-let createPostRequest lat long tweet =
-  {Tweet = tweet; Latitude = lat; Longitude = long}
-
-
-let r = result {
-  let! t = Result.tryCreate "tweet" "hello"
-  let! lat = Result.tryCreate "lat" 82.0
-  let! lng = Result.tryCreate "lng" 23.0
-  return (createPostRequest lat lng t)
+type CreatePostRequest = {
+  Tweet : Tweet
+  Location : Location option
 }
 
-let tryParseInt str =
-  match Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ -> Error (sprintf "unable to parse '%s' to integer" str)
+let createPostRequest location tweet =
+  {Tweet = tweet; Location = location}
 
-let r2 =
+
+type LocationDto = {
+  Latitude : double
+  Longitude : double
+}
+
+type CreatePostRequestDto = {
+  Tweet : string
+  Location : LocationDto option
+}
+
+let validateLocation (dto : LocationDto) =
+  location
+  <!^> Result.tryCreate "latitude" dto.Latitude
+  <*^> Result.tryCreate "longitude" dto.Longitude
+
+let validateCreatePostRequest (dto : CreatePostRequestDto) =
   createPostRequest
-  <!^> Result.tryCreate "lat" -360.
-  <*^> Result.tryCreate "lng" -360.
-  <*^> Result.tryCreate "tweet" ""
-  |> Result.mapError Map.ofList
-
+  <!> Option.traverseResult validateLocation dto.Location
+  <*^> Result.tryCreate "tweet" dto.Tweet

@@ -16,3 +16,7 @@ The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-e
 ## Note:
 
 This library assumes that are you familiar with the standard functions - map, apply, bind, traverse & sequence and the problem these functions solve. In case, if you are not aware of it, do check out [this excellent tutorial](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html) by Scott Wlaschin on this subject.
+
+## Sponsors:
+
+![Ajira]()
