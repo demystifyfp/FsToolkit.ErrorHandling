@@ -16,4 +16,4 @@ This library assumes that are you familiar with the standard functions - map, ap
 
 ## Sponsor(s):
 
-[![Ajira](assets/Ajira-logo.svg)](https://www.ajira.tech)
+[![Ajira Technologies, India](./assets/Ajira-logo.svg)](https://www.ajira.tech)
