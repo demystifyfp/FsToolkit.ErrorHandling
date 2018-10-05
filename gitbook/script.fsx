@@ -1,5 +1,4 @@
 #I @"./../src/FsToolkit.ErrorHandling"
-#load "Create.fs"
 #load "Result.fs"
 #load "ResultCE.fs"
 #load "ResultOp.fs"
@@ -237,3 +236,11 @@ let opResult2 : Result<int option, string> =
   <!> (Ok (Some 30)) 
   <*^> (Ok 10) 
   <*^> (Ok 2) 
+
+
+open FsToolkit.ErrorHandling.Operator.Validation
+let t = 
+  (createPostRequest userId)
+  <!> Validation.ofResult (Latitude.TryCreate 300.)
+  <*> Validation.ofResult (Longitude.TryCreate 400.)
+  <*> Validation.ofResult (Tweet.TryCreate "")
