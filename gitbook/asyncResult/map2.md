@@ -44,4 +44,5 @@ let createPostAndNotifyFollowers (req : CreatePostRequest) =
     AsyncResult.map2 newPostRequest getFollowersResult createPostResult   
 
   // ...
-  
+```
+
