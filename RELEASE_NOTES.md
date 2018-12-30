@@ -1,3 +1,6 @@
+#### 0.0.10 - December 30, 2018
+* Add Fable support. Credits @enerqi
+
 #### 0.0.9 - October 5 2018
 * Fix error message ordering in List.traverseResultA function.
 
