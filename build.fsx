@@ -115,11 +115,16 @@ Target.create "AssemblyInfo" (fun _ ->
 )
 
 Target.create "NuGet" (fun _ ->
-    Paket.pack(fun p ->
-        { p with
-            OutputPath = "bin"
-            Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes})
+    let ReleaseNotes = String.toLines release.Notes
+    "src/FsToolkit.ErrorHandling"
+    |> DotNet.pack(fun p ->
+           { p with
+               OutputPath = Some "bin"
+               Configuration = DotNet.BuildConfiguration.Release
+               MSBuildParams = {MSBuild.CliArguments.Create() with
+                                    // "/p" (property) arguments to MSBuild.exe
+                                    Properties = [("Version", release.NugetVersion)
+                                                  ("PackageReleaseNotes", ReleaseNotes)]}})
 )
 
 Target.create "PublishNuget" (fun _ ->
