@@ -119,7 +119,8 @@ Target.create "NuGet" (fun _ ->
     "src/FsToolkit.ErrorHandling"
     |> DotNet.pack(fun p ->
            { p with
-               OutputPath = Some "bin"
+               // ./bin from the solution root matching the "PublishNuget" target WorkingDir
+               OutputPath = Some "../../bin"
                Configuration = DotNet.BuildConfiguration.Release
                MSBuildParams = {MSBuild.CliArguments.Create() with
                                     // "/p" (property) arguments to MSBuild.exe
