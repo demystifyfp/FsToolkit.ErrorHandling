@@ -1,3 +1,6 @@
+#### 0.0.12 - January 4, 2018
+* Add Fable Support
+
 #### 0.0.11 - January 4, 2018
 * NuGet Packaging using Dotnet Pack. Credits @enerqi
 
