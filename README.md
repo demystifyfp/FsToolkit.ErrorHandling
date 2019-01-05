@@ -6,7 +6,7 @@ It provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence
 
 It was inspired by the [Chessie](https://github.com/fsprojects/Chessie) and [Cvdm.ErrorHandling](https://github.com/cmeeren/Cvdm.ErrorHandling) libraries. 
 
-Supports both .NET Core and .NET Framework 4.6.1.
+Supports .NET Core, Fable & .NET Framework 4.6.1 and above.
 
 The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
 
