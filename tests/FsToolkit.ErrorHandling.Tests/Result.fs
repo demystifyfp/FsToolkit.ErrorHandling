@@ -157,3 +157,248 @@ let tryCreateTests =
       let r : Result<Latitude, (string * string)> = Result.tryCreate "lat" 200.
       Expect.hasErrorValue ("lat", invalidLatMsg) r
   ]
+
+let err = "foobar"
+
+[<Tests>]
+let requireTrueTests =
+  testList "requireTrue Tests" [
+    testCase "requireTrue happy path" <| fun _ ->
+      Result.requireTrue err true 
+      |> Expect.hasOkValue ()
+
+    testCase "requireTrue error path" <| fun _ ->
+      Result.requireTrue err false 
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireFalseTests =
+  testList "requireFalse Tests" [
+    testCase "requireFalse happy path" <| fun _ ->
+      Result.requireFalse err false 
+      |> Expect.hasOkValue ()
+
+    testCase "requireFalse error path" <| fun _ ->
+      Result.requireFalse err true 
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireSomeTests =
+  testList "requireSome Tests" [
+    testCase "requireSome happy path" <| fun _ ->
+      Result.requireSome err (Some 42) 
+      |> Expect.hasOkValue 42
+
+    testCase "requireSome error path" <| fun _ ->
+      Result.requireSome err None 
+      |> Expect.hasErrorValue err
+  ]
+
+
+[<Tests>]
+let requireNoneTests =
+  testList "requireNone Tests" [
+    testCase "requireNone happy path" <| fun _ ->
+      Result.requireNone err None 
+      |> Expect.hasOkValue ()
+
+    testCase "requireNone error path" <| fun _ ->
+      Result.requireNone err (Some 42) 
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireEqualsTests =
+  testList "requireEquals Tests" [
+    testCase "requireEquals happy path" <| fun _ ->
+      Result.requireEquals 42 err 42 
+      |> Expect.hasOkValue ()
+
+    testCase "requireEquals error path" <| fun _ ->
+      Result.requireEquals 42 err 43
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireEmptyTests =
+  testList "requireEmpty Tests" [
+    testCase "requireEmpty happy path" <| fun _ ->
+      Result.requireEmpty err []
+      |> Expect.hasOkValue ()
+
+    testCase "requireEmpty error path" <| fun _ ->
+      Result.requireEmpty err [42]
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireNotEmptyTests =
+  testList "requireNotEmpty Tests" [
+    testCase "requireNotEmpty happy path" <| fun _ ->
+      Result.requireNotEmpty err [42]
+      |> Expect.hasOkValue ()
+
+    testCase "requireNotEmpty error path" <| fun _ ->
+      Result.requireNotEmpty err []
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let requireHeadTests =
+  testList "requireHead Tests" [
+    testCase "requireHead happy path" <| fun _ ->
+      Result.requireHead err [42]
+      |> Expect.hasOkValue 42
+
+    testCase "requireHead error path" <| fun _ ->
+      Result.requireHead err []
+      |> Expect.hasErrorValue err
+  ]
+
+[<Tests>]
+let setErrorTests =
+  testList "setError Tests" [
+    testCase "setError replaces a any error value with a custom error value" <| fun _ ->
+      Result.setError err (Error ())
+      |> Expect.hasErrorValue err
+
+    testCase "setError does not change an ok value" <| fun _ ->
+      Result.setError err (Ok 42)
+      |> Expect.hasOkValue 42
+  ]
+
+[<Tests>]
+let ignoreErrorTests =
+  testList "ignoreError Tests" [
+    testCase "ignoreError returns the unit for ok" <| fun _ ->
+      Expect.equal (Result.ignoreError (Ok ())) () ""
+
+    testCase "ignoreError returns the unit for Error" <| fun _ ->
+      Expect.equal (Result.ignoreError (Error 42)) () ""
+  ]
+
+
+[<Tests>]
+let teeTests =
+
+  testList "tee Tests" [
+    testCase "tee executes the function for ok" <| fun _ ->
+      let foo = ref "foo"
+      let input = ref 0
+      let bar x = 
+        input := x
+        foo := "bar"
+      let result = Result.tee bar (Ok 42)
+      Expect.hasOkValue 42 result
+      Expect.equal !foo "bar" ""
+      Expect.equal !input 42 ""
+
+    testCase "tee ignores the function for Error" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.tee bar (Error err)
+      Expect.hasErrorValue err result
+      Expect.equal !foo "foo" ""
+  ]
+
+let returnTrue _ = true
+let returnFalse _ = false
+
+[<Tests>]
+let teeIfTests =
+  testList "teeIf Tests" [
+    testCase "teeIf executes the function for ok and true predicate " <| fun _ ->
+      let foo = ref "foo"
+      let input = ref 0
+      let pInput = ref 0
+      let returnTrue x = 
+        pInput := x
+        true
+      let bar x = 
+        input := x
+        foo := "bar"
+      let result = Result.teeIf returnTrue bar (Ok 42)
+      Expect.hasOkValue 42 result
+      Expect.equal !foo "bar" ""
+      Expect.equal !input 42 ""
+      Expect.equal !pInput 42 ""
+
+    testCase "teeIf ignores the function for Ok and false predicate" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.teeIf returnFalse bar (Ok 42)
+      Expect.hasOkValue 42 result
+      Expect.equal !foo "foo" ""
+
+    testCase "teeIf ignores the function for Error" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.teeIf returnTrue bar (Error err)
+      Expect.hasErrorValue err result
+      Expect.equal !foo "foo" ""
+  ]
+
+[<Tests>]
+let teeErrorTests =
+
+  testList "teeError Tests" [
+    testCase "teeError executes the function for Error" <| fun _ ->
+      let foo = ref "foo"
+      let input = ref ""
+      let bar x = 
+        input := x
+        foo := "bar"
+      let result = Result.teeError bar (Error err)
+      Expect.hasErrorValue err result
+      Expect.equal !foo "bar" ""
+      Expect.equal !input err ""
+
+    testCase "teeError ignores the function for Ok" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.teeError bar (Ok 42)
+      Expect.hasOkValue 42 result
+      Expect.equal !foo "foo" ""
+  ]
+
+[<Tests>]
+let teeErrorIfTests =
+  testList "teeErrorIf Tests" [
+    testCase "teeErrorIf executes the function for Error and true predicate " <| fun _ ->
+      let foo = ref "foo"
+      let input = ref ""
+      let pInput = ref ""
+      let returnTrue x = 
+        pInput := x
+        true
+      let bar x = 
+        input := x
+        foo := "bar"
+      let result = Result.teeErrorIf returnTrue bar (Error err)
+      Expect.hasErrorValue err result
+      Expect.equal !foo "bar" ""
+      Expect.equal !input err ""
+      Expect.equal !pInput err ""
+
+    testCase "teeErrorIf ignores the function for Error and false predicate" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.teeErrorIf returnFalse bar (Error err)
+      Expect.hasErrorValue err result
+      Expect.equal !foo "foo" ""
+
+    testCase "teeErrorIf ignores the function for Ok" <| fun _ ->
+      let foo = ref "foo"
+      let bar _ = 
+        foo := "bar"
+      let result = Result.teeErrorIf returnTrue bar (Ok 42)
+      Expect.hasOkValue 42 result
+      Expect.equal !foo "foo" ""
+  ]

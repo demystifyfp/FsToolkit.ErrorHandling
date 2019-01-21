@@ -8,6 +8,7 @@
   * [ofChoice](result/ofChoice.md)
   * [Computation Expression](result/ce.md)
   * [Operators](result/operators.md)
+  * [Other Functions](result/others.md)
 
 * Option
   * [traverseResult](option/traverseResult.md)
