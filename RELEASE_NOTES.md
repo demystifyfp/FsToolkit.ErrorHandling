@@ -1,11 +1,14 @@
-#### 0.0.12 - January 4, 2018
+#### 0.0.13 - January 21, 2019
+* add Result helper functions from Cvdm.ErrorHandling. Credits [@cmeeren](https://github.com/cmeeren)
+
+#### 0.0.12 - January 4, 2019
 * Add Fable Support
 
-#### 0.0.11 - January 4, 2018
-* NuGet Packaging using Dotnet Pack. Credits @enerqi
+#### 0.0.11 - January 4, 2019
+* NuGet Packaging using Dotnet Pack. Credits [@enerqi](www.github.com/enerqi)
 
 #### 0.0.10 - December 30, 2018
-* Add Fable support. Credits @enerqi
+* Add Fable support. Credits [@enerqi](www.github.com/enerqi)
 
 #### 0.0.9 - October 5 2018
 * Fix error message ordering in List.traverseResultA function.
