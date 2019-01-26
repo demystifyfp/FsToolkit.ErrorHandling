@@ -34,6 +34,7 @@
   * [bind](asyncResult/bind.md)
   * [Computation Expression](asyncResult/ce.md)
   * [Operators](asyncResult/operators.md)
+  * [Other Functions](asyncResult/others.md)
 
 * List
   * [traverseResultM](list/traverseResultM.md)

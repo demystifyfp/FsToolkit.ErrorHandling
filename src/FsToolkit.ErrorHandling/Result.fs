@@ -72,6 +72,11 @@ module Result =
   let setError error result =
     result |> Result.mapError (fun _ -> error)
 
+  /// Replaces a unit error value with a custom error value. Safer than setError
+  /// since you're not losing any information.
+  let withError error result =
+    result |> Result.mapError (fun () -> error)
+
   /// Returns the contained value if Ok, otherwise returns ifError.
   let defaultValue ifError result =
     match result with

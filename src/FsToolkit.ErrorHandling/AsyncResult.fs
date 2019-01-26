@@ -44,6 +44,14 @@ module AsyncResult =
   let apply fAR xAR =
     map2 (fun f x -> f x) fAR xAR
 
+  /// Returns the specified error if the async-wrapped value is false.
+  let requireTrue error value =
+    value |> Async.map (Result.requireTrue error)
+
+  /// Returns the specified error if the async-wrapped value is true.
+  let requireFalse error value =
+    value |> Async.map (Result.requireFalse error) 
+
 
 module AsyncResultOperators =
 

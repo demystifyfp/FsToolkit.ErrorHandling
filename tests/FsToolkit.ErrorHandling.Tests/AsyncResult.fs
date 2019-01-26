@@ -115,6 +115,37 @@ let bindTests =
       |> Expect.hasAsyncErrorValue ex
   ]
 
+let err = "foobar"
+let toAsync x = async {return x}
+
+[<Tests>]
+let requireTrueTests =
+  testList "AsyncResult.requireTrue Tests" [
+    testCase "requireTrue happy path" <| fun _ ->
+      toAsync true
+      |> AsyncResult.requireTrue err 
+      |> Expect.hasAsyncOkValue ()
+
+    testCase "requireTrue error path" <| fun _ ->
+      toAsync false
+      |> AsyncResult.requireTrue err 
+      |> Expect.hasAsyncErrorValue err
+  ]
+
+[<Tests>]
+let requireFalseTests =
+  testList "AsyncResult.requireFalse Tests" [
+    testCase "requireFalse happy path" <| fun _ ->
+      toAsync false
+      |> AsyncResult.requireFalse err  
+      |> Expect.hasAsyncOkValue ()
+
+    testCase "requireFalse error path" <| fun _ ->
+      toAsync true
+      |> AsyncResult.requireFalse err 
+      |> Expect.hasAsyncErrorValue err
+  ]
+
 
 type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest

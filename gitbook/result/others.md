@@ -62,13 +62,22 @@ error if the sequence is empty
 ```
 
 
-### withError
+### setError
 
 Replaces an error value with a custom error value
 
 ```
 'a -> Result<'b, 'c> -> Result<'b, 'a>
 ```
+
+### withError
+
+Replaces a unit error value with a custom error value. Safer than setError since you're not losing any information.
+
+```
+'a -> Result<'b, unit> -> Result<'b, 'a>
+```
+
 
 ### defaultValue
 

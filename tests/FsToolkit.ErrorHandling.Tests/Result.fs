@@ -261,11 +261,23 @@ let requireHeadTests =
 let setErrorTests =
   testList "setError Tests" [
     testCase "setError replaces a any error value with a custom error value" <| fun _ ->
-      Result.setError err (Error ())
+      Result.setError err (Error "foo")
       |> Expect.hasErrorValue err
 
     testCase "setError does not change an ok value" <| fun _ ->
       Result.setError err (Ok 42)
+      |> Expect.hasOkValue 42
+  ]
+
+[<Tests>]
+let withErrorTests =
+  testList "withError Tests" [
+    testCase "withError replaces the unit error value with a custom error value" <| fun _ ->
+      Result.withError err (Error ())
+      |> Expect.hasErrorValue err
+
+    testCase "withError does not change an ok value" <| fun _ ->
+      Result.withError err (Ok 42)
       |> Expect.hasOkValue 42
   ]
 
