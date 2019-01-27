@@ -18,6 +18,12 @@ let hasOkValue v x =
   | Error x -> 
     Tests.failtestf "Expected Ok, was Error(%A)." x
 
+let hasAsyncValue v asyncX =
+  let x = Async.RunSynchronously asyncX
+  if v = x then
+    ()
+  else Tests.failtestf "Expected %A, was %A." v x
+
 
 let hasAsyncOkValue v asyncX = 
   let x = Async.RunSynchronously asyncX

@@ -45,13 +45,85 @@ module AsyncResult =
     map2 (fun f x -> f x) fAR xAR
 
   /// Returns the specified error if the async-wrapped value is false.
-  let requireTrue error value =
+  let requireTrue error value = 
     value |> Async.map (Result.requireTrue error)
 
   /// Returns the specified error if the async-wrapped value is true.
   let requireFalse error value =
     value |> Async.map (Result.requireFalse error) 
 
+  // Converts an async-wrapped Option to a Result, using the given error if None.
+  let requireSome error option =
+    option |> Async.map (Result.requireSome error)
+
+  // Converts an async-wrapped Option to a Result, using the given error if Some.
+  let requireNone error option =
+    option |> Async.map (Result.requireNone error)
+
+  /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
+  let requireEquals other error this =
+    this |> Async.map (Result.requireEquals other error)
+
+
+  /// Returns Ok if the async-wrapped sequence is empty, or the specified error if not.
+  let requireEmpty error xs =
+    xs |> Async.map (Result.requireEmpty error)
+
+  /// Returns Ok if the async-wrapped sequence is not-empty, or the specified error if not.
+  let requireNotEmpty error xs =
+    xs |> Async.map (Result.requireNotEmpty error)
+
+  /// Returns the first item of the async-wrapped sequence if it exists, or the specified
+  /// error if the sequence is empty
+  let requireHead error xs =
+    xs |> Async.map (Result.requireHead error)
+
+  /// Replaces an error value of an async-wrapped result with a custom error
+  /// value.
+  let setError error asyncResult =
+    asyncResult |> Async.map (Result.setError error)
+
+  /// Replaces a unit error value of an async-wrapped result with a custom
+  /// error value. Safer than setError since you're not losing any information.
+  let withError error asyncResult =
+    asyncResult |> Async.map (Result.withError error)
+
+  /// Extracts the contained value of an async-wrapped result if Ok, otherwise
+  /// uses ifError.
+  let defaultValue ifError asyncResult =
+    asyncResult |> Async.map (Result.defaultValue ifError)
+
+  /// Extracts the contained value of an async-wrapped result if Ok, otherwise
+  /// evaluates ifErrorThunk and uses the result.
+  let defaultWith ifErrorThunk asyncResult =
+    asyncResult |> Async.map (Result.defaultWith ifErrorThunk)
+
+  /// Same as defaultValue for a result where the Ok value is unit. The name
+  /// describes better what is actually happening in this case.
+  let ignoreError result =
+    defaultValue () result
+
+  /// If the async-wrapped result is Ok, executes the function on the Ok value.
+  /// Passes through the input value.
+  let tee f asyncResult =
+    asyncResult |> Async.map (Result.tee f)
+
+
+  /// If the async-wrapped result is Ok and the predicate returns true, executes
+  /// the function on the Ok value. Passes through the input value.
+  let teeIf predicate f asyncResult =
+    asyncResult |> Async.map (Result.teeIf predicate f)
+
+
+  /// If the async-wrapped result is Error, executes the function on the Error
+  /// value. Passes through the input value.
+  let teeError f asyncResult =
+    asyncResult |> Async.map (Result.teeError f)
+
+  /// If the async-wrapped result is Error and the predicate returns true,
+  /// executes the function on the Error value. Passes through the input value.
+  let teeErrorIf predicate f asyncResult =
+    asyncResult |> Async.map (Result.teeErrorIf predicate f)
 
 module AsyncResultOperators =
 

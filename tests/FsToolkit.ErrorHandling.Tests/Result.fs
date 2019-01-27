@@ -282,6 +282,30 @@ let withErrorTests =
   ]
 
 [<Tests>]
+let defaultValueTests = 
+  testList "defaultValue Tests" [
+    testCase "defaultValue returns the ok value" <| fun _ ->
+      let v = Result.defaultValue 43 (Ok 42)
+      Expect.equal v 42 ""
+
+    testCase "defaultValue returns the given value for Error" <| fun _ ->
+      let v = Result.defaultValue 43 (Error err)
+      Expect.equal v 43 ""
+  ]
+
+[<Tests>]
+let defaultWithTests =
+  testList "defaultWith Tests" [
+    testCase "defaultWith returns the ok value" <| fun _ ->
+      let v = Result.defaultWith (fun () -> 43) (Ok 42)
+      Expect.equal v 42 ""
+
+    testCase "defaultValue invoks the given thunk for Error" <| fun _ ->
+      let v = Result.defaultWith (fun () -> 42) (Error err)
+      Expect.equal v 42 ""
+  ]
+
+[<Tests>]
 let ignoreErrorTests =
   testList "ignoreError Tests" [
     testCase "ignoreError returns the unit for ok" <| fun _ ->
