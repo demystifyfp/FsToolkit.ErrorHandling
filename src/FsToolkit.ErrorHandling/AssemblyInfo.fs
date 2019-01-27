@@ -5,8 +5,8 @@ open System.Reflection
 [<assembly: AssemblyTitleAttribute("FsToolkit.ErrorHandling")>]
 [<assembly: AssemblyProductAttribute("FsToolkit.ErrorHandling")>]
 [<assembly: AssemblyDescriptionAttribute("An opinionated error handling library for F#")>]
-[<assembly: AssemblyVersionAttribute("0.0.13")>]
-[<assembly: AssemblyFileVersionAttribute("0.0.13")>]
+[<assembly: AssemblyVersionAttribute("0.0.14")>]
+[<assembly: AssemblyFileVersionAttribute("0.0.14")>]
 [<assembly: AssemblyConfigurationAttribute("Release")>]
 do ()
 
@@ -14,6 +14,6 @@ module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "FsToolkit.ErrorHandling"
     let [<Literal>] AssemblyProduct = "FsToolkit.ErrorHandling"
     let [<Literal>] AssemblyDescription = "An opinionated error handling library for F#"
-    let [<Literal>] AssemblyVersion = "0.0.13"
-    let [<Literal>] AssemblyFileVersion = "0.0.13"
+    let [<Literal>] AssemblyVersion = "0.0.14"
+    let [<Literal>] AssemblyFileVersion = "0.0.14"
     let [<Literal>] AssemblyConfiguration = "Release"

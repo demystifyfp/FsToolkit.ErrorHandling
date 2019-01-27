@@ -1,3 +1,6 @@
+#### 0.0.14 - January 27, 2019
+* add AsyncResult helper functions from Cvdm.ErrorHandling. Credits [@cmeeren](https://github.com/cmeeren)
+
 #### 0.0.13 - January 21, 2019
 * add Result helper functions from Cvdm.ErrorHandling. Credits [@cmeeren](https://github.com/cmeeren)
 
