@@ -16,7 +16,7 @@ Function Signature:
 Let's assume that we have a `add` function which adds three numbers.
 
 ```fsharp
-// int -> int -> int
+// int -> int -> int -> int
 let add a b c = a + b + c
 ```
 
