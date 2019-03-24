@@ -19,7 +19,7 @@ module List =
       | Ok _ -> traverseResultM' r f xs
       | Error _ -> r
 
-  let rec private traverseAsyncResultM' state f xs =
+  let rec private traverseAsyncResultM' (state : Async<Result<_,_>>) (f : _ -> Async<Result<_,_>>) xs =
     match xs with
     | [] -> state
     | x :: xs -> 
