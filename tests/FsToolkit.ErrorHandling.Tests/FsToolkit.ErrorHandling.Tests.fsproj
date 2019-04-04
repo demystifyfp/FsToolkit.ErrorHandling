@@ -20,6 +20,7 @@
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
     <Compile Include="AsyncResult.fs" />
+    <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="Main.fs" />

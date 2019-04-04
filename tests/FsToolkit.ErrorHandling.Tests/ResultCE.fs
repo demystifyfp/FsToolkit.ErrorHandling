@@ -10,8 +10,8 @@ open FsToolkit.ErrorHandling.CE.Result
 open FsToolkit.ErrorHandling.Operator.Result
 
 [<Tests>]
-let ``return Tests`` =
-    testList "return Tests" [
+let ``ResultCE return Tests`` =
+    testList "ResultCE return Tests" [
         testCase "Return string" <| fun _ ->
             let data = "Foo"
             let actual = result { return data }
@@ -19,8 +19,8 @@ let ``return Tests`` =
     ]
 
 [<Tests>]
-let ``return! Tests`` =
-    testList "return! Tests" [
+let ``ResultCE return! Tests`` =
+    testList "ResultCE return! Tests" [
         testCase "Return Ok result" <| fun _ ->
             let data = Result.Ok "Foo"
             let actual = result { return! data }
@@ -42,8 +42,8 @@ let ``return! Tests`` =
     ]
 
 [<Tests>]
-let ``bind Tests`` =
-    testList "bind Tests" [
+let ``ResultCE bind Tests`` =
+    testList "ResultCE bind Tests" [
         testCase "let! Ok result" <| fun _ ->
             let data = Result.Ok "Foo"
             let actual = 
@@ -99,8 +99,8 @@ let ``bind Tests`` =
     ]
 
 [<Tests>]
-let ``combine/zero/delay/run Tests`` =
-    testList "combine/zero/delay/run Tests" [
+let ``ResultCE combine/zero/delay/run Tests`` =
+    testList "ResultCE combine/zero/delay/run Tests" [
         testCase "Zero/Combine/Delay/Run" <| fun () ->
             let data = 42
             let actual = result {
@@ -113,8 +113,8 @@ let ``combine/zero/delay/run Tests`` =
 
 
 [<Tests>]
-let ``try Tests`` =
-    testList "try Tests" [
+let ``ResultCE try Tests`` =
+    testList "ResultCE try Tests" [
         testCase "Try With" <| fun () ->
             let data = 42
             let actual = result {
@@ -140,8 +140,8 @@ let makeDisposable () =
         with member this.Dispose() = () }
 
 [<Tests>]
-let ``using Tests`` =
-    testList "using Tests" [
+let ``ResultCE using Tests`` =
+    testList "ResultCE using Tests" [
         testCase "use normal disposable" <| fun () ->
             let data = 42
             let actual = result {
@@ -167,8 +167,8 @@ let ``using Tests`` =
 
 
 [<Tests>]
-let ``loop Tests`` =
-    testList "loop Tests" [
+let ``ResultCE loop Tests`` =
+    testList "ResultCE loop Tests" [
         testCase "while" <| fun () ->
             let data = 42
             let mutable index = 0
