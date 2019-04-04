@@ -6,7 +6,7 @@ open FsToolkit.ErrorHandling.CE.AsyncResult
 [<RequireQualifiedAccess>]
 module List =
 
-  let rec private traverseResultM' state f xs =
+  let rec private traverseResultM' (state : Result<_,_>) (f : _ -> Result<_,_>) xs =
     match xs with
     | [] -> state
     | x :: xs -> 

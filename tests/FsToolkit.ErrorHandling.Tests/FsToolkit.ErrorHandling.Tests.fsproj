@@ -15,6 +15,7 @@
     <Compile Include="TestData.fs" />
     <Compile Include="Expect.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="ResultCE.fs" />
     <Compile Include="ResultOption.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
