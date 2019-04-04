@@ -390,3 +390,6 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# vscode-ionide
+.ionide/
