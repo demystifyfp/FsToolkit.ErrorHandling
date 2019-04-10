@@ -50,7 +50,7 @@ module Result =
     | None -> Ok ()
 
   /// Returns Ok if the two values are equal, or the specified error if not.
-  let requireEquals other err this =
+  let requireEqual other err this =
     if this = other then Ok () else Error err
 
   /// Returns Ok if the sequence is empty, or the specified error if not.

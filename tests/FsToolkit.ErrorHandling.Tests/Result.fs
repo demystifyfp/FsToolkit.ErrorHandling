@@ -209,14 +209,14 @@ let requireNoneTests =
   ]
 
 [<Tests>]
-let requireEqualsTests =
-  testList "requireEquals Tests" [
-    testCase "requireEquals happy path" <| fun _ ->
-      Result.requireEquals 42 err 42 
+let requireEqualTests =
+  testList "requireEqual Tests" [
+    testCase "requireEqual happy path" <| fun _ ->
+      Result.requireEqual 42 err 42 
       |> Expect.hasOkValue ()
 
-    testCase "requireEquals error path" <| fun _ ->
-      Result.requireEquals 42 err 43
+    testCase "requireEqual error path" <| fun _ ->
+      Result.requireEqual 42 err 43
       |> Expect.hasErrorValue err
   ]
 

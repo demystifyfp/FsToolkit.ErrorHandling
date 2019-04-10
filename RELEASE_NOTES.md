@@ -1,7 +1,10 @@
 #### 1.0.0 - April 10, 2019
 * Adds AsyncResult and Result CE methods from Cvdm.ErrorHandling. Credits [Jimmy Byrd](https://github.com/TheAngryByrd), [Christer van der Meeren](https://github.com/cmeeren)
-* **BREAKING CHANGE** : Namespaces `FsToolkit.ErrorHandling.CE.Result`, `FsToolkit.ErrorHandling.CE.ResultOption`, `FsToolkit.ErrorHandling.CE.AsyncResult`, `FsToolkit.ErrorHandling.CE.AsyncResultOption` renamed to ``FsToolkit.ErrorHandling`. 
-* **BREAKING CHANGE** - Removed `FsToolkit.ErrorHandling.AsyncResultOperators` module. Use `FsToolkit.ErrorHandling.Operator.AsyncResult` module instead. 
+* **BREAKING CHANGEs** 
+  - Namespaces `FsToolkit.ErrorHandling.CE.Result`,   `FsToolkit.ErrorHandling.CE.ResultOption`, `FsToolkit.ErrorHandling.CE.AsyncResult`, `FsToolkit.ErrorHandling.CE.AsyncResultOption` renamed to `FsToolkit.ErrorHandling`. 
+  - Removed `FsToolkit.ErrorHandling.AsyncResultOperators` module. Use  `FsToolkit.ErrorHandling.Operator.AsyncResult` module instead. 
+  - `Result.requireEquals` renamed to `Result.requireEqual`
+  - `AsyncResult.requireEquals` renamed to `AsyncResult.requireEqual`
 
 #### 0.0.14 - January 27, 2019
 * add AsyncResult helper functions from Cvdm.ErrorHandling. Credits [@cmeeren](https://github.com/cmeeren)

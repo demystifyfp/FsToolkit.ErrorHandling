@@ -29,7 +29,7 @@ Converts an Option to a Result, using the given error if Some.
 'a -> 'b option -> Result<'b, 'a>`
 ```
 
-### requireEquals
+### requireEqual
 
 Returns Ok if the two values are equal, or the specified error if not.
 ```

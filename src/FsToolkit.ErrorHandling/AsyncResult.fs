@@ -69,8 +69,8 @@ module AsyncResult =
     option |> Async.map (Result.requireNone error)
 
   /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
-  let requireEquals other error this =
-    this |> Async.map (Result.requireEquals other error)
+  let requireEqual other error this =
+    this |> Async.map (Result.requireEqual other error)
 
 
   /// Returns Ok if the async-wrapped sequence is empty, or the specified error if not.
