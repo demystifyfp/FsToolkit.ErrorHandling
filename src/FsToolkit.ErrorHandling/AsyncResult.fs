@@ -1,5 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
+open System.Threading.Tasks
+
 [<RequireQualifiedAccess>]
 module AsyncResult = 
 
@@ -22,6 +24,12 @@ module AsyncResult =
     Async.map (Result.fold onSuccess onError) ar
 
   let ofTask aTask = 
+    aTask
+    |> Async.AwaitTask 
+    |> Async.Catch 
+    |> Async.map Result.ofChoice
+
+  let ofTaskAction (aTask : Task) = 
     aTask
     |> Async.AwaitTask 
     |> Async.Catch 

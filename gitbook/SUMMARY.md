@@ -31,6 +31,7 @@
   * [apply](asyncResult/apply.md)
   * [foldResult](asyncResult/foldResult.md)
   * [ofTask](asyncResult/ofTask.md)
+  * [ofTaskAction](asyncResult/ofTaskAction.md)
   * [bind](asyncResult/bind.md)
   * [Computation Expression](asyncResult/ce.md)
   * [Operators](asyncResult/operators.md)
