@@ -48,10 +48,18 @@ module Result =
     match option with
     | Some _ -> Error error
     | None -> Ok ()
+  
+  /// Returns Ok if the two values are equal, or the specified error if not.
+  /// Same as requireEqual, but with a signature that fits piping better than
+  /// normal function application.
+  let requireEqualTo other err this =
+    if this = other then Ok () else Error err
 
   /// Returns Ok if the two values are equal, or the specified error if not.
-  let requireEqual other err this =
-    if this = other then Ok () else Error err
+  /// Same as requireEqualTo, but with a signature that fits normal function
+  /// application better than piping.
+  let requireEqual x1 x2 error =
+    if x1 = x2 then Ok () else Error error
 
   /// Returns Ok if the sequence is empty, or the specified error if not.
   let requireEmpty error xs =

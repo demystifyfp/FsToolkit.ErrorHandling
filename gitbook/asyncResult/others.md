@@ -36,6 +36,14 @@ Converts an async-wrapped Option to a Result, using the given error if Some.
 Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
   
 ```
+'a -> Async<'a> -> 'b -> Async<Result<unit, 'b>>
+```
+
+### requireEqualTo
+
+Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
+  
+```
 'a -> 'b -> Async<'a> -> Async<Result<unit, 'b>>
 ```
 

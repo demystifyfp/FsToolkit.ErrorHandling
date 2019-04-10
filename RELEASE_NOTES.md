@@ -3,8 +3,8 @@
 * **BREAKING CHANGEs** 
   - Namespaces `FsToolkit.ErrorHandling.CE.Result`,   `FsToolkit.ErrorHandling.CE.ResultOption`, `FsToolkit.ErrorHandling.CE.AsyncResult`, `FsToolkit.ErrorHandling.CE.AsyncResultOption` renamed to `FsToolkit.ErrorHandling`. 
   - Removed `FsToolkit.ErrorHandling.AsyncResultOperators` module. Use  `FsToolkit.ErrorHandling.Operator.AsyncResult` module instead. 
-  - `Result.requireEquals` renamed to `Result.requireEqual`
-  - `AsyncResult.requireEquals` renamed to `AsyncResult.requireEqual`
+  - `Result.requireEquals` renamed to `Result.requireEqualTo`
+  - `AsyncResult.requireEquals` renamed to `AsyncResult.requireEqualTo`
 
 #### 0.0.14 - January 27, 2019
 * add AsyncResult helper functions from Cvdm.ErrorHandling. Credits [@cmeeren](https://github.com/cmeeren)

@@ -31,9 +31,18 @@ Converts an Option to a Result, using the given error if Some.
 
 ### requireEqual
 
-Returns Ok if the two values are equal, or the specified error if not.
+Returns Ok if the two values are equal, or the specified error if not. Same as requireEqualTo, but with a signature that fits normal function application better than piping.
 ```
-'a -> 'b -> 'a -> Result<unit, 'b>
+'a -> 'a -> 'b -> Result<unit, 'b>
+```
+
+
+### requireEqualTo
+
+Returns Ok if the two values are equal, or the specified error if not. Same as requireEqual, but with a signature that fits piping better than normal function application.
+  
+```
+'a -> 'b -> 'a  -> Result<unit, 'b>
 ```
 
 ### requireEmpty

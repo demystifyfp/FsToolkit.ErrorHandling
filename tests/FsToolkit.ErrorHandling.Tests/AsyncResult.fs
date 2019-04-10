@@ -174,16 +174,28 @@ let requireNoneTests =
   ]
 
 [<Tests>]
+let requireEqualToTests =
+  testList "AsyncResult.requireEqualTo Tests" [
+    testCase "requireEqualTo happy path" <| fun _ ->
+      toAsync 42
+      |> AsyncResult.requireEqualTo 42 err 
+      |> Expect.hasAsyncOkValue ()
+
+    testCase "requireEqualTo error path" <| fun _ ->
+      toAsync 43
+      |> AsyncResult.requireEqualTo 42 err
+      |> Expect.hasAsyncErrorValue err
+  ]
+
+[<Tests>]
 let requireEqualTests =
   testList "AsyncResult.requireEqual Tests" [
     testCase "requireEqual happy path" <| fun _ ->
-      toAsync 42
-      |> AsyncResult.requireEqual 42 err 
+      AsyncResult.requireEqual 42 (toAsync 42) err 
       |> Expect.hasAsyncOkValue ()
 
     testCase "requireEqual error path" <| fun _ ->
-      toAsync 43
-      |> AsyncResult.requireEqual 42 err
+      AsyncResult.requireEqual 42 (toAsync 43) err
       |> Expect.hasAsyncErrorValue err
   ]
 
