@@ -43,7 +43,8 @@ module AsyncResult =
          binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
       async {
-        match! asyncResult with
+        let! result = asyncResult
+        match result with
         | Ok x -> return! binder x
         | Error x -> return Error x
       }
