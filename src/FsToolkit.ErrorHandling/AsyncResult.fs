@@ -124,10 +124,3 @@ module AsyncResult =
   /// executes the function on the Error value. Passes through the input value.
   let teeErrorIf predicate f asyncResult =
     asyncResult |> Async.map (Result.teeErrorIf predicate f)
-
-module AsyncResultOperators =
-
-  let inline (<!>) f x = AsyncResult.map f x
-  let inline (<*>) f x = AsyncResult.apply f x
-  let inline (>>=) x f = AsyncResult.bind f x
-
