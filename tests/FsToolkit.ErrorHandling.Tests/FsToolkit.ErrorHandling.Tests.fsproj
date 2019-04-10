@@ -15,10 +15,12 @@
     <Compile Include="TestData.fs" />
     <Compile Include="Expect.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="ResultCE.fs" />
     <Compile Include="ResultOption.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="List.fs" />
     <Compile Include="AsyncResult.fs" />
+    <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="Main.fs" />

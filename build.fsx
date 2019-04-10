@@ -18,7 +18,12 @@ let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
 Target.create "Clean" (fun _ ->
-  Shell.cleanDirs ["bin"]
+  !! "bin"
+  ++ "src/**/bin"
+  ++ "tests/**/bin"
+  ++ "src/**/obj"
+  ++ "tests/**/obj"
+  |> Shell.cleanDirs
 )
 
 if not (Environment.isWindows) then
@@ -163,4 +168,4 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "Release"
 
 // *** Start Build ***
-Target.runOrDefault "Build"
+Target.runOrDefaultWithArguments "Build"
