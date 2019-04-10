@@ -1,6 +1,6 @@
 ## AsyncResult Computation Expression
 
-Namespace: `FsToolkit.ErrorHandling.CE.AsyncResult`
+Namespace: `FsToolkit.ErrorHandling`
 
 
 ## Examples 

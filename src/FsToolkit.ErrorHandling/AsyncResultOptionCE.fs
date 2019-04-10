@@ -1,9 +1,7 @@
-namespace FsToolkit.ErrorHandling.CE.AsyncResultOption
-
-open FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
 [<AutoOpen>]
-module AsyncResultOption =  
+module AsyncResultOptionCE =  
 
   type AsyncResultOptionBuilder() =
     member __.Return value = AsyncResultOption.retn value

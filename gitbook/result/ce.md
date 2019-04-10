@@ -1,6 +1,6 @@
 ## Result Computation Expression
 
-Namespace: `FsToolkit.ErrorHandling.CE.Result`
+Namespace: `FsToolkit.ErrorHandling`
 
 ## Examples:
 
@@ -9,7 +9,7 @@ Namespace: `FsToolkit.ErrorHandling.CE.Result`
 The example that we saw in the [Result.map3](../result/map3.md#example-1) can be solved using the `result` computation expression as below
 
 ```fsharp
-open FsToolkit.ErrorHandling.CE.Result
+open FsToolkit.ErrorHandling
 
 // Result<int, string>
 let addResult = result {

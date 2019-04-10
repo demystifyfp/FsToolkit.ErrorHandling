@@ -1,8 +1,6 @@
 module SampleDomain
 
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.CE.Result
-open FsToolkit.ErrorHandling.CE.ResultOption
 open System
 
 

@@ -7,7 +7,6 @@ open SampleDomain
 open TestData
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.CE.AsyncResult
 
 [<Tests>]
 let ``AsyncResultCE return Tests`` =

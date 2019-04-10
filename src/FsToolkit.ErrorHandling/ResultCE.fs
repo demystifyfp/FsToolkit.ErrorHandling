@@ -1,10 +1,9 @@
-namespace FsToolkit.ErrorHandling.CE.Result
+namespace FsToolkit.ErrorHandling
 
 open System 
-open FsToolkit.ErrorHandling
 
 [<AutoOpen>]
-module Result =
+module ResultCE =
 
   type ResultBuilder() =
     member __.Return (value: 'T) : Result<'T, 'TError> =

@@ -3,7 +3,6 @@ module AsyncResultOptionTests
 open Expecto
 open SampleDomain
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.CE.AsyncResultOption
 open FsToolkit.ErrorHandling.Operator.AsyncResultOption
 open System
 

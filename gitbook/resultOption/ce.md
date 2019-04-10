@@ -1,13 +1,13 @@
 ## Result Computation Expression
 
-Namespace: `FsToolkit.ErrorHandling.CE.ResultOption`
+Namespace: `FsToolkit.ErrorHandling`
 
 ## Examples:
 
 ### Example 1
 
 ```fsharp
-open FsToolkit.ErrorHandling.CE.ResultOption
+open FsToolkit.ErrorHandling
 
 let add x y z = x + y + z
 

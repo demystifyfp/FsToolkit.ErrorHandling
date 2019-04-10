@@ -1,12 +1,10 @@
-namespace FsToolkit.ErrorHandling.CE.AsyncResult
+namespace FsToolkit.ErrorHandling
 
-open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.CE.Result
 open System.Threading.Tasks
 open System
 
 [<AutoOpen>]
-module AsyncResult = 
+module AsyncResultCE = 
 
   type AsyncResultBuilder() =
 
@@ -110,7 +108,7 @@ module AsyncResult =
 
 
 [<AutoOpen>]
-module Extensions =
+module AsyncResultCEExtensions =
 
   // Having Async<_> members as extensions gives them lower priority in
   // overload resolution between Async<_> and Async<Result<_,_>>.

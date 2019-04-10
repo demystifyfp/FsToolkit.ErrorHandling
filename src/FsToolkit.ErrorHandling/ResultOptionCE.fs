@@ -1,9 +1,7 @@
-namespace FsToolkit.ErrorHandling.CE.ResultOption
-
-open FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
 [<AutoOpen>]
-module ResultOption =
+module ResultOptionCE =
 
   type ResultOptionBuilder() =
     member __.Return value = ResultOption.retn value
