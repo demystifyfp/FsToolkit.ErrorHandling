@@ -43,7 +43,7 @@ Target.create "Build" (fun _ ->
   let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
             Configuration = DotNet.BuildConfiguration.fromString configuration}
-  DotNet.build setParams solutionFile
+  DotNet.build id solutionFile
 )
 
 

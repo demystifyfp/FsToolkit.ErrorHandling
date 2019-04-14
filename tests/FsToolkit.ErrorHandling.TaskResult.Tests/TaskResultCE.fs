@@ -1,70 +1,73 @@
-module AsyncResultCETests 
+module TaskResultCETests 
 
 
 
 open Expecto
 open SampleDomain
 open TestData
-open System.Threading.Tasks
 open FsToolkit.ErrorHandling
+open System.Threading.Tasks
+open FSharp.Control.Tasks.V2.ContextInsensitive
+
+let testCaseTask name test = testCaseAsync name (Async.AwaitTask test)
 
 [<Tests>]
-let ``AsyncResultCE return Tests`` =
-    testList "AsyncResultCE  Tests" [
-        testCaseAsync "Return string" <| async {
+let ``TaskResultCE return Tests`` =
+    testList "TaskResultCE  Tests" [
+        testCaseTask "Return string" <| task {
             let data = "Foo"
-            let! actual = asyncResult { return data }
+            let! actual = taskResult { return data }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
     ]
 
 
 [<Tests>]
-let ``AsyncResultCE return! Tests`` =
-    testList "AsyncResultCE return! Tests" [
-        testCaseAsync "Return Ok Result" <| async {
+let ``TaskResultCE return! Tests`` =
+    testList "TaskResultCE return! Tests" [
+        testCaseTask "Return Ok Result" <| task {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = asyncResult { return! data }
+            let! actual = taskResult { return! data }
         
             Expect.equal actual (data) "Should be ok"
         }
-        testCaseAsync "Return Ok Choice" <| async {
+        testCaseTask "Return Ok Choice" <| task {
             let innerData = "Foo"
             let data = Choice1Of2 innerData
-            let! actual = asyncResult { return! data }
+            let! actual = taskResult { return! data }
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
 
-        testCaseAsync "Return Ok AsyncResult" <| async {
+        testCaseTask "Return Ok AsyncResult" <| task {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = asyncResult { return! Async.singleton data }
+            let! actual = taskResult { return! Async.singleton data }
         
             Expect.equal actual (data) "Should be ok"
         }
-        testCaseAsync "Return Ok TaskResult" <| async {
+        testCaseTask "Return Ok TaskResult" <| task {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = asyncResult { return! Task.FromResult data }
+            let! actual = taskResult { return! Task.FromResult data }
         
             Expect.equal actual (data) "Should be ok"
         }
-        testCaseAsync "Return Async" <| async {
+        testCaseTask "Return Async" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { return! Async.singleton innerData }
+            let! actual = taskResult { return! Async.singleton innerData }
         
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
-        testCaseAsync "Return Task Generic" <| async {
+        testCaseTask "Return Task Generic" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { return! Task.FromResult innerData }
+            let! actual = taskResult { return! Task.FromResult innerData }
         
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
-        testCaseAsync "Return Task" <| async {
+        testCaseTask "Return Task" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { return! Task.FromResult innerData :> Task }
+            let! actual = taskResult { return! Task.FromResult innerData :> Task }
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
@@ -72,69 +75,70 @@ let ``AsyncResultCE return! Tests`` =
 
 
 [<Tests>]
-let ``AsyncResultCE bind Tests`` =
-    testList "AsyncResultCE bind Tests" [
-        testCaseAsync "Bind Ok Result" <| async {
+let ``TaskResultCE bind Tests`` =
+    testList "TaskResultCE bind Tests" [
+        testCaseTask "Bind Ok Result" <| task {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 let! data = data
                 return data 
             }        
             Expect.equal actual (data) "Should be ok"
 
         }
-        testCaseAsync "Bind Ok Choice" <| async {
+        testCaseTask "Bind Ok Choice" <| task {
             let innerData = "Foo"
             let data = Choice1Of2 innerData
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 let! data = data
                 return data 
             }        
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
 
-        testCaseAsync "Bind Ok AsyncResult" <| async {
+ 
+        testCaseTask "Bind Ok AsyncResult" <| task {
             let innerData = "Foo"
             let data = Result.Ok innerData |> Async.singleton
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 let! data = data
                 return data 
             }        
         
             Expect.equal actual (data |> Async.RunSynchronously) "Should be ok"
         }
-        testCaseAsync "Bind Ok TaskResult" <| async {
+        testCaseTask "Bind Ok TaskResult" <| task {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Task.FromResult
-            let! actual = asyncResult { 
+            let data = Result.Ok innerData |> Task.singleton
+            let! actual = taskResult { 
                 let! data = data
                 return data 
             }        
         
             Expect.equal actual (data.Result) "Should be ok"
         }
-        testCaseAsync "Bind Async" <| async {
+        testCaseTask "Bind Async" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 let! data = Async.singleton innerData
                 return data 
             }        
         
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
-        testCaseAsync "Bind Task Generic" <| async {
+        testCaseTask "Bind Task Generic" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 let! data = Task.FromResult innerData
                 return data 
             }        
         
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
-        testCaseAsync "Bind Task" <| async {
+        testCaseTask "Bind Task" <| task {
             let innerData = "Foo"
-            let! actual = asyncResult { 
+            let! actual = taskResult { 
                 do! Task.FromResult innerData :> Task
             }        
         
@@ -144,11 +148,11 @@ let ``AsyncResultCE bind Tests`` =
 
 
 [<Tests>]
-let ``AsyncResultCE combine/zero/delay/run Tests`` =
-    testList "AsyncResultCE combine/zero/delay/run Tests" [
-        testCaseAsync "Zero/Combine/Delay/Run" <| async {
+let ``TaskResultCE combine/zero/delay/run Tests`` =
+    testList "TaskResultCE combine/zero/delay/run Tests" [
+        testCaseTask "Zero/Combine/Delay/Run" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 let result = data
                 if true then ()
                 return result
@@ -160,11 +164,11 @@ let ``AsyncResultCE combine/zero/delay/run Tests`` =
 
 
 [<Tests>]
-let ``AsyncResultCE try Tests`` =
-    testList "AsyncResultCE try Tests" [
-        testCaseAsync "Try With" <| async {
+let ``TaskResultCE try Tests`` =
+    testList "TaskResultCE try Tests" [
+        testCaseTask "Try With" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 let data = data
                 try ()
                 with _ -> ()
@@ -172,9 +176,9 @@ let ``AsyncResultCE try Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
-        testCaseAsync "Try Finally" <| async {
+        testCaseTask "Try Finally" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 let data = data
                 try ()
                 finally ()
@@ -189,27 +193,27 @@ let makeDisposable () =
         with member this.Dispose() = () }
 
 [<Tests>]
-let ``AsyncResultCE using Tests`` =
-    testList "AsyncResultCE using Tests" [
-        testCaseAsync "use normal disposable" <| async {
+let ``TaskResultCE using Tests`` =
+    testList "TaskResultCE using Tests" [
+        testCaseTask "use normal disposable" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 use d = makeDisposable ()
                 return data
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
-        testCaseAsync "use! normal wrapped disposable" <| async {
+        testCaseTask "use! normal wrapped disposable" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 use! d = makeDisposable () |> Result.Ok
                 return data
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
-        testCaseAsync "use null disposable" <| async {
+        testCaseTask "use null disposable" <| task {
             let data = 42
-            let! actual = asyncResult {
+            let! actual = taskResult {
                 use d = null
                 return data
             }
@@ -219,34 +223,34 @@ let ``AsyncResultCE using Tests`` =
 
 
 [<Tests>]
-let ``AsyncResultCE loop Tests`` =
-    testList "AsyncResultCE loop Tests" [
-        testCaseAsync "while" <| async {
-            let data = 42
-            let mutable index = 0
-            let! actual = asyncResult {
-                while index < 10 do
-                    index <- index + 1
-                return data
-            }
-            Expect.equal actual (Result.Ok data) "Should be ok"
-        }
-        testCaseAsync "for in" <| async {
-            let data = 42
-            let! actual = asyncResult {
-                for i in [1..10] do
-                    ()
-                return data
-            }
-            Expect.equal actual (Result.Ok data) "Should be ok"
-        }
-        testCaseAsync "for to" <| async {
-            let data = 42
-            let! actual = asyncResult {
-                for i = 1 to 10 do
-                    ()
-                return data
-            }
-            Expect.equal actual (Result.Ok data) "Should be ok"
-        }
+let ``TaskResultCE loop Tests`` =
+    // testList "TaskResultCE loop Tests" [
+    //     testCaseTask "while" <| task {
+    //         let data = 42
+    //         let mutable index = 0
+    //         let! actual = taskResult {
+    //             while index < 10 do
+    //                 index <- index + 1
+    //             return data
+    //         }
+    //         Expect.equal actual (Result.Ok data) "Should be ok"
+    //     }
+        // testCaseTask "for in" <| task {
+        //     let data = 42
+        //     let! actual = taskResult {
+        //         for i in [1..10] do
+        //             ()
+        //         return data
+        //     }
+        //     Expect.equal actual (Result.Ok data) "Should be ok"
+        // }
+        // testCaseTask "for to" <| task {
+        //     let data = 42
+        //     let! actual = taskResult {
+        //         for i = 1 to 10 do
+        //             ()
+        //         return data
+        //     }
+        //     Expect.equal actual (Result.Ok data) "Should be ok"
+        // }
     ]
