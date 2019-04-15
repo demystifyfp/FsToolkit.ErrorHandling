@@ -6,7 +6,6 @@ open FSharp.Control.Tasks.V2.ContextInsensitive
 
 [<RequireQualifiedAccess>]
 module Task =
-
   let singleton value = value |> Task.FromResult
 
   let bind (f : 'a -> Task<'b>) (x : Task<'a>) = task {

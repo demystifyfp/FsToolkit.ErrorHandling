@@ -61,7 +61,7 @@ let ``TaskResultCE return! Tests`` =
         }
         testCaseTask "Return Task Generic" <| task {
             let innerData = "Foo"
-            let! actual = taskResult { return! Task.FromResult innerData }
+            let! actual = taskResult { return! Task.singleton innerData }
         
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -224,33 +224,33 @@ let ``TaskResultCE using Tests`` =
 
 [<Tests>]
 let ``TaskResultCE loop Tests`` =
-    // testList "TaskResultCE loop Tests" [
-    //     testCaseTask "while" <| task {
-    //         let data = 42
-    //         let mutable index = 0
-    //         let! actual = taskResult {
-    //             while index < 10 do
-    //                 index <- index + 1
-    //             return data
-    //         }
-    //         Expect.equal actual (Result.Ok data) "Should be ok"
-    //     }
-        // testCaseTask "for in" <| task {
-        //     let data = 42
-        //     let! actual = taskResult {
-        //         for i in [1..10] do
-        //             ()
-        //         return data
-        //     }
-        //     Expect.equal actual (Result.Ok data) "Should be ok"
-        // }
-        // testCaseTask "for to" <| task {
-        //     let data = 42
-        //     let! actual = taskResult {
-        //         for i = 1 to 10 do
-        //             ()
-        //         return data
-        //     }
-        //     Expect.equal actual (Result.Ok data) "Should be ok"
-        // }
+    testList "TaskResultCE loop Tests" [
+        testCaseTask "while" <| task {
+            let data = 42
+            let mutable index = 0
+            let! actual = taskResult {
+                while index < 10 do
+                    index <- index + 1
+                return data
+            }
+            Expect.equal actual (Result.Ok data) "Should be ok"
+        }
+        testCaseTask "for in" <| task {
+            let data = 42
+            let! actual = taskResult {
+                for i in [1..10] do
+                    ()
+                return data
+            }
+            Expect.equal actual (Result.Ok data) "Should be ok"
+        }
+        testCaseTask "for to" <| task {
+            let data = 42
+            let! actual = taskResult {
+                for i = 1 to 10 do
+                    ()
+                return data
+            }
+            Expect.equal actual (Result.Ok data) "Should be ok"
+        }
     ]
