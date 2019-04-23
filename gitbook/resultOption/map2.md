@@ -75,4 +75,4 @@ let toCreatePostRequest (dto : CreatePostRequestDto) =
   Result.map2 createPostRequest tweetR locationR
 ```
 
-Note that the `result` computation expression might make the code a bit more readable in this example, since you wouldn’t have to use `ResultOption.map2` or `Result.map2`.
+Note that this example can also be written using the `result` and `resultOption` computation expressions, which would allow you to skip the `map2` functions. See for example the [resultOption CE example](../result/ce.md#example-2).
