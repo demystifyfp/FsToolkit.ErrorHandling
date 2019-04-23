@@ -6,6 +6,7 @@ storage: none
 clitool dotnet-fake
 
 nuget FSharp.Core
+nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 
 group Test
 source https://www.nuget.org/api/v2
