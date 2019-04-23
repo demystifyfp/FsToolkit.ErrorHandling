@@ -6,7 +6,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-The example that we saw in the [Result.map3](../result/map3.md#example-1) can be solved using the `result` computation expression as below
+The example from [Result.map3](../result/map3.md#example-1) can be solved using the `result` computation expression as below:
 
 ```fsharp
 // Result<int, string>
@@ -20,7 +20,7 @@ let addResult = result {
 
 ### Example 2
 
-The example that we saw in the [Result.map3](../result/map3.md#a-example-2) can be solved using the `result` computation expression as below
+The example from [Result.map3](../result/map3.md#a-example-2) can be solved using the `result` computation expression as below:
 
 ```fsharp
 // Result<CreatePostRequest,string>
@@ -34,7 +34,7 @@ let createPostRequestResult = result {
 
 ### Example 3
 
-Given the following functions
+Given the following functions:
 
 ```f#
 tryGetUser : string -> User option
