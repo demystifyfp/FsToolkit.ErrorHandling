@@ -4,15 +4,17 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```F#
 Result<('a -> 'b), 'c> -> Result<'a, 'c> -> Result<'b, 'c>
 ```
 
-## Examples:
+## Examples
 
 ### Example 1
 
-Assume that we have a function to find the remaining characters of a [Tweet](../result/map3.md#tweet).
+Note: The `apply` function is most useful in its infix operator form `<*>` when using it over a multi-parameter function. Examples of this is shown in [the documentation for this operator](../result/operators.md). The example below is a bit artificial since `map` is arguably better.
+
+Assume that we have a function to find the remaining characters of a [Tweet](../result/map3.md#tweet):
 
 ```fsharp
 // Tweet -> int
@@ -20,22 +22,21 @@ let remainingCharacters (tweet : Tweet) =
   280 - tweet.Value.Length
 ```
 
-If we want a function that takes a plain string and have to use the above function to compute the remaining character, we can achieve it using the `apply` function as below
+If we want a function that takes a plain string instead, we can achieve it using the `apply` function:
 
 ```fsharp
 // string -> Result<int,string>
-let remainingCharacters2 (tweetStr : string) =
+let remainingCharactersStr (tweetStr : string) =
   Tweet.TryCreate tweet
   |> Result.apply (Ok remainingCharacters)
 ```
 
-Alternatively, you can achieve the same using the Result's in-built `map` function like
+But as mentioned, using the `map`  function is simpler in this case:
 
 ```fsharp
 // string -> Result<int,string>
-let remainingCharacters2 (tweetStr : string) =
+let remainingCharactersStr (tweetStr : string) =
   Tweet.TryCreate tweet
   |> Result.map remainingCharacters
 ```
 
-> We can get most out of the `apply` function when we use it over a multi-parameter function using its `infix` operator. FsToolkit.ErrorHandling provides this operator as well and the documentation for this can be found [here](../result/operators.md#example-1).
