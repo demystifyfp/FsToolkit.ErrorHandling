@@ -1,6 +1,6 @@
 ## Result Infix Operators
 
-FsToolkit.ErrorHandling provides the standard infix operators for the `map` (`<!>`), `apply` (`<*>`), and `bind` (`>>=`) functions of `Result` type.
+FsToolkit.ErrorHandling provides the standard infix operators for the `map` (`<!>`), `apply` (`<*>`), and `bind` (`>>=`) functions of the `Result` type.
 
 Namespace: `FsToolkit.ErrorHandling.Operator.Result`
 
