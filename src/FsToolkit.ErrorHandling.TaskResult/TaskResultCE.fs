@@ -5,6 +5,9 @@ open System
 open System.Threading.Tasks
 open FSharp.Control.Tasks
 open FSharp.Control.Tasks.V2.ContextInsensitive
+#nowarn "0044"
+// FSharp.Control.Tasks.TaskBuilder is marked obselete, see [why](https://github.com/rspeele/TaskBuilder.fs/blob/master/TaskBuilder.fs#L17-L19)
+// We however need access to the underlying `Step` type to be able to pull off the same tricks making this a usable CE
 open FSharp.Control.Tasks.TaskBuilder
 
 [<AutoOpen>]
