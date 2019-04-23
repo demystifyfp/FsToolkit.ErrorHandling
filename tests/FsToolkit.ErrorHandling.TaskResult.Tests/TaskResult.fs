@@ -441,26 +441,26 @@ type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest
 | NotAllowedToPost
 
-// [<Tests>]
-// let TaskResultCETests =
-//   let createPost userId = taskResult {
-//     let! isAllowed = allowedToPost userId
-//     if isAllowed then
-//       let! postId = createPostSuccess validCreatePostRequest
-//       let! followerIds = getFollowersSuccess sampleUserId
-//       return PostSuccess {NewPostId = postId; UserIds = followerIds}
-//     else
-//       return NotAllowedToPost
-//   }
-//   testList "TaskResult Computation Expression tests" [
-//     testCase "bind with all Ok" <| fun _ ->
-//       createPost sampleUserId
-//       |> Expect.hasTaskOkValue (PostSuccess {NewPostId = PostId newPostId; UserIds = followerIds})
+[<Tests>]
+let TaskResultCETests =
+  let createPost userId = taskResult {
+    let! isAllowed = allowedToPost userId
+    if isAllowed then
+      let! postId = createPostSuccess validCreatePostRequest
+      let! followerIds = getFollowersSuccess sampleUserId
+      return PostSuccess {NewPostId = postId; UserIds = followerIds}
+    else
+      return NotAllowedToPost
+  }
+  testList "TaskResult Computation Expression tests" [
+    testCase "bind with all Ok" <| fun _ ->
+      createPost sampleUserId
+      |> Expect.hasTaskOkValue (PostSuccess {NewPostId = PostId newPostId; UserIds = followerIds})
 
-//     testCase "bind with an Error" <| fun _ ->
-//       createPost (UserId (System.Guid.NewGuid()))
-//       |> Expect.hasTaskErrorValue commonEx
-//   ]
+    testCase "bind with an Error" <| fun _ ->
+      createPost (UserId (System.Guid.NewGuid()))
+      |> Expect.hasTaskErrorValue commonEx
+  ]
 
 [<Tests>]
 let TaskResultOperatorTests =

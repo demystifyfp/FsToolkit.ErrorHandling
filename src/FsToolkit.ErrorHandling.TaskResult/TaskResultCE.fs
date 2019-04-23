@@ -10,22 +10,24 @@ open FSharp.Control.Tasks.TaskBuilder
 [<AutoOpen>]
 module TaskResultCE = 
 
-  let rec combineR (step :  Step<Result<unit, _>>) (continuation : unit -> Step<'b>) =
+  let rec combineR (step :  Step<Result<'T, 'TError>>) (continuation : unit -> Step<Result<'U,'TError>>) =
       match step with
-      | Return _ -> continuation()
+      | Return (Ok v) -> continuation()
+      | Return (Error v) -> Return (Error v)
       | ReturnFrom t ->
           Await (t.GetAwaiter(), continuation)
       | Await (awaitable, next) ->
           Await (awaitable, fun () -> combineR (next()) continuation)
 
-  let whileLoopR (cond : unit -> bool) (body : unit -> Step<Result<unit, _>>) :  Step<Result<unit, _>> =
+  let whileLoopR (cond : unit -> bool) (body : unit -> Step<Result<unit, 'TError>>) :  Step<Result<unit, 'TError>> =
       if cond() then
           // Create a self-referencing closure to test whether to repeat the loop on future iterations.
           let rec repeat () =
               if cond() then
                   let body = body()
                   match body with
-                  | Return _ -> repeat()
+                  | Return (Ok v) -> repeat()
+                  | Return (Error v) -> body
                   | ReturnFrom t -> Await(t.GetAwaiter(), repeat)
                   | Await (awaitable, next) ->
                       Await (awaitable, fun () -> combineR (next()) repeat)
@@ -34,7 +36,7 @@ module TaskResultCE =
           combineR (body()) repeat
       else Return (result.Zero ())
   /// Implements a loop that runs `body` for each element in `sequence`.
-  let forLoopR (sequence : #seq<'a> ) (body : 'a -> Step<Result<unit,_>>) =
+  let forLoopR (sequence : #seq<'a> ) (body : 'a -> Step<Result<_,_>>) =
       // A for loop is just a using statement on the sequence's enumerator...
       using (sequence.GetEnumerator())
           // ... and its body is a while loop that advances the enumerator and runs the body on each element.

@@ -249,4 +249,18 @@ let ``AsyncResultCE loop Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
+        testCaseAsync "for in fail" <| async {
+            let data = [
+                Ok "42"
+                Ok "1024"
+                Error "error"
+            ]
+            let! actual = asyncResult {
+                for i in data do
+                    let! _ = i
+                    ()
+                return "ok"
+            }
+            Expect.equal actual (Result.Error "error") "Should be ok"
+        }
     ]

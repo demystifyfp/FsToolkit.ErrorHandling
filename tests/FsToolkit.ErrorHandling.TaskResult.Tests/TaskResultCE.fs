@@ -10,6 +10,8 @@ open System.Threading.Tasks
 open FSharp.Control.Tasks.V2.ContextInsensitive
 
 let testCaseTask name test = testCaseAsync name (Async.AwaitTask test)
+let ptestCaseTask name test = ptestCaseAsync name (Async.AwaitTask test)
+let ftestCaseTask name test = ftestCaseAsync name (Async.AwaitTask test)
 
 [<Tests>]
 let ``TaskResultCE return Tests`` =
@@ -252,5 +254,25 @@ let ``TaskResultCE loop Tests`` =
                 return data
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
+        }        
+        testCaseTask "for in fail" <| task {
+            
+            let mutable loopCount = 0
+            let expected = Error "error"
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+            ]
+            let! actual = taskResult {
+                for i in data do
+                    let! x = i
+                    loopCount <- loopCount + 1
+                    ()
+                return "ok"
+            }
+            Expect.equal 2 loopCount "Should only loop twice"
+            Expect.equal actual expected "Should be and error"
         }
     ]
