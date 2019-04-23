@@ -250,17 +250,22 @@ let ``AsyncResultCE loop Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
         testCaseAsync "for in fail" <| async {
+            let mutable loopCount = 0
+            let expected = Error "error"
             let data = [
                 Ok "42"
                 Ok "1024"
-                Error "error"
+                expected
+                Ok "1M"
             ]
             let! actual = asyncResult {
                 for i in data do
-                    let! _ = i
+                    let! x = i
+                    loopCount <- loopCount + 1
                     ()
                 return "ok"
             }
-            Expect.equal actual (Result.Error "error") "Should be ok"
+            Expect.equal 2 loopCount "Should only loop twice"
+            Expect.equal actual expected "Should be and error"
         }
     ]
