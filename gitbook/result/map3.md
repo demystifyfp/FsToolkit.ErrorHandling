@@ -11,6 +11,8 @@ Function Signature:
 
 ## Examples
 
+Note: Many use-cases requiring `map` operations can also be solved using [the `result` computation expression](../result/ce.md).
+
 ### Example 1
 
 Let's assume that we have an `add` function that adds three numbers:
