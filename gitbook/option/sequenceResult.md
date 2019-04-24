@@ -8,7 +8,9 @@ Function Signature:
 Result<'a,'b> option -> Result<'a option, 'b>
 ```
 
-Note that `Option.sequenceResult` is the same as `Option.traverseResult id`.
+Note that `sequence` is the same as `traverse id`. See also [Option.traverseResult](traverseResult.md).
+
+See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpforfunandprofit.com/posts/elevated-world-4/).
 
 ## Examples
 
