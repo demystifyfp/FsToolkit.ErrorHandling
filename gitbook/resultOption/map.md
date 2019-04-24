@@ -4,22 +4,25 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```F#
 ('a -> 'b) -> Result<'a option, 'c> -> Result<'b option, 'c>
 ```
 
+`ResultOption.map` is the same as `Result.map Option.map`.
+
 ### Example 1
 
-```fsharp
-// Tweet -> int
-let remainingCharacters (tweet : Tweet) =
-  280 - tweet.Value.Length
+Given the following functions:
 
-// PostId -> Result<Tweet option, string>
-let getTweetByPostId postId =
-  Ok (Some tweet)
-
-
-getTweetByPostId somePostId // Result<Tweet option, string>
-|> ResultOption.map remainingCharacters // Result<int option, string>
+```f#
+getTweet : PostId -> Result<Tweet option, _>
+remainingCharacters : Tweet -> int
 ```
+
+You can get the number of remaining characters as below:
+
+```fsharp
+getTweetByPostId somePostId
+|> ResultOption.map remainingCharacters
+```
+

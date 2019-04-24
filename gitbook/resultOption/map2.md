@@ -4,30 +4,31 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
-('a -> 'b -> 'c) -> Result<'a option, 'd> -> Result<'b option, 'd> 
+```F#
+('a -> 'b -> 'c)
+  -> Result<'a option, 'd>
+  -> Result<'b option, 'd>
   -> Result<'c option, 'd>
 ```
 
 ### Example 1
 
-Assume that we have the following function,
+Given the following function:
 
 ```fsharp
-// int -> int -> int
-let add a b = a + b
+let add : int -> int -> int
 ```
 
-Then using `ResultOption.map2` function, we can achieve the following
+Then using `ResultOption.map2`, we can do the following:
 
 ```fsharp
-// returns - Ok (Some 42)
 ResultOption.map2 add (Ok (Some 40)) (Ok (Some 2)) 
+// Ok (Some 42)
 ```
 
 ### Example 2
 
-Let's assume that we have the following types and function in addition to what we defined in the [Result.map2 example](../result/map2.md#example-2)
+Let's assume that we have the following types and functions in addition to what we defined in the [Result.map2 example](../result/map2.md#example-2):
 
 ```fsharp
 type CreatePostRequest = {
@@ -41,27 +42,27 @@ let createPostRequest tweet location =
 
 type CreatePostRequestDto = {
   Tweet : string
-  Latitude : double option
-  Longitude : double option
+  Latitude : float option
+  Longitude : float option
 }
 ```
 
-To transform the `CreatePostRequestDto` to `CreatePostRequest` with validation, we can do the following using the `Option.traverseResult`, `ResultOption.map2` & `Result.map2`.
+We can then create a function transforming a `CreatePostRequestDto` to a `CreatePostRequest`, using `Option.traverseResult`, `ResultOption.map2`, and `Result.map2`:
 
 
 ```fsharp
 // CreatePostRequestDto -> Result<CreatePostRequest, string>
-let toCreatePostRequest (dto :CreatePostRequestDto) = 
+let toCreatePostRequest (dto : CreatePostRequestDto) = 
 
   // Result<Latitude option, string>
-  let latR = 
+  let latR =
     dto.Latitude
-    |> Option.traverseResult Latitude.TryCreate 
+    |> Option.traverseResult Latitude.TryCreate
 
   // Result<Longitude option, string>
-  let lngR = 
+  let lngR =
     dto.Longitude
-    |> Option.traverseResult Longitude.TryCreate 
+    |> Option.traverseResult Longitude.TryCreate
 
   // Result<Location option, string>
   let locationR =
@@ -73,3 +74,5 @@ let toCreatePostRequest (dto :CreatePostRequestDto) =
   // Result<CreatePostRequest, string>
   Result.map2 createPostRequest tweetR locationR
 ```
+
+Note that this example can also be written using the `result` and `resultOption` computation expressions, which would allow you to skip the `map2` functions. See for example the [resultOption CE example](../result/ce.md#example-2).
