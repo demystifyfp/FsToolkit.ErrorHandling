@@ -4,11 +4,22 @@
 
 The library provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence` as well as computation expressions and infix operators to work with `Result<'a, 'b>`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>`, and `Result<'a, 'b list>`.
 
+With adding a reference to `FsToolkit.ErrorHandling.TaskResult` you will also have access to computation expressions and infix operators related to `Task<Result<'a, 'b>>`.
+
 It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
 FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
+[DUB](https://img.shields.io/dub/l/vibe-d.svg)
 
-[![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling) ![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+
+
+### Nuget
+
+| Package name | Badge |
+| --- | --- |
+| FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
+| FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.TaskResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult)
+
 
 ## Note
 
