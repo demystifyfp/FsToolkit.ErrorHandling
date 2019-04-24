@@ -16,6 +16,7 @@
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
     <Compile Include="TaskResult.fs" />
     <Compile Include="TaskResultCE.fs" />
+    <Compile Include="List.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
