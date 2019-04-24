@@ -4,30 +4,27 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
-('a -> 'b) -> Async<Result<'a, 'c>> 
-  -> Async<Result<'b, 'c>>
+```fsharp
+('a -> 'b) -> Async<Result<'a, 'c>> -> Async<Result<'b, 'c>>
 ```
 
 ## Examples
 
+Note: Many use-cases requiring `map` operations can also be solved using [the `asyncResult` computation expression](../asyncResult/ce.md).
+
 ### Example 1
 
-As a continuation of [Result.map3 (Example 2)](../result/map3.md#example-2), let's assume that we want to store the created post in the database (using a fake function `createPost`)
+As a continuation of [Result.map3 Example 2](../result/map3.md#example-2), let's assume that we want to store the created post in the database using the function
 
 ```fsharp
-// A fake function to represent the DB call
-
-// CreatePostRequest -> Async<Result<PostId, Exception>>
-let createPost (req : CreatePostRequest) = async {
-  // ...
-}
+savePost : CreatePostRequest -> Async<Result<PostId, exn>>
 ```
 
-To return the id of the post, using the `AsyncResult.map` we can achieve the following
+We can save the post and return its inner using `AsyncResult.map`:
 
 ```fsharp
-// Async<Result<Guid>, Exception>
-createPost createPostRequest
-|> AsyncResult.map (fun (PostId postId) -> postId)
+let rawPostId : Async<Result<Guid, exn>> =
+  savePost createostRequest
+  |> AsyncResult.map (fun (PostId postId) -> postId)
 ```
+

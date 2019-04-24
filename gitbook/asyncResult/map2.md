@@ -4,44 +4,48 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```fsharp
 ('a -> 'b -> 'c) -> Async<Result<'a, 'd>> -> Async<Result<'b, 'd>> 
   -> Async<Result<'c, 'd>>
 ```
 
 ## Examples
 
+Note: Many use-cases requiring `map` operations can also be solved using [the `asyncResult` computation expression](../asyncResult/ce.md).
+
 ### Example 1
 
+Given the functions
+
 ```fsharp
-// UserId -> Async<Result<UserId, Exception>>
-let getFollowersIds userId = async {
-  // ...
-}
+getFollowerIds : UserId -> Async<Result<UserId, exn>>
+createPost : CreatePostRequest -> Async<Result<PostId, exn>>
+```
 
-// CreatePostRequest -> Async<Result<PostId, Exception>>
-let createPost (req : CreatePostRequest) = async {
-  // ...
-}
+And the type
 
-type NotifyNewPostRequest = {
-  UserIds : UserId list
-  NewPostId : PostId
-}
+```fsharp
+type NotifyNewPostRequest = 
+  { UserIds : UserId list
+    NewPostId : PostId }
+  static member Create userIds newPostsId =
+    {UserIds = userIds; NewPostId = newPostsId}
+```
 
-let newPostRequest userIds newPostsId =
-  {UserIds = userIds; NewPostId = newPostsId}
+We can create a `NotifyNewPostRequest` using `AsyncResult.map2` as below:
 
-
+```fsharp
 let createPostAndNotifyFollowers (req : CreatePostRequest) = 
-  //  Async<Result<UserId, Exception>>
+  //  Async<Result<UserId, exn>>
   let getFollowersResult = getFollowersIds req.UserId
-  // Async<Result<PostId, Exception>>
+
+  // Async<Result<PostId, exn>>
   let createPostResult = createPost req
 
-  // Async<Result<NotifyNewPostRequest, Exception>>
+  // Async<Result<NotifyNewPostRequest, exn>>
   let newPostRequestResult =
-    AsyncResult.map2 newPostRequest getFollowersResult createPostResult   
+    AsyncResult.map2 
+      NotifyNewPostRequest.Create getFollowersResult createPostResult
 
   // ...
 ```
