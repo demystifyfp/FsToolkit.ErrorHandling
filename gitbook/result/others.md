@@ -1,47 +1,45 @@
 ## Other Useful Functions
 
-Ported from [Cvdm.ErrorHandling](https://github.com/cmeeren/Cvdm.ErrorHandling). Credits [Christer van der Meeren](https://github.com/cmeeren)
-
 ### requireTrue
 
-Returns the specified error if the value is false.
-```
-'a -> bool -> Result<unit, 'a>`
+Returns the specified error if the value is `false`.
+```F#
+'a -> bool -> Result<unit, 'a>
 ```
 ### requireFalse
 
-Returns the specified error if the value is true.
-```
-'a -> bool -> Result<unit, 'a>`
+Returns the specified error if the value is `true`.
+```F#
+'a -> bool -> Result<unit, 'a>
 ```
 
 
 ### requireSome
 
-Converts an Option to a Result, using the given error if None
-```
-'a -> 'b option -> Result<'b, 'a>`
+Converts an Option to a Result, using the given error if None.
+```F#
+'a -> 'b option -> Result<'b, 'a>
 ```
 ### requireNone
 
 Converts an Option to a Result, using the given error if Some.
-```
-'a -> 'b option -> Result<'b, 'a>`
+```F#
+'a -> 'b option -> Result<unit, 'a>
 ```
 
 ### requireEqual
 
-Returns Ok if the two values are equal, or the specified error if not. Same as requireEqualTo, but with a signature that fits normal function application better than piping.
-```
+Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqualTo`, but with a parameter order that fits normal function application better than piping.
+```F#
 'a -> 'a -> 'b -> Result<unit, 'b>
 ```
 
 
 ### requireEqualTo
 
-Returns Ok if the two values are equal, or the specified error if not. Same as requireEqual, but with a signature that fits piping better than normal function application.
-  
-```
+Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqual`, but with a parameter order that fits piping better than normal function application.
+
+```F#
 'a -> 'b -> 'a  -> Result<unit, 'b>
 ```
 
@@ -49,7 +47,7 @@ Returns Ok if the two values are equal, or the specified error if not. Same as r
 
 Returns Ok if the sequence is empty, or the specified error if not.
 
-```
+```F#
 'a -> seq<'b> -> Result<unit, 'a>
 ```
 
@@ -57,7 +55,7 @@ Returns Ok if the sequence is empty, or the specified error if not.
 
 Returns the specified error if the sequence is empty, or Ok if not.
 
-```
+```F#
 'a -> seq<'b> -> Result<unit, 'a>
 ```
 
@@ -66,7 +64,7 @@ Returns the specified error if the sequence is empty, or Ok if not.
 Returns the first item of the sequence if it exists, or the specified
 error if the sequence is empty
 
-```
+```F#
 'a -> seq<'b> -> Result<'b, 'a>
 ```
 
@@ -75,15 +73,15 @@ error if the sequence is empty
 
 Replaces an error value with a custom error value
 
-```
+```F#
 'a -> Result<'b, 'c> -> Result<'b, 'a>
 ```
 
 ### withError
 
-Replaces a unit error value with a custom error value. Safer than setError since you're not losing any information.
+Replaces a unit error value with a custom error value. Safer than `setError` since you're not losing any information.
 
-```
+```F#
 'a -> Result<'b, unit> -> Result<'b, 'a>
 ```
 
@@ -92,7 +90,7 @@ Replaces a unit error value with a custom error value. Safer than setError since
 
 Returns the contained value if Ok, otherwise returns the provided value
 
-```
+```F#
 'a -> Result<'a, 'b> -> 'a
 ```
 
@@ -100,16 +98,16 @@ Returns the contained value if Ok, otherwise returns the provided value
 
 Returns the contained value if Ok, otherwise evaluates the given function and returns the result.
 
-```
+```F#
 (unit -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
 
 ### ignoreError
 
-Same as defaultValue for a result where the Ok value is unit. 
+Same as `defaultValue` for a result where the Ok value is unit. The name describes better what is actually happening in this case.
 
-```
+```F#
 Result<unit, 'a> -> unit
 ```
 
@@ -117,7 +115,7 @@ Result<unit, 'a> -> unit
 
 If the result is Ok, executes the function on the Ok value. Passes through the input value unchanged.
 
-```
+```F#
 ('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
 ```
 
@@ -125,22 +123,22 @@ If the result is Ok, executes the function on the Ok value. Passes through the i
 
 If the result is Error, executes the function on the Error value. Passes through the input value unchanged.
 
-```
+```F#
 ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
 ```
 
 ### teeIf
 
-If the result is Ok and the predicate returns true for the Ok's value, executes the function on the Ok value. Passes through the input value unchanged.
+If the result is Ok and the predicate returns true for the wrapped value, executes the function on the Ok value. Passes through the input value unchanged.
 
-```
+```F#
 ('a -> bool) -> ('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
 ```
 
 ### teeErrorIf
 
-If the result is Error and the predicate returns true for the Error's value, executes the function on the Error value. Passes through the input value unchanged.
+If the result is Error and the predicate returns true for the wrapped value, executes the function on the Error value. Passes through the input value unchanged.
 
-```
+```F#
 ('a -> bool) -> ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
 ```
