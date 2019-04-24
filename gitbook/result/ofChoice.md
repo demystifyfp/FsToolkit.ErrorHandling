@@ -6,7 +6,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```F#
+```fsharp
 Choice<'a,'b> -> Result<'a, 'b>
 ```
 

@@ -3,13 +3,13 @@
 ### requireTrue
 
 Returns the specified error if the value is `false`.
-```F#
+```fsharp
 'a -> bool -> Result<unit, 'a>
 ```
 ### requireFalse
 
 Returns the specified error if the value is `true`.
-```F#
+```fsharp
 'a -> bool -> Result<unit, 'a>
 ```
 
@@ -17,20 +17,20 @@ Returns the specified error if the value is `true`.
 ### requireSome
 
 Converts an Option to a Result, using the given error if None.
-```F#
+```fsharp
 'a -> 'b option -> Result<'b, 'a>
 ```
 ### requireNone
 
 Converts an Option to a Result, using the given error if Some.
-```F#
+```fsharp
 'a -> 'b option -> Result<unit, 'a>
 ```
 
 ### requireEqual
 
 Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqualTo`, but with a parameter order that fits normal function application better than piping.
-```F#
+```fsharp
 'a -> 'a -> 'b -> Result<unit, 'b>
 ```
 
@@ -39,7 +39,7 @@ Returns Ok if the two values are equal, or the specified error if not. Same as `
 
 Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqual`, but with a parameter order that fits piping better than normal function application.
 
-```F#
+```fsharp
 'a -> 'b -> 'a  -> Result<unit, 'b>
 ```
 
@@ -47,7 +47,7 @@ Returns Ok if the two values are equal, or the specified error if not. Same as `
 
 Returns Ok if the sequence is empty, or the specified error if not.
 
-```F#
+```fsharp
 'a -> seq<'b> -> Result<unit, 'a>
 ```
 
@@ -55,7 +55,7 @@ Returns Ok if the sequence is empty, or the specified error if not.
 
 Returns the specified error if the sequence is empty, or Ok if not.
 
-```F#
+```fsharp
 'a -> seq<'b> -> Result<unit, 'a>
 ```
 
@@ -64,7 +64,7 @@ Returns the specified error if the sequence is empty, or Ok if not.
 Returns the first item of the sequence if it exists, or the specified
 error if the sequence is empty
 
-```F#
+```fsharp
 'a -> seq<'b> -> Result<'b, 'a>
 ```
 
@@ -73,7 +73,7 @@ error if the sequence is empty
 
 Replaces an error value with a custom error value
 
-```F#
+```fsharp
 'a -> Result<'b, 'c> -> Result<'b, 'a>
 ```
 
@@ -81,7 +81,7 @@ Replaces an error value with a custom error value
 
 Replaces a unit error value with a custom error value. Safer than `setError` since you're not losing any information.
 
-```F#
+```fsharp
 'a -> Result<'b, unit> -> Result<'b, 'a>
 ```
 
@@ -90,7 +90,7 @@ Replaces a unit error value with a custom error value. Safer than `setError` sin
 
 Returns the contained value if Ok, otherwise returns the provided value
 
-```F#
+```fsharp
 'a -> Result<'a, 'b> -> 'a
 ```
 
@@ -98,7 +98,7 @@ Returns the contained value if Ok, otherwise returns the provided value
 
 Returns the contained value if Ok, otherwise evaluates the given function and returns the result.
 
-```F#
+```fsharp
 (unit -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
@@ -107,7 +107,7 @@ Returns the contained value if Ok, otherwise evaluates the given function and re
 
 Same as `defaultValue` for a result where the Ok value is unit. The name describes better what is actually happening in this case.
 
-```F#
+```fsharp
 Result<unit, 'a> -> unit
 ```
 
@@ -115,7 +115,7 @@ Result<unit, 'a> -> unit
 
 If the result is Ok, executes the function on the Ok value. Passes through the input value unchanged.
 
-```F#
+```fsharp
 ('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
 ```
 
@@ -123,7 +123,7 @@ If the result is Ok, executes the function on the Ok value. Passes through the i
 
 If the result is Error, executes the function on the Error value. Passes through the input value unchanged.
 
-```F#
+```fsharp
 ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
 ```
 
@@ -131,7 +131,7 @@ If the result is Error, executes the function on the Error value. Passes through
 
 If the result is Ok and the predicate returns true for the wrapped value, executes the function on the Ok value. Passes through the input value unchanged.
 
-```F#
+```fsharp
 ('a -> bool) -> ('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
 ```
 
@@ -139,6 +139,6 @@ If the result is Ok and the predicate returns true for the wrapped value, execut
 
 If the result is Error and the predicate returns true for the wrapped value, executes the function on the Error value. Passes through the input value unchanged.
 
-```F#
+```fsharp
 ('a -> bool) -> ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
 ```

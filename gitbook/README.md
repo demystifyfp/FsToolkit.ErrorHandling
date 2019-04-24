@@ -19,7 +19,7 @@ A motivating example
 
 This example of composing a login flow shows one example of how this library can aid in clear, simple, and powerful error handling, using just a computation expression and a few helper functions. (The library has many more helper functions and computation expressions as well as infix operators; see the rest of the documentation for details.)
 
-```f#
+```fsharp
 // Given the following functions:
 //   tryGetUser: string -> Async<User option>
 //   isPwdValid: string -> User -> bool
