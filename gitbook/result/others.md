@@ -61,8 +61,7 @@ Returns the specified error if the sequence is empty, or Ok if not.
 
 ### requireHead
 
-Returns the first item of the sequence if it exists, or the specified
-error if the sequence is empty
+Returns the first item of the sequence if it exists, or the specified error if the sequence is empty
 
 ```fsharp
 'a -> seq<'b> -> Result<'b, 'a>
