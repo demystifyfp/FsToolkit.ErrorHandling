@@ -35,7 +35,7 @@ type NotifyNewPostRequest =
 We can create a `NotifyNewPostRequest` using `AsyncResult.map2` as below:
 
 ```fsharp
-let createPostAndNotifyFollowers (req : CreatePostRequest) = 
+let createPostAndGetNotifyRequest (req : CreatePostRequest) = 
   //  Async<Result<UserId, exn>>
   let getFollowersResult = getFollowerIds req.UserId
 
