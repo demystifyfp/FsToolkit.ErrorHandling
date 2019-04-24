@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```F#
+```fsharp
 ('a -> 'b) -> Result<'a option, 'c> -> Result<'b option, 'c>
 ```
 
@@ -14,7 +14,7 @@ Function Signature:
 
 Given the following functions:
 
-```f#
+```fsharp
 getTweet : PostId -> Result<Tweet option, _>
 remainingCharacters : Tweet -> int
 ```

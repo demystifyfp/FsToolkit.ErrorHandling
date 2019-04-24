@@ -36,7 +36,7 @@ let createPostRequestResult = result {
 
 Given the following functions:
 
-```f#
+```fsharp
 tryGetUser : string -> User option
 isPwdValid : string -> User -> bool
 authorize : User -> Result<unit, AuthError>
@@ -45,7 +45,7 @@ createAuthToken : User -> AuthToken
 
 Here's how a simple login use-case can be written (using some helpers from the `Result` module):
 
-```f#
+```fsharp
 type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError
 
 let login (username : string) (password : string) : Result<AuthToken, LoginError> =

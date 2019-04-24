@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```F#
+```fsharp
 ('a -> 'b) -> ('c -> 'b) -> Result<'a, 'c> -> 'b
 ```
 
@@ -14,7 +14,7 @@ Function Signature:
 
 `fold` can be used to convert `Result` to another similar type, such as `Choice`:
 
-```f#
+```fsharp
 let choice1 = Ok 42 |> Result.fold Choice1Of2 Choice2Of2
 // Choice1Of2 42
 
@@ -28,7 +28,7 @@ In a typical web application, if there is any request validation error, we send 
 
 Given the following function:
 
-```f#
+```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
   match System.Int32.TryParse str with
