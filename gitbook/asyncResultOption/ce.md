@@ -7,24 +7,10 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-The [AsyncResultOption.bind example](../asyncResultOption/bind.md#example-1) can be written using computation expression as below
+The [AsyncResultOption.map2 example](../asyncResultOption/map2.md#example-1) can be written using the `asyncResultOption` computation expression as below:
 
 ```fsharp
-// Post -> User -> UserTweet
-let userTweet (p : Post) (u : User) =
-  // ...
-
-// UserId -> Async<Result<User option, Exception>>
-let getUserById (userId : UserId) = async {
-  // ...
-}
-
-// PostId -> Async<Result<Post option, Exception>>
-let getPostById (postId : PostId) = async {
-  // ...
-}
-
-// Async<Result<Post option, Exception>>
+// Async<Result<UserTweet option, exn>>
 asyncResultOption {
   let! post = getPostById samplePostId
   let! user = getUserById post.UserId
