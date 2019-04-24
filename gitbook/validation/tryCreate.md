@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```fsharp
 string -> 'a -> Result<^b, (string * 'c)>
 ```
 
@@ -14,36 +14,34 @@ string -> 'a -> Result<^b, (string * 'c)>
 ^b : (static member TryCreate : 'a -> Result< ^b, 'c>)
 ```
 
+This can be useful when constructing types for collecting construction validation errors associated with passed-in parameter names, as the example below demonstrate.
+
 ## Examples
 
 ### Example 1
 
-[Making illegal states unrepresentable](https://fsharpforfunandprofit.com/posts/designing-with-types-making-illegal-states-unrepresentable/) is one of the common practice in F# and I typically do it as below
+[Making illegal states unrepresentable](https://fsharpforfunandprofit.com/posts/designing-with-types-making-illegal-states-unrepresentable/) is a common practice in F#. A common way to do it is to have a type, say `MyType`, with a private constructor and a `TryCreate` member that returns a `Result<MyType, 'a>`, like shown below:
 
 ```fsharp
-type Longitude = private Longitude of double with
-  member this.Value =
-    let (Longitude lng) = this
-    lng
+type Longitude = private Longitude of float with
+  member this.Value = let (Longitude lng) = this in lng
 
-  // double -> Result<Longitude, string>
-  static member TryCreate (lng : double) =
-    if lng > -90. && lng < 90. then
+  // float -> Result<Longitude, string>
+  static member TryCreate (lng : float) =
+    if lng >= -90. && lng <= 90. then
       Ok (Longitude lng)
     else
       sprintf "%A is a invalid longitude value" lng |> Error 
 ```
 
-The type will have a private constructor and a static member `TryCreate` to create a value of underlying type with validaion. 
-
 Let's assume that we have few more similar types as below
 
 ```fsharp
-type Longitude = private Longitude of double with
+type Longitude = private Longitude of float with
   member this.Value =
     let (Longitude lng) = this
     lng
-  static member TryCreate (lng : double) =
+  static member TryCreate (lng : float) =
     if lng > -90. && lng < 90. then
       Ok (Longitude lng)
     else
@@ -51,19 +49,17 @@ type Longitude = private Longitude of double with
 
 type Tweet = private Tweet of string with
   member this.Value =
-    let (Tweet tweet) = this
-    tweet
+    let (Tweet tweet) = this in tweet
 
   static member TryCreate (tweet : string) =
-    match tweet with
-    | x when String.IsNullOrEmpty x -> 
+    if String.IsNullOrEmpty tweet then
       Error "Tweet shouldn't be empty"
-    | x when x.Length > 280 ->
+    elif tweet.Length > 280 then
       Error "Tweet shouldn't contain more than 280 characters"
-    | x -> Ok (Tweet x)
+    else Ok (Tweet tweet)
 ```
 
-Then the composition of these types
+Assume furthermore that the types above are used in the following types:
 
 ```fsharp
 type Location = {
@@ -77,7 +73,7 @@ type CreatePostRequest = {
 }
 ```
 
-And some functions to create this composition type 
+And that we have the following functions to create these composed types:
 
 ```fsharp
 let location lat lng =
@@ -87,12 +83,12 @@ let createPostRequest lat long tweet =
   {Tweet = tweet; Location = location lat long}
 ```
 
-With these types in place, we can do validation using `Result.tryResult` and Validation [infix operators](../validation/operators.md#example-2) as below
+And the following DTO types:
 
 ```fsharp
 type LocationDto = {
-  Latitude : double
-  Longitude : double
+  Latitude : float
+  Longitude : float
 }
 
 type CreatePostRequestDto = {
@@ -100,6 +96,8 @@ type CreatePostRequestDto = {
   Location : LocationDto
 }
 ```
+
+We can then do validation using `Result.tryResult` and the [`Validation` infix operators](../validation/operators.md) as below:
 
 ```fsharp
 open FsToolkit.ErrorHandling.Operator.Validation 
@@ -112,22 +110,26 @@ let validateCreatePostRequest (dto : CreatePostRequestDto) =
   <*^> Result.tryCreate "tweet" dto.Tweet
 ```
 
-```
-> validateCreatePostRequest {Tweet = ""; Location = {Latitude = 300.; Longitude = 400.}};;
-
-Error
-    [("latitude", "300.0 is a invalid latitude value")
-     ("longitude", "400.0 is a invalid longitude value")
-     ("tweet", "Tweet shouldn't be empty")]
-```
-
-We typically `map` this error to a F# Map data structure and communicate it back with the front end with these error messages JSON serialized
+Here the types of the `Result.tryCreate` lines are inferred, and the types' `TryCreate` member is used to construct them.
 
 ```fsharp
-// Map<string, string>
+validateCreatePostRequest
+  {Tweet = ""; Location = {Latitude = 300.; Longitude = 400.}};;
+// Error
+//   [("latitude", "300.0 is a invalid latitude value")
+//    ("longitude", "400.0 is a invalid longitude value")
+//    ("tweet", "Tweet shouldn't be empty")]
+```
+
+These errors can then for example be returned in an API response:
+
+```fsharp
 validateCreatePostRequest dto
 |> Result.mapError Map.ofList
+// Map<string, string>
 ```
+
+When serialized:
 
 ```json
 {
@@ -139,7 +141,7 @@ validateCreatePostRequest dto
 
 ### Example 2
 
-In Example 1, we are interested in collecting all the error messages but what if we wanted to return on first error. To do it, we can make use of the Result's computation expression instead of using infix operators from Validation module
+In Example 1, we collected all the error messages. But what if we wanted to stop on the first error? One way to do this is to make use of the `result` computation expression instead of using infix operators from `Validation` module.
 
 ```fsharp
 // CreatePostRequestDto -> Result<CreatePostRequest, string>
@@ -147,13 +149,13 @@ let validateCreatePostRequest (dto : CreatePostRequestDto) = result {
   let! t = Result.tryCreate "tweet" dto.Tweet
   let! lat = Result.tryCreate "latitude" dto.Location.Latitude
   let! lng = Result.tryCreate "longitude" dto.Location.Longitude
-  return (createPostRequest lat lng t)
+  return createPostRequest lat lng t
 }
 ```
 
 ### Example 3
 
-In the above examples, we assume that location is always required for creating a post. Let's assume that the requirement is changed and now the location is optional 
+In the examples above, we assume that a location is always required for creating a post. Let's assume that the requirement is changed and now the location is optional:
 
 ```fsharp
 type CreatePostRequest = {
@@ -170,7 +172,7 @@ let createPostRequest location tweet =
   {Tweet = tweet; Location = location}
 ```
 
-Then the `validateCreatePostRequest` can be rewritten using the [Option.traverseResult](../option/traverseResult.md) function as below
+Then `validateCreatePostRequest` can be rewritten using the [Option.traverseResult](../option/traverseResult.md) function as below:
 
 ```fsharp
 let validateLocation (dto : LocationDto) =
@@ -184,19 +186,16 @@ let validateCreatePostRequest (dto : CreatePostRequestDto) =
   <*^> Result.tryCreate "tweet" dto.Tweet
 ```
 
-> Note: We are using `<!>` operator in the `validateCreatePostRequest` instead of `<!^>` operator as the right side result is returning a list type in the error (`Result<Locaiton option, (string * string) list>`). 
+Note: We are using the `<!>` operator in the `validateCreatePostRequest` instead of `<!^>` operator as the right side result is returning a list of errors (`Result<Location option, (string * string) list>`). 
 
-In Runtime, the `validateCreatePostRequest` responds like this
+```fsharp
+validateCreatePostRequest 
+  {Tweet = ""; Location = Some {Latitude = 300.; Longitude = 400.}}
+//  Error
+//    [("latitude", "300.0 is a invalid latitude value")
+//     ("longitude", "400.0 is a invalid longitude value")
+//     ("tweet", "Tweet shouldn't be empty")]
 
-```
-> validateCreatePostRequest {Tweet = ""; Location = Some {Latitude = 300.; Longitude = 400.}};;
-  
-  Error
-    [("latitude", "300.0 is a invalid latitude value");
-     ("longitude", "400.0 is a invalid longitude value");
-     ("tweet", "Tweet shouldn't be empty")]
-
-> validateCreatePostRequest {Tweet = ""; Location = None};;
-  
-  Error [("tweet", "Tweet shouldn't be empty")]
+validateCreatePostRequest {Tweet = ""; Location = None}
+//  Error [("tweet", "Tweet shouldn't be empty")]
 ```
