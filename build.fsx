@@ -121,8 +121,10 @@ Target.create "AssemblyInfo" (fun _ ->
 
 Target.create "NuGet" (fun _ ->
     let ReleaseNotes = String.toLines release.Notes
-    "src/FsToolkit.ErrorHandling"
-    |> DotNet.pack(fun p ->
+    
+    !! "src/**/*.fsproj"
+    |> Seq.iter (
+      DotNet.pack(fun p ->
            { p with
                // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                OutputPath = Some "../../bin"
@@ -130,7 +132,7 @@ Target.create "NuGet" (fun _ ->
                MSBuildParams = {MSBuild.CliArguments.Create() with
                                     // "/p" (property) arguments to MSBuild.exe
                                     Properties = [("Version", release.NugetVersion)
-                                                  ("PackageReleaseNotes", ReleaseNotes)]}})
+                                                  ("PackageReleaseNotes", ReleaseNotes)]}}))
 )
 
 Target.create "PublishNuget" (fun _ ->
