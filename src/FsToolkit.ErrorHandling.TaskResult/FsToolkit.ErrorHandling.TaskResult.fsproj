@@ -16,7 +16,7 @@
     <Compile Include="Task.fs" />
     <Compile Include="TaskResult.fs" />
     <Compile Include="TaskResultCE.fs" />
-    <Compile Include="TaskResultOP.fs" />
+    <Compile Include="TaskResultOp.fs" />
     <Compile Include="List.fs" />
   </ItemGroup>
 
