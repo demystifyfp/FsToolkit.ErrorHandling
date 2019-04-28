@@ -24,9 +24,3 @@ module Task =
 
   let map3 f x y z =
     apply (map2 f x y) z
-
-module AsyncOperators =
-
-  let inline (<!>) f x = Task.map f x
-  let inline (<*>) f x = Task.apply f x
-  let inline (>>=) x f = Task.bind f x

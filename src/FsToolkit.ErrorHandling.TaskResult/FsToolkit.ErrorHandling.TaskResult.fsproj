@@ -11,9 +11,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Compile Include="Task.fs" />
+    <Compile Include="TaskOp.fs" />
     <Compile Include="TaskResult.fs" />
     <Compile Include="TaskResultCE.fs" />
     <Compile Include="TaskResultOp.fs" />
