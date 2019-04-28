@@ -6,14 +6,14 @@ open FSharp.Control.Tasks.V2.ContextInsensitive
 [<RequireQualifiedAccess>]
 module TaskResult = 
 
-  let map f ar =
-    Task.map (Result.map f) ar
+  let map f tr =
+    Task.map (Result.map f) tr
 
-  let mapError f ar =
-    Task.map (Result.mapError f) ar    
+  let mapError f tr =
+    Task.map (Result.mapError f) tr    
 
-  let bind f (ar : Task<_>) = task {
-    let! result = ar
+  let bind f (tr : Task<_>) = task {
+    let! result = tr
     let t = 
       match result with 
       | Ok x -> f x
@@ -21,8 +21,8 @@ module TaskResult =
     return! t      
   }
 
-  let foldResult onSuccess onError ar =
-    Task.map (Result.fold onSuccess onError) ar
+  let foldResult onSuccess onError tr =
+    Task.map (Result.fold onSuccess onError) tr
 
   let ofAsync aAsync = 
     aAsync
@@ -39,32 +39,32 @@ module TaskResult =
     Error x
     |> Task.singleton
 
-  let map2 f xR yR =
-    Task.map2 (Result.map2 f) xR yR
+  let map2 f xTR yTR =
+    Task.map2 (Result.map2 f) xTR yTR
 
-  let map3 f xR yR zR =
-    Task.map3 (Result.map3 f) xR yR zR
+  let map3 f xTR yTR zTR =
+    Task.map3 (Result.map3 f) xTR yTR zTR
 
-  let apply fAR xAR =
-    map2 (fun f x -> f x) fAR xAR
+  let apply fTR xTR =
+    map2 (fun f x -> f x) fTR xTR
 
-  /// Returns the specified error if the async-wrapped value is false.
+  /// Returns the specified error if the task-wrapped value is false.
   let requireTrue error value = 
     value |> Task.map (Result.requireTrue error)
 
-  /// Returns the specified error if the async-wrapped value is true.
+  /// Returns the specified error if the task-wrapped value is true.
   let requireFalse error value =
     value |> Task.map (Result.requireFalse error) 
 
-  // Converts an async-wrapped Option to a Result, using the given error if None.
+  // Converts an task-wrapped Option to a Result, using the given error if None.
   let requireSome error option =
     option |> Task.map (Result.requireSome error)
 
-  // Converts an async-wrapped Option to a Result, using the given error if Some.
+  // Converts an task-wrapped Option to a Result, using the given error if Some.
   let requireNone error option =
     option |> Task.map (Result.requireNone error)
 
-  /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
+  /// Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not.
   let requireEqual x1 x2 error =
     x2 |> Task.map (fun x2' -> Result.requireEqual x1 x2' error)
 
@@ -72,35 +72,35 @@ module TaskResult =
   let requireEqualTo other error this =
     this |> Task.map (Result.requireEqualTo other error)
 
-  /// Returns Ok if the async-wrapped sequence is empty, or the specified error if not.
+  /// Returns Ok if the task-wrapped sequence is empty, or the specified error if not.
   let requireEmpty error xs =
     xs |> Task.map (Result.requireEmpty error)
 
-  /// Returns Ok if the async-wrapped sequence is not-empty, or the specified error if not.
+  /// Returns Ok if the task-wrapped sequence is not-empty, or the specified error if not.
   let requireNotEmpty error xs =
     xs |> Task.map (Result.requireNotEmpty error)
 
-  /// Returns the first item of the async-wrapped sequence if it exists, or the specified
+  /// Returns the first item of the task-wrapped sequence if it exists, or the specified
   /// error if the sequence is empty
   let requireHead error xs =
     xs |> Task.map (Result.requireHead error)
 
-  /// Replaces an error value of an async-wrapped result with a custom error
+  /// Replaces an error value of an task-wrapped result with a custom error
   /// value.
   let setError error asyncResult =
     asyncResult |> Task.map (Result.setError error)
 
-  /// Replaces a unit error value of an async-wrapped result with a custom
+  /// Replaces a unit error value of an task-wrapped result with a custom
   /// error value. Safer than setError since you're not losing any information.
   let withError error asyncResult =
     asyncResult |> Task.map (Result.withError error)
 
-  /// Extracts the contained value of an async-wrapped result if Ok, otherwise
+  /// Extracts the contained value of an task-wrapped result if Ok, otherwise
   /// uses ifError.
   let defaultValue ifError asyncResult =
     asyncResult |> Task.map (Result.defaultValue ifError)
 
-  /// Extracts the contained value of an async-wrapped result if Ok, otherwise
+  /// Extracts the contained value of an task-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
   let defaultWith ifErrorThunk asyncResult =
     asyncResult |> Task.map (Result.defaultWith ifErrorThunk)
@@ -110,24 +110,24 @@ module TaskResult =
   let ignoreError result =
     defaultValue () result
 
-  /// If the async-wrapped result is Ok, executes the function on the Ok value.
+  /// If the task-wrapped result is Ok, executes the function on the Ok value.
   /// Passes through the input value.
   let tee f asyncResult =
     asyncResult |> Task.map (Result.tee f)
 
 
-  /// If the async-wrapped result is Ok and the predicate returns true, executes
+  /// If the task-wrapped result is Ok and the predicate returns true, executes
   /// the function on the Ok value. Passes through the input value.
   let teeIf predicate f asyncResult =
     asyncResult |> Task.map (Result.teeIf predicate f)
 
 
-  /// If the async-wrapped result is Error, executes the function on the Error
+  /// If the task-wrapped result is Error, executes the function on the Error
   /// value. Passes through the input value.
   let teeError f asyncResult =
     asyncResult |> Task.map (Result.teeError f)
 
-  /// If the async-wrapped result is Error and the predicate returns true,
+  /// If the task-wrapped result is Error and the predicate returns true,
   /// executes the function on the Error value. Passes through the input value.
   let teeErrorIf predicate f asyncResult =
     asyncResult |> Task.map (Result.teeErrorIf predicate f)

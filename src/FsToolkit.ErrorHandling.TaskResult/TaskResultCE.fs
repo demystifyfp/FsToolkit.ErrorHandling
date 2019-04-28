@@ -3,7 +3,6 @@
 
 open System
 open System.Threading.Tasks
-open FSharp.Control.Tasks
 open FSharp.Control.Tasks.V2.ContextInsensitive
 #nowarn "0044"
 // FSharp.Control.Tasks.TaskBuilder is marked obselete, see [why](https://github.com/rspeele/TaskBuilder.fs/blob/master/TaskBuilder.fs#L17-L19)
@@ -153,8 +152,8 @@ module TaskResultCE =
 [<AutoOpen>]
 module TaskResultCEExtensions =
 
-  // Having Async<_> members as extensions gives them lower priority in
-  // overload resolution between Async<_> and Async<Result<_,_>>.
+  // Having Task<_> members as extensions gives them lower priority in
+  // overload resolution between Task<_> and Task<Result<_,_>>.
   type TaskResultBuilder with
 
     member inline __.ReturnFrom (async': Async<'T>) : Step<Result<'T, 'TError>> =
