@@ -3,6 +3,22 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Result =
 
+  let isOk x =
+    match x with
+    | Ok _ -> true
+    | Error _ -> false
+
+  let isError x = 
+    isOk x |> not
+
+  let either okF errorF x =
+    match x with
+    | Ok x -> okF x
+    | Error err -> errorF err
+    
+  let eitherMap okF errorF x =
+    either (okF >> Result.Ok) (errorF >> Result.Error) x
+
   let apply f x =
     Result.bind (fun f' ->
       Result.bind (fun x' -> Ok (f' x')) x) f
@@ -29,7 +45,7 @@ module Result =
     tryCreate' x
     |> Result.mapError (fun z -> (fieldName, z))
 
-  // Returns the specified error if the value is false.
+    // Returns the specified error if the value is false.
   let requireTrue error value =
     if value then Ok () else Error error
 
