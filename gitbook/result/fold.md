@@ -4,45 +4,40 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```fsharp
 ('a -> 'b) -> ('c -> 'b) -> Result<'a, 'c> -> 'b
 ```
 
-## Examples:
+## Examples
 
 ### Example 1
 
-Let's assume that we have a function `tryParseInt`
+`fold` can be used to convert `Result` to another similar type, such as `Choice`:
 
 ```fsharp
-open System
+let choice1 = Ok 42 |> Result.fold Choice1Of2 Choice2Of2
+// Choice1Of2 42
 
+let choice2 = Error "An error occurred" |> Result.fold Choice1Of2 Choice2Of2
+// Choice2Of2 "An error occurred"
+```
+
+### Example 2
+
+In a typical web application, if there is any request validation error, we send `HTTP 400 Bad Request` as response and `HTTP 200 OK` for a successful operation.
+
+Given the following function:
+
+```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
-  match Int32.TryParse str with
+  match System.Int32.TryParse str with
   | true, x -> Ok x
   | false, _ -> 
     Error (sprintf "unable to parse '%s' to integer" str)
 ```
 
-If we want to return the actual value for success and a default value `0` in failure, we can achieve it as below
-
-```fsharp
-// string -> int
-let tryParseIntOrDefault str =
-  str
-  |> tryParseInt
-  |> Result.fold id (fun _ -> 0)
-
-tryParseIntOrDefault "42" // returns - 12
-tryParseIntOrDefault "foobar" // returns - 0
-```
-
-### Example 2
-
-In a typical web application, if there is any request validation error, we send `HTTP 400 Bad Request` as response and `HTTP 200 OK` for successful operation
-
-In the above `tryParseInt` example, if we emulate the same using a fake HTTP response type
+And the following fake HTTP response type:
 
 ```fsharp
 type HttpResponse<'a, 'b> =
@@ -57,8 +52,7 @@ Then using `Result.fold`, we can do the following
 let handler httpRequest =
   // reading the input from the HTTP request
   let inputStr = httpRequest ... 
-
-  Result.fold OK BadRequest (tryParseInt inputStr)
+  inputStr |> tryParseInt |> Result.fold OK BadRequest
 ```
 
 

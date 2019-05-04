@@ -8,6 +8,52 @@ open FsToolkit.ErrorHandling.Operator.Result
 
 
 [<Tests>]
+let resultIsOk =
+  testList "Result.isOk Tests" [
+    testCase "Is Ok true" <| fun _ ->
+      Expect.isTrue (Result.isOk (Ok ())) "should be true"
+    testCase "Is Error false" <| fun _ ->
+      Expect.isFalse (Result.isOk (Error ())) "should be false"
+  ]
+[<Tests>]
+let resultIsError =
+  testList "Result.isError Tests" [
+    testCase "Is Ok false" <| fun _ ->
+      Expect.isFalse (Result.isError (Ok ())) "should be false"
+    testCase "Is Error true" <| fun _ ->
+      Expect.isTrue (Result.isError (Error ())) "should be true"
+  ]
+[<Tests>]
+let resultEither =
+  testList "Result.either Tests" [
+    testCase "Ok calls okF" <| fun _ ->
+      let okF x = x + 1
+      let errorF x = x - 1
+      let actual = Result.either okF errorF (Ok 1)
+      Expect.equal actual 2 "Should be 2"
+    testCase "Error calls errorF" <| fun _ ->
+      let okF x = x + 1
+      let errorF x = x - 1
+      let actual = Result.either okF errorF (Error 1)
+      Expect.equal actual 0 "Should be 0"
+  ]
+
+[<Tests>]
+let resultEitherMap =
+  testList "Result.eitherMap Tests" [
+    testCase "Ok calls okF" <| fun _ ->
+      let okF x = x + 1
+      let errorF x = x - 1
+      let actual = Result.eitherMap okF errorF (Ok 1)
+      Expect.equal actual (Ok 2) "Should be 2"
+    testCase "Error calls errorF" <| fun _ ->
+      let okF x = x + 1
+      let errorF x = x - 1
+      let actual = Result.eitherMap okF errorF (Error 1)
+      Expect.equal actual (Error 0) "Should be 0"
+  ]
+
+[<Tests>]
 let map2Tests =
   testList "Result.map2 Tests" [
     testCase "map2 with two ok parts" <| fun _ ->

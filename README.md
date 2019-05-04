@@ -1,21 +1,57 @@
 # FsToolkit.ErrorHandling
 
-**FsToolkit.ErrorHandling** is a utility library to work with Result type in F# to do error handling. 
+**FsToolkit.ErrorHandling** is a utility library to work with the `Result` type in F#, and allows you to do clear, simple and powerful error handling. 
 
-It provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence`, computation expressions and infix operators to work with `Result`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>` & `Result<'a, 'b list>` types.
+The library provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence` as well as computation expressions and infix operators to work with `Result<'a, 'b>`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>`, and `Result<'a, 'b list>`.
 
-It was inspired by the [Chessie](https://github.com/fsprojects/Chessie) and [Cvdm.ErrorHandling](https://github.com/cmeeren/Cvdm.ErrorHandling) libraries. 
+It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
-Supports .NET Core, Fable & .NET Framework 4.6.1 and above.
+FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
 
-The documentation is available [here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
+Documentation
+-------------
 
-[![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling) [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling) ![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
+
+[![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling)  ![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+
+### Nuget
+
+| Package name | Badge |
+| --- | --- |
+| FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
+| FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.TaskResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult)
 
 
-## Note:
+A motivating example
+--------------------
 
-This library assumes that are you familiar with the standard functions - map, apply, bind, traverse & sequence and the problem these functions solve. In case, if you are not aware of it, do check out [this excellent tutorial](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html) by Scott Wlaschin on this subject.
+This example of composing a login flow shows one example of how this library can aid in clear, simple, and powerful error handling, using just a computation expression and a few helper functions. (The library has many more helper functions and computation expressions as well as infix operators; see [the documentation](https://demystifyfp.gitbook.io/fstoolkit-errorhandling) for details.)
+
+```f#
+// Given the following functions:
+//   tryGetUser: string -> Async<User option>
+//   isPwdValid: string -> User -> bool
+//   authorize: User -> Async<Result<unit, AuthError>>
+//   createAuthToken: User -> Result<AuthToken, TokenError>
+
+type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError | TokenErr of TokenError
+
+let login (username: string) (password: string) : Async<Result<AuthToken, LoginError>> =
+  asyncResult {
+  	// requireSome unwraps a Some value or gives the specified error if None
+    let! user = username |> tryGetUser |> AsyncResult.requireSome InvalidUser
+
+		// requireTrue gives the specified error if false
+		do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+
+    // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
+    do! user |> authorize |> AsyncResult.mapError Unauthorized
+
+		// Same as above, but synchronous, so we use the built-in mapError
+    return! user |> createAuthToken |> Result.mapError TokenErr
+  }
+```
 
 ## Sponsor(s):
 

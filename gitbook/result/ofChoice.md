@@ -6,19 +6,19 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
+```fsharp
 Choice<'a,'b> -> Result<'a, 'b>
 ```
 
-## Examples:
+## Examples
 
 ### Example 1
 
 ```fsharp
-Result.ofChoice (Choice1Of2 42) // returns - Ok 42
+Result.ofChoice (Choice1Of2 42)
+// Ok 42
+
+Result.ofChoice (Choice2Of2 "Something went wrong!") 
+// Error "Something went wrong!"
 ```
 
-```fsharp
-Result.ofChoice (Choice2Of2 "Something went wrong!") 
-// returns - Error "Something went wrong!"
-```

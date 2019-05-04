@@ -96,23 +96,23 @@ let ``AsyncResultCE bind Tests`` =
 
         testCaseAsync "Bind Ok AsyncResult" <| async {
             let innerData = "Foo"
-            let data = Result.Ok innerData
+            let data = Result.Ok innerData |> Async.singleton
             let! actual = asyncResult { 
                 let! data = data
                 return data 
             }        
         
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual (data |> Async.RunSynchronously) "Should be ok"
         }
         testCaseAsync "Bind Ok TaskResult" <| async {
             let innerData = "Foo"
-            let data = Result.Ok innerData
+            let data = Result.Ok innerData |> Task.FromResult
             let! actual = asyncResult { 
                 let! data = data
                 return data 
             }        
         
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual (data.Result) "Should be ok"
         }
         testCaseAsync "Bind Async" <| async {
             let innerData = "Foo"
@@ -248,5 +248,24 @@ let ``AsyncResultCE loop Tests`` =
                 return data
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
+        }
+        testCaseAsync "for in fail" <| async {
+            let mutable loopCount = 0
+            let expected = Error "error"
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+            ]
+            let! actual = asyncResult {
+                for i in data do
+                    let! x = i
+                    loopCount <- loopCount + 1
+                    ()
+                return "ok"
+            }
+            Expect.equal 2 loopCount "Should only loop twice"
+            Expect.equal actual expected "Should be and error"
         }
     ]

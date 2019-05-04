@@ -4,45 +4,27 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
-('a -> Async<Result<'b, 'c>>) -> Async<Result<'a, 'c>> 
+```fsharp
+('a -> Async<Result<'b, 'c>>)
+  -> Async<Result<'a, 'c>>
   -> Async<Result<'b, 'c>>
 ```
 
 ## Examples
 
+Note: Many use-cases requiring `bind` operations can also be solved using [the `asyncResult` computation expression](../asyncResult/ce.md).
+
 ### Example 1
 
+Continuing from the [AsyncResult.map2 example](../asyncResult/map2.md#example-1) and given the function
+
 ```fsharp
-// UserId -> Async<Result<UserId, Exception>>
-let getFollowersIds userId = async {
-  // ...
-}
-
-// CreatePostRequest -> Async<Result<PostId, Exception>>
-let createPost (req : CreatePostRequest) = async {
-  // ...
-}
-
-type NotifyNewPostRequest = {
-  // ...
-}
-
-let newPostRequest userIds newPostsId =
-  {UserIds = userIds; NewPostId = newPostsId}
-
-// NotifyNewPostRequest -> Async<Result<Unit,Exception>>
-let notifyFollowers (req : NotifyNewPostRequest) = async {
-  // ...
-}
-
-// CreatePostRequest -> Async<Result<Unit,Exception>>
-let createPostAndNotifyFollowers (req : CreatePostRequest) = 
-  //  Async<Result<UserId, Exception>>
-  let getFollowersResult = getFollowersIds req.UserId
-  // Async<Result<PostId, Exception>>
-  let createPostResult = createPost req
-
-  AsyncResult.map2 newPostRequest getFollowersResult createPostResult
-  |> AsyncResult.bind notifyFollowers
+let notifyFollowers : NotifyNewPostRequest -> Async<Result<unit,exn>>
 ```
+
+we can notify all followers using `AsyncResult.bind` as below:
+
+```fsharp
+newPostRequestResult |> AsyncResult.bind notifyFollowers
+```
+

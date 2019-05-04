@@ -24,13 +24,27 @@ let hasAsyncValue v asyncX =
     ()
   else Tests.failtestf "Expected %A, was %A." v x
 
+let hasTaskValue v taskX =
+  let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
+  if v = x then
+    ()
+  else Tests.failtestf "Expected %A, was %A." v x
+
 
 let hasAsyncOkValue v asyncX = 
   let x = Async.RunSynchronously asyncX
   hasOkValue v x
 
+let hasTaskOkValue v taskX = 
+  let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
+  hasOkValue v x
+
 let hasAsyncErrorValue v asyncX = 
   let x = Async.RunSynchronously asyncX
+  hasErrorValue v x
+
+let hasTaskErrorValue v taskX = 
+  let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
   hasErrorValue v x
 
 let same expected actual =

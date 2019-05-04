@@ -2,30 +2,28 @@
 
 Namespace: `FsToolkit.ErrorHandling`
 
-## Examples:
+## Examples
 
 ### Example 1
 
 ```fsharp
-open FsToolkit.ErrorHandling
-
 let add x y z = x + y + z
 
 let addResult : Result<int option, string> = resultOption {
   let! x = Ok (Some 30)
   let! y = Ok (Some 10)
   let! z = Ok (Some 2)
-  return add3 x y z
+  return add x y z
 }
 ```
 
 ### Example 2
 
-The [ResultOption.map2 example](../resultOption/map2.md#example-2) can be written using `resultOption` computation expression as below
+The [ResultOption.map2 example](../resultOption/map2.md#example-2) can be written using the `resultOption` computation expression as below
 
 ```fsharp
 // CreatePostRequestDto -> Result<CreatePostRequest, string>
-let toCreatePostRequest (dto :CreatePostRequestDto) = 
+let toCreatePostRequest (dto : CreatePostRequestDto) = 
 
   // Result<Location option, string>
   let locationR = resultOption {

@@ -37,6 +37,20 @@
   * [Operators](asyncResult/operators.md)
   * [Other Functions](asyncResult/others.md)
 
+* TaskResult
+  * [map](taskResult/map.md)
+  * [map2](taskResult/map2.md)
+  * [map3](taskResult/map3.md)
+  * [mapError](taskResult/mapError.md)
+  * [apply](taskResult/apply.md)
+  * [foldResult](taskResult/foldResult.md)
+  * [ofAsync](taskResult/ofTask.md)
+  * [bind](taskResult/bind.md)
+  * [Computation Expression](taskResult/ce.md)
+  * [Operators](taskResult/operators.md)
+  * [Other Functions](taskResult/others.md)
+
+
 * List
   * [traverseResultM](list/traverseResultM.md)
   * [sequenceResultM](list/sequenceResultM.md)
@@ -46,6 +60,10 @@
   * [sequenceAsyncResultM](list/sequenceAsyncResultM.md)
   * [traverseAsyncResultA](list/traverseAsyncResultA.md)
   * [sequenceAsyncResultA](list/sequenceAsyncResultA.md)
+  * [traverseTaskResultM](list/traverseTaskResultM.md)
+  * [sequenceTaskResultM](list/sequenceTaskResultM.md)
+  * [traverseTaskResultA](list/traverseTaskResultA.md)
+  * [sequenceTaskResultA](list/sequenceTaskResultA.md)
 
 * AsyncResultOption
   * [map](asyncResultOption/map.md)

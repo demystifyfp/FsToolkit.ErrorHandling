@@ -4,55 +4,50 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
-```
-('a -> 'b -> 'c -> 'd) -> Result<'a, 'e> -> Result<'b, 'e> 
+```fsharp
+('a -> 'b -> 'c -> 'd) -> Result<'a, 'e> -> Result<'b, 'e>
   -> Result<'c, 'e> -> Result<'d, 'e>
 ```
 
-## Examples:
+## Examples
+
+Note: Many use-cases requiring `map` operations can also be solved using [the `result` computation expression](../result/ce.md).
 
 ### Example 1
 
-Let's assume that we have a `add` function which adds three numbers.
+Let's assume that we have an `add` function that adds three numbers:
 
 ```fsharp
 // int -> int -> int -> int
 let add a b c = a + b + c
 ```
 
-And an another function that converts string to an integer
+And an another function that converts a string to an integer:
 
 ```fsharp
-open System
-
 // string -> Result<int, string>
 let tryParseInt str =
-  match Int32.TryParse str with
+  match System.Int32.TryParse str with
   | true, x -> Ok x
-  | false, _ -> 
+  | false, _ ->
     Error (sprintf "unable to parse '%s' to integer" str)
 ```
 
-With the help of `Result.map3` function, we can now do the following
+With the help of `Result.map3` function, we can now do the following:
 
 ```fsharp
-open FsToolkit.ErrorHandling
-
-let result =
+let okResult =
   Result.map3 add (tryParseInt "35") (tryParseInt "5") (tryParseInt "2")
-  // returns - Ok 42
-```
+  // Ok 42
 
-```fsharp
-open FsToolkit.ErrorHandling
-let result =
+let errorResult =
   Result.map3 add (tryParseInt "40") (tryParseInt "foobar") (tryParseInt "2")
-  // returns - Error "unable to parse 'foobar' to integer"
+  // Error "unable to parse 'foobar' to integer"
 ```
 
 ### Example 2
 
-Let's assume that we have the following types in addition to the types that we saw in the [map2](../result/map2.md#a-example-2) example to model a request for posting a tweet.
+Let's assume that we have the following types in addition to the types that we saw in the [map2](../result/map2.md#a-example-2) example to model a request for posting a tweet:
 
 #### UserId
 
@@ -64,61 +59,50 @@ type UserId = UserId of Guid
 
 ```fsharp
 type Tweet = private Tweet of string with
-  member this.Value =
-    let (Tweet tweet) = this
-    tweet
+  member this.Value = let (Tweet tweet) = this in tweet
 
   static member TryCreate (tweet : string) =
-    match tweet with
-    | x when String.IsNullOrEmpty x -> 
+    if String.IsNullOrEmpty(tweet) then
       Error "Tweet shouldn't be empty"
-    | x when x.Length > 280 ->
+    elif tweet.Length > 280 then
       Error "Tweet shouldn't contain more than 280 characters"
-    | x -> Ok (Tweet x)
+    else Ok (Tweet x)
 ```
 
 #### CreatePostRequest
 
 ```fsharp
-type CreatePostRequest = {
-  UserId : UserId
-  Tweet : Tweet
-  Location : Location option
-}
+type CreatePostRequest =
+  { UserId : UserId
+    Tweet : Tweet
+    Location : Location option }
+  static member Create userId lat long tweet =
+    { Tweet = tweet
+      Location = Some (location lat long)
+      UserId = userId }
 ```
 
-And also a function to create `CreatePostRequest`
-
-```fsharp
-let createPostRequest userId lat long tweet =
-  {Tweet = tweet
-   Location = Some(location lat long)
-   UserId = userId}
-```
-
-Then, we can use the `Result.map3` function as below to create the `CreatePostRequest` with validation
+Then, we can use the `Result.map3` function as below to create the `CreatePostRequest` with validation:
 
 ```fsharp
 let validLatR = Latitude.TryCreate 13.067439
 let validLngR = Longitude.TryCreate 80.237617
-let validTweetR = Tweet.TryCreate "Hello, World!" 
-
-open FsToolkit.ErrorHandling
+let validTweetR = Tweet.TryCreate "Hello, World!"
 let userId  = UserId (Guid.NewGuid())
 
 let result =
-  Result.map3 (createPostRequest userId) validLatR validLngR validTweetR
-(* returns - Ok {UserId = UserId 6c0fb13f-ff91-46c7-a486-201257f18877;
-                  Tweet = Tweet "Hello, World!";
-                  Location = Some {Latitude = Latitude 13.067439;
-                                  Longitude = Longitude 80.237617;};} *)
+  Result.map3 (CreatePostRequest.Create userId) validLatR validLngR validTweetR
+(* Ok {UserId = UserId 6c0fb13f-ff91-46c7-a486-201257f18877;
+       Tweet = Tweet "Hello, World!";
+       Location = Some {Latitude = Latitude 13.067439;
+                        Longitude = Longitude 80.237617;};} *)
 ```
 
-When we try with an invalid latitude value, we'll get the following result
+When we try with an invalid latitude value, we'll get the following result:
 
 ```fsharp
 let invalidLatR = Latitude.TryCreate 200.
 let result =
-  Result.map3 (createPostRequest userId) invalidLatR validLngR validTweetR
-  // returns - Error "200.0 is a invalid latitude value"
+  Result.map3 (CreatePostRequest.Create userId) invalidLatR validLngR validTweetR
+  // Error "200.0 is a invalid latitude value"
 ```
