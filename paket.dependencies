@@ -4,7 +4,6 @@ framework: netstandard2.0, netcoreapp2.0, net461
 storage: none
 clitool dotnet-fake
 
-nuget FSharp.Core
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget TaskBuilder.fs
 
@@ -20,7 +19,6 @@ nuget Fake.Core.Target
 nuget Fake.DotNet.Cli
 nuget Fake.Core.ReleaseNotes
 nuget Fake.DotNet.AssemblyInfoFile
-nuget Fake.DotNet.MSBuild
 nuget Fake.DotNet.Paket
 nuget Fake.DotNet.Testing.Expecto
 nuget Fake.Tools.Git 

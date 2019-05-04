@@ -1,3 +1,7 @@
+#### 1.1.0 - May 4, 2019
+* Adds TaskResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
+* Adds Symbols in the Pacakge. Credits [Christer van der Meeren](https://github.com/cmeeren).
+
 #### 1.0.0 - April 10, 2019
 * Adds AsyncResult and Result CE methods from Cvdm.ErrorHandling. Credits [Jimmy Byrd](https://github.com/TheAngryByrd), [Christer van der Meeren](https://github.com/cmeeren)
 * **BREAKING CHANGEs** 
