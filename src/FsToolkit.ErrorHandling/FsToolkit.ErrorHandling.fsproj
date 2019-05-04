@@ -14,6 +14,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <NoWarn>FS2003</NoWarn>
   </PropertyGroup>
 
 
