@@ -43,7 +43,7 @@ Target.create "Build" (fun _ ->
   let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
             Configuration = DotNet.BuildConfiguration.fromString configuration}
-  DotNet.build id solutionFile
+  DotNet.build setParams solutionFile
 )
 
 
@@ -121,8 +121,8 @@ Target.create "AssemblyInfo" (fun _ ->
 
 Target.create "NuGet" (fun _ ->
     let ReleaseNotes = String.toLines release.Notes
-    
-    !! "src/**/*.fsproj"
+    ["src/FsToolkit.ErrorHandling"
+     "src/FsToolkit.ErrorHandling.TaskResult"]
     |> Seq.iter (
       DotNet.pack(fun p ->
            { p with
