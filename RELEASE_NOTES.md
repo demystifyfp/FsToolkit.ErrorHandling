@@ -1,3 +1,6 @@
+#### 1.1.1 - May 9, 2019
+* Fix SourceLinks
+
 #### 1.1.0 - May 4, 2019
 * Adds TaskResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
 * Adds Symbols in the Pacakge. Credits [Christer van der Meeren](https://github.com/cmeeren).
