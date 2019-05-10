@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>  
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <NoWarn>FS2003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Job.fs" />
+    <Compile Include="JobResult.fs" />
+    <Compile Include="JobResultCE.fs" />
+    <Compile Include="JobResultOp.fs" />
+    <Compile Include="List.fs" />
+    <Compile Include="JobResultOption.fs" />
+    <Compile Include="JobResultOptionCE.fs" />
+    <Compile Include="JobResultOptionOp.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

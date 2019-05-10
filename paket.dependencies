@@ -3,7 +3,7 @@ source https://www.nuget.org/api/v2
 framework: netstandard2.0, netcoreapp2.0, net461
 storage: none
 clitool dotnet-fake
-
+nuget Hopac
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget TaskBuilder.fs
 

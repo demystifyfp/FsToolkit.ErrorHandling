@@ -39,6 +39,8 @@ NUGET
       System.Runtime.Loader (>= 4.0) - restriction: || (== netcoreapp2.0) (== netstandard2.0)
       System.Security.Cryptography.Algorithms (>= 4.3) - restriction: || (== netcoreapp2.0) (== netstandard2.0)
     FSharp.Core (4.6.2)
+    Hopac (0.4.1)
+      FSharp.Core (>= 4.5 < 5.0) - restriction: || (&& (== net461) (>= netstandard2.0)) (== netcoreapp2.0) (== netstandard2.0)
     Microsoft.Build.Tasks.Git (1.0.0-beta2-18618-05) - copy_local: true
     Microsoft.DotNet.PlatformAbstractions (2.1) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
       System.AppContext (>= 4.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
@@ -361,6 +363,7 @@ NUGET
       FSharp.Core (>= 4.1.17)
       NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.ValueTuple (>= 4.4)
+
 GROUP Build
 STORAGE: NONE
 NUGET
