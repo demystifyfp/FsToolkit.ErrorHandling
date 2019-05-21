@@ -2,7 +2,7 @@
 namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("FsToolkit.ErrorHandling.TaskResult")>]
+[<assembly: AssemblyTitleAttribute("FsToolkit.ErrorHandling.JobResult")>]
 [<assembly: AssemblyProductAttribute("FsToolkit.ErrorHandling")>]
 [<assembly: AssemblyDescriptionAttribute("An opinionated error handling library for F#")>]
 [<assembly: AssemblyVersionAttribute("1.1.1")>]
@@ -11,7 +11,7 @@ open System.Reflection
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] AssemblyTitle = "FsToolkit.ErrorHandling.TaskResult"
+    let [<Literal>] AssemblyTitle = "FsToolkit.ErrorHandling.JobResult"
     let [<Literal>] AssemblyProduct = "FsToolkit.ErrorHandling"
     let [<Literal>] AssemblyDescription = "An opinionated error handling library for F#"
     let [<Literal>] AssemblyVersion = "1.1.1"
