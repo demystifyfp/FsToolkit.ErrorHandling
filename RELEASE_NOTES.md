@@ -1,3 +1,6 @@
+#### 1.2.1 - May 21, 2019
+* Adds JobResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
+
 #### 1.1.1 - May 9, 2019
 * Fix SourceLinks
 
