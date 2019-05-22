@@ -34,5 +34,7 @@
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
   </ItemGroup>
+
+  <Import Project="..\..\netfx.props" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

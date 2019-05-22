@@ -21,5 +21,6 @@
     <Compile Include="JobResultOption.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
+  <Import Project="..\..\netfx.props" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
