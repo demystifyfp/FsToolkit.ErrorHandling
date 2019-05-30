@@ -25,6 +25,11 @@ Target.create "Clean" (fun _ ->
   ++ "src/**/obj"
   ++ "tests/**/obj"
   |> Shell.cleanDirs
+
+  [
+    "paket-files/paket.restore.cached"
+  ]
+  |> Seq.iter Shell.rm
 )
 
 if not (Environment.isWindows) then
@@ -43,13 +48,19 @@ if not (Environment.isWindows) then
 Target.create "Build" (fun _ ->
   let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
+            NoRestore = true
             Configuration = DotNet.BuildConfiguration.fromString configuration}
   DotNet.build setParams solutionFile
 )
 
 
 Target.create "Restore" (fun _ ->
+  Paket.restore id
   DotNet.restore id solutionFile
+)
+
+Target.create "NpmRestore" (fun _ ->
+  Npm.install id
 )
 
 let runTestAssembly setParams testAssembly =
@@ -97,7 +108,7 @@ Target.create "RunTests" (fun _ ->
 )
 
 let runFableTests _ =
-  Npm.runTest "test" id
+  Npm.test id
 
 Target.create "RunFableTests" runFableTests
 
@@ -171,6 +182,7 @@ Target.create "UpdateDocs" (fun _ ->
 "Clean"
   ==> "AssemblyInfo"
   ==> "Restore"
+  ==> "NpmRestore"
   ==> "Build"
   ==> "RunTests"
   ==> "RunFableTests"

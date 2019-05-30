@@ -7,9 +7,7 @@
   "scripts": {
     "pretest": "fable-splitter tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs",
     "test": "mocha dist/tests",
-
-    "watch-build" : "fable-splitter  tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs -w",
-    "watch-test" : "mocha -watch dist/tests"
-
+    "watch-build": "fable-splitter  tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs -w",
+    "watch-test": "mocha -watch dist/tests"
   }
 }
