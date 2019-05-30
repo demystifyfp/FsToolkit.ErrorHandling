@@ -1,14 +1,18 @@
 module AsyncResultCETests 
 
 
-
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
 open SampleDomain
 open TestData
+open TestHelpers
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 
-[<Tests>]
+
 let ``AsyncResultCE return Tests`` =
     testList "AsyncResultCE  Tests" [
         testCaseAsync "Return string" <| async {
@@ -19,7 +23,7 @@ let ``AsyncResultCE return Tests`` =
     ]
 
 
-[<Tests>]
+
 let ``AsyncResultCE return! Tests`` =
     testList "AsyncResultCE return! Tests" [
         testCaseAsync "Return Ok Result" <| async {
@@ -43,18 +47,19 @@ let ``AsyncResultCE return! Tests`` =
         
             Expect.equal actual (data) "Should be ok"
         }
+        testCaseAsync "Return Async" <| async {
+            let innerData = "Foo"
+            let! actual = asyncResult { return! Async.singleton innerData }
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
+        }
+        #if !FABLE_COMPILER
         testCaseAsync "Return Ok TaskResult" <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData
             let! actual = asyncResult { return! Task.FromResult data }
         
             Expect.equal actual (data) "Should be ok"
-        }
-        testCaseAsync "Return Async" <| async {
-            let innerData = "Foo"
-            let! actual = asyncResult { return! Async.singleton innerData }
-        
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Task Generic" <| async {
             let innerData = "Foo"
@@ -68,10 +73,13 @@ let ``AsyncResultCE return! Tests`` =
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
+        #endif
+
+        
     ]
 
 
-[<Tests>]
+
 let ``AsyncResultCE bind Tests`` =
     testList "AsyncResultCE bind Tests" [
         testCaseAsync "Bind Ok Result" <| async {
@@ -101,9 +109,22 @@ let ``AsyncResultCE bind Tests`` =
                 let! data = data
                 return data 
             }        
-        
-            Expect.equal actual (data |> Async.RunSynchronously) "Should be ok"
+            let! data = data
+            Expect.equal actual (data) "Should be ok"
         }
+
+        testCaseAsync "Bind Async" <| async {
+            let innerData = "Foo"
+            let! actual = asyncResult { 
+                let! data = Async.singleton innerData
+                return data 
+            }        
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
+        }
+        
+
+        #if !FABLE_COMPILER        
         testCaseAsync "Bind Ok TaskResult" <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData |> Task.FromResult
@@ -113,15 +134,6 @@ let ``AsyncResultCE bind Tests`` =
             }        
         
             Expect.equal actual (data.Result) "Should be ok"
-        }
-        testCaseAsync "Bind Async" <| async {
-            let innerData = "Foo"
-            let! actual = asyncResult { 
-                let! data = Async.singleton innerData
-                return data 
-            }        
-        
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseAsync "Bind Task Generic" <| async {
             let innerData = "Foo"
@@ -140,10 +152,11 @@ let ``AsyncResultCE bind Tests`` =
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
+        #endif
     ]
 
 
-[<Tests>]
+
 let ``AsyncResultCE combine/zero/delay/run Tests`` =
     testList "AsyncResultCE combine/zero/delay/run Tests" [
         testCaseAsync "Zero/Combine/Delay/Run" <| async {
@@ -159,7 +172,7 @@ let ``AsyncResultCE combine/zero/delay/run Tests`` =
 
 
 
-[<Tests>]
+
 let ``AsyncResultCE try Tests`` =
     testList "AsyncResultCE try Tests" [
         testCaseAsync "Try With" <| async {
@@ -188,7 +201,7 @@ let makeDisposable () =
     { new System.IDisposable
         with member this.Dispose() = () }
 
-[<Tests>]
+
 let ``AsyncResultCE using Tests`` =
     testList "AsyncResultCE using Tests" [
         testCaseAsync "use normal disposable" <| async {
@@ -207,6 +220,9 @@ let ``AsyncResultCE using Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
+        #if !FABLE_COMPILER
+        // Fable can't handle null disposables you get
+        // TypeError: Cannot read property 'Dispose' of null
         testCaseAsync "use null disposable" <| async {
             let data = 42
             let! actual = asyncResult {
@@ -215,10 +231,11 @@ let ``AsyncResultCE using Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
+        #endif
     ]
 
 
-[<Tests>]
+
 let ``AsyncResultCE loop Tests`` =
     testList "AsyncResultCE loop Tests" [
         testCaseAsync "while" <| async {
@@ -269,3 +286,13 @@ let ``AsyncResultCE loop Tests`` =
             Expect.equal actual expected "Should be and error"
         }
     ]
+
+let allTests = testList "AsyncResultCETests" [
+    ``AsyncResultCE return Tests``
+    ``AsyncResultCE return! Tests``
+    ``AsyncResultCE bind Tests``
+    ``AsyncResultCE combine/zero/delay/run Tests``
+    ``AsyncResultCE try Tests``
+    ``AsyncResultCE using Tests``
+    ``AsyncResultCE loop Tests``
+]

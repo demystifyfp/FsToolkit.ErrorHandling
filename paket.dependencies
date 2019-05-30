@@ -11,6 +11,7 @@ group Test
 source https://www.nuget.org/api/v2
 storage: none
 nuget Expecto
+nuget Fable.Mocha
 
 group Build
 source https://www.nuget.org/api/v2

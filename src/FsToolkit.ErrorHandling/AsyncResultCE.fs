@@ -16,10 +16,12 @@ module AsyncResultCE =
         : Async<Result<'T, 'TError>> =
       asyncResult
 
+    #if !FABLE_COMPILER
     member __.ReturnFrom
         (taskResult: Task<Result<'T, 'TError>>)
         : Async<Result<'T, 'TError>> =
       Async.AwaitTask taskResult
+    #endif
 
     member __.ReturnFrom
         (result: Result<'T, 'TError>)
@@ -47,11 +49,13 @@ module AsyncResultCE =
         | Error x -> return Error x
       }
 
+    #if !FABLE_COMPILER
     member this.Bind
         (taskResult: Task<Result<'T, 'TError>>,
          binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
       this.Bind(Async.AwaitTask taskResult, binder)
+    #endif
 
     member this.Bind
         (result: Result<'T, 'TError>, binder: 'T -> Async<Result<'U, 'TError>>)
@@ -119,7 +123,7 @@ module AsyncResultCEExtensions =
         let! x = async'
         return Ok x
       }
-
+    #if !FABLE_COMPILER
     member __.ReturnFrom (task: Task<'T>) : Async<Result<'T, 'TError>> =
       async {
         let! x = Async.AwaitTask task
@@ -131,6 +135,7 @@ module AsyncResultCEExtensions =
         do! Async.AwaitTask task
         return result.Zero ()
       }
+    #endif
 
     member this.Bind
         (async': Async<'T>, binder: 'T -> Async<Result<'U, 'TError>>)
@@ -141,6 +146,8 @@ module AsyncResultCEExtensions =
       }
       this.Bind(asyncResult, binder)
 
+
+    #if !FABLE_COMPILER
     member this.Bind
         (task: Task<'T>, binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
@@ -150,5 +157,5 @@ module AsyncResultCEExtensions =
         (task: Task, binder: unit -> Async<Result<'T, 'TError>>)
         : Async<Result<'T, 'TError>> =
       this.Bind(Async.AwaitTask task, binder)
-
+    #endif
   let asyncResult = AsyncResultBuilder() 

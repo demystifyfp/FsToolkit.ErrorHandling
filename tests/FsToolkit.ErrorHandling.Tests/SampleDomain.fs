@@ -36,16 +36,26 @@ type Location = {
 let location lat lng =
   {Latitude = lat; Longitude = lng}
 
+let isWellFormedUrl (url : string) =
+
+  #if FABLE_COMPILER
+  let urlRegex = "^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$"
+  Text.RegularExpressions.Regex.IsMatch(url, urlRegex)
+  #else
+  Uri.IsWellFormedUriString(url, UriKind.Absolute)
+  #endif   
+
 type Url = private Url of string with
   member this.Value =
     let (Url url) = this
     url
   
   static member TryCreate (url : string) =
-    if Uri.IsWellFormedUriString(url, UriKind.Absolute) then 
+    if isWellFormedUrl url then 
       Ok (Url url)
     else
       sprintf "%s is a invalid URL" url |> Error
+    
 
 
 type Tweet = private Tweet of string with
@@ -66,7 +76,7 @@ let remainingCharacters (tweet : Tweet) =
 
 let firstURLInTweet (tweet : Tweet) =
   tweet.Value.Split([|' '|])
-  |> Array.tryFind (fun s -> Uri.IsWellFormedUriString(s, UriKind.Absolute))
+  |> Array.tryFind (isWellFormedUrl)
   |> Option.traverseResult Url.TryCreate
 
 type UserId = UserId of Guid

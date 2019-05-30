@@ -1,5 +1,18 @@
 namespace FsToolkit.ErrorHandling
 
+#if FABLE_COMPILER
+//https://github.com/fable-compiler/Fable/issues/1842
+module Option = 
+  let map2 f a b =
+    a 
+    |> Option.bind (fun a' -> 
+      b |> Option.map (fun b' -> f a' b'))
+  let map3 f a b c =
+    a 
+    |> Option.bind (fun a' -> 
+      b |> Option.bind (fun b' -> 
+        c |> Option.map(fun c' -> f a' b' c')))
+#endif
 [<RequireQualifiedAccess>]
 module AsyncResultOption =  
   let map f aro =

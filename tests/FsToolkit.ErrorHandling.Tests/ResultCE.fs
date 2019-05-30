@@ -1,14 +1,19 @@
 module ResultCETests 
 
 
-
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
+
 open SampleDomain
 open TestData
+open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Result
 
-[<Tests>]
+
 let ``ResultCE return Tests`` =
     testList "ResultCE return Tests" [
         testCase "Return string" <| fun _ ->
@@ -17,7 +22,7 @@ let ``ResultCE return Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
 
-[<Tests>]
+
 let ``ResultCE return! Tests`` =
     testList "ResultCE return! Tests" [
         testCase "Return Ok result" <| fun _ ->
@@ -40,7 +45,7 @@ let ``ResultCE return! Tests`` =
             Expect.equal actual (Result.Error innerData) "Should be ok"
     ]
 
-[<Tests>]
+
 let ``ResultCE bind Tests`` =
     testList "ResultCE bind Tests" [
         testCase "let! Ok result" <| fun _ ->
@@ -97,7 +102,7 @@ let ``ResultCE bind Tests`` =
             Expect.equal actual (Result.Error innerData) "Should be ok"
     ]
 
-[<Tests>]
+
 let ``ResultCE combine/zero/delay/run Tests`` =
     testList "ResultCE combine/zero/delay/run Tests" [
         testCase "Zero/Combine/Delay/Run" <| fun () ->
@@ -111,7 +116,7 @@ let ``ResultCE combine/zero/delay/run Tests`` =
     ]
 
 
-[<Tests>]
+
 let ``ResultCE try Tests`` =
     testList "ResultCE try Tests" [
         testCase "Try With" <| fun () ->
@@ -138,7 +143,7 @@ let makeDisposable () =
     { new System.IDisposable
         with member this.Dispose() = () }
 
-[<Tests>]
+
 let ``ResultCE using Tests`` =
     testList "ResultCE using Tests" [
         testCase "use normal disposable" <| fun () ->
@@ -165,7 +170,7 @@ let ``ResultCE using Tests`` =
     ]
 
 
-[<Tests>]
+
 let ``ResultCE loop Tests`` =
     testList "ResultCE loop Tests" [
         testCase "while" <| fun () ->
@@ -194,3 +199,14 @@ let ``ResultCE loop Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
+
+    
+let allTests = testList "Result CE Tests" [
+    ``ResultCE return Tests``
+    ``ResultCE return! Tests``
+    ``ResultCE bind Tests``
+    ``ResultCE combine/zero/delay/run Tests``
+    ``ResultCE try Tests``
+    ``ResultCE using Tests``
+    ``ResultCE loop Tests``
+]
