@@ -14,6 +14,7 @@
     <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+    <Compile Include="Result.fs" />
     <Compile Include="TaskResult.fs" />
     <Compile Include="TaskResultCE.fs" />
     <Compile Include="List.fs" />
