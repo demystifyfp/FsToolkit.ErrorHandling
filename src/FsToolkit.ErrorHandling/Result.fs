@@ -157,5 +157,3 @@ module Result =
           return Ok x
       | Error err -> return Error err
     }
-
-  
