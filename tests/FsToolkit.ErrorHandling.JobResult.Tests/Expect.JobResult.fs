@@ -1,7 +1,6 @@
 namespace Expects.JobResult
 
 module Expect =
-  open Expect
   open Expecto
   open Hopac
 
@@ -14,9 +13,9 @@ module Expect =
 
   let hasJobOkValue v jobX = 
     let x = run jobX
-    hasOkValue v x
+    TestHelpers.Expect.hasOkValue v x
 
 
   let hasJobErrorValue v jobX = 
     let x = run jobX
-    hasErrorValue v x
+    TestHelpers.Expect.hasErrorValue v x

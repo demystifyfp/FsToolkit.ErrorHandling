@@ -3,6 +3,7 @@ module ListTests
 open Expecto
 open SampleDomain
 open TestData
+open TestHelpers
 open System
 open FsToolkit.ErrorHandling
 open FSharp.Control.Tasks.V2.ContextInsensitive

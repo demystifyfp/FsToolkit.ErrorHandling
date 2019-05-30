@@ -5,6 +5,7 @@ open Expecto
 open Expects.JobResult
 open SampleDomain
 open TestData
+open TestHelpers
 open FsToolkit.ErrorHandling
 // open FsToolkit.ErrorHandling.Operator.JobResult
 open System
