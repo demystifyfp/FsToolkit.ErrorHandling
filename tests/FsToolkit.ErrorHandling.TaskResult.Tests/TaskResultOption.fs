@@ -5,6 +5,7 @@ open SampleDomain
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.TaskResultOption
 open System
+open TestHelpers
 
 let getUserById x = getUserById x |> Async.StartAsTask
 let getPostById x = getPostById x |> Async.StartAsTask

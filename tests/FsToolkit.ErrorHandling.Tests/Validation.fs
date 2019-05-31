@@ -1,14 +1,20 @@
 module ValidationTests
 
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
+
 open SampleDomain
 open TestData
+open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Validation
 
 let lift = Validation.ofResult
 
-[<Tests>]
+
 let map2Tests =
   testList "Validation.map2 Tests" [
     testCase "map2 with two ok parts" <| fun _ ->
@@ -28,7 +34,7 @@ let map2Tests =
       |> Expect.hasErrorValue [invalidLatMsg; invalidLngMsg]
   ]
 
-[<Tests>]
+
 let map3Tests =
   testList "Validation.map3 Tests" [
     testCase "map3 with three ok parts" <| fun _ ->
@@ -53,7 +59,7 @@ let map3Tests =
       |> Expect.hasErrorValue [invalidLatMsg;invalidLngMsg;emptyTweetErrMsg]
   ]
 
-[<Tests>]
+
 let applyTests =
 
   testList "Validation.apply tests" [
@@ -68,7 +74,7 @@ let applyTests =
       |> Expect.hasErrorValue [emptyTweetErrMsg]
   ]
 
-[<Tests>]
+
 let operatorsTests =
 
   testList "Validation Operators Tests" [
@@ -80,3 +86,10 @@ let operatorsTests =
       createPostRequest <!^> validLatR <*^> validLngR <*^> validTweetR
       |> Expect.hasOkValue validCreatePostRequest
   ]
+
+let allTests = testList "ValidationTests" [
+  map2Tests
+  map3Tests
+  applyTests
+  operatorsTests
+]

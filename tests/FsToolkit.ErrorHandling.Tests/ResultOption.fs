@@ -1,13 +1,20 @@
 module ResultOptionTests
 
+
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
+
 open TestData
+open TestHelpers
 open SampleDomain
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.ResultOption
 
 
-[<Tests>]
+
 let map2Tests =
   testList "ResultOption.map2 Tests" [
 
@@ -32,7 +39,7 @@ let map2Tests =
       |> Expect.hasErrorValue (Some validLng)
   ]
 
-[<Tests>]
+
 let map3Tests =
   testList "ResultOption.map3 Tests" [
 
@@ -58,7 +65,7 @@ let map3Tests =
   ]
 
 
-[<Tests>]
+
 let applyTests = 
   testList "ResultOption.apply Tests" [
     testCase "apply with Ok(Some x)" <| fun _ ->
@@ -72,7 +79,7 @@ let applyTests =
       |> Expect.hasOkValue None
   ]
 
-[<Tests>]
+
 let mapTests =
   testList "ResultOption.map Tests" [
     testCase "map with Ok(Some x)" <| fun _ ->
@@ -86,7 +93,7 @@ let mapTests =
       |> Expect.hasOkValue None
   ]
 
-[<Tests>]
+
 let bindTests =
   testList "ResultOption.bind Tests" [
     testCase "bind with Ok(Some x)" <| fun _ ->
@@ -96,7 +103,7 @@ let bindTests =
   ]
 
 
-[<Tests>]
+
 let resultOptionCETests =
   testList "resultOption Computation Expression tests" [
     testCase "bind with all Ok" <| fun _ ->
@@ -120,7 +127,7 @@ let resultOptionCETests =
       |> Expect.hasErrorValue invalidLatMsg
   ]
 
-[<Tests>]
+
 let resultOptionOperatorsTests =
 
   testList "ResultOption Operators Tests" [
@@ -133,3 +140,13 @@ let resultOptionOperatorsTests =
       >>= firstURLInTweet
       |> Expect.hasOkValue (Some validURL)
   ]
+
+let allTests = testList "Result Option Tests" [
+  map2Tests
+  map3Tests
+  applyTests
+  mapTests
+  bindTests
+  resultOptionCETests
+  resultOptionOperatorsTests
+]

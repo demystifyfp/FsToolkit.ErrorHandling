@@ -1,13 +1,18 @@
 module ResultTests 
 
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
 open SampleDomain
 open TestData
+open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Result
 
 
-[<Tests>]
+
 let resultIsOk =
   testList "Result.isOk Tests" [
     testCase "Is Ok true" <| fun _ ->
@@ -15,7 +20,7 @@ let resultIsOk =
     testCase "Is Error false" <| fun _ ->
       Expect.isFalse (Result.isOk (Error ())) "should be false"
   ]
-[<Tests>]
+
 let resultIsError =
   testList "Result.isError Tests" [
     testCase "Is Ok false" <| fun _ ->
@@ -23,7 +28,7 @@ let resultIsError =
     testCase "Is Error true" <| fun _ ->
       Expect.isTrue (Result.isError (Error ())) "should be true"
   ]
-[<Tests>]
+
 let resultEither =
   testList "Result.either Tests" [
     testCase "Ok calls okF" <| fun _ ->
@@ -38,7 +43,7 @@ let resultEither =
       Expect.equal actual 0 "Should be 0"
   ]
 
-[<Tests>]
+
 let resultEitherMap =
   testList "Result.eitherMap Tests" [
     testCase "Ok calls okF" <| fun _ ->
@@ -53,7 +58,7 @@ let resultEitherMap =
       Expect.equal actual (Error 0) "Should be 0"
   ]
 
-[<Tests>]
+
 let map2Tests =
   testList "Result.map2 Tests" [
     testCase "map2 with two ok parts" <| fun _ ->
@@ -74,7 +79,7 @@ let map2Tests =
   ]
 
 
-[<Tests>]
+
 let map3Tests =
   testList "Result.map3 Tests" [
     testCase "map3 with three ok parts" <| fun _ ->
@@ -100,7 +105,7 @@ let map3Tests =
       |> Expect.hasErrorValue invalidLatMsg
   ]
 
-[<Tests>]
+
 let applyTests =
 
   testList "Result.apply tests" [
@@ -114,7 +119,7 @@ let applyTests =
       |> Expect.hasErrorValue emptyTweetErrMsg
   ]
 
-[<Tests>]
+
 let foldTests =
 
   testList "Result.fold tests" [
@@ -132,7 +137,7 @@ let foldTests =
   ]
 
 
-[<Tests>]
+
 let ofChoiceTests =
 
   testList "Result.ofChoice tests" [
@@ -146,7 +151,7 @@ let ofChoiceTests =
   ]
 
 
-[<Tests>]
+
 let resultCETests =
   testList "result Computation Expression tests" [
     testCase "bind with all Ok" <| fun _ ->
@@ -161,7 +166,7 @@ let resultCETests =
     testCase "bind with Error" <| fun _ -> 
       let post = result {
         let! lat = invalidLatR
-        Tests.failtestf "this should not get executed!"
+        // Tests.failtestf "this should not get executed!"
         let! lng = validLngR 
         let! tweet = validTweetR
         return createPostRequest lat lng tweet
@@ -171,7 +176,7 @@ let resultCETests =
   ]
 
 
-[<Tests>]
+
 let resultOperatorsTests =
 
   testList "Result Operators Tests" [
@@ -191,7 +196,7 @@ let resultOperatorsTests =
   ]
 
 
-[<Tests>]
+
 let tryCreateTests =
   testList "tryCreate Tests" [
     testCase "tryCreate happy path" <| fun _ ->
@@ -205,7 +210,7 @@ let tryCreateTests =
 
 let err = "foobar"
 
-[<Tests>]
+
 let requireTrueTests =
   testList "requireTrue Tests" [
     testCase "requireTrue happy path" <| fun _ ->
@@ -217,7 +222,7 @@ let requireTrueTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireFalseTests =
   testList "requireFalse Tests" [
     testCase "requireFalse happy path" <| fun _ ->
@@ -229,7 +234,7 @@ let requireFalseTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireSomeTests =
   testList "requireSome Tests" [
     testCase "requireSome happy path" <| fun _ ->
@@ -242,7 +247,7 @@ let requireSomeTests =
   ]
 
 
-[<Tests>]
+
 let requireNoneTests =
   testList "requireNone Tests" [
     testCase "requireNone happy path" <| fun _ ->
@@ -254,7 +259,7 @@ let requireNoneTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireEqualToTests =
   testList "requireEqualTo Tests" [
     testCase "requireEqualTo happy path" <| fun _ ->
@@ -266,7 +271,7 @@ let requireEqualToTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireEqualTests =
   testList "requireEqual Tests" [
     testCase "requireEqual happy path" <| fun _ ->
@@ -278,7 +283,7 @@ let requireEqualTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireEmptyTests =
   testList "requireEmpty Tests" [
     testCase "requireEmpty happy path" <| fun _ ->
@@ -290,7 +295,7 @@ let requireEmptyTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireNotEmptyTests =
   testList "requireNotEmpty Tests" [
     testCase "requireNotEmpty happy path" <| fun _ ->
@@ -302,7 +307,7 @@ let requireNotEmptyTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let requireHeadTests =
   testList "requireHead Tests" [
     testCase "requireHead happy path" <| fun _ ->
@@ -314,7 +319,7 @@ let requireHeadTests =
       |> Expect.hasErrorValue err
   ]
 
-[<Tests>]
+
 let setErrorTests =
   testList "setError Tests" [
     testCase "setError replaces a any error value with a custom error value" <| fun _ ->
@@ -326,7 +331,7 @@ let setErrorTests =
       |> Expect.hasOkValue 42
   ]
 
-[<Tests>]
+
 let withErrorTests =
   testList "withError Tests" [
     testCase "withError replaces the unit error value with a custom error value" <| fun _ ->
@@ -338,7 +343,7 @@ let withErrorTests =
       |> Expect.hasOkValue 42
   ]
 
-[<Tests>]
+
 let defaultValueTests = 
   testList "defaultValue Tests" [
     testCase "defaultValue returns the ok value" <| fun _ ->
@@ -350,7 +355,7 @@ let defaultValueTests =
       Expect.equal v 43 ""
   ]
 
-[<Tests>]
+
 let defaultWithTests =
   testList "defaultWith Tests" [
     testCase "defaultWith returns the ok value" <| fun _ ->
@@ -362,7 +367,7 @@ let defaultWithTests =
       Expect.equal v 42 ""
   ]
 
-[<Tests>]
+
 let ignoreErrorTests =
   testList "ignoreError Tests" [
     testCase "ignoreError returns the unit for ok" <| fun _ ->
@@ -373,7 +378,7 @@ let ignoreErrorTests =
   ]
 
 
-[<Tests>]
+
 let teeTests =
 
   testList "tee Tests" [
@@ -400,7 +405,7 @@ let teeTests =
 let returnTrue _ = true
 let returnFalse _ = false
 
-[<Tests>]
+
 let teeIfTests =
   testList "teeIf Tests" [
     testCase "teeIf executes the function for ok and true predicate " <| fun _ ->
@@ -436,7 +441,7 @@ let teeIfTests =
       Expect.equal !foo "foo" ""
   ]
 
-[<Tests>]
+
 let teeErrorTests =
 
   testList "teeError Tests" [
@@ -460,7 +465,7 @@ let teeErrorTests =
       Expect.equal !foo "foo" ""
   ]
 
-[<Tests>]
+
 let teeErrorIfTests =
   testList "teeErrorIf Tests" [
     testCase "teeErrorIf executes the function for Error and true predicate " <| fun _ ->
@@ -495,8 +500,6 @@ let teeErrorIfTests =
       Expect.hasOkValue 42 result
       Expect.equal !foo "foo" ""
   ]
-
-[<Tests>]
 let sequenceAsyncTests =
   testList "sequenceAsync Tests" [
     testCase "sequenceAsync returns the async value if Ok" <| fun _ ->
@@ -509,3 +512,37 @@ let sequenceAsyncTests =
       let value = resAsnc |> Result.sequenceAsync |> Async.RunSynchronously
       Expect.equal value (Error "foo") ""
   ]
+
+let allTests = testList "Result Tests" [
+  resultIsOk
+  resultIsError
+  resultEither
+  resultEitherMap
+  map2Tests
+  map3Tests
+  applyTests
+  foldTests
+  ofChoiceTests
+  resultCETests
+  resultOperatorsTests
+  tryCreateTests
+  requireTrueTests
+  requireFalseTests
+  requireSomeTests
+  requireNoneTests
+  requireEqualToTests
+  requireEqualTests
+  requireEmptyTests
+  requireNotEmptyTests
+  requireHeadTests
+  setErrorTests
+  withErrorTests
+  defaultValueTests
+  defaultWithTests
+  ignoreErrorTests
+  teeTests
+  teeIfTests
+  teeErrorTests
+  teeErrorIfTests
+  sequenceAsyncTests
+]

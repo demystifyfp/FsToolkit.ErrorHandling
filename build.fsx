@@ -9,6 +9,7 @@ open Fake.Core.TargetOperators
 open Fake.DotNet.Testing
 open Fake.IO.Globbing.Operators
 open Fake.Tools
+open Fake.JavaScript
 open System
 open System.IO
 
@@ -24,6 +25,11 @@ Target.create "Clean" (fun _ ->
   ++ "src/**/obj"
   ++ "tests/**/obj"
   |> Shell.cleanDirs
+
+  [
+    "paket-files/paket.restore.cached"
+  ]
+  |> Seq.iter Shell.rm
 )
 
 if not (Environment.isWindows) then
@@ -42,13 +48,19 @@ if not (Environment.isWindows) then
 Target.create "Build" (fun _ ->
   let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
+            NoRestore = true
             Configuration = DotNet.BuildConfiguration.fromString configuration}
   DotNet.build setParams solutionFile
 )
 
 
 Target.create "Restore" (fun _ ->
+  Paket.restore id
   DotNet.restore id solutionFile
+)
+
+Target.create "NpmRestore" (fun _ ->
+  Npm.install id
 )
 
 let runTestAssembly setParams testAssembly =
@@ -94,6 +106,12 @@ let testAssemblies = "tests/**/bin" </> configuration </> "**" </> "*Tests.dll"
 Target.create "RunTests" (fun _ ->
   runTests id (!! testAssemblies)
 )
+
+let runFableTests _ =
+  Npm.test id
+
+Target.create "RunFableTests" runFableTests
+
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
 Target.create "AssemblyInfo" (fun _ ->
@@ -164,8 +182,10 @@ Target.create "UpdateDocs" (fun _ ->
 "Clean"
   ==> "AssemblyInfo"
   ==> "Restore"
+  ==> "NpmRestore"
   ==> "Build"
   ==> "RunTests"
+  ==> "RunFableTests"
   ==> "NuGet"
   ==> "PublishNuGet"
   ==> "Release"
