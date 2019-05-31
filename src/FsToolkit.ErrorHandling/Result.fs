@@ -148,4 +148,12 @@ module Result =
   let teeError f result =
     teeErrorIf (fun _ -> true) f result
 
-  
+
+  let sequenceAsync (resAsync: Result<Async<'a>, 'b>) : Async<Result<'a, 'b>> =
+    async {
+      match resAsync with
+      | Ok asnc ->
+          let! x = asnc
+          return Ok x
+      | Error err -> return Error err
+    }

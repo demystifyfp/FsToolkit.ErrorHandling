@@ -141,3 +141,31 @@ If the result is Error and the predicate returns true for the wrapped value, exe
 ```fsharp
 ('a -> bool) -> ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
 ```
+
+
+### sequenceAsync
+
+
+Converts a `Result<Async<'a>, 'b>` to `Async<Result<'a, 'b>>`.
+
+```fsharp
+Result<Async<'a>, 'b> -> Async<Result<'a, 'b>>
+```
+
+
+### sequenceTask
+
+Converts a `Result<Task<'a>, 'b>` to `Task<Result<'a, 'b>>`.
+
+```fsharp
+Result<Task<'a>, 'b> -> Task<Result<'a, 'b>>
+```
+
+
+### sequenceJob
+
+Converts a `Result<Job<'a>, 'b>` to `Job<Result<'a, 'b>>`.
+
+```fsharp
+Result<Job<'a>, 'b> -> Job<Result<'a, 'b>>
+```

@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Result.fs" />
     <Compile Include="Job.fs" />
     <Compile Include="JobResult.fs" />
     <Compile Include="JobResultCE.fs" />
