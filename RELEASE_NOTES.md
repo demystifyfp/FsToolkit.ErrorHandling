@@ -1,3 +1,7 @@
+#### 1.2.2 - May 31, 2019
+* Adds sequenceAsync, sequenceTask & sequenceJob. Credits [Christer van der Meeren](https://github.com/cmeeren).
+* Adds Fable tests. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
+
 #### 1.2.1 - May 21, 2019
 * Adds JobResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
 
