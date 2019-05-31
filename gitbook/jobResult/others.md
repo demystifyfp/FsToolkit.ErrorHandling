@@ -142,3 +142,11 @@ If the job-wrapped result is Error and the predicate returns true for the wrappe
 ('a -> bool) -> ('a -> unit) -> job<Result<'b, 'a>> -> job<Result<'b, 'a>>
 ```
 
+### sequenceJob
+
+Converts a `Result<Job<'a>, 'b>` to `Job<Result<'a, 'b>>`.
+
+```fsharp
+Result<Job<'a>, 'b> -> Job<Result<'a, 'b>>
+```
+

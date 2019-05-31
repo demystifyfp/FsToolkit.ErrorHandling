@@ -50,6 +50,19 @@
   * [Operators](taskResult/operators.md)
   * [Other Functions](taskResult/others.md)
 
+* JobResult
+  * [map](jobResult/map.md)
+  * [map2](jobResult/map2.md)
+  * [map3](jobResult/map3.md)
+  * [mapError](jobResult/mapError.md)
+  * [apply](jobResult/apply.md)
+  * [foldResult](jobResult/foldResult.md)
+  * [ofAsync](jobResult/ofjob.md)
+  * [bind](jobResult/bind.md)
+  * [Computation Expression](jobResult/ce.md)
+  * [Operators](jobResult/operators.md)
+  * [Other Functions](jobResult/others.md)
+
 
 * List
   * [traverseResultM](list/traverseResultM.md)

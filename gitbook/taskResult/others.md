@@ -142,3 +142,10 @@ If the task-wrapped result is Error and the predicate returns true for the wrapp
 ('a -> bool) -> ('a -> unit) -> Task<Result<'b, 'a>> -> Task<Result<'b, 'a>>
 ```
 
+### sequenceTask
+
+Converts a `Result<Task<'a>, 'b>` to `Task<Result<'a, 'b>>`.
+
+```fsharp
+Result<Task<'a>, 'b> -> Task<Result<'a, 'b>>
+```
