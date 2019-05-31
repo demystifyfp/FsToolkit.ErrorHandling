@@ -502,15 +502,17 @@ let teeErrorIfTests =
   ]
 let sequenceAsyncTests =
   testList "sequenceAsync Tests" [
-    testCase "sequenceAsync returns the async value if Ok" <| fun _ ->
+    testCaseAsync "sequenceAsync returns the async value if Ok" <| async {
       let resAsnc = async { return "foo" } |> Ok
-      let value = resAsnc |> Result.sequenceAsync |> Async.RunSynchronously
+      let! value = resAsnc |> Result.sequenceAsync
       Expect.equal value (Ok "foo") ""
+    }
 
-    testCase "sequenceAsync returns the error value if Error" <| fun _ ->
+    testCaseAsync "sequenceAsync returns the error value if Error" <| async {
       let resAsnc = Error "foo"
-      let value = resAsnc |> Result.sequenceAsync |> Async.RunSynchronously
+      let! value = resAsnc |> Result.sequenceAsync
       Expect.equal value (Error "foo") ""
+    }
   ]
 
 let allTests = testList "Result Tests" [
