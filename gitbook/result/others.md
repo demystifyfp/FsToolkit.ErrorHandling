@@ -30,7 +30,7 @@ Converts an Option to a Result, using the given error if Some.
 
 Converts a nullable value to a Result, using the given error if null.
 ```fsharp
-'a -> 'b : null -> Result<'b, 'a>
+'a -> 'b -> Result<'b, 'a>
 ```
 
 
