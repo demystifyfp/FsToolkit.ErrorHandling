@@ -1,4 +1,4 @@
-module ResultTests 
+module ResultTests
 
 #if FABLE_COMPILER
 open Fable.Mocha
@@ -63,17 +63,17 @@ let map2Tests =
   testList "Result.map2 Tests" [
     testCase "map2 with two ok parts" <| fun _ ->
       Result.map2 location validLatR validLngR
-      |> Expect.hasOkValue validLocation 
+      |> Expect.hasOkValue validLocation
 
-    testCase "map2 with one Error and one Ok parts" <| fun _ -> 
+    testCase "map2 with one Error and one Ok parts" <| fun _ ->
       Result.map2 location invalidLatR validLngR
       |> Expect.hasErrorValue invalidLatMsg
-    
+
     testCase "map2 with one Ok and one Error parts" <| fun _ ->
       Result.map2 location validLatR invalidLngR
       |> Expect.hasErrorValue invalidLngMsg
 
-    testCase "map2 with two Error parts" <| fun _ -> 
+    testCase "map2 with two Error parts" <| fun _ ->
       Result.map2 location invalidLatR invalidLngR
       |> Expect.hasErrorValue invalidLatMsg
   ]
@@ -83,14 +83,14 @@ let map2Tests =
 let map3Tests =
   testList "Result.map3 Tests" [
     testCase "map3 with three ok parts" <| fun _ ->
-      
+
       Result.map3 createPostRequest validLatR validLngR validTweetR
       |> Expect.hasOkValue validCreatePostRequest
 
     testCase "map3 with (Error, Ok, Ok)" <| fun _ ->
       Result.map3 createPostRequest invalidLatR validLngR validTweetR
       |> Expect.hasErrorValue  invalidLatMsg
-    
+
     testCase "map3 with (Ok, Error, Ok)" <| fun _ ->
       Result.map3 createPostRequest validLatR invalidLngR  validTweetR
       |> Expect.hasErrorValue invalidLngMsg
@@ -99,7 +99,7 @@ let map3Tests =
     testCase "map3 with (Ok, Ok, Error)" <| fun _ ->
       Result.map3 createPostRequest validLatR validLngR emptyInvalidTweetR
       |> Expect.hasErrorValue emptyTweetErrMsg
-    
+
     testCase "map3 with (Error, Error, Error)" <| fun _ ->
       Result.map3 createPostRequest invalidLatR invalidLngR  emptyInvalidTweetR
       |> Expect.hasErrorValue invalidLatMsg
@@ -111,9 +111,9 @@ let applyTests =
   testList "Result.apply tests" [
     testCase "apply with Ok" <| fun _ ->
       Tweet.TryCreate "foobar"
-      |> Result.apply (Ok remainingCharacters) 
+      |> Result.apply (Ok remainingCharacters)
       |> Expect.hasOkValue 274
-    
+
     testCase "apply with Error" <| fun _ ->
       Result.apply (Ok remainingCharacters) emptyInvalidTweetR
       |> Expect.hasErrorValue emptyTweetErrMsg
@@ -128,7 +128,7 @@ let foldTests =
         Tweet.TryCreate "foobar"
         |> Result.fold (fun t -> t.Value) id
       Expect.equal actual "foobar" "fold to string should succeed"
-    
+
     testCase "fold with Error" <| fun _ ->
       let actual =
         Tweet.TryCreate ""
@@ -144,7 +144,7 @@ let ofChoiceTests =
     testCase "ofChoice with Choice1Of2" <| fun _ ->
       Result.ofChoice (Choice1Of2 1)
       |> Expect.hasOkValue 1
-    
+
     testCase "ofChoice with Choice2Of2" <| fun _ ->
       Result.ofChoice (Choice2Of2 1)
       |> Expect.hasErrorValue 1
@@ -156,18 +156,18 @@ let resultCETests =
   testList "result Computation Expression tests" [
     testCase "bind with all Ok" <| fun _ ->
       let createPostRequest = result {
-        let! lat = validLatR 
-        let! lng = validLngR 
+        let! lat = validLatR
+        let! lng = validLngR
         let! tweet = validTweetR
         return createPostRequest lat lng tweet
       }
-      Expect.hasOkValue validCreatePostRequest createPostRequest 
+      Expect.hasOkValue validCreatePostRequest createPostRequest
 
-    testCase "bind with Error" <| fun _ -> 
+    testCase "bind with Error" <| fun _ ->
       let post = result {
         let! lat = invalidLatR
         // Tests.failtestf "this should not get executed!"
-        let! lng = validLngR 
+        let! lng = validLngR
         let! tweet = validTweetR
         return createPostRequest lat lng tweet
       }
@@ -183,10 +183,10 @@ let resultOperatorsTests =
     testCase "map & apply operators" <| fun _ ->
       createPostRequest <!> validLatR <*> validLngR <*> validTweetR
       |> Expect.hasOkValue validCreatePostRequest
-    
+
     testCase "bind operator" <| fun _ ->
       validLatR
-      >>= (fun lat -> 
+      >>= (fun lat ->
             validLngR
             >>= (fun lng ->
                   validTweetR
@@ -202,7 +202,7 @@ let tryCreateTests =
     testCase "tryCreate happy path" <| fun _ ->
       Result.tryCreate "lat" lat
       |> Expect.hasOkValue validLat
-    
+
     testCase "tryCreate error path" <| fun _ ->
       let r : Result<Latitude, (string * string)> = Result.tryCreate "lat" 200.
       Expect.hasErrorValue ("lat", invalidLatMsg) r
@@ -214,11 +214,11 @@ let err = "foobar"
 let requireTrueTests =
   testList "requireTrue Tests" [
     testCase "requireTrue happy path" <| fun _ ->
-      Result.requireTrue err true 
+      Result.requireTrue err true
       |> Expect.hasOkValue ()
 
     testCase "requireTrue error path" <| fun _ ->
-      Result.requireTrue err false 
+      Result.requireTrue err false
       |> Expect.hasErrorValue err
   ]
 
@@ -226,11 +226,11 @@ let requireTrueTests =
 let requireFalseTests =
   testList "requireFalse Tests" [
     testCase "requireFalse happy path" <| fun _ ->
-      Result.requireFalse err false 
+      Result.requireFalse err false
       |> Expect.hasOkValue ()
 
     testCase "requireFalse error path" <| fun _ ->
-      Result.requireFalse err true 
+      Result.requireFalse err true
       |> Expect.hasErrorValue err
   ]
 
@@ -238,24 +238,33 @@ let requireFalseTests =
 let requireSomeTests =
   testList "requireSome Tests" [
     testCase "requireSome happy path" <| fun _ ->
-      Result.requireSome err (Some 42) 
+      Result.requireSome err (Some 42)
       |> Expect.hasOkValue 42
 
     testCase "requireSome error path" <| fun _ ->
-      Result.requireSome err None 
+      Result.requireSome err None
       |> Expect.hasErrorValue err
   ]
 
+let requireNotNullTests =
+  testList "requireNotNull Tests" [
+    testCase "requireNotNull happy path" <| fun _ ->
+      Result.requireNotNull err ("test")
+      |> Expect.hasOkValue "test"
 
+    testCase "requireNotNull error path" <| fun _ ->
+      Result.requireNotNull err (null)
+      |> Expect.hasErrorValue err
+  ]
 
 let requireNoneTests =
   testList "requireNone Tests" [
     testCase "requireNone happy path" <| fun _ ->
-      Result.requireNone err None 
+      Result.requireNone err None
       |> Expect.hasOkValue ()
 
     testCase "requireNone error path" <| fun _ ->
-      Result.requireNone err (Some 42) 
+      Result.requireNone err (Some 42)
       |> Expect.hasErrorValue err
   ]
 
@@ -263,7 +272,7 @@ let requireNoneTests =
 let requireEqualToTests =
   testList "requireEqualTo Tests" [
     testCase "requireEqualTo happy path" <| fun _ ->
-      Result.requireEqualTo 42 err 42 
+      Result.requireEqualTo 42 err 42
       |> Expect.hasOkValue ()
 
     testCase "requireEqualTo error path" <| fun _ ->
@@ -275,7 +284,7 @@ let requireEqualToTests =
 let requireEqualTests =
   testList "requireEqual Tests" [
     testCase "requireEqual happy path" <| fun _ ->
-      Result.requireEqual 42 42 err 
+      Result.requireEqual 42 42 err
       |> Expect.hasOkValue ()
 
     testCase "requireEqual error path" <| fun _ ->
@@ -344,7 +353,7 @@ let withErrorTests =
   ]
 
 
-let defaultValueTests = 
+let defaultValueTests =
   testList "defaultValue Tests" [
     testCase "defaultValue returns the ok value" <| fun _ ->
       let v = Result.defaultValue 43 (Ok 42)
@@ -385,7 +394,7 @@ let teeTests =
     testCase "tee executes the function for ok" <| fun _ ->
       let foo = ref "foo"
       let input = ref 0
-      let bar x = 
+      let bar x =
         input := x
         foo := "bar"
       let result = Result.tee bar (Ok 42)
@@ -395,7 +404,7 @@ let teeTests =
 
     testCase "tee ignores the function for Error" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.tee bar (Error err)
       Expect.hasErrorValue err result
@@ -412,10 +421,10 @@ let teeIfTests =
       let foo = ref "foo"
       let input = ref 0
       let pInput = ref 0
-      let returnTrue x = 
+      let returnTrue x =
         pInput := x
         true
-      let bar x = 
+      let bar x =
         input := x
         foo := "bar"
       let result = Result.teeIf returnTrue bar (Ok 42)
@@ -426,7 +435,7 @@ let teeIfTests =
 
     testCase "teeIf ignores the function for Ok and false predicate" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.teeIf returnFalse bar (Ok 42)
       Expect.hasOkValue 42 result
@@ -434,7 +443,7 @@ let teeIfTests =
 
     testCase "teeIf ignores the function for Error" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.teeIf returnTrue bar (Error err)
       Expect.hasErrorValue err result
@@ -448,7 +457,7 @@ let teeErrorTests =
     testCase "teeError executes the function for Error" <| fun _ ->
       let foo = ref "foo"
       let input = ref ""
-      let bar x = 
+      let bar x =
         input := x
         foo := "bar"
       let result = Result.teeError bar (Error err)
@@ -458,7 +467,7 @@ let teeErrorTests =
 
     testCase "teeError ignores the function for Ok" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.teeError bar (Ok 42)
       Expect.hasOkValue 42 result
@@ -472,10 +481,10 @@ let teeErrorIfTests =
       let foo = ref "foo"
       let input = ref ""
       let pInput = ref ""
-      let returnTrue x = 
+      let returnTrue x =
         pInput := x
         true
-      let bar x = 
+      let bar x =
         input := x
         foo := "bar"
       let result = Result.teeErrorIf returnTrue bar (Error err)
@@ -486,7 +495,7 @@ let teeErrorIfTests =
 
     testCase "teeErrorIf ignores the function for Error and false predicate" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.teeErrorIf returnFalse bar (Error err)
       Expect.hasErrorValue err result
@@ -494,7 +503,7 @@ let teeErrorIfTests =
 
     testCase "teeErrorIf ignores the function for Ok" <| fun _ ->
       let foo = ref "foo"
-      let bar _ = 
+      let bar _ =
         foo := "bar"
       let result = Result.teeErrorIf returnTrue bar (Ok 42)
       Expect.hasOkValue 42 result
@@ -532,6 +541,7 @@ let allTests = testList "Result Tests" [
   requireFalseTests
   requireSomeTests
   requireNoneTests
+  requireNotNullTests
   requireEqualToTests
   requireEqualTests
   requireEmptyTests

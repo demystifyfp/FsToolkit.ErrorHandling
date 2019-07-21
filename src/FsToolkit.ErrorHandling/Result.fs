@@ -8,14 +8,14 @@ module Result =
     | Ok _ -> true
     | Error _ -> false
 
-  let isError x = 
+  let isError x =
     isOk x |> not
 
   let either okF errorF x =
     match x with
     | Ok x -> okF x
     | Error err -> errorF err
-    
+
   let eitherMap okF errorF x =
     either (okF >> Result.Ok) (errorF >> Result.Error) x
 
@@ -25,7 +25,7 @@ module Result =
 
   let map2 f x y =
     (apply (apply (Ok f) x) y)
-  
+
   let map3 f x y z =
     apply (map2 f x y) z
 
@@ -40,7 +40,7 @@ module Result =
     | Choice2Of2 x -> Error x
 
   let inline tryCreate fieldName (x : 'a) : Result< ^b, (string * 'c)> =
-    let tryCreate' x = 
+    let tryCreate' x =
       (^b : (static member TryCreate : 'a -> Result< ^b, 'c>) x)
     tryCreate' x
     |> Result.mapError (fun z -> (fieldName, z))
@@ -64,7 +64,14 @@ module Result =
     match option with
     | Some _ -> Error error
     | None -> Ok ()
-  
+
+
+  /// Converts a nullable value into a Result, using the given error if null
+  let requireNotNull error value =
+    match value with
+    | null -> Error error
+    | nonnull -> Ok nonnull
+
   /// Returns Ok if the two values are equal, or the specified error if not.
   /// Same as requireEqual, but with a signature that fits piping better than
   /// normal function application.
