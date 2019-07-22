@@ -1,3 +1,6 @@
+#### 1.2.3 - July 22, 2019
+* Adds `requireNotNull` function. Credits [Daniel Bachler](https://github.com/danyx23)
+
 #### 1.2.2 - May 31, 2019
 * Adds sequenceAsync, sequenceTask & sequenceJob. Credits [Christer van der Meeren](https://github.com/cmeeren).
 * Adds Fable tests. Credits [Jimmy Byrd](https://github.com/TheAngryByrd)
