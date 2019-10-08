@@ -21,7 +21,7 @@ let deletePostIfExists : DeletePostRequest -> Result<Post option, exn>
 We can call this with the `do!` syntax inside a computation expression using `ResultOption.ignore` as below:
 
 ```fsharp
-let makePost = resultOption {
+let deletePost = resultOption {
   do! deletePostIfExists deletePostRequest |> ResultOption.ignore
 }
 ```
