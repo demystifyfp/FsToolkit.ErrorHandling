@@ -12,14 +12,18 @@ module TaskResultOption =
       | None -> TaskResult.retn None
     TaskResult.bind binder tro
   
-  let map2 f trox troy =
-    TaskResult.map2 (Option.map2 f) trox troy
+  let map2 f xTRO yTRO =
+    TaskResult.map2 (Option.map2 f) xTRO yTRO
 
-  let map3 f trox troy aroz =
-    TaskResult.map3 (Option.map3 f) trox troy aroz
+  let map3 f xTRO yTRO zTRO =
+    TaskResult.map3 (Option.map3 f) xTRO yTRO zTRO
 
   let retn value =
     task { return Ok (Some value) }
 
   let apply fTRO xTRO =
     map2 (fun f x -> f x) fTRO xTRO
+
+  /// Replaces the wrapped value with unit
+  let ignore tro =
+      tro |> map ignore

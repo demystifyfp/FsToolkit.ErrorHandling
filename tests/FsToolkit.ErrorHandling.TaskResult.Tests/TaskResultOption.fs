@@ -115,6 +115,25 @@ let map2Tests =
   ]
 
 [<Tests>]
+let ignoreTests =
+  testList "TaskResultOption.ignore tests" [
+    testCase "ignore with Task(Ok Some(x))" <| fun _ ->
+      getUserById sampleUserId
+      |> TaskResultOption.ignore
+      |> Expect.hasTaskOkValue (Some ())
+
+    testCase "ignore with Task(Ok None)" <| fun _ ->
+      getUserById (UserId (Guid.NewGuid()))
+      |> TaskResultOption.ignore
+      |> Expect.hasTaskOkValue None
+
+    testCase "ignore with Task(Error x)" <| fun _ ->
+      getUserById (UserId (Guid.Empty))
+      |> TaskResultOption.ignore
+      |> Expect.hasTaskErrorValue "invalid user id"
+  ]
+
+[<Tests>]
 let computationExpressionTests =
   testList "taskResultOption CE tests" [
     testCase "CE with Task(Ok Some(x)) Task(Ok Some(x))" <| fun _ ->

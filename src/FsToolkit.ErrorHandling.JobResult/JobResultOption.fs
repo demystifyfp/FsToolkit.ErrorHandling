@@ -2,26 +2,30 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module JobResultOption =  
   open Hopac
-  let map f tro =
-    JobResult.map (Option.map f) tro
+  let map f jro =
+    JobResult.map (Option.map f) jro
 
-  let bind f tro =
+  let bind f jro =
     let binder opt = 
       match opt with
       | Some x -> f x
       | None -> JobResult.retn None
-    JobResult.bind binder tro
+    JobResult.bind binder jro
   
-  let map2 f trox troy =
-    JobResult.map2 (Option.map2 f) trox troy
+  let map2 f xJRO yJRO =
+    JobResult.map2 (Option.map2 f) xJRO yJRO
 
-  let map3 f trox troy aroz =
-    JobResult.map3 (Option.map3 f) trox troy aroz
+  let map3 f xJRO yJRO zJRO =
+    JobResult.map3 (Option.map3 f) xJRO yJRO zJRO
 
   let retn value =
     Some value
     |> Ok
     |> Job.result
 
-  let apply fTRO xTRO =
-    map2 (fun f x -> f x) fTRO xTRO
+  let apply fJRO xJRO =
+    map2 (fun f x -> f x) fJRO xJRO
+
+  /// Replaces the wrapped value with unit
+  let ignore jro =
+      jro |> map ignore

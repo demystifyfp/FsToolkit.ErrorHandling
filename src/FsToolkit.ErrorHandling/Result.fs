@@ -45,7 +45,11 @@ module Result =
     tryCreate' x
     |> Result.mapError (fun z -> (fieldName, z))
 
-    // Returns the specified error if the value is false.
+  /// Replaces the wrapped value with unit
+  let ignore result =
+    result |> Result.map ignore
+
+  /// Returns the specified error if the value is false.
   let requireTrue error value =
     if value then Ok () else Error error
 
@@ -64,7 +68,6 @@ module Result =
     match option with
     | Some _ -> Error error
     | None -> Ok ()
-
 
   /// Converts a nullable value into a Result, using the given error if null
   let requireNotNull error value =
@@ -149,12 +152,10 @@ module Result =
   let tee f result =
     teeIf (fun _ -> true) f result
 
-
   /// If the result is Error, executes the function on the Error value. Passes
   /// through the input value.
   let teeError f result =
     teeErrorIf (fun _ -> true) f result
-
 
   let sequenceAsync (resAsync: Result<Async<'a>, 'b>) : Async<Result<'a, 'b>> =
     async {

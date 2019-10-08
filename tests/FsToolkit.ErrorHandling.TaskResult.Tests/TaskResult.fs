@@ -125,6 +125,20 @@ let bindTests =
       |> Expect.hasTaskErrorValue ex
   ]
 
+[<Tests>]
+let ignoreTests =
+  testList "TaskResult.ignore tests" [
+    testCase "ignore with Task(Ok x)" <| fun _ ->
+      createPostSuccess validCreatePostRequest
+      |> TaskResult.ignore
+      |> Expect.hasTaskOkValue ()
+
+    testCase "ignore with Task(Error x)" <| fun _ ->
+      createPostFailure validCreatePostRequest
+      |> TaskResult.ignore
+      |> Expect.hasTaskErrorValue commonEx
+  ]
+
 let err = "foobar"
 let toTask x = task {return x}
 

@@ -52,6 +52,10 @@ module AsyncResult =
   let apply fAR xAR =
     map2 (fun f x -> f x) fAR xAR
 
+  /// Replaces the wrapped value with unit
+  let ignore ar =
+    ar |> map ignore
+
   /// Returns the specified error if the async-wrapped value is false.
   let requireTrue error value = 
     value |> Async.map (Result.requireTrue error)
@@ -119,12 +123,10 @@ module AsyncResult =
   let tee f asyncResult =
     asyncResult |> Async.map (Result.tee f)
 
-
   /// If the async-wrapped result is Ok and the predicate returns true, executes
   /// the function on the Ok value. Passes through the input value.
   let teeIf predicate f asyncResult =
     asyncResult |> Async.map (Result.teeIf predicate f)
-
 
   /// If the async-wrapped result is Error, executes the function on the Error
   /// value. Passes through the input value.

@@ -29,7 +29,6 @@ module TaskResult =
     |> Async.Catch 
     |> Async.StartAsTask 
     |> Task.map Result.ofChoice
-
   
   let retn x =
     Ok x
@@ -47,6 +46,10 @@ module TaskResult =
 
   let apply fTR xTR =
     map2 (fun f x -> f x) fTR xTR
+
+  /// Replaces the wrapped value with unit
+  let ignore tr =
+      tr |> map ignore
 
   /// Returns the specified error if the task-wrapped value is false.
   let requireTrue error value = 
@@ -87,47 +90,45 @@ module TaskResult =
 
   /// Replaces an error value of an task-wrapped result with a custom error
   /// value.
-  let setError error asyncResult =
-    asyncResult |> Task.map (Result.setError error)
+  let setError error taskResult =
+    taskResult |> Task.map (Result.setError error)
 
   /// Replaces a unit error value of an task-wrapped result with a custom
   /// error value. Safer than setError since you're not losing any information.
-  let withError error asyncResult =
-    asyncResult |> Task.map (Result.withError error)
+  let withError error taskResult =
+    taskResult |> Task.map (Result.withError error)
 
   /// Extracts the contained value of an task-wrapped result if Ok, otherwise
   /// uses ifError.
-  let defaultValue ifError asyncResult =
-    asyncResult |> Task.map (Result.defaultValue ifError)
+  let defaultValue ifError taskResult =
+    taskResult |> Task.map (Result.defaultValue ifError)
 
   /// Extracts the contained value of an task-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
-  let defaultWith ifErrorThunk asyncResult =
-    asyncResult |> Task.map (Result.defaultWith ifErrorThunk)
+  let defaultWith ifErrorThunk taskResult =
+    taskResult |> Task.map (Result.defaultWith ifErrorThunk)
 
   /// Same as defaultValue for a result where the Ok value is unit. The name
   /// describes better what is actually happening in this case.
-  let ignoreError result =
-    defaultValue () result
+  let ignoreError taskResult =
+    defaultValue () taskResult
 
   /// If the task-wrapped result is Ok, executes the function on the Ok value.
   /// Passes through the input value.
-  let tee f asyncResult =
-    asyncResult |> Task.map (Result.tee f)
-
+  let tee f taskResult =
+    taskResult |> Task.map (Result.tee f)
 
   /// If the task-wrapped result is Ok and the predicate returns true, executes
   /// the function on the Ok value. Passes through the input value.
-  let teeIf predicate f asyncResult =
-    asyncResult |> Task.map (Result.teeIf predicate f)
-
+  let teeIf predicate f taskResult =
+    taskResult |> Task.map (Result.teeIf predicate f)
 
   /// If the task-wrapped result is Error, executes the function on the Error
   /// value. Passes through the input value.
-  let teeError f asyncResult =
-    asyncResult |> Task.map (Result.teeError f)
+  let teeError f taskResult =
+    taskResult |> Task.map (Result.teeError f)
 
   /// If the task-wrapped result is Error and the predicate returns true,
   /// executes the function on the Error value. Passes through the input value.
-  let teeErrorIf predicate f asyncResult =
-    asyncResult |> Task.map (Result.teeErrorIf predicate f)
+  let teeErrorIf predicate f taskResult =
+    taskResult |> Task.map (Result.teeErrorIf predicate f)

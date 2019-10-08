@@ -112,7 +112,24 @@ let map2Tests =
       AsyncResultOption.map2 userTweet postARO userARO
       |> Expect.hasAsyncErrorValue "invalid post id")
   ]
+  
+let ignoreTests =
+  testList "AsyncResultOption.ignore tests" [
+    testCaseAsync "ignore with Async(Ok Some(x))" <|
+      (getUserById sampleUserId
+      |> AsyncResultOption.ignore
+      |> Expect.hasAsyncOkValue (Some ()))
 
+    testCaseAsync "ignore with Async(Ok None)" <|
+      (getUserById (UserId (Guid.NewGuid()))
+      |> AsyncResultOption.ignore
+      |> Expect.hasAsyncOkValue None)
+
+    testCaseAsync "ignore with Async(Error x)" <|
+      (getUserById (UserId (Guid.Empty))
+      |> AsyncResultOption.ignore
+      |> Expect.hasAsyncErrorValue "invalid user id")
+  ]
 
 let computationExpressionTests =
   testList "asyncResultOption CE tests" [
@@ -166,6 +183,7 @@ let allTests = testList "AsyncResultOptionTests" [
   mapTests
   bindTests
   map2Tests
+  ignoreTests
   computationExpressionTests
   operatorTests
 ]

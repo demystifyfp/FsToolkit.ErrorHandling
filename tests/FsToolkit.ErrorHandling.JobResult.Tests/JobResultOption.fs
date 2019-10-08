@@ -116,6 +116,25 @@ let map2Tests =
   ]
 
 [<Tests>]
+let ignoreTests =
+  testList "JobResultOption.ignore tests" [
+    testCase "ignore with Job(Ok Some(x))" <| fun _ ->
+      getUserById sampleUserId
+      |> JobResultOption.ignore
+      |> Expect.hasJobOkValue (Some ())
+
+    testCase "ignore with Job(Ok None)" <| fun _ ->
+      getUserById (UserId (Guid.NewGuid()))
+      |> JobResultOption.ignore
+      |> Expect.hasJobOkValue None
+
+    testCase "ignore with Job(Error x)" <| fun _ ->
+      getUserById (UserId (Guid.Empty))
+      |> JobResultOption.ignore
+      |> Expect.hasJobErrorValue "invalid user id"
+  ]
+
+[<Tests>]
 let computationExpressionTests =
   testList "jobResultOption CE tests" [
     testCase "CE with Job(Ok Some(x)) Job(Ok Some(x))" <| fun _ ->
