@@ -125,6 +125,20 @@ let bindTests =
       |> Expect.hasJobErrorValue ex
   ]
 
+[<Tests>]
+let ignoreTests =
+  testList "JobResult.ignore tests" [
+    testCase "ignore with Task(Ok x)" <| fun _ ->
+      createPostSuccess validCreatePostRequest
+      |> JobResult.ignore
+      |> Expect.hasJobOkValue ()
+
+    testCase "ignore with Task(Error x)" <| fun _ ->
+      createPostFailure validCreatePostRequest
+      |> JobResult.ignore
+      |> Expect.hasJobErrorValue commonEx
+  ]
+
 let err = "foobar"
 let toJob = Job.singleton
 

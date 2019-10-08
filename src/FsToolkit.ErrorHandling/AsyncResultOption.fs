@@ -36,3 +36,7 @@ module AsyncResultOption =
 
   let apply fARO xARO =
     map2 (fun f x -> f x) fARO xARO
+
+  /// Replaces the wrapped value with unit
+  let ignore aro =
+      aro |> map ignore

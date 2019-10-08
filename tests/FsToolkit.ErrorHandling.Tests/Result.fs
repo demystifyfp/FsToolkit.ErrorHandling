@@ -208,6 +208,18 @@ let tryCreateTests =
       Expect.hasErrorValue ("lat", invalidLatMsg) r
   ]
 
+
+let ignoreTests =
+  testList "ignore Tests" [
+    testCase "ignore with Ok" <| fun _ ->
+      Result.ignore (Ok true)
+      |> Expect.hasOkValue ()
+
+    testCase "ignore with error" <| fun _ ->
+      Result.ignore (Error "error")
+      |> Expect.hasErrorValue "error"
+  ]
+
 let err = "foobar"
 
 
@@ -537,6 +549,7 @@ let allTests = testList "Result Tests" [
   resultCETests
   resultOperatorsTests
   tryCreateTests
+  ignoreTests
   requireTrueTests
   requireFalseTests
   requireSomeTests

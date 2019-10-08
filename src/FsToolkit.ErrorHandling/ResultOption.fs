@@ -22,3 +22,7 @@ module ResultOption =
   
   let map3 f x y z =
     apply (map2 f x y) z
+
+  /// Replaces the wrapped value with unit
+  let ignore ro =
+    ro |> map ignore

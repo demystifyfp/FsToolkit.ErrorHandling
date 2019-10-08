@@ -103,6 +103,19 @@ let bindTests =
   ]
 
 
+let ignoreTests =
+  testList "ResultOption.ignore Tests" [
+    testCase "ignore with Ok(Some x)" <| fun _ ->
+      Ok (Some validTweet)
+      |> ResultOption.ignore
+      |> Expect.hasOkValue (Some ())
+    
+    testCase "ignore with Ok(None)" <| fun _ ->
+      Ok None
+      |> ResultOption.ignore
+      |> Expect.hasOkValue None
+  ]
+
 
 let resultOptionCETests =
   testList "resultOption Computation Expression tests" [
@@ -147,6 +160,7 @@ let allTests = testList "Result Option Tests" [
   applyTests
   mapTests
   bindTests
+  ignoreTests
   resultOptionCETests
   resultOptionOperatorsTests
 ]

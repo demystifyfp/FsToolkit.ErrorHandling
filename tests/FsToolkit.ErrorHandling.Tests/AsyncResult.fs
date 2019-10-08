@@ -68,8 +68,6 @@ let map2Tests =
     }
   ]
 
-
-
 let foldResultTests =
 
   testList "AsyncResult.foldResult tests" [
@@ -133,9 +131,27 @@ let bindTests =
       |> Expect.hasAsyncErrorValue ex)
   ]
 
+
+let ignoreTests =
+  testList "AsyncResult.ignore tests" [
+    testCaseAsync "ignore with Async(Ok x)" <| async {
+      do! 
+        createPostSuccess validCreatePostRequest
+        |> AsyncResult.ignore
+        |> Expect.hasAsyncOkValue ()
+    }
+
+    testCaseAsync "ignore with Async(Error x)" <| async {
+      do!
+        createPostFailure validCreatePostRequest
+        |> AsyncResult.ignore
+        |> Expect.hasAsyncErrorValue commonEx
+    }
+  ]
+
+
 let err = "foobar"
 let toAsync x = async {return x}
-
 
 let requireTrueTests =
   testList "AsyncResult.requireTrue Tests" [
@@ -508,6 +524,7 @@ let allTests = testList "Async Result tests" [
   foldResultTests
   mapErrorTests
   bindTests
+  ignoreTests
   requireTrueTests
   requireFalseTests
   requireSomeTests
