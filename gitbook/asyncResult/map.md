@@ -24,7 +24,7 @@ We can save the post and return its inner using `AsyncResult.map`:
 
 ```fsharp
 let rawPostId : Async<Result<Guid, exn>> =
-  savePost createostRequest
+  savePost createPostRequest
   |> AsyncResult.map (fun (PostId postId) -> postId)
 ```
 
