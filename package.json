@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "fable-compiler": "^2.3.10",
+    "fable-compiler": "^2.4.6",
     "fable-splitter": "^2.1.10",
     "mocha": "^6.1.4"
   },
