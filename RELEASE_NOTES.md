@@ -1,3 +1,6 @@
+#### 1.2.4 - Oct 10, 2019
+* Adds `ignore` function. Credits [Cameron Aavik](https://github.com/CameronAavik)
+
 #### 1.2.3 - July 22, 2019
 * Adds `requireNotNull` function. Credits [Daniel Bachler](https://github.com/danyx23)
 
