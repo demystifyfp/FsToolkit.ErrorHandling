@@ -43,6 +43,9 @@ let ``ResultCE return! Tests`` =
             let data = Choice2Of2 innerData
             let actual = result { return! data }
             Expect.equal actual (Result.Error innerData) "Should be ok"
+        testCase "Non-annotated overload resolution" <| fun _ ->
+          let f res = result { return! res }
+          f (Ok ()) |> ignore
     ]
 
 
@@ -100,6 +103,9 @@ let ``ResultCE bind Tests`` =
             let data = Choice2Of2 innerData
             let actual = result {  do! data }
             Expect.equal actual (Result.Error innerData) "Should be ok"
+        testCase "Non-annotated overload resolution" <| fun _ ->
+          let f res = result { do! res }
+          f (Ok ()) |> ignore
     ]
 
 
