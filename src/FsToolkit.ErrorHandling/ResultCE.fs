@@ -12,9 +12,6 @@ module ResultCE =
     member __.ReturnFrom (result: Result<'T, 'TError>) : Result<'T, 'TError> =
       result
 
-    member __.ReturnFrom (result: Choice<'T, 'TError>) : Result<'T, 'TError> =
-      Result.ofChoice result
-
     member this.Zero () : Result<unit, 'TError> =
       this.Return ()
 
@@ -22,14 +19,6 @@ module ResultCE =
         (result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
         : Result<'U, 'TError> =
       Result.bind binder result
-
-    member __.Bind
-        (result: Choice<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
-        : Result<'U, 'TError> =
-        result
-        |> Result.ofChoice
-        |> Result.bind binder 
-      
 
     member __.Delay
         (generator: unit -> Result<'T, 'TError>)
@@ -77,6 +66,24 @@ module ResultCE =
       this.Using(sequence.GetEnumerator (), fun enum ->
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
+
+[<AutoOpen>]
+module ResultCEExtensions =
+
+  // Having Choice<_> members as extensions gives them lower priority in
+  // overload resolution and allows skipping more type annotations.
+  type ResultBuilder with
+
+    member __.ReturnFrom (result: Choice<'T, 'TError>) : Result<'T, 'TError> =
+      Result.ofChoice result
+
+    member __.Bind
+        (result: Choice<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
+        : Result<'U, 'TError> =
+        result
+        |> Result.ofChoice
+        |> Result.bind binder 
+
 
 
   let result = ResultBuilder()
