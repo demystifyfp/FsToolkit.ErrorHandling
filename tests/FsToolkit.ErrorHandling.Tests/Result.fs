@@ -535,6 +535,19 @@ let sequenceAsyncTests =
       Expect.equal value (Error "foo") ""
     }
   ]
+  
+let valueOrTests =
+  testList "valueOrTests Tests" [
+    testCase "valueOrTests returns the value if Ok" <| fun _ ->
+      let res = Ok "foo"
+      let value = res |> Result.valueOr (fun _ -> "bar")
+      Expect.equal value "foo" ""
+
+    testCase "valueOrTests returns the function's result if Error" <| fun _ ->
+      let res = Error "bar"
+      let value = res |> Result.valueOr (fun err -> "foo" + err)
+      Expect.equal value "foobar" ""
+  ]
 
 let allTests = testList "Result Tests" [
   resultIsOk
@@ -570,4 +583,5 @@ let allTests = testList "Result Tests" [
   teeErrorTests
   teeErrorIfTests
   sequenceAsyncTests
+  valueOrTests
 ]
