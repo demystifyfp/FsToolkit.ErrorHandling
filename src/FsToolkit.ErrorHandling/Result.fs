@@ -165,3 +165,9 @@ module Result =
           return Ok x
       | Error err -> return Error err
     }
+    
+  /// Returns the Ok value or runs the specified function over the error value.
+  let valueOr f res =
+    match res with
+    | Ok x -> x
+    | Error x -> f x
