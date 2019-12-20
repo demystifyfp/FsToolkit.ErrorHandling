@@ -109,6 +109,15 @@ Returns the contained value if Ok, otherwise evaluates the given function and re
 ```
 
 
+### valueOr
+
+Returns the Ok value or runs the specified function over the error value.
+
+```fsharp
+('b -> 'a) -> Result<'a, 'b> -> 'a
+```
+
+
 ### ignoreError
 
 Same as `defaultValue` for a result where the Ok value is unit. The name describes better what is actually happening in this case.
