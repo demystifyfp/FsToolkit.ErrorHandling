@@ -18,6 +18,7 @@
     <Compile Include="ResultCE.fs" />
     <Compile Include="ResultOption.fs" />
     <Compile Include="Option.fs" />
+    <Compile Include="OptionCE.fs" />
     <Compile Include="List.fs" />
     <Compile Include="AsyncResult.fs" />
     <Compile Include="AsyncResultCE.fs" />
