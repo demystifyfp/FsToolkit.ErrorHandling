@@ -1,8 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>  
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <NoWarn>FS2003</NoWarn>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="ResultCE.fs" />
@@ -24,8 +38,13 @@
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="List.fs" />
     <None Include="Script.fsx" />
-    <Content Include="*.fsproj; **/*.fs" />
   </ItemGroup>
+
+  <!-- Add source files to "fable" folder in Nuget package -->
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
+  </ItemGroup>
+
   <Import Project="..\..\netfx.props" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
