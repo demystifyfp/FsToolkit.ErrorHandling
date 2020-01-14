@@ -10,3 +10,12 @@ module Option =
 
   let sequenceResult opt = 
     traverseResult id opt
+
+  #if !FABLE_COMPILER
+  let inline tryParse< ^T when ^T : (static member TryParse : string * byref< ^T > -> bool) and  ^T : (new : unit -> ^T) > valueToParse =
+    let mutable output = new ^T()
+    let parsed = ( ^T : (static member TryParse  : string * byref< ^T > -> bool ) (valueToParse, &output) )
+    match parsed with
+    | true -> Some output
+    | _ -> None
+  #endif
