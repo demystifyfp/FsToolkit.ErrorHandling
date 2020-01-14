@@ -21,6 +21,7 @@
     <Compile Include="ValidationOp.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="OptionCE.fs" />
+    <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="List.fs" />
     <None Include="Script.fsx" />
     <Content Include="*.fsproj; **/*.fs" />
