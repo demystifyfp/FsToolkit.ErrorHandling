@@ -21,6 +21,7 @@
     <Compile Include="Job.fs" />
     <Compile Include="JobResult.fs" />
     <Compile Include="JobResultCE.fs" />
+    <Compile Include="JobOptionCE.fs" />
     <Compile Include="JobResultOp.fs" />
     <Compile Include="List.fs" />
     <Compile Include="JobResultOption.fs" />

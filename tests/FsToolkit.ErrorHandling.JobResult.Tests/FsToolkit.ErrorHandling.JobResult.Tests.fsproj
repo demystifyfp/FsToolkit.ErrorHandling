@@ -17,6 +17,7 @@
     <Compile Include="Expect.JobResult.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="JobResult.fs" />
+    <Compile Include="JobOptionCE.fs" />
     <Compile Include="JobResultCE.fs" />
     <Compile Include="List.fs" />
     <Compile Include="JobResultOption.fs" />
