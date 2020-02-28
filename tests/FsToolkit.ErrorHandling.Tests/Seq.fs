@@ -1,10 +1,8 @@
 module SeqTests
 
-#if FABLE_COMPILER
-open Fable.Mocha
-#else
+#if !FABLE_COMPILER
+
 open Expecto
-#endif
 open SampleDomain
 open TestData
 open TestHelpers
@@ -13,7 +11,7 @@ open FsToolkit.ErrorHandling
 
 let traverseResultTests =
   testList "Seq.traverseResultM Tests" [
-    testCase "traverseResult with a seq of valid data" <| fun _ ->
+    testCase "traverseResultM with a seq of valid data" <| fun _ ->
       let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
       let expected = Seq.map tweet tweets |> List.ofSeq
       let actual = Seq.traverseResultM Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "") |> List.ofSeq
@@ -27,7 +25,7 @@ let traverseResultTests =
 
 let sequenceResultMTests =
   testList "Seq.sequenceResultM Tests" [
-    testCase "traverseResult with a seq of valid data" <| fun _ ->
+    testCase "traverseResultM with a seq of valid data" <| fun _ ->
       let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
       let expected = Seq.map tweet tweets |> Seq.toList
       let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)  |> Result.defaultWith(fun _ -> failwith "") |> Seq.toList
@@ -56,7 +54,7 @@ let traverseResultATests =
 
 let sequenceResultATests =
   testList "Seq.sequenceResultA Tests" [
-    testCase "traverseResult with a seq of valid data" <| fun _ ->
+    testCase "traverseResultA with a seq of valid data" <| fun _ ->
       let tweets = ["Hi"; "Hello"; "Hola"] |> List.toSeq
       let expected = Seq.map tweet tweets |> List.ofSeq
       let actual =
@@ -65,7 +63,7 @@ let sequenceResultATests =
           |> Seq.toList
       Expect.equal actual expected "Should have a list of valid tweets"
 
-    testCase "sequenceResultM with few invalid data" <| fun _ ->
+    testCase "sequenceResultA with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet] |> Seq.ofList
       let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets) 
       Expect.equal actual (Error [emptyTweetErrMsg;longerTweetErrMsg]) "traverse the list and return all the errors"
@@ -77,3 +75,4 @@ let allTests = testList "Seq Tests" [
   traverseResultATests
   sequenceResultATests
 ]
+#endif
