@@ -14,6 +14,7 @@ let allTests = testList "All Tests" [
   OptionCETests.allTests
   AsyncOptionCETests.allTests
   ListTests.allTests
+  SeqTests.allTests
   AsyncResultTests.allTests
   AsyncResultCETests.allTests
   AsyncResultOptionTests.allTests
