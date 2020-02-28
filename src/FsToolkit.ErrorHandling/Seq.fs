@@ -49,16 +49,15 @@ module Seq =
     | true -> state
     | false ->
       let x = xs |> Seq.head
-      let xs = xs |> Seq.skip 1
       let fR = 
         f x |> Result.mapError List.singleton
       match state, fR with
       | Ok ys, Ok y -> 
-        traverseResultA' (Ok (seq {yield! ys; yield y})) f xs
+        traverseResultA' (Ok (seq {yield! ys; yield y})) f (xs |> Seq.tail)
       | Error errs, Error e -> 
-        traverseResultA' (Error (errs @ e)) f xs
+        traverseResultA' (Error (errs @ e)) f (xs |> Seq.tail)
       | Ok _, Error e | Error e , Ok _  -> 
-        traverseResultA' (Error e) f xs
+        traverseResultA' (Error e) f (xs |> Seq.tail)
 
   let rec private traverseAsyncResultA' state f xs =
     match xs |> Seq.isEmpty with
@@ -66,16 +65,15 @@ module Seq =
     | false ->
       async {
         let x = xs |> Seq.head
-        let xs = xs |> Seq.skip 1
         let! s = state
         let! fR = f x |> AsyncResult.mapError List.singleton
         match s, fR with
         | Ok ys, Ok y -> 
-          return! traverseAsyncResultA' (AsyncResult.retn (seq { yield! ys; yield y } )) f xs
+          return! traverseAsyncResultA' (AsyncResult.retn (seq { yield! ys; yield y } )) f (xs |> Seq.tail)
         | Error errs, Error e -> 
-          return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f xs
+          return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f (xs |> Seq.tail)
         | Ok _, Error e | Error e , Ok _  -> 
-          return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
+          return! traverseAsyncResultA' (AsyncResult.returnError e) f (xs |> Seq.tail)
       }
 
   let traverseResultA f xs =
@@ -89,15 +87,14 @@ module Seq =
     | true -> state
     | false -> 
       let x = xs |> Seq.head
-      let xs = xs |> Seq.skip 1
       let fR = f x
       match state, fR with
       | Ok ys, Ok y -> 
-        traverseValidationA' (Ok (seq { yield! ys; yield y })) f xs
+        traverseValidationA' (Ok (seq { yield! ys; yield y })) f (xs |> Seq.tail)
       | Error errs1, Error errs2 -> 
-        traverseValidationA' (Error (errs2 @ errs1 )) f xs
+        traverseValidationA' (Error (errs2 @ errs1 )) f (xs |> Seq.tail)
       | Ok _, Error errs | Error errs, Ok _  -> 
-        traverseValidationA' (Error errs) f xs
+        traverseValidationA' (Error errs) f (xs |> Seq.tail)
 
   let traverseValidationA f xs =
     traverseValidationA' (Ok Seq.empty) f xs
