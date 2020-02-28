@@ -15,9 +15,9 @@ let traverseResultTests =
   testList "Seq.traverseResultM Tests" [
     testCase "traverseResult with a seq of valid data" <| fun _ ->
       let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
-      let expected = Seq.map tweet tweets
-      let actual = Seq.traverseResultM Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "")
-      Expect.sequenceEqual actual expected "Should have a list of valid tweets"
+      let expected = Seq.map tweet tweets |> List.ofSeq
+      let actual = Seq.traverseResultM Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "") |> List.ofSeq
+      Expect.equal actual expected "Should have a list of valid tweets"
 
     testCase "traverseResultM with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet] |> Seq.ofList
@@ -29,9 +29,9 @@ let sequenceResultMTests =
   testList "Seq.sequenceResultM Tests" [
     testCase "traverseResult with a seq of valid data" <| fun _ ->
       let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
-      let expected = Seq.map tweet tweets
-      let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)  |> Result.defaultWith(fun _ -> failwith "")
-      Expect.sequenceEqual actual expected "Should have a seq of valid tweets"
+      let expected = Seq.map tweet tweets |> Seq.toList
+      let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)  |> Result.defaultWith(fun _ -> failwith "") |> Seq.toList
+      Expect.equal actual expected "Should have a seq of valid tweets"
 
     testCase "sequenceResultM with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet]
@@ -43,9 +43,9 @@ let traverseResultATests =
   testList "Seq.traverseResultA Tests" [
     testCase "traverseResultA with a seq of valid data" <| fun _ ->
       let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
-      let expected = Seq.map tweet tweets
-      let actual = Seq.traverseResultA Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "")
-      Expect.sequenceEqual actual expected "Should have a list of valid tweets"
+      let expected = Seq.map tweet tweets |> Seq.toList
+      let actual = Seq.traverseResultA Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "") |> Seq.toList
+      Expect.equal actual expected "Should have a list of valid tweets"
 
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let tweets = [ ""; "Hello"; aLongerInvalidTweet ] |> List.toSeq
@@ -58,9 +58,12 @@ let sequenceResultATests =
   testList "Seq.sequenceResultA Tests" [
     testCase "traverseResult with a seq of valid data" <| fun _ ->
       let tweets = ["Hi"; "Hello"; "Hola"] |> List.toSeq
-      let expected = Seq.map tweet tweets
-      let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)  |> Result.defaultWith(fun _ -> failwith "")
-      Expect.sequenceEqual actual expected "Should have a list of valid tweets"
+      let expected = Seq.map tweet tweets |> List.ofSeq
+      let actual =
+          Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
+          |> Result.defaultWith(fun _ -> failwith "")
+          |> Seq.toList
+      Expect.equal actual expected "Should have a list of valid tweets"
 
     testCase "sequenceResultM with few invalid data" <| fun _ ->
       let tweets = [""; "Hello"; aLongerInvalidTweet] |> Seq.ofList
