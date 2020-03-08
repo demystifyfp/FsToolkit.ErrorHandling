@@ -1,18 +1,22 @@
 module SeqTests
 
-#if !FABLE_COMPILER
-
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
+
 open SampleDomain
 open TestData
 open TestHelpers
 open System
 open FsToolkit.ErrorHandling
 
+open Fable.Core
 let traverseResultTests =
   testList "Seq.traverseResultM Tests" [
     testCase "traverseResultM with a seq of valid data" <| fun _ ->
-      let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
+      let tweets = seq [ yield "Hi"; yield "Hello"; yield "Hola" ]
       let expected = Seq.map tweet tweets |> List.ofSeq
       let actual = Seq.traverseResultM Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "") |> List.ofSeq
       Expect.equal actual expected "Should have a list of valid tweets"
@@ -75,4 +79,3 @@ let allTests = testList "Seq Tests" [
   traverseResultATests
   sequenceResultATests
 ]
-#endif

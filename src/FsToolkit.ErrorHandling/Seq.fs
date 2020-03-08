@@ -1,5 +1,4 @@
 namespace FsToolkit.ErrorHandling
-#if !FABLE_COMPILER
 
 [<RequireQualifiedAccess>]
 module Seq =
@@ -108,5 +107,3 @@ module Seq =
 
   let sequenceAsyncResultA xs =
     traverseAsyncResultA id xs
-
-#endif

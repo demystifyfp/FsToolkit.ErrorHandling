@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "fable-compiler": "^2.4.6",
+    "fable-compiler": "2.4.19",
     "fable-splitter": "^2.1.10",
-    "mocha": "^6.1.4"
+    "mocha": "^7.1.0"
   },
   "scripts": {
     "pretest": "fable-splitter tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs",
