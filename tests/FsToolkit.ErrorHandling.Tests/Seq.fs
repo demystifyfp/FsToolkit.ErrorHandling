@@ -12,7 +12,6 @@ open TestHelpers
 open System
 open FsToolkit.ErrorHandling
 
-open Fable.Core
 let traverseResultTests =
   testList "Seq.traverseResultM Tests" [
     testCase "traverseResultM with a seq of valid data" <| fun _ ->
