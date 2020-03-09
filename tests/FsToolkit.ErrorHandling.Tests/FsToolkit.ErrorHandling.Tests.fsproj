@@ -22,6 +22,7 @@
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Seq.fs" />
+    <Compile Include="SeqPerformanceTests.fs" />
     <Compile Include="AsyncResult.fs" />
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />

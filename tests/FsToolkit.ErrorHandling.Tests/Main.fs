@@ -15,6 +15,9 @@ let allTests = testList "All Tests" [
   AsyncOptionCETests.allTests
   ListTests.allTests
   SeqTests.allTests
+#if !FABLE_COMPILER
+  SeqPerformanceTests.allTests
+#endif
   AsyncResultTests.allTests
   AsyncResultCETests.allTests
   AsyncResultOptionTests.allTests

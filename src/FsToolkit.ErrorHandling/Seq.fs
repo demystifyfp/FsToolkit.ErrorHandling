@@ -3,24 +3,22 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Seq =
   let rec private traverseResultM' (state : Result<_,_>) (f : _ -> Result<_,_>) (xs: seq<_>) =
-    match xs |> Seq.isEmpty with
-    | true -> state
-    | false -> 
-      let x = xs |> Seq.head
+    match xs |> Seq.tryHead with
+    | None -> state
+    | Some x -> 
       let r = result {
         let! y = f x
         let! ys = state
-        return seq { yield! ys; yield y }
+        return Seq.append ys (Seq.singleton y)
       }  
       match r with
       | Ok _ -> traverseResultM' r f (xs |> Seq.skip 1)
       | Error _ -> r
 
   let rec private traverseAsyncResultM' (state : Async<Result<_,_>>) (f : _ -> Async<Result<_,_>>) xs =
-    match (xs |> Seq.isEmpty) with
-    | true -> state
-    | false -> 
-      let x = xs |> Seq.head
+    match (xs |> Seq.tryHead) with
+    | None -> state
+    | Some x -> 
       async {
         let! r = asyncResult {
           let! ys = state
@@ -45,11 +43,10 @@ module Seq =
     traverseAsyncResultM id xs
 
   let rec private traverseResultA' state f xs =
-    match (xs |> Seq.isEmpty) with
-    | true ->
+    match (xs |> Seq.tryHead) with
+    | None ->
       state
-    | false ->
-      let x = xs |> Seq.head
+    | Some x ->
       let fR = 
         f x |> Result.mapError List.singleton
       match state, fR with
@@ -67,11 +64,10 @@ module Seq =
     traverseResultA id xs
 
   let rec private traverseAsyncResultA' state f xs =
-    match xs |> Seq.isEmpty with
-    | true -> state
-    | false ->
+    match xs |> Seq.tryHead with
+    | None -> state
+    | Some x ->
       async {
-        let x = xs |> Seq.head
         let! s = state
         let! fR = f x |> AsyncResult.mapError List.singleton
         match s, fR with
@@ -84,10 +80,9 @@ module Seq =
       }
 
   let rec traverseValidationA' state f xs =
-    match xs |> Seq.isEmpty with
-    | true -> state
-    | false -> 
-      let x = xs |> Seq.head
+    match xs |> Seq.tryHead with
+    | None -> state
+    | Some x -> 
       let fR = f x
       match state, fR with
       | Ok ys, Ok y -> 
