@@ -76,11 +76,11 @@ module Seq =
         let! fR = f x |> AsyncResult.mapError List.singleton
         match s, fR with
         | Ok ys, Ok y -> 
-          return! traverseAsyncResultA' (AsyncResult.retn (seq { yield! ys; yield y } )) f (xs |> Seq.tail)
+          return! traverseAsyncResultA' (AsyncResult.retn (Seq.append ys (Seq.singleton y))) f (xs |> Seq.skip(1))
         | Error errs, Error e -> 
-          return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f (xs |> Seq.tail)
+          return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f (xs |> Seq.skip(1))
         | Ok _, Error e | Error e , Ok _  -> 
-          return! traverseAsyncResultA' (AsyncResult.returnError e) f (xs |> Seq.tail)
+          return! traverseAsyncResultA' (AsyncResult.returnError e) f (xs |> Seq.skip(1))
       }
 
   let rec traverseValidationA' state f xs =
@@ -91,11 +91,11 @@ module Seq =
       let fR = f x
       match state, fR with
       | Ok ys, Ok y -> 
-        traverseValidationA' (Ok (seq { yield! ys; yield y })) f (xs |> Seq.tail)
+        traverseValidationA' (Ok (Seq.append ys (Seq.singleton y))) f (xs |> Seq.skip(1))
       | Error errs1, Error errs2 -> 
-        traverseValidationA' (Error (errs2 @ errs1 )) f (xs |> Seq.tail)
+        traverseValidationA' (Error (errs2 @ errs1 )) f (xs |> Seq.skip(1))
       | Ok _, Error errs | Error errs, Ok _  -> 
-        traverseValidationA' (Error errs) f (xs |> Seq.tail)
+        traverseValidationA' (Error errs) f (xs |> Seq.skip(1))
 
   let traverseValidationA f xs =
     traverseValidationA' (Ok Seq.empty) f xs
