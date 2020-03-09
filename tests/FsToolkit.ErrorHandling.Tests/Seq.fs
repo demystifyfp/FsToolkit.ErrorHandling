@@ -44,10 +44,11 @@ let sequenceResultMTests =
 let traverseResultATests =
   testList "Seq.traverseResultA Tests" [
     testCase "traverseResultA with a seq of valid data" <| fun _ ->
-      let tweets = [ "Hi"; "Hello"; "Hola" ] |> List.toSeq
-      let expected = Seq.map tweet tweets |> Seq.toList
-      let actual = Seq.traverseResultA Tweet.TryCreate tweets |> Result.defaultWith (fun _ -> failwith "") |> Seq.toList
-      Expect.equal actual expected "Should have a list of valid tweets"
+      let tweets = seq [ yield "Hi"; yield "Hello"; yield "Hola" ]
+
+      let expected = Seq.map tweet tweets |> Seq.toList |> Ok
+      let actual = Seq.traverseResultA Tweet.TryCreate tweets |> Result.map(Seq.toList)
+      Expect.equal actual expected (sprintf "Should have a list of valid tweets. actual was %A" actual)
 
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let tweets = [ ""; "Hello"; aLongerInvalidTweet ] |> List.toSeq
