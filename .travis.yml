@@ -2,8 +2,8 @@ language: csharp
 
 mono: latest
 sudo: false # use the new container-based Travis infrastructure
-dist: trusty # Ubuntu 14.04
-dotnet: 2.1
+dist: xenial
+dotnet: 3.1.200
 
 before_script:
   - nvm install 10.15.0
@@ -12,6 +12,4 @@ before_script:
 
 script:
   - dotnet --info
-  - dotnet tool install fake-cli -g
-  - export PATH="$PATH:/home/travis/.dotnet/tools"
-  - fake run build.fsx target RunFableTests
+  - ./build.sh RunFableTests

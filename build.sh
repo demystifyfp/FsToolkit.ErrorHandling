@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
- 
-fake build --parallel 8 --target "$@"
+
+set -eu
+set -o pipefail
+
+echo "Restoring dotnet tools..."
+dotnet tool restore
+
+FAKE_DETAILED_ERRORS=true dotnet fake build -t "$@"

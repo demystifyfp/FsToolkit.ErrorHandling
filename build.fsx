@@ -55,7 +55,6 @@ Target.create "Build" (fun _ ->
 
 
 Target.create "Restore" (fun _ ->
-  Paket.restore id
   DotNet.restore id solutionFile
 )
 
