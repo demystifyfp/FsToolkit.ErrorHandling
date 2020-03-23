@@ -156,7 +156,7 @@ module JobResultCEExtensions =
 
     member __.ReturnFrom (async': Async<'T>) : Job<Result<'T, 'TError>> =
       job {
-        let! x = async'
+        let! x = async' |> Job.fromAsync
         return Ok x
       }
 

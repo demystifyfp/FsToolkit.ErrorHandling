@@ -5,6 +5,7 @@ storage: none
 clitool dotnet-fake
 nuget Hopac
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
+nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true # allows for building full framework on macOS/linux without mono
 nuget TaskBuilder.fs
 
 group Test

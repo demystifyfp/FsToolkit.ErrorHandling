@@ -54,6 +54,9 @@ NUGET
     Microsoft.NETCore.App (2.2.4) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
     Microsoft.NETCore.Platforms (2.2) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (&& (== net461) (< net45) (>= netstandard2.0)) (&& (== net461) (>= netcoreapp2.0)) (&& (== net461) (< netstandard1.0) (>= netstandard1.6)) (&& (== net461) (< netstandard1.3) (>= netstandard1.6) (>= wpa81)) (&& (== net461) (>= netstandard1.6) (< portable-net45+win8+wpa81)) (&& (== net461) (>= netstandard1.6) (>= uap10.0)) (&& (== net461) (>= netstandard1.6) (>= uap10.1)) (&& (== net461) (>= netstandard1.6) (>= wp8)) (== netcoreapp2.0) (== netstandard2.0)
     Microsoft.NETCore.Targets (2.1) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
+    Microsoft.NETFramework.ReferenceAssemblies (1.0) - copy_local: true
+      Microsoft.NETFramework.ReferenceAssemblies.net461 (>= 1.0) - restriction: || (== net461) (&& (== netcoreapp2.0) (>= net461)) (&& (== netstandard2.0) (>= net461))
+    Microsoft.NETFramework.ReferenceAssemblies.net461 (1.0) - copy_local: true, restriction: || (== net461) (&& (== netcoreapp2.0) (>= net461)) (&& (== netstandard2.0) (>= net461))
     Microsoft.SourceLink.Common (1.0) - copy_local: true
     Microsoft.SourceLink.GitHub (1.0) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 1.0)
