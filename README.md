@@ -24,6 +24,25 @@ The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-e
 | FsToolkit.ErrorHandling.JobResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.JobResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult)
 
 
+### Developing locally
+
+#### Requirements
+
+* [.NET Core SDK](https://www.microsoft.com/net/download/)
+  * v3.1.200 or higher
+  * Install from [here](https://dotnet.microsoft.com/download/dotnet-core/3.1).
+* [Node](https://nodejs.org/en/)
+  * v10.15.0 or LTS
+  * Not required but recommend that you use [NVM](https://github.com/nvm-sh/nvm) to easily manage multiple versions of Node
+
+
+#### Compiling
+
+```
+> build.cmd <optional buildtarget> // on windows
+$ ./build.sh  <optional buildtarget>// on unix
+```
+
 A motivating example
 --------------------
 
