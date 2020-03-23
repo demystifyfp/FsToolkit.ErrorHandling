@@ -32,19 +32,6 @@ Target.create "Clean" (fun _ ->
   |> Seq.iter Shell.rm
 )
 
-if not (Environment.isWindows) then
-  let inferFrameworkPathOverride () =
-    let mscorlib = "mscorlib.dll"
-    let possibleFrameworkPaths =
-      [ 
-        "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.5/"
-        "/usr/local/Cellar/mono/4.6.12/lib/mono/4.5/"
-        "/usr/lib/mono/4.5/"
-      ]
-    possibleFrameworkPaths
-    |> Seq.find (fun p -> System.IO.File.Exists(p @@ mscorlib))
-  Environment.setEnvironVar "FrameworkPathOverride" (inferFrameworkPathOverride())
-
 Target.create "Build" (fun _ ->
   let setParams (defaults:DotNet.BuildOptions) =
         { defaults with
@@ -52,7 +39,6 @@ Target.create "Build" (fun _ ->
             Configuration = DotNet.BuildConfiguration.fromString configuration}
   DotNet.build setParams solutionFile
 )
-
 
 Target.create "Restore" (fun _ ->
   DotNet.restore id solutionFile

@@ -1,3 +1,4 @@
 TaskBuilder.fs
 Microsoft.SourceLink.GitHub
 Hopac
+Microsoft.NETFramework.ReferenceAssemblies

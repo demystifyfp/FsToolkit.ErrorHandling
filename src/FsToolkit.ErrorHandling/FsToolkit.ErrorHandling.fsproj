@@ -45,6 +45,6 @@
     <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
   </ItemGroup>
 
-  <Import Project="..\..\netfx.props" />
+  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
