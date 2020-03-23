@@ -21,6 +21,7 @@ The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-e
 | --- | --- |
 | FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
 | FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.TaskResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult)
+| FsToolkit.ErrorHandling.JobResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.JobResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult)
 
 
 A motivating example
