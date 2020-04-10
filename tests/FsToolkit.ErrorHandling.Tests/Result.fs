@@ -549,6 +549,22 @@ let valueOrTests =
       Expect.equal value "foobar" ""
   ]
 
+let zipTests =
+  testList "zip tests" [
+    testCase "Ok, Ok" <| fun () ->
+      let actual = Result.zip (Ok 1) (Ok 2)
+      Expect.equal actual (Ok (1,2)) "Should be ok"
+    testCase "Ok, Error" <| fun () ->
+      let actual = Result.zip (Ok 1) (Error "Bad")
+      Expect.equal actual (Error "Bad") "Should be Error"
+    testCase "Error, Ok" <| fun () ->
+      let actual = Result.zip (Error "Bad") (Ok 1) 
+      Expect.equal actual (Error "Bad") "Should be Error"
+    testCase "Error, Error" <| fun () ->
+      let actual = Result.zip (Error "Bad1") (Error "Bad2")
+      Expect.equal actual (Error "Bad1") "Should be Error"
+  ]
+
 let allTests = testList "Result Tests" [
   resultIsOk
   resultIsError
@@ -584,4 +600,5 @@ let allTests = testList "Result Tests" [
   teeErrorIfTests
   sequenceAsyncTests
   valueOrTests
+  zipTests
 ]
