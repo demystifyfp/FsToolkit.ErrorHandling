@@ -171,3 +171,9 @@ module Result =
     match res with
     | Ok x -> x
     | Error x -> f x
+
+  let zip x1 x2 = 
+    match x1,x2 with
+    | Ok x1res, Ok x2res -> Ok (x1res, x2res)
+    | Error e, _ -> Error e
+    | _, Error e -> Error e

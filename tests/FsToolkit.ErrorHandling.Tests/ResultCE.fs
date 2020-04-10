@@ -206,6 +206,27 @@ let ``ResultCE loop Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
 
+let ``ResultCE applicative tests`` =
+    ftestList "ResultCE applicative tests" [
+        testCase "Happy Path" <| fun () ->
+            let actual = result {
+                let! a = Ok 3
+                and! b = Ok 2
+                and! c = Ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+
+        testCase "Fail Path" <| fun () ->
+            let actual = result {
+                let! a = Ok 3
+                and! b = Ok 2
+                and! c = Error "TryParse failure"
+                return a + b - c
+            }
+            Expect.equal actual (Error "TryParse failure") "Should be ok"
+    ]
+
     
 let allTests = testList "Result CE Tests" [
     ``ResultCE return Tests``
@@ -215,4 +236,5 @@ let allTests = testList "Result CE Tests" [
     ``ResultCE try Tests``
     ``ResultCE using Tests``
     ``ResultCE loop Tests``
+    ``ResultCE applicative tests`` 
 ]
