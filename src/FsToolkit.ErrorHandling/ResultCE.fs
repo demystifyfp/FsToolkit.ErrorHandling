@@ -67,6 +67,11 @@ module ResultCE =
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
 
+    member _.BindReturn(x: Result<'T,'U>, f) = Result.map f x
+
+    member _.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = Result.zip t1 t2
+
+
 [<AutoOpen>]
 module ResultCEExtensions =
 
@@ -83,6 +88,14 @@ module ResultCEExtensions =
         result
         |> Result.ofChoice
         |> Result.bind binder 
+
+    member _.BindReturn(x: Choice<'T,'U>, f) = 
+      x
+      |> Result.ofChoice 
+      |> Result.map f
+
+    member _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = 
+      Result.zip (Result.ofChoice t1) (Result.ofChoice t2)
 
 
 
