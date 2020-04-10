@@ -94,8 +94,14 @@ module ResultCEExtensions =
       |> Result.ofChoice 
       |> Result.map f
 
+    member _.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = 
+      Result.zip t1 (Result.ofChoice t2)
+
     member _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = 
       Result.zip (Result.ofChoice t1) (Result.ofChoice t2)
+
+    member _.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = 
+      Result.zip (Result.ofChoice t1) t2
 
 
 
