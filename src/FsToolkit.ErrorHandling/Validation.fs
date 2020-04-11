@@ -1,7 +1,12 @@
 namespace FsToolkit.ErrorHandling
 
+type Validation<'a,'err> = Result<'a, 'err list>
+
 [<RequireQualifiedAccess>]
 module Validation =
+
+  let ok x : Validation<_,_> = Ok x
+  let error e : Validation<_,_> = List.singleton e |> Error
 
   let ofResult x =
     Result.mapError List.singleton x
@@ -19,3 +24,13 @@ module Validation =
   
   let map3 f x y z =
     apply (map2 f x y) z
+
+  let bind (f : 'a -> Validation<'b, 'err>) (x : Validation<'a,'err>) : Validation<_,_>=
+    Result.bind f x
+
+  let zip x1 x2 : Validation<_,_> = 
+    match x1,x2 with
+    | Ok x1res, Ok x2res -> Ok (x1res, x2res)
+    | Error e, Ok _ -> Error e
+    | Ok _, Error e -> Error e
+    | Error e1, Error e2 -> Error (e1 @ e2)

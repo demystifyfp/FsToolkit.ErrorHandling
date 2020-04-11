@@ -27,6 +27,7 @@
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />
     <Compile Include="Validation.fs" />
+    <Compile Include="ValidationCE.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   
