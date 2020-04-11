@@ -1,4 +1,5 @@
-source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+
 
 storage: none
 clitool dotnet-fake
@@ -8,21 +9,23 @@ nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true # allows for b
 nuget TaskBuilder.fs
 
 group Test
-source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+
 storage: none
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha
 
 group Build
-source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+
 storage: none
-nuget Fake.Core.Target
-nuget Fake.DotNet.Cli
-nuget Fake.Core.ReleaseNotes
-nuget Fake.DotNet.AssemblyInfoFile
-nuget Fake.DotNet.Paket
-nuget Fake.DotNet.Testing.Expecto
-nuget Fake.Tools.Git 
-nuget Fake.JavaScript.Npm
+nuget Fake.Core.Target 5.20.0-alpha.1545
+nuget Fake.DotNet.Cli 5.20.0-alpha.1545
+nuget Fake.Core.ReleaseNotes 5.20.0-alpha.1545
+nuget Fake.DotNet.AssemblyInfoFile 5.20.0-alpha.1545
+nuget Fake.DotNet.Paket 5.20.0-alpha.1545
+nuget Fake.DotNet.Testing.Expecto 5.20.0-alpha.1545
+nuget Fake.Tools.Git  ]5.20.0-alpha.1545
+nuget Fake.JavaScript.Npm 5.20.0-alpha.1545
 nuget Paket.Core 6.0.0-alpha022

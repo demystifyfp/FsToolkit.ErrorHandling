@@ -33,6 +33,7 @@
     <Compile Include="AsyncResultOptionOp.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="ValidationOp.fs" />
+    <Compile Include="ValidationCE.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="OptionCE.fs" />
     <Compile Include="AsyncOptionCE.fs" />

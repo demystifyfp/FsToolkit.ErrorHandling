@@ -18,6 +18,7 @@ let allTests = testList "All Tests" [
   AsyncResultCETests.allTests
   AsyncResultOptionTests.allTests
   ValidationTests.allTests
+  ValidationCETests.allTests
 ]
 
 [<EntryPoint>]
