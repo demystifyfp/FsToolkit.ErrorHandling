@@ -87,9 +87,26 @@ let operatorsTests =
       |> Expect.hasOkValue validCreatePostRequest
   ]
 
+let zipTests =
+  testList "zip tests" [
+    testCase "Ok, Ok" <| fun () ->
+      let actual = Validation.zip (Ok 1) (Ok 2)
+      Expect.equal actual (Ok (1,2)) "Should be ok"
+    testCase "Ok, Error" <| fun () ->
+      let actual = Validation.zip (Ok 1) (Validation.error "Bad")
+      Expect.equal actual (Error ["Bad"]) "Should be Error"
+    testCase "Error, Ok" <| fun () ->
+      let actual = Validation.zip (Validation.error "Bad") (Ok 1) 
+      Expect.equal actual (Error ["Bad"]) "Should be Error"
+    testCase "Error, Error" <| fun () ->
+      let actual = Validation.zip (Validation.error "Bad1") (Validation.error "Bad2")
+      Expect.equal actual (Error ["Bad1"; "Bad2"]) "Should be Error"
+  ]
+
 let allTests = testList "ValidationTests" [
   map2Tests
   map3Tests
   applyTests
   operatorsTests
+  zipTests
 ]
