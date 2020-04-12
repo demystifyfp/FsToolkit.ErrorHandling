@@ -32,93 +32,63 @@ let ``ResultCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual (Ok 4) "Should be ok"
-        // testCase "Happy Path Valiation" <| fun () ->
-        //     let actual : Validation<int, string> = validation {
-        //         let! a = Validation.ok 3
-        //         and! b = Validation.ok 2
-        //         and! c = Validation.ok 1
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Ok 4) "Should be ok"
+        testCase "Happy Path Valiation" <| fun () ->
+            let actual : Validation<int, string> = validation {
+                let! a = Validation.ok 3
+                and! b = Validation.ok 2
+                and! c = Validation.ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
 
-        // testCase "Happy Path Result/Valiation" <| fun () ->
-        //     let actual : Validation<int, string> = validation {
-        //         let! a = Validation.ok 3
-        //         and! b = Ok 2
-        //         and! c = Validation.ok 1
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Ok 4) "Should be ok"
+        testCase "Happy Path Result/Valiation" <| fun () ->
+            let actual : Validation<int, string> = validation {
+                let! a = Validation.ok 3
+                and! b = Ok 2
+                and! c = Validation.ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
 
-        // testCase "Happy Path Choice" <| fun () ->
-        //     let actual = result {
-        //         let! a = Choice1Of2 3
-        //         and! b = Choice1Of2 2
-        //         and! c = Choice1Of2 1
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Ok 4) "Should be ok"
+        testCase "Happy Path Choice" <| fun () ->
+            let actual = validation {
+                let! a = Choice1Of2 3
+                and! b = Choice1Of2 2
+                and! c = Choice1Of2 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
 
-        // testCase "Happy Path Result/Choice" <| fun () ->
-        //     let actual = result {
-        //         let! a = Ok 3
-        //         and! b = Choice1Of2 2
-        //         and! c = Choice1Of2 1
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Ok 4) "Should be ok"
+        testCase "Happy Path Result/Choice/Validation" <| fun () ->
+            let actual = validation {
+                let! a = Ok 3
+                and! b = Choice1Of2 2
+                and! c = Validation.ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
 
-        // testCase "Fail Path Result" <| fun () ->
-        //     let expected = Error "TryParse failure"
-        //     let actual = validation {
-        //         let! a = Ok 3
-        //         and! b = Ok 2
-        //         and! c = expected
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual expected "Should be Error"
 
         testCase "Fail Path Result" <| fun () ->
             let expected = Error ["Error 1"; "Error 2"]
             let actual = validation {
                 let! a = Ok 3
-                // and! b = Ok 2
-                and! b = (Ok 2 : Result<_,string>)
+                and! b = Ok 2
                 and! c = Error "Error 1"
                 and! d = Error "Error 2"
                 return a + b - c - d
             }
             Expect.equal actual expected "Should be Error"
 
-        // testCase "Fail Path Validation" <| fun () ->
-        //     let expected = Validation.error "TryParse failure"
-        //     let actual = validation {
-        //         let! a = Ok 3
-        //         and! b = Ok 2
-        //         and! c = expected
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual expected "Should be Error"
-            
-        // testCase "Fail Path Choice" <| fun () ->
-        //     let errorMsg = "TryParse failure"
-        //     let actual = result {
-        //         let! a = Choice1Of2 3
-        //         and! b = Choice1Of2 2
-        //         and! c = Choice2Of2 errorMsg
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Error errorMsg) "Should be Error"
-
-        // testCase "Fail Path Result/Choice" <| fun () ->
-        //     let errorMsg = "TryParse failure"
-        //     let actual = result {
-        //         let! a = Choice1Of2 3
-        //         and! b = Ok 2
-        //         and! c = Error errorMsg
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Error errorMsg) "Should be Error"
+        testCase "Fail Path Validation" <| fun () ->
+            let expected = Validation.error "TryParse failure"
+            let actual = validation {
+                let! a = Validation.ok 3
+                and! b = Validation.ok 2
+                and! c = expected
+                return a + b - c
+            }
+            Expect.equal actual expected "Should be Error"
     ]
 
 let allTests = testList "Validation CE Tests" [
