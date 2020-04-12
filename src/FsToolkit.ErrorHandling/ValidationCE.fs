@@ -24,7 +24,7 @@ module ValidationCE =
 [<AutoOpen>]
 module ValidationCEExtensions =
 
-  // Having Choice<_> members as extensions gives them lower priority in
+  // Having members as extensions gives them lower priority in
   // overload resolution and allows skipping more type annotations.
     type ValidationBuilder with
         member __.Bind
@@ -33,10 +33,23 @@ module ValidationCEExtensions =
             result
             |> Validation.ofResult
             |> Validation.bind binder 
-            
-        member _.BindReturn(x: Result<'T,'U>, f) : Validation<_,_> = x |> Validation.ofResult |> Result.map f
 
-        member _.MergeSources(t1: Validation<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = Validation.zip t1 (Result.mapError List.singleton t2)
-        member _.MergeSources(t1: Result<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = Validation.zip (Result.mapError List.singleton t1) t2
-        member _.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = Validation.zip (Result.mapError List.singleton t1) (Result.mapError List.singleton t2)
+        member __.Bind
+            (result: Choice<'T, 'TError>, binder: 'T -> Validation<'U, 'TError>)
+            : Validation<'U, 'TError> =
+            result
+            |> Validation.ofChoice
+            |> Validation.bind binder 
+
+        member _.BindReturn(x: Result<'T,'U>, f) : Validation<_,_> = x |> Validation.ofResult |> Result.map f
+        member _.BindReturn(x: Choice<'T,'U>, f) : Validation<_,_> = x |> Validation.ofChoice |> Result.map f
+
+        member _.MergeSources(t1: Validation<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = Validation.zip t1 (Validation.ofResult t2)
+        member _.MergeSources(t1: Result<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = Validation.zip (Validation.ofResult t1) t2
+        member _.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = Validation.zip (Validation.ofResult t1) (Validation.ofResult t2)
+
+
+        member _.MergeSources(t1: Validation<'T,'U>, t2: Choice<'T1,'U>) : Validation<_,_> = Validation.zip t1 (Validation.ofChoice t2)
+        member _.MergeSources(t1: Choice<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = Validation.zip (Validation.ofChoice t1) t2
+        member _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) : Validation<_,_> = Validation.zip (Validation.ofChoice t1) (Validation.ofChoice t2)
         

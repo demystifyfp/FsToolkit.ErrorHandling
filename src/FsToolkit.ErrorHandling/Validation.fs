@@ -8,8 +8,12 @@ module Validation =
   let ok x : Validation<_,_> = Ok x
   let error e : Validation<_,_> = List.singleton e |> Error
 
-  let ofResult x =
+  let ofResult x : Validation<_,_> =
     Result.mapError List.singleton x
+
+  let ofChoice x : Validation<_,_> =
+    Result.ofChoice x
+    |> ofResult
   
   let apply f x =
     match f, x with
