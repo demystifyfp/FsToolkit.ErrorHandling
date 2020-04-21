@@ -287,6 +287,71 @@ let ``AsyncResultCE loop Tests`` =
         }
     ]
 
+
+let ``AsyncResultCE applicative tests`` =
+    testList "AsyncResultCE applicative tests" [
+        testCaseAsync "Happy Path AsyncResult" <| async {
+            let! actual = asyncResult {
+                let! a = AsyncResult.retn 3
+                and! b = AsyncResult.retn 2
+                and! c = AsyncResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        // testCase "Happy Path Choice" <| fun () ->
+        //     let actual = result {
+        //         let! a = Choice1Of2 3
+        //         and! b = Choice1Of2 2
+        //         and! c = Choice1Of2 1
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Ok 4) "Should be ok"
+
+        // testCase "Happy Path Result/Choice" <| fun () ->
+        //     let actual = result {
+        //         let! a = Ok 3
+        //         and! b = Choice1Of2 2
+        //         and! c = Choice1Of2 1
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Ok 4) "Should be ok"
+
+        // testCase "Fail Path Result" <| fun () ->
+        //     let expected = Error "TryParse failure"
+        //     let actual = result {
+        //         let! a = Ok 3
+        //         and! b = Ok 2
+        //         and! c = expected
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual expected "Should be Error"
+            
+        // testCase "Fail Path Choice" <| fun () ->
+        //     let errorMsg = "TryParse failure"
+        //     let actual = result {
+        //         let! a = Choice1Of2 3
+        //         and! b = Choice1Of2 2
+        //         and! c = Choice2Of2 errorMsg
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Error errorMsg) "Should be Error"
+
+        // testCase "Fail Path Result/Choice" <| fun () ->
+        //     let errorMsg = "TryParse failure"
+        //     let actual = result {
+        //         let! a = Choice1Of2 3
+        //         and! b = Ok 2
+        //         and! c = Error errorMsg
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Error errorMsg) "Should be Error"
+    ]
+
+
+
+
 let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE return Tests``
     ``AsyncResultCE return! Tests``
@@ -295,4 +360,5 @@ let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE try Tests``
     ``AsyncResultCE using Tests``
     ``AsyncResultCE loop Tests``
+    ``AsyncResultCE applicative tests``
 ]

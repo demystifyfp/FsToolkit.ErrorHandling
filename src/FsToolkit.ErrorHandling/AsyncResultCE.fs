@@ -109,6 +109,14 @@ module AsyncResultCE =
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
 
+    member __.BindReturn(x: Async<Result<'T,'U>>, f) = AsyncResult.map f x
+
+    #if !FABLE_COMPILER
+    member __.BindReturn(x: Task<Result<'T,'U>>, f) = __.BindReturn(x |> Async.AwaitTask, f) 
+    #endif
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip t1 t2
+
 
 
 [<AutoOpen>]
@@ -158,4 +166,17 @@ module AsyncResultCEExtensions =
         : Async<Result<'T, 'TError>> =
       this.Bind(Async.AwaitTask task, binder)
     #endif
+
+
+    member __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Async.singleton, f) 
+    member __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Async.singleton, f) 
+    member __.BindReturn(x: Async<'T>, f) = __.BindReturn(x |> Async.map Result.Ok, f)
+    member __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
+
+    
+    #if !FABLE_COMPILER
+    member __.BindReturn(x: Task<'T>, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
+    member __.BindReturn(x: Task, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
+    #endif
+    
   let asyncResult = AsyncResultBuilder() 
