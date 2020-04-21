@@ -178,5 +178,17 @@ module AsyncResultCEExtensions =
     member __.BindReturn(x: Task<'T>, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
     member __.BindReturn(x: Task, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
     #endif
-    
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip t1 (t2  |> Async.singleton)
+    member __.MergeSources(t1: Result<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) t2
+    member __.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.singleton)
+
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Choice<'T1,'U>) = AsyncResult.zip t1 (t2 |> Result.ofChoice |> Async.singleton)
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) t2
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton)
+
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Async.singleton)
+    member __.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton)
+
   let asyncResult = AsyncResultBuilder() 
