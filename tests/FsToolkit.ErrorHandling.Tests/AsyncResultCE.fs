@@ -321,6 +321,16 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
+        testCaseAsync "Happy Path Async" <| async {
+            let! actual = asyncResult {
+                let! a = Async.singleton 3
+                and! b = Async.singleton 2
+                and! c = Async.singleton 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
         testCaseAsync "Happy Path Result/Choice/AsyncResult" <| async {
             let! actual = asyncResult {
                 let! a = Ok 3
