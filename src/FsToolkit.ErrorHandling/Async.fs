@@ -19,6 +19,12 @@ module Async =
   let map3 f x y z =
     apply (map2 f x y) z
 
+  let zip a1 a2 = async {
+    let! r1 = a1
+    let! r2 = a2
+    return r1,r2
+  }
+
 module AsyncOperators =
 
   let inline (<!>) f x = Async.map f x
