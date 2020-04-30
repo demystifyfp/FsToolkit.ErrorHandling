@@ -266,6 +266,8 @@ let ``ResultCE applicative tests`` =
             Expect.equal actual (Error errorMsg) "Should be Error"
     ]
 
+
+
     
 let allTests = testList "Result CE Tests" [
     ``ResultCE return Tests``
@@ -276,4 +278,5 @@ let allTests = testList "Result CE Tests" [
     ``ResultCE using Tests``
     ``ResultCE loop Tests``
     ``ResultCE applicative tests`` 
+    
 ]
