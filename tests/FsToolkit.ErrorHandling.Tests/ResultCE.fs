@@ -264,6 +264,17 @@ let ``ResultCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual (Error errorMsg) "Should be Error"
+
+        testCase "Multiple errors" <| fun () ->
+            let errorMsg1 = "TryParse failure"
+            let errorMsg2 = "IO failure"
+            let actual = result {
+                let! a = Choice1Of2 3
+                and! b = Error errorMsg1
+                and! c = Error errorMsg2
+                return a + b - c
+            }
+            Expect.equal actual (Error errorMsg1) "Should be Error"
     ]
 
 
