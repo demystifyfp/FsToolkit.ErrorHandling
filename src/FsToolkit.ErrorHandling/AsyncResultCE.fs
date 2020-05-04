@@ -113,9 +113,11 @@ module AsyncResultCE =
     member __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
     member __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Async.singleton, f) 
     member __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Async.singleton, f) 
-
+    
     #if !FABLE_COMPILER
     member __.BindReturn(x: Task<Result<'T,'U>>, f) = __.BindReturn(x |> Async.AwaitTask, f) 
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (Async.AwaitTask t1) (Async.AwaitTask t2)
     #endif
 
     member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip t1 t2
@@ -177,6 +179,13 @@ module AsyncResultCEExtensions =
     #if !FABLE_COMPILER
     member __.BindReturn(x: Task<'T>, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
     member __.BindReturn(x: Task, f) = __.BindReturn(x |> Async.AwaitTask |> Async.map Result.Ok, f)
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2)
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1) (t2 |> Async.AwaitTask) 
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2  |> Async.singleton)
+    member __.MergeSources(t1: Result<'T,'U>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.AwaitTask) 
+    
     #endif
 
 
@@ -203,7 +212,12 @@ module AsyncResultCEExtensions2 =
   // overload resolution between Async<_> and Async<Result<_,_>>.
   type AsyncResultBuilder with
     member __.MergeSources(t1: Async<'T>, t2: Async<'T1>) = AsyncResult.zip (t1 |> Async.map Result.Ok) (t2 |> Async.map Result.Ok)
-          
+    
+    #if !FABLE_COMPILER
+
+    member __.MergeSources(t1: Task<'T>, t2: Task<'T1>) = AsyncResult.zip (t1 |> Async.AwaitTask |> Async.map Result.Ok) (t2 |> Async.AwaitTask |> Async.map Result.Ok)
+
+    #endif
 
 
   

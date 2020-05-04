@@ -115,8 +115,9 @@ let ``AsyncResultCE bind Tests`` =
 
         testCaseAsync "Bind Async" <| async {
             let innerData = "Foo"
+            let d = Async.singleton innerData
             let! actual = asyncResult { 
-                let! data = Async.singleton innerData
+                let! data = d
                 return data 
             }        
         
@@ -287,6 +288,7 @@ let ``AsyncResultCE loop Tests`` =
         }
     ]
 
+let toTaskResult v = v |> Ok |> Task.FromResult
 
 let ``AsyncResultCE applicative tests`` =
     testList "AsyncResultCE applicative tests" [
@@ -295,6 +297,16 @@ let ``AsyncResultCE applicative tests`` =
                 let! a = AsyncResult.retn 3
                 and! b = AsyncResult.retn 2
                 and! c = AsyncResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseAsync "Happy Path TaskResult" <| async {
+            let! actual = asyncResult {
+                let! a = toTaskResult 3
+                and! b = toTaskResult 2
+                and! c = toTaskResult 1
                 return a + b - c
             }
             Expect.equal actual (Ok 4) "Should be ok"
@@ -331,6 +343,24 @@ let ``AsyncResultCE applicative tests`` =
         //     }
         //     Expect.equal actual (Ok 4) "Should be ok"
         // }
+
+        testCaseAsync "Happy Path 2 Async" <| async {
+            let! actual = asyncResult {
+                let! a = Async.singleton 3 //: Async<int>
+                and! b = Async.singleton 2 //: Async<int>
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
+
+        testCaseAsync "Happy Path 2 Task" <| async {
+            let! actual = asyncResult {
+                let! a = Task.FromResult 3 
+                and! b = Task.FromResult 2 
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
 
         testCaseAsync "Happy Path Result/Choice/AsyncResult" <| async {
             let! actual = asyncResult {
