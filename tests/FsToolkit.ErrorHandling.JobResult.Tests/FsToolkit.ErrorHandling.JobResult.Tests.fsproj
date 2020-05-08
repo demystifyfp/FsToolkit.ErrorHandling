@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
