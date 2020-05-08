@@ -272,3 +272,121 @@ let ``TaskResultCE loop Tests`` =
             Expect.equal actual expected "Should be and error"
         }
     ]
+
+
+[<Tests>]
+let ``TaskResultCE applicative tests`` =
+    testList "TaskResultCE applicative tests" [
+        testCaseTask "Happy Path TaskResult" <| task {
+            let! actual = taskResult {
+                let! a = TaskResult.retn 3
+                and! b = TaskResult.retn 2
+                and! c = TaskResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseTask "Happy Path AsyncResult" <| task {
+            let! actual = taskResult {
+                let! a = AsyncResult.retn 3
+                and! b = AsyncResult.retn 2
+                and! c = AsyncResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+
+        testCaseTask "Happy Path Result" <| task {
+            let! actual = taskResult {
+                let! a = Result.Ok 3
+                and! b = Result.Ok 2
+                and! c = Result.Ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseTask "Happy Path Choice" <| task {
+            let! actual = taskResult {
+                let! a = Choice1Of2 3
+                and! b = Choice1Of2 2
+                and! c = Choice1Of2 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        // Cannot get this to compile properly
+        // testCaseTask "Happy Path Async" <| task {
+        //     let! actual = taskResult {
+        //         let! a = Async.singleton 3 //: Async<int>
+        //         and! b = Async.singleton 2 //: Async<int>
+        //         and! c = Async.singleton 1 //: Async<int>
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Ok 4) "Should be ok"
+        // }
+
+        testCaseTask "Happy Path 2 Async" <| task {
+            let! actual = taskResult {
+                let! a = Async.singleton 3 //: Async<int>
+                and! b = Async.singleton 2 //: Async<int>
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
+
+        testCaseTask "Happy Path 2 Task" <| task {
+            let! actual = taskResult {
+                let! a = Task.FromResult 3 
+                and! b = Task.FromResult 2 
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
+
+        testCaseTask "Happy Path Result/Choice/AsyncResult" <| task {
+            let! actual = taskResult {
+                let! a = Ok 3
+                and! b = Choice1Of2 2
+                and! c = Ok 1 |> Async.singleton
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseTask "Fail Path Result" <| task {
+            let expected = Error "TryParse failure"
+            let! actual = taskResult {
+                let! a = Ok 3
+                and! b = Ok 2
+                and! c = expected
+                return a + b - c
+            }
+            Expect.equal actual expected "Should be Error"
+        }
+            
+        testCaseTask "Fail Path Choice" <| task {
+            let errorMsg = "TryParse failure"
+            let! actual = taskResult {
+                let! a = Choice1Of2 3
+                and! b = Choice1Of2 2
+                and! c = Choice2Of2 errorMsg
+                return a + b - c
+            }
+            Expect.equal actual (Error errorMsg) "Should be Error"
+        }
+
+        testCaseTask "Fail Path Result/Choice/AsyncResult" <| task {
+            let errorMsg = "TryParse failure"
+            let! actual = taskResult {
+                let! a = Choice1Of2 3
+                and! b = Ok 2 |> Async.singleton
+                and! c = Error errorMsg
+                return a + b - c
+            }
+            Expect.equal actual (Error errorMsg) "Should be Error"
+        }
+    ]

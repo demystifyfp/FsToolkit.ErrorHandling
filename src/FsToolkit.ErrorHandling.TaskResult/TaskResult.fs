@@ -132,3 +132,7 @@ module TaskResult =
   /// executes the function on the Error value. Passes through the input value.
   let teeErrorIf predicate f taskResult =
     taskResult |> Task.map (Result.teeErrorIf predicate f)
+
+  let zip x1 x2 = 
+    Task.zip x1 x2
+    |> Task.map(fun (r1, r2) -> Result.zip r1 r2)
