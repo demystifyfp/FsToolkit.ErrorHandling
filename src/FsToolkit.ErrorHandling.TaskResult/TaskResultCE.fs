@@ -146,6 +146,16 @@ module TaskResultCE =
         : Step<Result<unit, 'TError>> =
       forLoopR sequence binder
 
+ 
+    member __.BindReturn(x: Task<Result<'T,'U>>, f) = TaskResult.map f x |> ReturnFrom
+    member __.BindReturn(x: Async<Result<'T,'U>>, f) = __.BindReturn(x |> Async.StartAsTask, f) 
+    member __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
+    member __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Async.singleton, f) 
+    member __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Async.singleton, f) 
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = TaskResult.zip t1 t2
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip t1 t2 |> Async.StartAsTask
+
     member inline __.Run(f : unit -> Step<'m>) = run f
 
 
@@ -194,5 +204,50 @@ module TaskResultCEExtensions =
         return result.Zero()
       }
       this.Bind(body, binder)
+
+    member __.BindReturn(x: Async<'T>, f) = 
+      __.BindReturn(x |> Async.map Result.Ok, f)
+
+    member __.BindReturn(x: Task<'T>, f) = __.BindReturn(x |> Task.map Result.Ok, f)
+    member __.BindReturn(x: Task, f) = __.BindReturn(x |> Task.ofUnit |> Task.map Result.Ok, f)
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = TaskResult.zip t1 (t2 |> Async.StartAsTask)
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Async.StartAsTask) t2
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Result<'T1,'U>) = TaskResult.zip t1 (t2  |> Task.singleton) 
+    member __.MergeSources(t1: Result<'T,'U>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Task.singleton) t2 
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip t1 (t2  |> Async.singleton)|> Async.StartAsTask
+    member __.MergeSources(t1: Result<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) t2|> Async.StartAsTask
+    member __.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = TaskResult.zip (t1 |> Task.singleton) (t2 |> Task.singleton)
+
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Choice<'T1,'U>) = AsyncResult.zip t1 (t2 |> Result.ofChoice |> Async.singleton) |> Async.StartAsTask
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) t2 |> Async.StartAsTask
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = TaskResult.zip (t1 |> Result.ofChoice |> Task.singleton) (t2 |> Result.ofChoice |> Task.singleton) 
+
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Choice<'T1,'U>) = TaskResult.zip t1 (t2 |> Result.ofChoice |> Task.singleton)
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Result.ofChoice |> Task.singleton) t2
+
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Async.singleton) |> Async.StartAsTask
+    member __.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Async.StartAsTask
+    
+
+
+[<AutoOpen>]
+module TaskResultCEExtensions2 =
+  // Having Task<_> members as extensions gives them lower priority in
+  // overload resolution between Task<_> and Task<Result<_,_>>.
+  type TaskResultBuilder with
+    member __.MergeSources(t1: Async<'T>, t2: Async<'T1>) = AsyncResult.zip (t1 |> Async.map Result.Ok) (t2 |> Async.map Result.Ok) |> Async.StartAsTask
+    
+    #if !FABLE_COMPILER
+
+    member __.MergeSources(t1: Task<'T>, t2: Task<'T1>) = TaskResult.zip (t1 |> Task.map Result.Ok) (t2 |> Task.map Result.Ok)
+
+    #endif
+
+
+
 
   let taskResult = TaskResultBuilder() 

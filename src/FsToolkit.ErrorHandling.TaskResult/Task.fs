@@ -24,3 +24,11 @@ module Task =
 
   let map3 f x y z =
     apply (map2 f x y) z
+
+  let zip (a1 : Task<_>) (a2 : Task<_>) = task {
+    let! r1 = a1
+    let! r2 = a2
+    return r1,r2
+  }
+
+  let ofUnit (t : Task) = task { return! t }
