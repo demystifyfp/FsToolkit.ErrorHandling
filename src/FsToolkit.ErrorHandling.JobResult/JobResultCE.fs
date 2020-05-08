@@ -141,6 +141,20 @@ module JobResultCE =
 
 
 
+    member __.BindReturn(x: Job<Result<'T,'U>>, f) = JobResult.map f x
+    member __.BindReturn(x: Async<Result<'T,'U>>, f) = __.BindReturn(x |> Job.fromAsync, f)
+    member __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
+    member __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Job.singleton, f) 
+    member __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Job.singleton, f) 
+    member __.BindReturn(x: Task<Result<'T,'U>>, f) = __.BindReturn(x |> Job.awaitTask, f) 
+
+
+    member __.MergeSources(t1: Job<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip t1 t2
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = JobResult.zip (Job.awaitTask t1) (Job.awaitTask t2)
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = JobResult.zip (Job.fromAsync t1) (Job.fromAsync t2)
+
+
+
 [<AutoOpen>]
 module JobResultCEExtensions =
   open Hopac
@@ -206,5 +220,62 @@ module JobResultCEExtensions =
         (task: Task, binder: unit -> Job<Result<'T, 'TError>>)
         : Job<Result<'T, 'TError>> =
       this.Bind(Job.awaitUnitTask task, binder)
+
+    member __.BindReturn(x: Job<'T>, f) = 
+      __.BindReturn(x |> Job.map Result.Ok, f)
+    member __.BindReturn(x: Async<'T>, f) = 
+      __.BindReturn(x |> Async.map Result.Ok, f)
+    member __.BindReturn(x: Task<'T>, f) = 
+      __.BindReturn(x |> Task.map Result.Ok, f)
+    member __.BindReturn(x: Task, f) = 
+      __.BindReturn(x |> Task.ofUnit |> Task.map Result.Ok, f)
+
+
+
+    member __.MergeSources(t1: Job<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) =  JobResult.zip (t1) (t2 |> Job.fromAsync) 
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.fromAsync) (t2) 
+
+
+    member __.MergeSources(t1: Job<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) =  JobResult.zip (t1) (t2 |> Job.awaitTask) 
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.awaitTask) (t2) 
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2) |> Job.fromAsync
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1) (t2 |> Async.AwaitTask) |> Job.fromAsync
+
+    member __.MergeSources(t1: Task<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2  |> Async.singleton) |> Job.fromAsync
+    member __.MergeSources(t1: Result<'T,'U>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.AwaitTask) |> Job.fromAsync
+    
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<'T1>) = AsyncResult.zip t1 (t2  |> Async.map Result.Ok) |> Job.fromAsync
+    member __.MergeSources(t1: Async<'T>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.map Result.Ok) t2 |> Job.fromAsync
+
+    member __.MergeSources(t1: Job<Result<'T,'U>>, t2: Result<'T1,'U>) = JobResult.zip t1 (t2  |> Job.singleton) 
+    member __.MergeSources(t1: Result<'T,'U>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.singleton) t2 
+    member __.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.singleton) |> Job.fromAsync 
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip t1 (t2  |> Async.singleton) |> Job.fromAsync
+    member __.MergeSources(t1: Result<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) t2 |> Job.fromAsync
+
+
+    member __.MergeSources(t1: Async<Result<'T,'U>>, t2: Choice<'T1,'U>) = AsyncResult.zip t1 (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) t2 |> Job.fromAsync
+
+    member __.MergeSources(t1: Job<Result<'T,'U>>, t2: Choice<'T1,'U>) = JobResult.zip t1 (t2 |> Result.ofChoice |> Job.singleton) 
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Result.ofChoice |> Job.singleton) t2 
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
+
+    member __.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Async.singleton) |> Job.fromAsync
+    member __.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
+    
+
+[<AutoOpen>]
+module JobResultCEExtensions2 =
+  // Having Async<_> members as extensions gives them lower priority in
+  // overload resolution between Async<_> and Async<Result<_,_>>.
+  type JobResultBuilder with
+    member __.MergeSources(t1: Job<'T>, t2: Job<'T1>) = JobResult.zip (t1 |> Job.map Result.Ok) (t2 |> Job.map Result.Ok)
+    member __.MergeSources(t1: Async<'T>, t2: Async<'T1>) = AsyncResult.zip (t1 |> Async.map Result.Ok) (t2 |> Async.map Result.Ok) |> Job.fromAsync
+    member __.MergeSources(t1: Task<'T>, t2: Task<'T1>) = TaskResult.zip (t1 |> Task.map Result.Ok) (t2 |> Task.map Result.Ok) |> Job.awaitTask
+
 
   let jobResult = JobResultBuilder() 

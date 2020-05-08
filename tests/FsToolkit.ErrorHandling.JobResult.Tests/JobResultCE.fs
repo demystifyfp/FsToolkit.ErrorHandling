@@ -276,3 +276,130 @@ let ``JobResultCE loop Tests`` =
             Expect.equal actual expected "Should be and error"
         }
     ]
+
+
+[<Tests>]
+let ``AsyncResultCE applicative tests`` =
+    testList "JobResultCE applicative tests" [
+        testCaseJob "Happy Path JobResult" <| job {
+            let! actual = jobResult {
+                let! a = JobResult.retn 3
+                and! b = JobResult.retn 2
+                and! c = JobResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+        testCaseJob "Happy Path AsyncResult" <| job {
+            let! actual = jobResult {
+                let! a = AsyncResult.retn 3
+                and! b = AsyncResult.retn 2
+                and! c = AsyncResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseJob "Happy Path TaskResult" <| job {
+            let! actual = jobResult {
+                let! a = TaskResult.retn 3
+                and! b = TaskResult.retn 2
+                and! c = TaskResult.retn 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+
+        testCaseJob "Happy Path Result" <| job {
+            let! actual = jobResult {
+                let! a = Result.Ok 3
+                and! b = Result.Ok 2
+                and! c = Result.Ok 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseJob "Happy Path Choice" <| job {
+            let! actual = jobResult {
+                let! a = Choice1Of2 3
+                and! b = Choice1Of2 2
+                and! c = Choice1Of2 1
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        // Cannot get this to compile properly
+        // testCaseJob "Happy Path Async" <| job {
+        //     let! actual = jobResult {
+        //         let! a = Async.singleton 3 //: Async<int>
+        //         and! b = Async.singleton 2 //: Async<int>
+        //         and! c = Async.singleton 1 //: Async<int>
+        //         return a + b - c
+        //     }
+        //     Expect.equal actual (Ok 4) "Should be ok"
+        // }
+
+        testCaseJob "Happy Path 2 Async" <| job {
+            let! actual = jobResult {
+                let! a = Async.singleton 3 //: Async<int>
+                and! b = Async.singleton 2 //: Async<int>
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
+
+        testCaseJob "Happy Path 2 Task" <| job {
+            let! actual = jobResult {
+                let! a = Task.FromResult 3 
+                and! b = Task.FromResult 2 
+                return a + b 
+            }
+            Expect.equal actual (Ok 5) "Should be ok"
+        }
+
+        testCaseJob "Happy Path Result/Choice/AsyncResult" <| job {
+            let! actual = jobResult {
+                let! a = Ok 3
+                and! b = Choice1Of2 2
+                and! c = Ok 1 |> Async.singleton
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseJob "Fail Path Result" <| job {
+            let expected = Error "TryParse failure"
+            let! actual = jobResult {
+                let! a = Ok 3
+                and! b = Ok 2
+                and! c = expected
+                return a + b - c
+            }
+            Expect.equal actual expected "Should be Error"
+        }
+            
+        testCaseJob "Fail Path Choice" <| job {
+            let errorMsg = "TryParse failure"
+            let! actual = jobResult {
+                let! a = Choice1Of2 3
+                and! b = Choice1Of2 2
+                and! c = Choice2Of2 errorMsg
+                return a + b - c
+            }
+            Expect.equal actual (Error errorMsg) "Should be Error"
+        }
+
+        testCaseJob "Fail Path Result/Choice/AsyncResult" <| job {
+            let errorMsg = "TryParse failure"
+            let! actual = jobResult {
+                let! a = Choice1Of2 3
+                and! b = Ok 2 |> Async.singleton
+                and! c = Error errorMsg
+                return a + b - c
+            }
+            Expect.equal actual (Error errorMsg) "Should be Error"
+        }
+    ]

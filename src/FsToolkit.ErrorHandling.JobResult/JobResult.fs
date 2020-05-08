@@ -1,6 +1,7 @@
 ﻿namespace FsToolkit.ErrorHandling
 
 open Hopac
+open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module JobResult = 
@@ -137,3 +138,7 @@ module JobResult =
   /// executes the function on the Error value. Passes through the input value.
   let teeErrorIf predicate f jobResult =
     jobResult |> Job.map (Result.teeErrorIf predicate f)
+
+  let zip j1 j2 =
+    Job.zip j1 j2
+    |> Job.map(fun (r1, r2) -> Result.zip r1 r2)

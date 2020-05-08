@@ -1,6 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
 open Hopac
+open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module Job =
@@ -11,3 +12,5 @@ module Job =
 
     let map3 f x y z =
         apply' (map2 f x y) z
+
+    let zip j1 j2 = j1 <&> j2
