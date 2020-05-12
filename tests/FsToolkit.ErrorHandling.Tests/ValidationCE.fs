@@ -246,7 +246,7 @@ let ``ValidationCE loop Tests`` =
             }
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
-
+#if !FABLE_COMPILER
 let ``ValidationCE applicative tests`` =
     testList "ValidationCE applicative tests" [
         testCase "Happy Path Result" <| fun () ->
@@ -315,6 +315,7 @@ let ``ValidationCE applicative tests`` =
             }
             Expect.equal actual expected "Should be Error"
     ]
+#endif
 
 let allTests = testList "Validation CE Tests" [
     ``ValidationCE return Tests``
@@ -324,5 +325,7 @@ let allTests = testList "Validation CE Tests" [
     ``ValidationCE try Tests``
     ``ValidationCE using Tests``
     ``ValidationCE loop Tests``
+#if !FABLE_COMPILER
     ``ValidationCE applicative tests``
+#endif
 ]
