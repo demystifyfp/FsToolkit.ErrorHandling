@@ -1,3 +1,7 @@
+#### 1.3.0-beta001 - May 12, 2020
+
+- Adds Applicative Support for FSharp 5.0. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/75)
+
 #### 1.2.6 - Feb 15, 2020
 
 - Adds Result.valueOr . Credits [Christer van der Meeren](https://github.com/cmeeren).
