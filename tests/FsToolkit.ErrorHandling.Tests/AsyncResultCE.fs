@@ -288,9 +288,10 @@ let ``AsyncResultCE loop Tests`` =
         }
     ]
 
-#if !FABLE_COMPILER
 
+#if !FABLE_COMPILER
 let toTaskResult v = v |> Ok |> Task.FromResult
+#endif
 
 let ``AsyncResultCE applicative tests`` =
     testList "AsyncResultCE applicative tests" [
@@ -304,6 +305,8 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
+#if !FABLE_COMPILER
+
         testCaseAsync "Happy Path TaskResult" <| async {
             let! actual = asyncResult {
                 let! a = toTaskResult 3
@@ -314,6 +317,7 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
+#endif
 
         testCaseAsync "Happy Path Result" <| async {
             let! actual = asyncResult {
@@ -355,6 +359,8 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Ok 5) "Should be ok"
         }
 
+#if !FABLE_COMPILER
+
         testCaseAsync "Happy Path 2 Task" <| async {
             let! actual = asyncResult {
                 let! a = Task.FromResult 3 
@@ -363,6 +369,8 @@ let ``AsyncResultCE applicative tests`` =
             }
             Expect.equal actual (Ok 5) "Should be ok"
         }
+
+#endif
 
         testCaseAsync "Happy Path Result/Choice/AsyncResult" <| async {
             let! actual = asyncResult {
@@ -408,7 +416,6 @@ let ``AsyncResultCE applicative tests`` =
         }
     ]
 
-#endif
 
 
 let allTests = testList "AsyncResultCETests" [
@@ -419,7 +426,5 @@ let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE try Tests``
     ``AsyncResultCE using Tests``
     ``AsyncResultCE loop Tests``
-#if !FABLE_COMPILER
     ``AsyncResultCE applicative tests``
-#endif
 ]
