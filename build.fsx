@@ -131,7 +131,7 @@ Target.create "NuGet" (fun _ ->
       DotNet.pack(fun p ->
            { p with
                // ./bin from the solution root matching the "PublishNuget" target WorkingDir
-               OutputPath = Some "../../bin"
+               OutputPath = Some "./bin"
                Configuration = DotNet.BuildConfiguration.Release
                MSBuildParams = {MSBuild.CliArguments.Create() with
                                     // "/p" (property) arguments to MSBuild.exe
@@ -142,6 +142,7 @@ Target.create "NuGet" (fun _ ->
 Target.create "PublishNuget" (fun _ ->
     Paket.push(fun p ->
         { p with
+            ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
             WorkingDir = "bin" })
 )
