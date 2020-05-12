@@ -152,7 +152,7 @@ Target.create "Release" (fun _ ->
   Git.Branches.push ""
 
   Git.Branches.tag "" release.NugetVersion
-  Git.Branches.pushTag "" "origin" release.NugetVersion
+  Git.Branches.pushTag "" "" release.NugetVersion
 )
 
 Target.create "UpdateDocs" (fun _ ->

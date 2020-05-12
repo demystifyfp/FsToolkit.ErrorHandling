@@ -1,4 +1,4 @@
-#### 1.3.0-beta001 - May 12, 2020
+#### 1.3.0-beta002 - May 12, 2020
 
 - Adds Applicative Support for FSharp 5.0. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/75)
 
