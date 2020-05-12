@@ -288,6 +288,8 @@ let ``AsyncResultCE loop Tests`` =
         }
     ]
 
+#if !FABLE_COMPILER
+
 let toTaskResult v = v |> Ok |> Task.FromResult
 
 let ``AsyncResultCE applicative tests`` =
@@ -406,7 +408,7 @@ let ``AsyncResultCE applicative tests`` =
         }
     ]
 
-
+#endif
 
 
 let allTests = testList "AsyncResultCETests" [
@@ -417,5 +419,7 @@ let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE try Tests``
     ``AsyncResultCE using Tests``
     ``AsyncResultCE loop Tests``
+#if !FABLE_COMPILER
     ``AsyncResultCE applicative tests``
+#endif
 ]
