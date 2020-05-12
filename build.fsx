@@ -146,13 +146,15 @@ Target.create "PublishNuget" (fun _ ->
             WorkingDir = "bin" })
 )
 
+let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"
+
 Target.create "Release" (fun _ ->
   Git.Staging.stageAll ""
   Git.Commit.exec "" (sprintf "Bump version to %s" release.NugetVersion)
   Git.Branches.push ""
 
   Git.Branches.tag "" release.NugetVersion
-  Git.Branches.pushTag "" "" release.NugetVersion
+  Git.Branches.pushTag "" remote release.NugetVersion
 )
 
 Target.create "UpdateDocs" (fun _ ->
