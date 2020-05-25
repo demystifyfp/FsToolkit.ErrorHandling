@@ -25,6 +25,7 @@ nuget Fake.Core.ReleaseNotes 5.20.0
 nuget Fake.DotNet.AssemblyInfoFile 5.20.0
 nuget Fake.DotNet.Paket 5.20.0
 nuget Fake.DotNet.Testing.Expecto 5.20.0
-nuget Fake.Tools.Git  ]5.20.0
+nuget Fake.Tools.Git 5.20.0
 nuget Fake.JavaScript.Npm 5.20.0
+nuget Fake.Api.GitHub 5.20.0
 nuget Paket.Core 6.0.0-alpha022

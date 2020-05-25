@@ -642,17 +642,20 @@ NUGET
       FSharp.Core  - restriction: < netstandard1.6
       FSharp.Core (>= 4.0.1.7-alpha) - restriction: >= netstandard1.6
       NETStandard.Library (>= 1.6) - restriction: >= netstandard1.6
+    Fake.Api.GitHub (5.20)
+      FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
+      Octokit (>= 0.47) - restriction: >= netstandard2.0
     Fake.Core.CommandLineParsing (5.20) - restriction: >= netstandard2.0
       FParsec (>= 1.1.1) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
     Fake.Core.Context (5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Core.Environment (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.Core.Environment (5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
     Fake.Core.FakeVar (5.20) - restriction: >= netstandard2.0
       Fake.Core.Context (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Core.Process (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.Core.Process (5.20) - restriction: >= netstandard2.0
       Fake.Core.Environment (>= 5.20) - restriction: >= netstandard2.0
       Fake.Core.FakeVar (>= 5.20) - restriction: >= netstandard2.0
       Fake.Core.String (>= 5.20) - restriction: >= netstandard2.0
@@ -664,9 +667,9 @@ NUGET
       Fake.Core.SemVer (>= 5.20) - restriction: >= netstandard2.0
       Fake.Core.String (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Core.SemVer (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.Core.SemVer (5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Core.String (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.Core.String (5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
     Fake.Core.Target (5.20)
       Fake.Core.CommandLineParsing (>= 5.20) - restriction: >= netstandard2.0
@@ -681,7 +684,7 @@ NUGET
     Fake.Core.Tasks (5.20) - restriction: >= netstandard2.0
       Fake.Core.Trace (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Core.Trace (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.Core.Trace (5.20) - restriction: >= netstandard2.0
       Fake.Core.Environment (>= 5.20) - restriction: >= netstandard2.0
       Fake.Core.FakeVar (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
@@ -741,7 +744,7 @@ NUGET
       Fake.IO.FileSystem (>= 5.20) - restriction: >= netstandard2.0
       Fake.Testing.Common (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.IO.FileSystem (5.20) - restriction: || (>= net462) (>= netstandard2.0)
+    Fake.IO.FileSystem (5.20) - restriction: >= netstandard2.0
       Fake.Core.String (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
     Fake.JavaScript.Npm (5.20)
@@ -756,15 +759,14 @@ NUGET
     Fake.Testing.Common (5.20) - restriction: >= netstandard2.0
       Fake.Core.Trace (>= 5.20) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
-    Fake.Tools.Git (5.19.1)
-      Fake.Core.Environment (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      Fake.Core.Process (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      Fake.Core.SemVer (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      Fake.Core.String (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      Fake.Core.Trace (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      Fake.IO.FileSystem (>= 5.19.1) - restriction: || (>= net462) (>= netstandard2.0)
-      FSharp.Core (>= 4.7) - restriction: || (>= net462) (>= netstandard2.0)
-      System.ValueTuple (>= 4.4) - restriction: >= net462
+    Fake.Tools.Git (5.20)
+      Fake.Core.Environment (>= 5.20) - restriction: >= netstandard2.0
+      Fake.Core.Process (>= 5.20) - restriction: >= netstandard2.0
+      Fake.Core.SemVer (>= 5.20) - restriction: >= netstandard2.0
+      Fake.Core.String (>= 5.20) - restriction: >= netstandard2.0
+      Fake.Core.Trace (>= 5.20) - restriction: >= netstandard2.0
+      Fake.IO.FileSystem (>= 5.20) - restriction: >= netstandard2.0
+      FSharp.Core (>= 4.7.1) - restriction: >= netstandard2.0
     FParsec (1.1.1) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.3.4) - restriction: || (>= net45) (>= netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: >= net45
@@ -846,6 +848,7 @@ NUGET
       NuGet.Packaging (>= 5.5.1) - restriction: >= netstandard2.0
       System.Dynamic.Runtime (>= 4.3) - restriction: && (< net472) (>= netstandard2.0)
     NuGet.Versioning (5.5.1) - restriction: >= netstandard2.0
+    Octokit (0.47) - restriction: >= netstandard2.0
     Paket.Core (6.0.0-alpha022)
       Chessie (>= 0.6) - restriction: || (>= net461) (>= netstandard2.0)
       FSharp.Core (> 4.3) - restriction: || (>= net461) (>= netstandard2.0)
@@ -1327,7 +1330,7 @@ NUGET
     System.Threading.ThreadPool (4.3) - restriction: && (< monoandroid) (< net46) (< netcoreapp5.0) (>= netstandard2.0) (< xamarinios) (< xamarinmac)
       System.Runtime (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (< netcoreapp5.0) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Runtime.Handles (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (< netcoreapp5.0) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
-    System.ValueTuple (4.5) - restriction: || (&& (>= net45) (>= netstandard2.0)) (&& (>= net46) (>= netstandard2.0)) (>= net462) (&& (>= netstandard2.0) (>= uap10.0))
+    System.ValueTuple (4.5) - restriction: || (&& (>= net45) (>= netstandard2.0)) (&& (>= net46) (>= netstandard2.0)) (&& (>= netstandard2.0) (>= uap10.0))
 
 GROUP Test
 STORAGE: NONE

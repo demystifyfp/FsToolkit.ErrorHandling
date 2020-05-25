@@ -1,6 +1,7 @@
 #r "paket: groupref Build //"
 #load "./.fake/build.fsx/intellisense.fsx"
 
+open Fake.Api
 open Fake.Core
 open Fake.IO
 open Fake.DotNet
@@ -17,6 +18,15 @@ let project = "FsToolkit.ErrorHandling"
 let summary = "An opinionated error handling library for F#"
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
+
+let gitOwner ="demystifyfp"
+
+let distDir = __SOURCE_DIRECTORY__  @@ "bin"
+let distGlob = distDir @@ "*.nupkg"
+
+let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
+
 
 Target.create "Clean" (fun _ ->
   !! "bin"
@@ -131,7 +141,7 @@ Target.create "NuGet" (fun _ ->
       DotNet.pack(fun p ->
            { p with
                // ./bin from the solution root matching the "PublishNuget" target WorkingDir
-               OutputPath = Some "./bin"
+               OutputPath = Some distDir
                Configuration = DotNet.BuildConfiguration.Release
                MSBuildParams = {MSBuild.CliArguments.Create() with
                                     // "/p" (property) arguments to MSBuild.exe
@@ -144,12 +154,13 @@ Target.create "PublishNuget" (fun _ ->
         { p with
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
-            WorkingDir = "bin" })
+            WorkingDir = distDir })
 )
 
 let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"
 
-Target.create "Release" (fun _ ->
+
+Target.create "GitRelease"(fun _ ->
   Git.Staging.stageAll ""
   Git.Commit.exec "" (sprintf "Bump version to %s\n\n%s" release.NugetVersion releaseNotes)
   Git.Branches.push ""
@@ -157,6 +168,22 @@ Target.create "Release" (fun _ ->
   Git.Branches.tag "" release.NugetVersion
   Git.Branches.pushTag "" remote release.NugetVersion
 )
+
+Target.create "GitHubRelease" (fun _ ->
+    let token =
+        match githubToken with
+        | Some s -> s
+        | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
+
+    let files = !! distGlob
+    GitHub.createClientWithToken token
+    |> GitHub.draftNewRelease gitOwner project release.NugetVersion (release.SemVer.PreRelease <> None) (releaseNotes |> Seq.singleton)
+    |> GitHub.uploadFiles files
+    |> GitHub.publishDraft
+    |> Async.RunSynchronously
+)
+
+Target.create "Release" ignore
 
 Target.create "UpdateDocs" (fun _ ->
   Git.Staging.stageAll ""
@@ -176,6 +203,8 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "RunFableTests"
   ==> "NuGet"
   ==> "PublishNuGet"
+  ==> "GitRelease"
+  ==> "GitHubRelease"
   ==> "Release"
 
 // *** Start Build ***
