@@ -9,7 +9,7 @@ module ResultCE =
     member __.Return (value: 'T) : Result<'T, 'TError> =
       Ok value
 
-    member __.ReturnFrom (result: Result<'T, 'TError>) : Result<'T, 'TError> =
+    member inline __.ReturnFrom (result: Result<'T, 'TError>) : Result<'T, 'TError> =
       result
 
     member this.Zero () : Result<unit, 'TError> =
@@ -79,28 +79,28 @@ module ResultCEExtensions =
   // overload resolution and allows skipping more type annotations.
   type ResultBuilder with
 
-    member __.ReturnFrom (result: Choice<'T, 'TError>) : Result<'T, 'TError> =
+    member inline __.ReturnFrom (result: Choice<'T, 'TError>) : Result<'T, 'TError> =
       Result.ofChoice result
 
-    member __.Bind
+    member inline __.Bind
         (result: Choice<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
         : Result<'U, 'TError> =
         result
         |> Result.ofChoice
         |> Result.bind binder 
 
-    member _.BindReturn(x: Choice<'T,'U>, f) = 
+    member inline _.BindReturn(x: Choice<'T,'U>, f) = 
       x
       |> Result.ofChoice 
       |> Result.map f
 
-    member _.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = 
+    member inline _.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = 
       Result.zip t1 (Result.ofChoice t2)
 
-    member _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = 
+    member inline _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = 
       Result.zip (Result.ofChoice t1) (Result.ofChoice t2)
 
-    member _.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = 
+    member inline _.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = 
       Result.zip (Result.ofChoice t1) t2
 
 

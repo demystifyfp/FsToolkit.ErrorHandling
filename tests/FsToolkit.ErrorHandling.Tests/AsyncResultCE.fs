@@ -417,28 +417,6 @@ let ``AsyncResultCE applicative tests`` =
     ]
 
 
-
-let failureFunc () = async {
-    return failwith "I'm a failure"
-}
-
-let iDoCalls () = asyncResult {
-    let! int1 = Ok 1
-    let! int2 = Ok 2
-    do! failureFunc ()
-}
-
-
-
-
-let ``AsyncResultCE stack traces`` =
-    testList "AsyncResultCE Stack traces" [
-        testCaseAsync "Stacktrace1" <| async {
-            let! result = iDoCalls ()
-            Expect.isError result ""
-        }
-    ]
-
 let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE return Tests``
     ``AsyncResultCE return! Tests``
@@ -448,5 +426,4 @@ let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE using Tests``
     ``AsyncResultCE loop Tests``
     ``AsyncResultCE applicative tests``
-    ``AsyncResultCE stack traces``
 ]
