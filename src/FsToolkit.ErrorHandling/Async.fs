@@ -3,15 +3,15 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async = 
 
-  let singleton value = value |> async.Return
+  let inline singleton value = value |> async.Return
 
-  let bind f x = async.Bind(x, f)
+  let inline bind f x = async.Bind(x, f)
 
   let apply f x =
     bind (fun f' ->
       bind (fun x' -> singleton(f' x')) x) f
 
-  let map f x = x |> bind (f >> singleton)
+  let inline map f x = x |> bind (f >> singleton)
 
   let map2 f x y =
     (apply (apply (singleton f) x) y)

@@ -5,7 +5,7 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module AsyncResult = 
 
-  let map f ar =
+  let inline map f ar =
     Async.map (Result.map f) ar
 
   let mapError f ar =

@@ -23,7 +23,7 @@ module AsyncResultCE =
       Async.AwaitTask taskResult
     #endif
 
-    member __.ReturnFrom
+    member inline __.ReturnFrom
         (result: Result<'T, 'TError>)
         : Async<Result<'T, 'TError>> =
       async.Return result
@@ -38,7 +38,7 @@ module AsyncResultCE =
     member __.Zero () : Async<Result<unit, 'TError>> =
       async.Return <| result.Zero ()
 
-    member __.Bind
+    member inline __.Bind
         (asyncResult: Async<Result<'T, 'TError>>,
          binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
@@ -57,7 +57,7 @@ module AsyncResultCE =
       this.Bind(Async.AwaitTask taskResult, binder)
     #endif
 
-    member this.Bind
+    member inline this.Bind
         (result: Result<'T, 'TError>, binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
       this.Bind(this.ReturnFrom result, binder)
@@ -109,7 +109,7 @@ module AsyncResultCE =
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
 
-    member __.BindReturn(x: Async<Result<'T,'U>>, f) = AsyncResult.map f x
+    member inline __.BindReturn(x: Async<Result<'T,'U>>, f) = AsyncResult.map f x
     member __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
     member __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Async.singleton, f) 
     member __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Async.singleton, f) 
@@ -173,7 +173,7 @@ module AsyncResultCEExtensions =
     #endif
 
 
-    member __.BindReturn(x: Async<'T>, f) = 
+    member inline __.BindReturn(x: Async<'T>, f) = 
       __.BindReturn(x |> Async.map Result.Ok, f)
 
     #if !FABLE_COMPILER
