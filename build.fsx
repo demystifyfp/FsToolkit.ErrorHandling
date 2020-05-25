@@ -122,8 +122,8 @@ Target.create "AssemblyInfo" (fun _ ->
         AssemblyInfoFile.createFSharp (folderName </> "AssemblyInfo.fs") attributes)
 )
 
+let releaseNotes = String.toLines release.Notes
 Target.create "NuGet" (fun _ ->
-    let ReleaseNotes = String.toLines release.Notes
     ["src/FsToolkit.ErrorHandling"
      "src/FsToolkit.ErrorHandling.TaskResult"
      "src/FsToolkit.ErrorHandling.JobResult"]
@@ -136,7 +136,7 @@ Target.create "NuGet" (fun _ ->
                MSBuildParams = {MSBuild.CliArguments.Create() with
                                     // "/p" (property) arguments to MSBuild.exe
                                     Properties = [("Version", release.NugetVersion)
-                                                  ("PackageReleaseNotes", ReleaseNotes)]}}))
+                                                  ("PackageReleaseNotes", releaseNotes)]}}))
 )
 
 Target.create "PublishNuget" (fun _ ->
@@ -151,7 +151,7 @@ let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"
 
 Target.create "Release" (fun _ ->
   Git.Staging.stageAll ""
-  Git.Commit.exec "" (sprintf "Bump version to %s" release.NugetVersion)
+  Git.Commit.exec "" (sprintf "Bump version to %s\n\n%s" release.NugetVersion releaseNotes)
   Git.Branches.push ""
 
   Git.Branches.tag "" release.NugetVersion
