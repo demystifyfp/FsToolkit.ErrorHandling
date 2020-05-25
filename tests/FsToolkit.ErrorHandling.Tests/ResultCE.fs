@@ -277,6 +277,25 @@ let ``ResultCE applicative tests`` =
             Expect.equal actual (Error errorMsg1) "Should be Error"
     ]
 
+
+let failureFunc () =
+    failwith "I'm a failure"
+
+
+let iDoCalls () = result {
+    let! int1 = Ok 1
+    let! int2 = Ok 2
+    do! failureFunc ()
+}
+
+
+let ``ResultCE stack traces`` =
+    ftestList "ResultCE Stack traces" [
+        testCase "Stacktrace1" <| fun () ->
+            let result = iDoCalls ()
+            Expect.isError result ""
+    ]
+
 let allTests = testList "Result CE Tests" [
     ``ResultCE return Tests``
     ``ResultCE return! Tests``
@@ -286,4 +305,5 @@ let allTests = testList "Result CE Tests" [
     ``ResultCE using Tests``
     ``ResultCE loop Tests``
     ``ResultCE applicative tests`` 
+    ``ResultCE stack traces``
 ]

@@ -15,7 +15,7 @@ module ResultCE =
     member this.Zero () : Result<unit, 'TError> =
       this.Return ()
 
-    member __.Bind
+    member inline __.Bind
         (result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
         : Result<'U, 'TError> =
       Result.bind binder result
@@ -25,7 +25,7 @@ module ResultCE =
         : unit -> Result<'T, 'TError> =
       generator
 
-    member __.Run
+    member inline __.Run
         (generator: unit -> Result<'T, 'TError>)
         : Result<'T, 'TError> =
       generator ()
