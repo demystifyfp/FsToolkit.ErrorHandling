@@ -139,6 +139,7 @@ module JobResult =
   let teeErrorIf predicate f jobResult =
     jobResult |> Job.map (Result.teeErrorIf predicate f)
 
+  /// Takes two results and returns a tuple of the pair
   let zip j1 j2 =
     Job.zip j1 j2
     |> Job.map(fun (r1, r2) -> Result.zip r1 r2)

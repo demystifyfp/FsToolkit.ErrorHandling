@@ -157,6 +157,7 @@ module Result =
   let teeError f result =
     teeErrorIf (fun _ -> true) f result
 
+  /// Converts a Result<Async<_>,_> to an Async<Result<_,_>>
   let sequenceAsync (resAsync: Result<Async<'a>, 'b>) : Async<Result<'a, 'b>> =
     async {
       match resAsync with
@@ -172,6 +173,7 @@ module Result =
     | Ok x -> x
     | Error x -> f x
 
+  /// Takes two results and returns a tuple of the pair
   let zip x1 x2 = 
     match x1,x2 with
     | Ok x1res, Ok x2res -> Ok (x1res, x2res)

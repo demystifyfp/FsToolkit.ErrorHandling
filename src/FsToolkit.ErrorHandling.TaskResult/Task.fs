@@ -25,6 +25,8 @@ module Task =
   let map3 f x y z =
     apply (map2 f x y) z
 
+  
+  /// Takes two tasks and returns a tuple of the pair
   let zip (a1 : Task<_>) (a2 : Task<_>) = task {
     let! r1 = a1
     let! r2 = a2

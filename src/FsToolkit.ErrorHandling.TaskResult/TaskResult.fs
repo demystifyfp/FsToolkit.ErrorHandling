@@ -133,6 +133,7 @@ module TaskResult =
   let teeErrorIf predicate f taskResult =
     taskResult |> Task.map (Result.teeErrorIf predicate f)
 
+  /// Takes two results and returns a tuple of the pair
   let zip x1 x2 = 
     Task.zip x1 x2
     |> Task.map(fun (r1, r2) -> Result.zip r1 r2)

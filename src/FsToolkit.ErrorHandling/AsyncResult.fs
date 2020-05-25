@@ -138,6 +138,8 @@ module AsyncResult =
   let teeErrorIf predicate f asyncResult =
     asyncResult |> Async.map (Result.teeErrorIf predicate f)
 
+
+  /// Takes two results and returns a tuple of the pair
   let zip x1 x2 = 
     Async.zip x1 x2
     |> Async.map(fun (r1, r2) -> Result.zip r1 r2)
