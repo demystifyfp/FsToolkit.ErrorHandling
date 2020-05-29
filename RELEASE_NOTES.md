@@ -1,4 +1,4 @@
-#### 1.3.1-beta001 - May 25, 2020
+#### 1.3.1 - May 29, 2020
 
 - Improved Stacktraces within computation expressions. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/81)
 
