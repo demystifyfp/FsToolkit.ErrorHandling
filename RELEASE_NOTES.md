@@ -1,3 +1,7 @@
+#### 1.4.0 - June 05, 2020
+
+- Adds AsyncOption, TaskOption, JobOption helpers. Credits [Michael-Jorge Gómez Campos](https://github.com/Micha-kun) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/82)
+
 #### 1.3.2 - June 05, 2020
 
 - Uses Source Computation Expression overloads to help with maintainability. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/83)
