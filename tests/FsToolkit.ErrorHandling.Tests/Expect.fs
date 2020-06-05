@@ -88,10 +88,18 @@ module Expect =
     hasSomeValue v x
   }
 
+  let hasTaskSomeValue v taskX = 
+    let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
+    hasSomeValue v x
+
   let hasAsyncNoneValue asyncX = async {
     let! x = asyncX
     hasNoneValue x
   }
+
+  let hasTaskNoneValue taskX = 
+    let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
+    hasNoneValue x
 
   let same expected actual =
     Expect.equal actual expected "expected and actual should be same"
