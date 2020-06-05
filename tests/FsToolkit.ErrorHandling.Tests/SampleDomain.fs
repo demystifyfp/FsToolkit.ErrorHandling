@@ -175,6 +175,13 @@ let allowedToPost userId = async {
     return Error commonEx
 }
 
+let allowedToPostOptional userId = async {
+  if (userId = sampleUserId) then 
+    return Some true
+  else
+    return None
+}
+
 let newPostId = Guid.NewGuid()
 
 type PostId = PostId of Guid
@@ -194,13 +201,19 @@ let createPostSuccess (_ : CreatePostRequest) = async {
   return Ok samplePostId
 }
 
+let createPostSome (_ : CreatePostRequest) = async {
+  return Some samplePostId
+}
+
 let followerIds = [UserId (Guid.NewGuid()); UserId (Guid.NewGuid())]
 
 let getFollowersSuccess (UserId _) = async {
   return Ok followerIds
 }
 
-
+let getFollowersSome (UserId _) = async {
+  return Some followerIds
+}
 
 let getFollowersFailure (UserId _) = async {
   return Error getFollowersEx
