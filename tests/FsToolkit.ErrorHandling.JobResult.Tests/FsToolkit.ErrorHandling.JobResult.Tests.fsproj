@@ -15,9 +15,11 @@
     <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+    <Compile Include="Expect.JobOption.fs" />
     <Compile Include="Expect.JobResult.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="JobResult.fs" />
+    <Compile Include="JobOption.fs" />
     <Compile Include="JobOptionCE.fs" />
     <Compile Include="JobResultCE.fs" />
     <Compile Include="List.fs" />
