@@ -331,16 +331,15 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
-        // Cannot get this to compile properly
-        // testCaseJob "Happy Path Async" <| job {
-        //     let! actual = jobResult {
-        //         let! a = Async.singleton 3 //: Async<int>
-        //         and! b = Async.singleton 2 //: Async<int>
-        //         and! c = Async.singleton 1 //: Async<int>
-        //         return a + b - c
-        //     }
-        //     Expect.equal actual (Ok 4) "Should be ok"
-        // }
+        testCaseJob "Happy Path Async" <| job {
+            let! actual = jobResult {
+                let! a = Async.singleton 3 //: Async<int>
+                and! b = Async.singleton 2 //: Async<int>
+                and! c = Async.singleton 1 //: Async<int>
+                return a + b - c
+            }
+            Expect.equal actual (Ok 4) "Should be ok"
+        }
 
         testCaseJob "Happy Path 2 Async" <| job {
             let! actual = jobResult {
