@@ -78,7 +78,7 @@ module ResultCE =
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    member _.Source(result : Result<_,_>) : Result<_,_> = result
+    member inline _.Source(result : Result<_,_>) : Result<_,_> = result
 
   let result = ResultBuilder()
 
@@ -89,7 +89,7 @@ module ResultCEExtensions =
     /// <summary>
     /// Needed to allow `for..in` and `for..do` functionality
     /// </summary>
-    member __.Source(s: #seq<_>) = s
+    member inline __.Source(s: #seq<_>) = s
 
 
 // Having Choice<_> members as extensions gives them lower priority in
@@ -101,5 +101,5 @@ module ResultCEChoiceExtensions =
     /// Method lets us transform data types into our internal representation.
     /// </summary>
     /// <returns></returns>
-    member _.Source(choice : Choice<_,_>) = Result.ofChoice choice
+    member inline _.Source(choice : Choice<_,_>) = Result.ofChoice choice
 
