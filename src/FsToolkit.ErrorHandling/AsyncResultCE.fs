@@ -125,10 +125,10 @@ module AsyncResultCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline _.Source(task : Task<_>) : Async<Result<_,_>> = task |> AsyncResult.ofTask
+    member inline _.Source(task : Task<_>) : Async<Result<_,_>> = task |> Async.AwaitTask |> Async.map Ok
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline _.Source(task : Task) : Async<Result<_,_>> = task |> AsyncResult.ofTaskAction
+    member inline _.Source(task : Task) : Async<Result<_,_>> =task |> Async.AwaitTask |> Async.map Ok
 #endif

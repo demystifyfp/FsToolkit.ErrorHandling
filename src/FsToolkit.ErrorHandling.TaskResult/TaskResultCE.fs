@@ -150,7 +150,7 @@ module TaskResultCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline __.Source(asyncComputation : Async<_>) : Task<Result<_,_>> = asyncComputation |> TaskResult.ofAsync
+    member inline __.Source(asyncComputation : Async<_>) : Task<Result<_,_>> = asyncComputation |> Async.StartAsTask |> Task.map Ok
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
