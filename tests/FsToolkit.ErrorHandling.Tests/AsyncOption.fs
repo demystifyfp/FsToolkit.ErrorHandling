@@ -51,7 +51,21 @@ let bindTests =
        |> Expect.hasAsyncNoneValue)
   ]
 
+let applyTests = 
+  testList "AsyncOption.apply Tests" [
+    testCaseAsync "apply with Async(Some x)" <| (
+      Async.singleton (Some validTweet)
+      |> AsyncOption.apply (Async.singleton (Some remainingCharacters)) 
+      |> Expect.hasAsyncSomeValue (267))
+    
+    testCaseAsync "apply with Async(None)" <| (
+      Async.singleton None
+      |> AsyncOption.apply (Async.singleton (Some remainingCharacters)) 
+      |> Expect.hasAsyncNoneValue)
+  ]
+
 let allTests = testList "Async Option Tests" [
   mapTests
   bindTests
+  applyTests
 ]

@@ -16,3 +16,7 @@ module AsyncOption =
           | None -> async { return None }
         return! t      
       }
+
+    let apply f x =
+        bind (fun f' ->
+          bind (fun x' -> Async.singleton (Some (f' x'))) x) f
