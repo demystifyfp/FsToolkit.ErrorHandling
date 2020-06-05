@@ -7,6 +7,7 @@ open Fable.Mocha
 open Expecto
 #endif
 
+open System
 open TestData
 open TestHelpers
 open SampleDomain
@@ -26,6 +27,31 @@ let mapTests =
          |> Expect.hasAsyncNoneValue)
     ]
 
+let bindTests =
+  testList "AsyncOption.bind tests" [
+    testCaseAsync "bind with Async(Some x)" <| 
+      (allowedToPostOptional sampleUserId
+       |> AsyncOption.bind (fun isAllowed -> async { 
+          if isAllowed then 
+           return! createPostSome validCreatePostRequest
+          else
+           return None })
+       |> Expect.hasAsyncSomeValue (PostId newPostId))
+
+    testCaseAsync "bind with Async(None)" <| 
+      (allowedToPostOptional (UserId (Guid.NewGuid()))
+       |> AsyncOption.bind (fun isAllowed -> async {return Some isAllowed})
+       |> Expect.hasAsyncNoneValue )
+
+    testCaseAsync "bind with Async(Ok x) that returns Async (None)" <|
+      (allowedToPostOptional sampleUserId
+       |> AsyncOption.bind (fun _ -> async { 
+           return None
+         })
+       |> Expect.hasAsyncNoneValue)
+  ]
+
 let allTests = testList "Async Option Tests" [
   mapTests
+  bindTests
 ]
