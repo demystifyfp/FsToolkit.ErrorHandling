@@ -64,8 +64,16 @@ let applyTests =
       |> Expect.hasAsyncNoneValue)
   ]
 
+let retnTests = 
+   testList "AsyncOption.retn Tests" [
+     testCaseAsync "retn with x" <| (
+      AsyncOption.retn 267
+      |> Expect.hasAsyncSomeValue (267))
+   ]
+
 let allTests = testList "Async Option Tests" [
   mapTests
   bindTests
   applyTests
+  retnTests
 ]

@@ -17,6 +17,9 @@ module AsyncOption =
         return! t      
       }
 
+    let retn x =
+      async { return Some x }
+
     let apply f x =
         bind (fun f' ->
-          bind (fun x' -> Async.singleton (Some (f' x'))) x) f
+          bind (fun x' -> retn (f' x')) x) f
