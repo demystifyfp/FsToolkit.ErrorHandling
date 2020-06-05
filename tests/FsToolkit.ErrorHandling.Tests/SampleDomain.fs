@@ -211,7 +211,9 @@ let getFollowersSuccess (UserId _) = async {
   return Ok followerIds
 }
 
-
+let getFollowersSome (UserId _) = async {
+  return Some followerIds
+}
 
 let getFollowersFailure (UserId _) = async {
   return Error getFollowersEx

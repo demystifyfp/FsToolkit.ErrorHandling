@@ -12,7 +12,7 @@ open TestData
 open TestHelpers
 open SampleDomain
 open FsToolkit.ErrorHandling
-// open FsToolkit.ErrorHandling.Operator.AsyncOption
+open FsToolkit.ErrorHandling.Operator.AsyncOption
 
 let mapTests =
     testList "AsyncOption.map Tests" [
@@ -71,9 +71,32 @@ let retnTests =
       |> Expect.hasAsyncSomeValue (267))
    ]
 
+let asyncOptionOperatorTests =
+  testList "AsyncOption Operators Tests" [
+    testCaseAsync "map & apply operators" <| async {
+      let getFollowersResult = getFollowersSome sampleUserId
+      let createPostResult = createPostSome validCreatePostRequest
+      do!
+        newPostRequest <!> getFollowersResult <*> createPostResult
+        |> Expect.hasAsyncSomeValue {NewPostId = PostId newPostId; UserIds = followerIds}
+    }
+    
+    testCaseAsync "bind operator" <| async {
+      do!
+        allowedToPostOptional sampleUserId
+        >>= (fun isAllowed -> 
+              if isAllowed then 
+                createPostSome validCreatePostRequest
+              else
+                Async.singleton None)
+        |> Expect.hasAsyncSomeValue (PostId newPostId)
+    }
+  ]
+
 let allTests = testList "Async Option Tests" [
   mapTests
   bindTests
   applyTests
   retnTests
+  asyncOptionOperatorTests
 ]
