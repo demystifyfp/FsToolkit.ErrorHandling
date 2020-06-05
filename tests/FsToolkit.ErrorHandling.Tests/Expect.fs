@@ -37,6 +37,20 @@ module Expect =
     | Error x -> 
       Tests.failtestf "Expected Ok, was Error(%A)." x
 
+  let hasSomeValue v x =
+    match x with
+    | Some x when x = v -> ()
+    | Some x ->
+      Tests.failtestf "Expected Some(%A), was Some(%A)." v x
+    | None ->
+    Tests.failtestf "Expected Some, was None."
+
+  let hasNoneValue x =
+    match x with
+    | None -> ()
+    | Some _ ->
+    Tests.failtestf "Expected None, was Some."
+
   let hasAsyncValue v asyncX = async {
     let! x = asyncX
     if v = x then
@@ -68,6 +82,16 @@ module Expect =
   let hasTaskErrorValue v taskX = 
     let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
     hasErrorValue v x
+
+  let hasAsyncSomeValue v asyncX = async {
+    let! x = asyncX
+    hasSomeValue v x
+  }
+
+  let hasAsyncNoneValue asyncX = async {
+    let! x = asyncX
+    hasNoneValue x
+  }
 
   let same expected actual =
     Expect.equal actual expected "expected and actual should be same"
