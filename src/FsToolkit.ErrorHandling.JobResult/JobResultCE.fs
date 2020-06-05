@@ -13,36 +13,9 @@ module JobResultCE =
       job.Return <| result.Return value
 
     member inline __.ReturnFrom
-        (asyncResult: Async<Result<'T, 'TError>>)
-        : Job<Result<'T, 'TError>> =
-      asyncResult |> Job.fromAsync
-
-    member inline __.ReturnFrom
         (jobResult: Job<Result<'T, 'TError>>)
         : Job<Result<'T, 'TError>> =
       jobResult
-
-    member inline __.ReturnFrom
-        (taskResult: Task<Result<'T, 'TError>>)
-        : Job<Result<'T, 'TError>> =
-      Job.awaitTask taskResult
-
-    member inline __.ReturnFrom
-        (taskResult: unit -> Task<Result<'T, 'TError>>)
-        : Job<Result<'T, 'TError>> =
-      Job.fromTask taskResult
-
-    member inline __.ReturnFrom
-        (result: Result<'T, 'TError>)
-        : Job<Result<'T, 'TError>> =
-      job.Return result
-
-    member inline __.ReturnFrom
-        (result: Choice<'T, 'TError>)
-        : Job<Result<'T, 'TError>> =
-      result
-      |> Result.ofChoice
-      |> __.ReturnFrom
 
     member __.Zero () : Job<Result<unit, 'TError>> =
       job.Return <| result.Zero ()
@@ -57,33 +30,6 @@ module JobResultCE =
         | Ok x -> return! binder x
         | Error x -> return Error x
       }
-    member inline this.Bind
-        (asyncResult: Async<Result<'T, 'TError>>,
-         binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.fromAsync asyncResult, binder)
-
-    member inline this.Bind
-        (taskResult: Task<Result<'T, 'TError>>,
-         binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.awaitTask taskResult, binder)
-
-    member inline this.Bind
-        (taskResult: unit -> Task<Result<'T, 'TError>>,
-         binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.fromTask taskResult, binder)
-
-    member inline this.Bind
-        (result: Result<'T, 'TError>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(this.ReturnFrom result, binder)
-
-    member inline this.Bind
-        (result: Choice<'T, 'TError>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(this.ReturnFrom result, binder)
 
     member __.Delay
         (generator: unit -> Job<Result<'T, 'TError>>)
@@ -139,143 +85,70 @@ module JobResultCE =
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
 
-
-
     member inline __.BindReturn(x: Job<Result<'T,'U>>, f) = JobResult.map f x
-    member inline __.BindReturn(x: Async<Result<'T,'U>>, f) = __.BindReturn(x |> Job.fromAsync, f)
-    member inline __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
-    member inline __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Job.singleton, f) 
-    member inline __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Job.singleton, f) 
-    member inline __.BindReturn(x: Task<Result<'T,'U>>, f) = __.BindReturn(x |> Job.awaitTask, f) 
-
-
     member inline __.MergeSources(t1: Job<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip t1 t2
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = JobResult.zip (Job.awaitTask t1) (Job.awaitTask t2)
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = JobResult.zip (Job.fromAsync t1) (Job.fromAsync t2)
 
+    /// <summary>
+    /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+    /// 
+    /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+    /// </summary>
+    member inline _.Source(job' : Job<Result<_,_>>) : Job<Result<_,_>> = job'
 
+    /// <summary>
+    /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+    /// </summary>
+    member inline _.Source(task : Task<Result<_,_>>) : Job<Result<_,_>> = task |> Job.awaitTask
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.  
+    /// </summary>
+    member inline _.Source(result : Async<Result<_,_>>) : Job<Result<_,_>> = result |> Job.fromAsync
+
+  let jobResult = JobResultBuilder() 
 
 [<AutoOpen>]
 module JobResultCEExtensions =
   open Hopac
-  // Having Job<_> members as extensions gives them lower priority in
+  // Having members as extensions gives them lower priority in
   // overload resolution between Job<_> and Job<Result<_,_>>.
   type JobResultBuilder with
 
-    member inline __.ReturnFrom (job': Job<'T>) : Job<Result<'T, 'TError>> =
-      job {
-        let! x = job'
-        return Ok x
-      }
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member inline __.Source(s: #seq<_>) = s
 
-    member inline __.ReturnFrom (async': Async<'T>) : Job<Result<'T, 'TError>> =
-      job {
-        let! x = async' |> Job.fromAsync
-        return Ok x
-      }
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(result : Result<_,_>) : Job<Result<_,_>> = Job.result result
 
-    member inline __.ReturnFrom (task: Task<'T>) : Job<Result<'T, 'TError>> =
-      job {
-        let! x = task
-        return Ok x
-      }   
-      
-    member inline __.ReturnFrom (task: unit -> Task<'T>) : Job<Result<'T, 'TError>> =
-      job {
-        let! x = task |> Job.fromTask
-        return Ok x
-      }
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(choice : Choice<_,_>) : Job<Result<_,_>> = 
+      choice
+      |> Result.ofChoice
+      |> Job.result
 
-    member inline __.ReturnFrom (task: Task) : Job<Result<unit, 'TError>> =
-      job {
-        do! Job.awaitUnitTask task
-        return result.Zero ()
-      }
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(job' : Job<_>) : Job<Result<_,_>> = job' |> Job.map Ok
 
-    member inline this.Bind
-        (job': Job<'T>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      let jResult = job {
-        let! x = job'
-        return Ok x
-      }
-      this.Bind(jResult, binder)
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(asyncComputation : Async<_>) : Job<Result<_,_>> = asyncComputation |> Job.fromAsync |> Job.map Ok
 
-    member inline this.Bind
-        (task: Async<'T>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.fromAsync task, binder)
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(task : Task<_>) : Job<Result<_,_>> = task |> Job.awaitTask |> Job.map Ok
 
-    member inline this.Bind
-        (task: Task<'T>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.awaitTask task, binder)
-
-    member inline this.Bind
-        (task: unit -> Task<'T>, binder: 'T -> Job<Result<'U, 'TError>>)
-        : Job<Result<'U, 'TError>> =
-      this.Bind(Job.fromTask task, binder)
-
-    member inline this.Bind
-        (task: Task, binder: unit -> Job<Result<'T, 'TError>>)
-        : Job<Result<'T, 'TError>> =
-      this.Bind(Job.awaitUnitTask task, binder)
-
-    member inline __.BindReturn(x: Job<'T>, f) = 
-      __.BindReturn(x |> Job.map Result.Ok, f)
-    member inline __.BindReturn(x: Async<'T>, f) = 
-      __.BindReturn(x |> Async.map Result.Ok, f)
-    member inline __.BindReturn(x: Task<'T>, f) = 
-      __.BindReturn(x |> Task.map Result.Ok, f)
-    member inline __.BindReturn(x: Task, f) = 
-      __.BindReturn(x |> Task.ofUnit |> Task.map Result.Ok, f)
-
-
-
-    member inline __.MergeSources(t1: Job<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) =  JobResult.zip (t1) (t2 |> Job.fromAsync) 
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.fromAsync) (t2) 
-
-
-    member inline __.MergeSources(t1: Job<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) =  JobResult.zip (t1) (t2 |> Job.awaitTask) 
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.awaitTask) (t2) 
-
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2) |> Job.fromAsync
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1) (t2 |> Async.AwaitTask) |> Job.fromAsync
-
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.AwaitTask) (t2  |> Async.singleton) |> Job.fromAsync
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Task<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.AwaitTask) |> Job.fromAsync
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(t : Task) : Job<Result<_,_>> = t |> Job.awaitUnitTask |> Job.map Ok
     
-
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<'T1>) = AsyncResult.zip t1 (t2  |> Async.map Result.Ok) |> Job.fromAsync
-    member inline __.MergeSources(t1: Async<'T>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.map Result.Ok) t2 |> Job.fromAsync
-
-    member inline __.MergeSources(t1: Job<Result<'T,'U>>, t2: Result<'T1,'U>) = JobResult.zip t1 (t2  |> Job.singleton) 
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Job.singleton) t2 
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Async.singleton) |> Job.fromAsync 
-
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip t1 (t2  |> Async.singleton) |> Job.fromAsync
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) t2 |> Job.fromAsync
-
-
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Choice<'T1,'U>) = AsyncResult.zip t1 (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) t2 |> Job.fromAsync
-
-    member inline __.MergeSources(t1: Job<Result<'T,'U>>, t2: Choice<'T1,'U>) = JobResult.zip t1 (t2 |> Result.ofChoice |> Job.singleton) 
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Job<Result<'T1,'U>>) = JobResult.zip (t1 |> Result.ofChoice |> Job.singleton) t2 
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
-
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Async.singleton) |> Job.fromAsync
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Job.fromAsync
-    
-
-[<AutoOpen>]
-module JobResultCEExtensions2 =
-  // Having Async<_> members as extensions gives them lower priority in
-  // overload resolution between Async<_> and Async<Result<_,_>>.
-  type JobResultBuilder with
-    member inline __.MergeSources(t1: Job<'T>, t2: Job<'T1>) = JobResult.zip (t1 |> Job.map Result.Ok) (t2 |> Job.map Result.Ok)
-    member inline __.MergeSources(t1: Async<'T>, t2: Async<'T1>) = AsyncResult.zip (t1 |> Async.map Result.Ok) (t2 |> Async.map Result.Ok) |> Job.fromAsync
-    member inline __.MergeSources(t1: Task<'T>, t2: Task<'T1>) = TaskResult.zip (t1 |> Task.map Result.Ok) (t2 |> Task.map Result.Ok) |> Job.awaitTask
-
-
-  let jobResult = JobResultBuilder() 
