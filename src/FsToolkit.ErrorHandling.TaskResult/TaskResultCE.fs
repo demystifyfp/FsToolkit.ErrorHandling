@@ -55,23 +55,6 @@ module TaskResultCE =
         : Step<Result<'T, 'TError>> =
       ReturnFrom taskResult
 
-    member inline __.ReturnFrom
-        (asyncResult: Async<Result<'T, 'TError>>)
-        : Step<Result<'T, 'TError>> =
-      __.ReturnFrom (Async.StartAsTask asyncResult)
-
-    member inline __.ReturnFrom
-        (result: Result<'T, 'TError>)
-        : Step<Result<'T, 'TError>> =
-      Return result
-
-    member inline __.ReturnFrom
-        (result: Choice<'T, 'TError>)
-        : Step<Result<'T, 'TError>> =
-      result
-      |> Result.ofChoice
-      |> __.ReturnFrom
-
     member __.Zero () : Step<Result<unit, 'TError>> =
       ret <| result.Zero()
 
@@ -84,29 +67,6 @@ module TaskResultCE =
           | Ok x -> binder x
           | Error x -> ret <| Error x
         bindTaskConfigureFalse taskResult binder'
- 
-    member inline this.Bind
-        (asyncResult: Async<Result<'T, 'TError>>,
-         binder: 'T -> Step<Result<'U, 'TError>>)
-        : Step<Result<'U, 'TError>> =
-      this.Bind(Async.StartAsTask asyncResult, binder)
-
-    member inline this.Bind
-        (result: Result<'T, 'TError>, binder: 'T -> Step<Result<'U, 'TError>>)
-        : Step<Result<'U, 'TError>> =
-        let result = 
-          result
-          |> Task.singleton
-        this.Bind(result, binder)
-
-    member inline this.Bind
-        (result: Choice<'T, 'TError>, binder: 'T -> Step<Result<'U, 'TError>>)
-        : Step<Result<'U, 'TError>> =
-        let result = 
-          result
-          |> Result.ofChoice
-          |> Task.singleton
-        this.Bind(result, binder)
 
     member __.Delay
         (generator: unit -> Step<Result<'T, 'TError>>) =
@@ -122,13 +82,13 @@ module TaskResultCE =
         (computation: unit -> Step<Result<'T, 'TError>>,
          handler: System.Exception -> Step<Result<'T, 'TError>>) :
          Step<Result<'T, 'TError>> =
-         task.TryWith(computation, handler)
+      task.TryWith(computation, handler)
 
     member __.TryFinally
         (computation: unit -> Step<Result<'T, 'TError>>,
          compensation: unit -> unit)
         : Step<Result<'T, 'TError>> =
-         task.TryFinally(computation, compensation)
+      task.TryFinally(computation, compensation)
 
     member __.Using
         (resource: 'T when 'T :> IDisposable,
@@ -139,115 +99,65 @@ module TaskResultCE =
     member this.While
         (guard: unit -> bool, computation: unit -> Step<Result<unit, 'TError>>)
         : Step<Result<unit, 'TError>> =
-       whileLoopR guard computation
+      whileLoopR guard computation
 
     member this.For
         (sequence: #seq<'T>, binder: 'T -> Step<Result<unit, 'TError>>)
         : Step<Result<unit, 'TError>> =
       forLoopR sequence binder
 
- 
-    member inline __.BindReturn(x: Task<Result<'T,'U>>, f) = TaskResult.map f x |> ReturnFrom
-    member inline __.BindReturn(x: Async<Result<'T,'U>>, f) = __.BindReturn(x |> Async.StartAsTask, f) 
-    member inline __.BindReturn(x: Async<Choice<'T,'U>>, f) = __.BindReturn(x |> Async.map Result.ofChoice, f)
-    member inline __.BindReturn(x: Result<'T,'U>, f) = __.BindReturn(x |> Async.singleton, f) 
-    member inline __.BindReturn(x: Choice<'T,'U>, f) = __.BindReturn(x |> Result.ofChoice |> Async.singleton, f) 
- 
+    member inline __.BindReturn(x: Task<Result<'T,'U>>, f) = TaskResult.map f x |> ReturnFrom 
     member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = TaskResult.zip t1 t2
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip t1 t2 |> Async.StartAsTask
-
     member inline __.Run(f : unit -> Step<'m>) = run f
 
+    /// <summary>
+    /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+    /// 
+    /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+    /// </summary>
+    member inline _.Source(task : Task<Result<_,_>>) : Task<Result<_,_>> = task 
 
-[<AutoOpen>]
-module TaskResultCEExtensions =
-
-  // Having Task<_> members as extensions gives them lower priority in
-  // overload resolution between Task<_> and Task<Result<_,_>>.
-  type TaskResultBuilder with
-
-    member inline __.ReturnFrom (async': Async<'T>) : Step<Result<'T, 'TError>> =
-      async'
-      |> Async.map Ok
-      |> Async.StartAsTask
-      |> ReturnFrom
-
-
-    member inline __.ReturnFrom (t : Task<_>) : Step<Result<'T, 'TError>> =
-      t
-      |> Task.map Ok
-      |> ReturnFrom
-
-    member inline __.ReturnFrom (t: Task) : Step<Result<unit, 'TError>> =
-      task {
-        do! t
-        return result.Zero ()
-      } |> __.ReturnFrom
-
-    member inline this.Bind
-        (async': Async<'T>, binder: 'T -> Step<Result<'U, 'TError>>)
-        : Step<Result<'U, 'TError>> =
-      let body = async' |> Async.map Ok 
-      this.Bind(body, binder)
-
-    member inline this.Bind
-        (t: Task<'T>, binder: 'T -> Step<Result<'U, 'TError>>)
-        : Step<Result<'U, 'TError>> =
-      let body = t |> Task.map Ok
-      this.Bind(body, binder)
-
-    member inline this.Bind
-        (t: Task, binder: unit -> Step<Result<'T, 'TError>>)
-        : Step<Result<'T, 'TError>> =
-      let body = task {
-        do! t
-        return result.Zero()
-      }
-      this.Bind(body, binder)
-
-    member inline __.BindReturn(x: Async<'T>, f) = 
-      __.BindReturn(x |> Async.map Result.Ok, f)
-
-    member inline __.BindReturn(x: Task<'T>, f) = __.BindReturn(x |> Task.map Result.Ok, f)
-    member inline __.BindReturn(x: Task, f) = __.BindReturn(x |> Task.ofUnit |> Task.map Result.Ok, f)
-
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Async<Result<'T1,'U>>) = TaskResult.zip t1 (t2 |> Async.StartAsTask)
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Async.StartAsTask) t2
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Result<'T1,'U>) = TaskResult.zip t1 (t2  |> Task.singleton) 
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Task.singleton) t2 
-
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Result<'T1,'U>) = AsyncResult.zip t1 (t2  |> Async.singleton)|> Async.StartAsTask
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Async.singleton) t2|> Async.StartAsTask
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = TaskResult.zip (t1 |> Task.singleton) (t2 |> Task.singleton)
-
-
-    member inline __.MergeSources(t1: Async<Result<'T,'U>>, t2: Choice<'T1,'U>) = AsyncResult.zip t1 (t2 |> Result.ofChoice |> Async.singleton) |> Async.StartAsTask
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Async<Result<'T1,'U>>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) t2 |> Async.StartAsTask
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = TaskResult.zip (t1 |> Result.ofChoice |> Task.singleton) (t2 |> Result.ofChoice |> Task.singleton) 
-
-
-    member inline __.MergeSources(t1: Task<Result<'T,'U>>, t2: Choice<'T1,'U>) = TaskResult.zip t1 (t2 |> Result.ofChoice |> Task.singleton)
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Task<Result<'T1,'U>>) = TaskResult.zip (t1 |> Result.ofChoice |> Task.singleton) t2
-
-    member inline __.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = AsyncResult.zip (t1 |> Result.ofChoice |> Async.singleton) (t2 |> Async.singleton) |> Async.StartAsTask
-    member inline __.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = AsyncResult.zip (t1 |> Async.singleton) (t2 |> Result.ofChoice |> Async.singleton) |> Async.StartAsTask
-    
-
-
-[<AutoOpen>]
-module TaskResultCEExtensions2 =
-  // Having Task<_> members as extensions gives them lower priority in
-  // overload resolution between Task<_> and Task<Result<_,_>>.
-  type TaskResultBuilder with
-    member inline __.MergeSources(t1: Async<'T>, t2: Async<'T1>) = AsyncResult.zip (t1 |> Async.map Result.Ok) (t2 |> Async.map Result.Ok) |> Async.StartAsTask
-    
-    #if !FABLE_COMPILER
-
-    member inline __.MergeSources(t1: Task<'T>, t2: Task<'T1>) = TaskResult.zip (t1 |> Task.map Result.Ok) (t2 |> Task.map Result.Ok)
-
-    #endif
-
-
-
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.  
+    /// </summary>
+    member inline _.Source(result : Async<Result<_,_>>) : Task<Result<_,_>> = result |> Async.StartAsTask
 
   let taskResult = TaskResultBuilder() 
+
+// Having members as extensions gives them lower priority in
+// overload resolution between Task<_> and Task<Result<_,_>>.
+[<AutoOpen>]
+module TaskResultCEExtensions =
+  type TaskResultBuilder with
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member inline __.Source(s: #seq<_>) = s
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(result : Result<_,_>) : Task<Result<_,_>> = Task.singleton result
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(choice : Choice<_,_>) : Task<Result<_,_>> = 
+      choice
+      |> Result.ofChoice
+      |> Task.singleton 
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(asyncComputation : Async<_>) : Task<Result<_,_>> = asyncComputation |> TaskResult.ofAsync
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(task : Task<_>) : Task<Result<_,_>> = task |> Task.map Ok
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(t : Task) : Task<Result<_,_>> = task { return! t } |> Task.map Ok
