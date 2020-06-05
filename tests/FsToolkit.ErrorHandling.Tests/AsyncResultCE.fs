@@ -171,9 +171,6 @@ let ``AsyncResultCE combine/zero/delay/run Tests`` =
         }
     ]
 
-
-
-
 let ``AsyncResultCE try Tests`` =
     testList "AsyncResultCE try Tests" [
         testCaseAsync "Try With" <| async {
@@ -416,6 +413,45 @@ let ``AsyncResultCE applicative tests`` =
         }
     ]
 
+let ``AsyncResultCE Stack Trace Tests`` =
+
+    let failureAsync = async {
+        failwith "Intentional failure"
+        return ()
+    }
+
+    let mainExeuctorAsync () = asyncResult {
+        do! Ok ()
+        let! _ = failureAsync
+        return 42
+    }
+
+    let failureAsyncResult = asyncResult {
+        failwith "Intentional failure"
+        return ()
+    }
+
+    let mainExeuctorAsyncResult () = asyncResult {
+        do! Ok ()
+        let! _ = failureAsyncResult
+        return 42
+    }
+
+    // These are intentionally marked as pending
+    // This is useful for reviewing stacktrack traces but asserting against them is very brittle
+    // I'm open to suggestions around Assertions
+    ptestList "AsyncResultCE Stack Trace Tests" [
+        testCaseAsync "Async Failure" <| async {
+            let! r = mainExeuctorAsync ()
+            ()
+        }
+        testCaseAsync "AsyncResult Failure" <| async {
+            let! r = mainExeuctorAsyncResult ()
+            ()
+        }
+        
+    ]
+
 
 let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE return Tests``
@@ -426,4 +462,5 @@ let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE using Tests``
     ``AsyncResultCE loop Tests``
     ``AsyncResultCE applicative tests``
+    ``AsyncResultCE Stack Trace Tests``
 ]
