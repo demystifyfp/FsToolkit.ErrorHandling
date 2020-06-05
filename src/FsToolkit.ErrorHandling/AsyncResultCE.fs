@@ -81,13 +81,13 @@ module AsyncResultCE =
     /// 
     /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
     /// </summary>
-    member _.Source(result : Async<Result<_,_>>) : Async<Result<_,_>> = result
+    member inline _.Source(result : Async<Result<_,_>>) : Async<Result<_,_>> = result
 
 #if !FABLE_COMPILER
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member _.Source(task : Task<Result<_,_>>) : Async<Result<_,_>> = task |> Async.AwaitTask
+    member inline _.Source(task : Task<Result<_,_>>) : Async<Result<_,_>> = task |> Async.AwaitTask
 #endif
 
   let asyncResult = AsyncResultBuilder() 
@@ -101,17 +101,17 @@ module AsyncResultCEExtensions =
     /// <summary>
     /// Needed to allow `for..in` and `for..do` functionality
     /// </summary>
-    member __.Source(s: #seq<_>) = s
+    member inline __.Source(s: #seq<_>) = s
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member _.Source(result : Result<_,_>) : Async<Result<_,_>> = Async.singleton result
+    member inline _.Source(result : Result<_,_>) : Async<Result<_,_>> = Async.singleton result
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member _.Source(choice : Choice<_,_>) : Async<Result<_,_>> = 
+    member inline _.Source(choice : Choice<_,_>) : Async<Result<_,_>> = 
       choice
       |> Result.ofChoice
       |> Async.singleton 
@@ -119,16 +119,16 @@ module AsyncResultCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member __.Source(asyncComputation : Async<_>) : Async<Result<_,_>> = asyncComputation |> Async.map Ok
+    member inline __.Source(asyncComputation : Async<_>) : Async<Result<_,_>> = asyncComputation |> Async.map Ok
 
 #if !FABLE_COMPILER
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member _.Source(task : Task<_>) : Async<Result<_,_>> = task |> AsyncResult.ofTask
+    member inline _.Source(task : Task<_>) : Async<Result<_,_>> = task |> AsyncResult.ofTask
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member _.Source(task : Task) : Async<Result<_,_>> = task |> AsyncResult.ofTaskAction
+    member inline _.Source(task : Task) : Async<Result<_,_>> = task |> AsyncResult.ofTaskAction
 #endif
