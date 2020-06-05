@@ -71,38 +71,35 @@ module ResultCE =
 
     member _.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) = Result.zip t1 t2
 
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+    /// 
+    /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    member _.Source(result : Result<_,_>) : Result<_,_> = result
+
+  let result = ResultBuilder()
 
 [<AutoOpen>]
 module ResultCEExtensions =
 
-  // Having Choice<_> members as extensions gives them lower priority in
-  // overload resolution and allows skipping more type annotations.
   type ResultBuilder with
-
-    member inline __.ReturnFrom (result: Choice<'T, 'TError>) : Result<'T, 'TError> =
-      Result.ofChoice result
-
-    member inline __.Bind
-        (result: Choice<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
-        : Result<'U, 'TError> =
-        result
-        |> Result.ofChoice
-        |> Result.bind binder 
-
-    member inline _.BindReturn(x: Choice<'T,'U>, f) = 
-      x
-      |> Result.ofChoice 
-      |> Result.map f
-
-    member inline _.MergeSources(t1: Result<'T,'U>, t2: Choice<'T1,'U>) = 
-      Result.zip t1 (Result.ofChoice t2)
-
-    member inline _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) = 
-      Result.zip (Result.ofChoice t1) (Result.ofChoice t2)
-
-    member inline _.MergeSources(t1: Choice<'T,'U>, t2: Result<'T1,'U>) = 
-      Result.zip (Result.ofChoice t1) t2
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member __.Source(s: #seq<_>) = s
 
 
+// Having Choice<_> members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+[<AutoOpen>]
+module ResultCEChoiceExtensions =
+  type ResultBuilder with
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    /// <returns></returns>
+    member _.Source(choice : Choice<_,_>) = Result.ofChoice choice
 
-  let result = ResultBuilder()
