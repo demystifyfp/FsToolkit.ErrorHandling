@@ -413,7 +413,10 @@ let ``AsyncResultCE applicative tests`` =
         }
     ]
 
+
 let ``AsyncResultCE Stack Trace Tests`` =
+
+
 
     let failureAsync = async {
         failwith "Intentional failure"
@@ -437,6 +440,7 @@ let ``AsyncResultCE Stack Trace Tests`` =
         return 42
     }
 
+#if !FABLE_COMPILER
     // These are intentionally marked as pending
     // This is useful for reviewing stacktrack traces but asserting against them is very brittle
     // I'm open to suggestions around Assertions
@@ -449,9 +453,14 @@ let ``AsyncResultCE Stack Trace Tests`` =
             let! r = mainExeuctorAsyncResult ()
             ()
         }
+
         
     ]
 
+#else
+    testList "AsyncResultCE Stack Trace Tests" []
+
+#endif
 
 let allTests = testList "AsyncResultCETests" [
     ``AsyncResultCE return Tests``
