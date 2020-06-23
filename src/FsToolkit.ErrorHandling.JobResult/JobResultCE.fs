@@ -152,3 +152,11 @@ module JobResultCEExtensions =
     /// </summary>
     member inline _.Source(t : Task) : Job<Result<_,_>> = t |> Job.awaitUnitTask |> Job.map Ok
     
+    member inline __.Bind(asyncComputation: Async<_>,  binder: 'T -> Job<Result<'U, 'TError>>) : Job<Result<'U, 'TError>> =
+      __.Bind(asyncComputation |> Async.map Ok |> Job.fromAsync, binder)
+
+    member inline __.Bind(asyncComputation: Task<_>,  binder: 'T -> Job<Result<'U, 'TError>>) : Job<Result<'U, 'TError>> =
+      __.Bind(asyncComputation |> Task.map Ok |> Job.awaitTask, binder)
+
+    member inline __.Bind(asyncComputation: Job<_>,  binder: 'T -> Job<Result<'U, 'TError>>) : Job<Result<'U, 'TError>> =
+      __.Bind(asyncComputation |> Job.map Ok, binder)
