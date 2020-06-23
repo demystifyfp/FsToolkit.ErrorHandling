@@ -1,3 +1,7 @@
+#### 1.4.1 - June 23, 2020
+
+- Fixes Bindings against outer wrappers like async, task, or job to support complex workflows. Credits [Jimmy Byrd]- (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/87)
+
 #### 1.4.0 - June 05, 2020
 
 - Adds AsyncOption, TaskOption, JobOption helpers. Credits [Michael-Jorge Gómez Campos](https://github.com/Micha-kun) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/82)
