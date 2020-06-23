@@ -121,6 +121,10 @@ module AsyncResultCEExtensions =
     /// </summary>
     member inline __.Source(asyncComputation : Async<_>) : Async<Result<_,_>> = asyncComputation |> Async.map Ok
 
+
+    member inline __.Bind(asyncComputation: Async<_>,  binder: 'T -> Async<Result<'U, 'TError>>) : Async<Result<'U, 'TError>> =
+      __.Bind(asyncComputation |> Async.map Ok, binder)
+
 #if !FABLE_COMPILER
     /// <summary>
     /// Method lets us transform data types into our internal representation.
@@ -131,4 +135,8 @@ module AsyncResultCEExtensions =
     /// Method lets us transform data types into our internal representation.
     /// </summary>
     member inline _.Source(task : Task) : Async<Result<_,_>> =task |> Async.AwaitTask |> Async.map Ok
+
+
+    member inline __.Bind(asyncComputation: Task<_>,  binder: 'T -> Async<Result<'U, 'TError>>) : Async<Result<'U, 'TError>> =
+      __.Bind(asyncComputation |> Async.AwaitTask |> Async.map Ok, binder)
 #endif

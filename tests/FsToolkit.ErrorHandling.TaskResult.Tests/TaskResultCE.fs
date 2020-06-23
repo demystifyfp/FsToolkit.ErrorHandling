@@ -142,6 +142,23 @@ let ``TaskResultCE bind Tests`` =
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
+        testCaseTask "Let! outer Async wrapper" <| task {
+            let innerData = "Foo"
+            let! f = taskResult {
+                let! (r : Result<_,_>) = AsyncResult.retn innerData
+                Expect.equal r (Ok innerData) "Should be ok"
+            }
+            ()
+        }
+
+        testCaseTask "Let! outer Task wrapper" <| task {
+            let innerData = "Foo"
+            let! f = taskResult {
+                let! (r : Result<_,_>) = Task.FromResult(Ok innerData)
+                Expect.equal r (Ok innerData) "Should be ok"
+            }
+            ()
+        }
     ]
 
 
