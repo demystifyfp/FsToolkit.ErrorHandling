@@ -68,9 +68,6 @@ module TaskResultCE =
           | Error x -> ret <| Error x
         bindTaskConfigureFalse taskResult binder'
 
-
-
-
     member __.Delay
         (generator: unit -> Step<Result<'T, 'TError>>) =
       task.Delay(generator)
@@ -164,9 +161,3 @@ module TaskResultCEExtensions =
     /// Method lets us transform data types into our internal representation.
     /// </summary>
     member inline _.Source(t : Task) : Task<Result<_,_>> = task { return! t } |> Task.map Ok
-
-    member inline __.Bind(asyncComputation: Async<_>,  binder: 'T -> Step<Result<'U, 'TError>>) : Step<Result<'U, 'TError>> =
-      __.Bind(asyncComputation |> Async.map Ok |> Async.StartAsTask, binder)
-
-    member inline __.Bind(asyncComputation: Task<_>,  binder: 'T -> Step<Result<'U, 'TError>>) : Step<Result<'U, 'TError>> =
-      __.Bind(asyncComputation |> Task.map Ok, binder)

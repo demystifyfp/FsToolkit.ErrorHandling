@@ -146,32 +146,6 @@ let ``JobResultCE bind Tests`` =
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
-        testCaseJob "Let! outer Async wrapper" <| job {
-            let innerData = "Foo"
-            let! f = jobResult {
-                let! (r : Result<_,_>) = AsyncResult.retn innerData
-                Expect.equal r (Ok innerData) "Should be ok"
-            }
-            ()
-        }
-
-        testCaseJob "Let! outer Task wrapper" <| job {
-            let innerData = "Foo"
-            let! f = jobResult {
-                let! (r : Result<_,_>) = Task.FromResult(Ok innerData)
-                Expect.equal r (Ok innerData) "Should be ok"
-            }
-            ()
-        }
-
-        testCaseJob "Let! outer Job wrapper" <| job {
-            let innerData = "Foo"
-            let! f = jobResult {
-                let! (r : Result<_,_>) = Job.result (Ok innerData)
-                Expect.equal r (Ok innerData) "Should be ok"
-            }
-            ()
-        }
     ]
 
 
