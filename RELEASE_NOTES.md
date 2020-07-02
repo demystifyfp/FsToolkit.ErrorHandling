@@ -1,4 +1,4 @@
-#### 1.4.1 - June 23, 2020
+#### 1.4.1 - June 23, 2020 [YANKED]
 
 - Fixes Bindings against outer wrappers like async, task, or job to support complex workflows. Credits [Jimmy Byrd]- (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/87)
 
