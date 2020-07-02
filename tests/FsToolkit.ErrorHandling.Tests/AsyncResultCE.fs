@@ -90,8 +90,8 @@ let ``AsyncResultCE bind Tests`` =
                 return data 
             }        
             Expect.equal actual (data) "Should be ok"
-        }
 
+        }
         testCaseAsync "Bind Ok Choice" <| async {
             let innerData = "Foo"
             let data = Choice1Of2 innerData
@@ -113,7 +113,6 @@ let ``AsyncResultCE bind Tests`` =
             Expect.equal actual (data) "Should be ok"
         }
 
-      
         testCaseAsync "Bind Async" <| async {
             let innerData = "Foo"
             let d = Async.singleton innerData
@@ -125,15 +124,6 @@ let ``AsyncResultCE bind Tests`` =
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         
-        testCaseAsync "Let! outer Async wrapper" <| async {
-            let innerData = "Foo"
-            let! f = asyncResult {
-                let! (r : Result<_,_>) = AsyncResult.retn innerData
-                Expect.equal r (Ok innerData) "Should be ok"
-            }
-            ()
-        }
-
 
         #if !FABLE_COMPILER        
         testCaseAsync "Bind Ok TaskResult" <| async {
@@ -162,15 +152,6 @@ let ``AsyncResultCE bind Tests`` =
             }        
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
-        }
-
-        testCaseAsync "Let! outer Task wrapper" <| async {
-            let innerData = "Foo"
-            let! f = asyncResult {
-                let! (r : Result<_,_>) = Task.FromResult(Ok innerData)
-                Expect.equal r (Ok innerData) "Should be ok"
-            }
-            ()
         }
         #endif
     ]
