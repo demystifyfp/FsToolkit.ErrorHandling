@@ -1,6 +1,9 @@
+#### 1.4.3 - July 21, 2020
+- Adds IF FABLE_COMPILER to any Async.AwaitTask type functions in AsyncResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/93)
+
 #### 1.4.1 - June 23, 2020 [YANKED]
 
-- Fixes Bindings against outer wrappers like async, task, or job to support complex workflows. Credits [Jimmy Byrd]- (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/87)
+- Fixes Bindings against outer wrappers like async, task, or job to support complex workflows. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/87)
 
 #### 1.4.0 - June 05, 2020
 
