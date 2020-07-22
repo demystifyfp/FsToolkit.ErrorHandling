@@ -23,6 +23,8 @@ module AsyncResult =
   let foldResult onSuccess onError ar =
     Async.map (Result.fold onSuccess onError) ar
 
+#if !FABLE_COMPILER
+
   let ofTask aTask = 
     aTask
     |> Async.AwaitTask 
@@ -34,7 +36,9 @@ module AsyncResult =
     |> Async.AwaitTask 
     |> Async.Catch 
     |> Async.map Result.ofChoice
-  
+
+#endif
+
   let retn x =
     Ok x
     |> Async.singleton
