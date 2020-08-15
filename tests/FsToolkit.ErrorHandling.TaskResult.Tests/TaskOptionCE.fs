@@ -3,7 +3,7 @@ module TaskOptionCETests
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 
 let makeDisposable () =
     { new System.IDisposable

@@ -1,5 +1,7 @@
 namespace FsToolkit.ErrorHandling
-open FSharp.Control.Tasks.V2.ContextInsensitive
+
+open FSharp.Control.Tasks
+
 [<RequireQualifiedAccess>]
 module TaskResultOption =  
   let map f tro =

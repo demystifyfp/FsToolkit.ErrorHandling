@@ -6,7 +6,7 @@ open TestData
 open TestHelpers
 open System
 open FsToolkit.ErrorHandling
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 
 
 let userId1 = Guid.NewGuid()

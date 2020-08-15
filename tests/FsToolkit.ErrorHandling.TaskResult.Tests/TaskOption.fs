@@ -9,7 +9,7 @@ open Expecto
 
 open System
 open System.Threading.Tasks
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 open TestData
 open TestHelpers
 open SampleDomain

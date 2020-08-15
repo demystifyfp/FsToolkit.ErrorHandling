@@ -1,6 +1,6 @@
 ﻿module Result
 
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 open Expecto
 open FsToolkit.ErrorHandling
 

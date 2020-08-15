@@ -1,7 +1,8 @@
 namespace FsToolkit.ErrorHandling
+
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 
 [<RequireQualifiedAccess>]
 module List =

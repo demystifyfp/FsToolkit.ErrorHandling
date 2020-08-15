@@ -2,10 +2,11 @@ source https://api.nuget.org/v3/index.json
 
 
 storage: none
+nuget FSharp.Core 4.6.2
 nuget Hopac
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true # allows for building full framework on macOS/linux without mono
-nuget TaskBuilder.fs
+nuget Ply
 
 group Test
 source https://api.nuget.org/v3/index.json
