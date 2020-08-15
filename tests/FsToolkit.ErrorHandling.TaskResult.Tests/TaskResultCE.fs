@@ -7,7 +7,7 @@ open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 
 [<Tests>]
 let ``TaskResultCE return Tests`` =

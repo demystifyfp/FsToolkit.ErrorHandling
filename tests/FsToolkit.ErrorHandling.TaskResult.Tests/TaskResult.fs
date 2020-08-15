@@ -9,7 +9,7 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.TaskResult
 open System
 open System.Threading.Tasks
-open FSharp.Control.Tasks.V2.ContextInsensitive
+open FSharp.Control.Tasks
 
 let runTaskSync (task : Task<_>) =
     task.Result
