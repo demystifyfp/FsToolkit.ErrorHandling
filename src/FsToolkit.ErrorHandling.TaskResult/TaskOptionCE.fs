@@ -2,8 +2,8 @@ namespace FsToolkit.ErrorHandling
 
 open System
 open System.Threading.Tasks
-open FSharp.Control.Tasks.Builders.Unsafe
-open FSharp.Control.Tasks
+open FSharp.Control.Tasks.NonAffine.Unsafe
+open FSharp.Control.Tasks.NonAffine
 open Ply
 
 [<AutoOpen>]

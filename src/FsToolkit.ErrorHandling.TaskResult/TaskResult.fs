@@ -1,7 +1,7 @@
 ﻿namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
-open FSharp.Control.Tasks
+open FSharp.Control.Tasks.NonAffine
 
 [<RequireQualifiedAccess>]
 module TaskResult = 

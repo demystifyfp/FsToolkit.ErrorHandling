@@ -1,6 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
-open FSharp.Control.Tasks
+open FSharp.Control.Tasks.NonAffine
 
 [<RequireQualifiedAccess>]
 module TaskResultOption =  
