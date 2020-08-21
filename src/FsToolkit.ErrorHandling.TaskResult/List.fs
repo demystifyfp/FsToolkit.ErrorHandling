@@ -2,7 +2,7 @@ namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-open FSharp.Control.Tasks
+open FSharp.Control.Tasks.NonAffine
 
 [<RequireQualifiedAccess>]
 module List =
