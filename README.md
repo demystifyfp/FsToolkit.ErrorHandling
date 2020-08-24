@@ -13,9 +13,15 @@ Documentation
 
 The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
 
-[![Build Status](https://img.shields.io/travis/demystifyfp/FsToolkit.ErrorHandling/master.svg)](https://travis-ci.org/demystifyfp/FsToolkit.ErrorHandling)  ![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+## Builds
 
-### Nuget
+GitHub Actions |
+:---: |
+[![GitHub Actions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/workflows/Build%20master/badge.svg)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/demystifyfp/FsToolkit.ErrorHandling)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/actions?query=branch%3Amaster) |
+
+
+### NuGet
 
 | Package name | Badge |
 | --- | --- |
