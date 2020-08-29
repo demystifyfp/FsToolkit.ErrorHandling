@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp5.0;net472</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>preview</LangVersion>

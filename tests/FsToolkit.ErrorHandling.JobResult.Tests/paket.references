@@ -1,3 +1,4 @@
 group Test
 Expecto
 Expecto.Hopac
+Microsoft.NETFramework.ReferenceAssemblies

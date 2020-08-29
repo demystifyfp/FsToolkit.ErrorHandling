@@ -32,31 +32,6 @@ NUGET
     Microsoft.Build.Tasks.Git (1.1.0-beta-20204-02) - copy_local: true
     Microsoft.NETCore.Platforms (3.1) - restriction: || (&& (>= net45) (< netstandard1.3) (>= netstandard1.6)) (&& (< net45) (< netstandard1.2) (>= netstandard1.6) (< win8)) (&& (< net45) (< netstandard1.3) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (< netstandard1.4) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (< netstandard1.5) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0) (< win8) (< wpa81)) (&& (< net45) (>= netstandard2.0)) (&& (>= net46) (< netstandard1.4) (>= netstandard1.6)) (&& (>= net461) (>= netstandard1.6)) (>= netcoreapp2.0) (&& (>= netcoreapp5.0) (< netstandard2.0)) (&& (< netstandard1.0) (>= netstandard1.6) (< portable-net45+win8)) (&& (< netstandard1.0) (>= netstandard1.6) (>= win8)) (&& (< netstandard1.0) (>= netstandard1.6) (< win8)) (&& (< netstandard1.3) (>= netstandard1.6) (< win8) (>= wpa81)) (&& (< netstandard1.5) (>= netstandard1.6) (>= uap10.0)) (&& (>= netstandard1.6) (< portable-net45+win8+wpa81)) (&& (>= netstandard1.6) (>= uap10.1)) (&& (>= netstandard1.6) (>= wp8))
     Microsoft.NETCore.Targets (3.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< win8) (< wpa81) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.6) (< win8)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard1.6) (< win8) (< wpa81)) (&& (>= netcoreapp5.0) (< netstandard2.0))
-    Microsoft.NETFramework.ReferenceAssemblies (1.0) - copy_local: true
-      Microsoft.NETFramework.ReferenceAssemblies.net20 (>= 1.0) - restriction: && (>= net20) (< net40)
-      Microsoft.NETFramework.ReferenceAssemblies.net40 (>= 1.0) - restriction: && (>= net40) (< net45)
-      Microsoft.NETFramework.ReferenceAssemblies.net45 (>= 1.0) - restriction: && (>= net45) (< net451)
-      Microsoft.NETFramework.ReferenceAssemblies.net451 (>= 1.0) - restriction: && (>= net451) (< net452)
-      Microsoft.NETFramework.ReferenceAssemblies.net452 (>= 1.0) - restriction: && (>= net452) (< net46)
-      Microsoft.NETFramework.ReferenceAssemblies.net46 (>= 1.0) - restriction: && (>= net46) (< net461)
-      Microsoft.NETFramework.ReferenceAssemblies.net461 (>= 1.0) - restriction: && (>= net461) (< net462)
-      Microsoft.NETFramework.ReferenceAssemblies.net462 (>= 1.0) - restriction: && (>= net462) (< net47)
-      Microsoft.NETFramework.ReferenceAssemblies.net47 (>= 1.0) - restriction: && (>= net47) (< net471)
-      Microsoft.NETFramework.ReferenceAssemblies.net471 (>= 1.0) - restriction: && (>= net471) (< net472)
-      Microsoft.NETFramework.ReferenceAssemblies.net472 (>= 1.0) - restriction: && (>= net472) (< net48)
-      Microsoft.NETFramework.ReferenceAssemblies.net48 (>= 1.0) - restriction: >= net48
-    Microsoft.NETFramework.ReferenceAssemblies.net20 (1.0) - copy_local: true, restriction: && (>= net20) (< net40)
-    Microsoft.NETFramework.ReferenceAssemblies.net40 (1.0) - copy_local: true, restriction: && (>= net40) (< net45)
-    Microsoft.NETFramework.ReferenceAssemblies.net45 (1.0) - copy_local: true, restriction: && (>= net45) (< net451)
-    Microsoft.NETFramework.ReferenceAssemblies.net451 (1.0) - copy_local: true, restriction: && (>= net451) (< net452)
-    Microsoft.NETFramework.ReferenceAssemblies.net452 (1.0) - copy_local: true, restriction: && (>= net452) (< net46)
-    Microsoft.NETFramework.ReferenceAssemblies.net46 (1.0) - copy_local: true, restriction: && (>= net46) (< net461)
-    Microsoft.NETFramework.ReferenceAssemblies.net461 (1.0) - copy_local: true, restriction: && (>= net461) (< net462)
-    Microsoft.NETFramework.ReferenceAssemblies.net462 (1.0) - copy_local: true, restriction: && (>= net462) (< net47)
-    Microsoft.NETFramework.ReferenceAssemblies.net47 (1.0) - copy_local: true, restriction: && (>= net47) (< net471)
-    Microsoft.NETFramework.ReferenceAssemblies.net471 (1.0) - copy_local: true, restriction: && (>= net471) (< net472)
-    Microsoft.NETFramework.ReferenceAssemblies.net472 (1.0) - copy_local: true, restriction: && (>= net472) (< net48)
-    Microsoft.NETFramework.ReferenceAssemblies.net48 (1.0) - copy_local: true, restriction: >= net48
     Microsoft.SourceLink.Common (1.1.0-beta-20204-02) - copy_local: true
     Microsoft.SourceLink.GitHub (1.1.0-beta-20204-02) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 1.1.0-beta-20204-02)
@@ -1343,4 +1318,29 @@ NUGET
     FSharp.Core (4.7.1) - restriction: || (>= net461) (>= netstandard2.0)
     Hopac (0.4.1) - restriction: || (>= net461) (>= netstandard2.0)
       FSharp.Core (>= 4.5 < 5.0) - restriction: >= netstandard2.0
+    Microsoft.NETFramework.ReferenceAssemblies (1.0) - copy_local: true
+      Microsoft.NETFramework.ReferenceAssemblies.net20 (>= 1.0) - restriction: && (>= net20) (< net40)
+      Microsoft.NETFramework.ReferenceAssemblies.net40 (>= 1.0) - restriction: && (>= net40) (< net45)
+      Microsoft.NETFramework.ReferenceAssemblies.net45 (>= 1.0) - restriction: && (>= net45) (< net451)
+      Microsoft.NETFramework.ReferenceAssemblies.net451 (>= 1.0) - restriction: && (>= net451) (< net452)
+      Microsoft.NETFramework.ReferenceAssemblies.net452 (>= 1.0) - restriction: && (>= net452) (< net46)
+      Microsoft.NETFramework.ReferenceAssemblies.net46 (>= 1.0) - restriction: && (>= net46) (< net461)
+      Microsoft.NETFramework.ReferenceAssemblies.net461 (>= 1.0) - restriction: && (>= net461) (< net462)
+      Microsoft.NETFramework.ReferenceAssemblies.net462 (>= 1.0) - restriction: && (>= net462) (< net47)
+      Microsoft.NETFramework.ReferenceAssemblies.net47 (>= 1.0) - restriction: && (>= net47) (< net471)
+      Microsoft.NETFramework.ReferenceAssemblies.net471 (>= 1.0) - restriction: && (>= net471) (< net472)
+      Microsoft.NETFramework.ReferenceAssemblies.net472 (>= 1.0) - restriction: && (>= net472) (< net48)
+      Microsoft.NETFramework.ReferenceAssemblies.net48 (>= 1.0) - restriction: >= net48
+    Microsoft.NETFramework.ReferenceAssemblies.net20 (1.0) - copy_local: true, restriction: && (>= net20) (< net40)
+    Microsoft.NETFramework.ReferenceAssemblies.net40 (1.0) - copy_local: true, restriction: && (>= net40) (< net45)
+    Microsoft.NETFramework.ReferenceAssemblies.net45 (1.0) - copy_local: true, restriction: && (>= net45) (< net451)
+    Microsoft.NETFramework.ReferenceAssemblies.net451 (1.0) - copy_local: true, restriction: && (>= net451) (< net452)
+    Microsoft.NETFramework.ReferenceAssemblies.net452 (1.0) - copy_local: true, restriction: && (>= net452) (< net46)
+    Microsoft.NETFramework.ReferenceAssemblies.net46 (1.0) - copy_local: true, restriction: && (>= net46) (< net461)
+    Microsoft.NETFramework.ReferenceAssemblies.net461 (1.0) - copy_local: true, restriction: && (>= net461) (< net462)
+    Microsoft.NETFramework.ReferenceAssemblies.net462 (1.0) - copy_local: true, restriction: && (>= net462) (< net47)
+    Microsoft.NETFramework.ReferenceAssemblies.net47 (1.0) - copy_local: true, restriction: && (>= net47) (< net471)
+    Microsoft.NETFramework.ReferenceAssemblies.net471 (1.0) - copy_local: true, restriction: && (>= net471) (< net472)
+    Microsoft.NETFramework.ReferenceAssemblies.net472 (1.0) - copy_local: true, restriction: && (>= net472) (< net48)
+    Microsoft.NETFramework.ReferenceAssemblies.net48 (1.0) - copy_local: true, restriction: >= net48
     Mono.Cecil (0.11.2) - restriction: || (>= net461) (>= netstandard2.0)
