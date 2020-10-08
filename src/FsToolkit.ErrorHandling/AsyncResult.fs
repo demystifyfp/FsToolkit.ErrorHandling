@@ -55,6 +55,10 @@ module AsyncResult =
 
   let apply fAR xAR =
     map2 (fun f x -> f x) fAR xAR
+    
+  /// Awaits a result type without resolving it.
+  let awaitResult (f: Async<Result<_, _>>) =
+    f |> Async.map Ok
 
   /// Replaces the wrapped value with unit
   let ignore ar =
