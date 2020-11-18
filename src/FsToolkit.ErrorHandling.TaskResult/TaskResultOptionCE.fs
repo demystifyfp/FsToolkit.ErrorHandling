@@ -1,6 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
+open FSharp.Control.Tasks.Affine.Unsafe
 open FSharp.Control.Tasks.Affine
 open Ply
 
@@ -10,12 +11,12 @@ module TaskResultOptionCE =
   type TaskResultOptionBuilder() =
     member inline _.Return (value: 'T)
       : Ply<Result<'T option,'TError>> =
-      task.Return <| result.Return (Some value)
+      uply.Return <| result.Return (Some value)
 
     member inline _.ReturnFrom
         (taskResult: Task<Result<'T option, 'TError>>)
         : Ply<Result<'T option, 'TError>> =
-      task.ReturnFrom taskResult
+      uply.ReturnFrom taskResult
 
     member inline _.Bind
         (taskResult: Task<Result<'T option, 'TError>>,
@@ -24,17 +25,17 @@ module TaskResultOptionCE =
         let binder' r = 
           match r with
           | Ok (Some x) -> binder x
-          | Ok None -> task.Return <| Ok None
-          | Error x -> task.Return <| Error x
-        task.Bind(taskResult, binder')
+          | Ok None -> uply.Return <| Ok None
+          | Error x -> uply.Return <| Error x
+        uply.Bind(taskResult, binder')
 
     member inline _.Combine(tro1, tro2) =
       tro1
       |> TaskResultOption.bind (fun _ -> tro2)
-      |> task.ReturnFrom
+      |> uply.ReturnFrom
 
     member inline _.Delay f =
-      task.Delay f
+      uply.Delay f
 
     member inline _.Run(f : unit -> Ply<'m>) = task.Run f
 

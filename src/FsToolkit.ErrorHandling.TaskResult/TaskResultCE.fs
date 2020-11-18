@@ -2,6 +2,7 @@
 
 open System
 open System.Threading.Tasks
+open FSharp.Control.Tasks.Affine.Unsafe
 open FSharp.Control.Tasks.Affine
 open Ply
 
@@ -12,15 +13,15 @@ module TaskResultCE =
 
     member inline _.Return (value: 'T)
       : Ply<Result<'T,'TError>> =
-        task.Return (result.Return value)
+        uply.Return (result.Return value)
 
     member inline _.ReturnFrom
         (taskResult: Task<Result<'T, 'TError>>)
         : Ply<Result<'T, 'TError>> =
-          task.ReturnFrom taskResult
+          uply.ReturnFrom taskResult
 
     member inline _.Zero () : Ply<Result<unit, 'TError>> =
-      task.Return <| result.Zero()
+      uply.Return <| result.Zero()
 
     member inline _.Bind
         (taskResult: Task<Result<'T, 'TError>>,
@@ -29,69 +30,66 @@ module TaskResultCE =
         let binder' r = 
           match r with
           | Ok x -> binder x
-          | Error x -> task.Return <| Error x
-        task.Bind(taskResult, binder')
+          | Error x -> uply.Return <| Error x
+        uply.Bind(taskResult, binder')
 
     member inline _.Delay
         (generator: unit -> Ply<Result<'T, 'TError>>) =
-      task.Delay(generator)
+      uply.Delay(generator)
 
     member inline _.Combine
         (computation1: Ply<Result<unit, 'TError>>,
          computation2: unit -> Ply<Result<'U, 'TError>>)
-        : Ply<Result<'U, 'TError>> =
-          task {
-            match! computation1 with
-            | Error e -> return Error e
-            | Ok _ -> return! computation2()
-          } |> task.ReturnFrom
+        : Ply<Result<'U, 'TError>> = uply {
+          match! computation1 with
+          | Error e -> return Error e
+          | Ok _ -> return! computation2()
+        }
 
     member inline _.TryWith
         (computation: unit -> Ply<Result<'T, 'TError>>,
          handler: exn -> Ply<Result<'T, 'TError>>) :
          Ply<Result<'T, 'TError>> =
-      task.TryWith(computation, handler)
+      uply.TryWith(computation, handler)
 
     member inline _.TryFinally
         (computation: unit -> Ply<Result<'T, 'TError>>,
          compensation: unit -> unit)
         : Ply<Result<'T, 'TError>> =
-      task.TryFinally(computation, compensation)
+      uply.TryFinally(computation, compensation)
 
     member inline _.Using
         (resource: 'T when 'T :> IDisposable,
          binder: 'T -> Ply<Result<'U, 'TError>>)
         : Ply<Result<'U, 'TError>> =
-        task.Using(resource, binder)
+        uply.Using(resource, binder)
 
     member _.While
         (guard: unit -> bool, computation: unit -> Ply<Result<unit, 'TError>>)
-        : Ply<Result<unit, 'TError>> =
-          task {
-            let mutable fin, result = false, Ok()
-            while not fin && guard() do
-              match! computation() with
-              | Ok x -> x
-              | Error _ as e ->
-                result <- e
-                fin <- true
-            return result
-          } |> task.ReturnFrom
+        : Ply<Result<unit, 'TError>> = uply {
+          let mutable fin, result = false, Ok()
+          while not fin && guard() do
+            match! computation() with
+            | Ok x -> x
+            | Error _ as e ->
+              result <- e
+              fin <- true
+          return result
+        }
 
     member _.For
         (sequence: #seq<'T>, binder: 'T -> Ply<Result<unit, 'TError>>)
-        : Ply<Result<unit, 'TError>> =
-          task {
-            use enumerator = sequence.GetEnumerator()
-            let mutable fin, result = false, Ok()
-            while not fin && enumerator.MoveNext() do
-              match! binder enumerator.Current with
-              | Ok x -> x
-              | Error _ as e ->
-                result <- e
-                fin <- true
-            return result
-          } |> task.ReturnFrom
+        : Ply<Result<unit, 'TError>> = uply {
+          use enumerator = sequence.GetEnumerator()
+          let mutable fin, result = false, Ok()
+          while not fin && enumerator.MoveNext() do
+            match! binder enumerator.Current with
+            | Ok x -> x
+            | Error _ as e ->
+              result <- e
+              fin <- true
+          return result
+        }
 
     member inline this.BindReturn(x: Task<Result<'T,'U>>, f) = this.Bind(x, fun x -> this.Return(f x))
     member inline _.MergeSources(t1: Task<Result<'T,'U>>, t2: Task<Result<'T1,'U>>) = TaskResult.zip t1 t2
