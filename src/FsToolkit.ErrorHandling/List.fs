@@ -4,13 +4,16 @@ namespace FsToolkit.ErrorHandling
 module List =
 
   let rec private traverseResultM' (state : Result<_,_>) (f : _ -> Result<_,_>) xs =
-    match xs with
-    | [] -> state
-    | x :: xs ->
+    match state, xs with
+    | Ok v, [] ->
+      Ok (List.rev v)
+    | v, [] ->
+      v
+    | _, x :: xs ->
       let r = result {
         let! y = f x
         let! ys = state
-        return ys @ [y]
+        return y :: ys
       }
       match r with
       | Ok _ -> traverseResultM' r f xs
