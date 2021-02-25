@@ -28,8 +28,8 @@ let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
 
 
-let nugetToken = Environment.environVarOrNone "FSTOOLKIT_NUGET_TOKEN"
-Option.iter(TraceSecrets.register "<FSTOOLKIT_NUGET_TOKEN>")
+let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
 
 
 Target.create "Clean" (fun _ ->
@@ -162,7 +162,7 @@ Target.create "PublishNuget" (fun _ ->
             ApiKey = 
               match nugetToken with
               | Some s -> s
-              | _ -> c.ApiKey // assume paket-config was set properly
+              | _ -> p.ApiKey // assume paket-config was set properly
         }
     )
 )
