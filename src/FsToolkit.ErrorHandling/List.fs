@@ -21,17 +21,20 @@ module List =
 
   let rec private traverseAsyncResultM' (state : Async<Result<_,_>>) (f : _ -> Async<Result<_,_>>) xs =
     match xs with
-    | [] -> state
+    | [] ->
+      asyncResult {
+        let! v = state
+        return List.rev v
+      }
     | x :: xs ->
       async {
         let! r = asyncResult {
           let! ys = state
           let! y = f x
-          return ys @ [y]
+          return y :: ys
         }
         match r with
-        | Ok _ ->
-          return! traverseAsyncResultM' (Async.singleton r) f xs
+        | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
         | Error _ -> return r
       }
 
