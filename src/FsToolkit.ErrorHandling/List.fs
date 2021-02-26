@@ -77,7 +77,7 @@ module List =
         let! fR = f x |> AsyncResult.mapError List.singleton
         match s, fR with
         | Ok ys, Ok y ->
-          return! traverseAsyncResultA' (AsyncResult.retn (ys @ [y])) f xs
+          return! traverseAsyncResultA' (AsyncResult.retn (y :: ys)) f xs
         | Error errs, Error e ->
           return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f xs
         | Ok _, Error e | Error e , Ok _  ->
