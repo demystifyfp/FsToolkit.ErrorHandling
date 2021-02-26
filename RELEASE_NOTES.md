@@ -1,3 +1,5 @@
+#### 2.1.1-beta001 - February 26, 2020
+- Added Description and License to nuget package Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/114)
 #### 2.1.0 - February 26, 2020
 - Performance enhancements for traverseValidationA. Credits [@isaacabraham](https://github.com/isaacabraham) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/110) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/111) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/113)
  
