@@ -5,16 +5,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <DebugType>portable</DebugType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>  
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <NoWarn>FS2003</NoWarn>
   </PropertyGroup>
 
 
