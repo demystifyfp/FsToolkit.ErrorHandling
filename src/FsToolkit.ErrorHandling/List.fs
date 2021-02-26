@@ -70,7 +70,8 @@ module List =
 
   let rec private traverseAsyncResultA' state f xs =
     match xs with
-    | [] -> state
+    | [] ->
+      state |> AsyncResult.map List.rev
     | x :: xs ->
       async {
         let! s = state
