@@ -28,6 +28,10 @@ let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
 
 
+let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
+
+
 Target.create "Clean" (fun _ ->
   !! "bin"
   ++ "src/**/bin"
@@ -154,7 +158,13 @@ Target.create "PublishNuget" (fun _ ->
         { p with
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
-            WorkingDir = distDir })
+            WorkingDir = distDir
+            ApiKey = 
+              match nugetToken with
+              | Some s -> s
+              | _ -> p.ApiKey // assume paket-config was set properly
+        }
+    )
 )
 
 let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"

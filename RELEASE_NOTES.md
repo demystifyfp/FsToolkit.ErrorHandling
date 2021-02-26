@@ -1,3 +1,6 @@
+#### 2.1.0-beta002 - February 25, 2020
+- Performance enhancements for traverseValidationA. Credits [@isaacabraham](https://github.com/isaacabraham) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/110)
+
 #### 2.0.0 - November 20, 2020
 - Switches TaskResult Library from TaskBuilder to Ply. Credits [Nino Floris](https://github.com/NinoFloris) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/97) 
   - This change replaces [TaskBuilder](https://github.com/rspeele/TaskBuilder.fs) with [Ply](https://github.com/crowded/ply).  Ply has better performance characteristics and more in line with how C# handles Task execution.  To convert from TaskBuilder to Ply, replace the namespace of `FSharp.Control.Tasks.V2.ContextInsensitive` with `FSharp.Control.Tasks`. -
