@@ -4,12 +4,10 @@ namespace FsToolkit.ErrorHandling
 module List =
 
   let rec private traverseResultM' (state : Result<_,_>) (f : _ -> Result<_,_>) xs =
-    match state, xs with
-    | Ok v, [] ->
-      Ok (List.rev v)
-    | v, [] ->
-      v
-    | _, x :: xs ->
+    match xs with
+    | [] ->
+      state |> Result.map List.rev
+    | x :: xs ->
       let r = result {
         let! y = f x
         let! ys = state
@@ -22,10 +20,7 @@ module List =
   let rec private traverseAsyncResultM' (state : Async<Result<_,_>>) (f : _ -> Async<Result<_,_>>) xs =
     match xs with
     | [] ->
-      asyncResult {
-        let! v = state
-        return List.rev v
-      }
+      state |> AsyncResult.map List.rev
     | x :: xs ->
       async {
         let! r = asyncResult {
@@ -52,12 +47,10 @@ module List =
 
 
   let rec private traverseResultA' state f xs =
-    match state, xs with
-    | Ok v, [] ->
-      Ok (List.rev v)
-    | v, [] ->
-      v
-    | _, x :: xs ->
+    match xs with
+    | [] ->
+      state |> Result.map List.rev
+    | x :: xs ->
       let fR =
         f x |> Result.mapError List.singleton
       match state, fR with
@@ -92,12 +85,10 @@ module List =
     traverseResultA id xs
 
   let rec traverseValidationA' state f xs =
-    match state, xs with
-    | Ok items, [] ->
-      Ok (List.rev items)
-    | errors, [] ->
-      errors
-    | _, x :: xs ->
+    match xs with
+    | [] ->
+      state |> Result.map List.rev
+    | x :: xs ->
       let fR = f x
       match state, fR with
       | Ok ys, Ok y ->
