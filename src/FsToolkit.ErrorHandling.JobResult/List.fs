@@ -5,13 +5,13 @@ module List =
   open Hopac
   let rec private traverseJobResultM' (state : Job<Result<_,_>>) (f : _ -> Job<Result<_,_>>) xs =
     match xs with
-    | [] -> state
+    | [] -> state |> JobResult.map List.rev
     | x :: xs -> 
       job {
         let! r = jobResult {
           let! ys = state
           let! y = f x
-          return ys @ [y]
+          return y :: ys
         }  
         match r with
         | Ok _ -> 
@@ -28,14 +28,14 @@ module List =
 
   let rec private traverseJobResultA' state f xs =
     match xs with
-    | [] -> state
+    | [] -> state |> JobResult.map List.rev
     | x :: xs ->
       job {
-        let! s = state
+        let! s = state 
         let! fR = f x |> JobResult.mapError List.singleton
         match s, fR with
         | Ok ys, Ok y -> 
-          return! traverseJobResultA' (JobResult.retn (ys @ [y])) f xs
+          return! traverseJobResultA' (JobResult.retn (y :: ys)) f xs
         | Error errs, Error e -> 
           return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
         | Ok _, Error e | Error e , Ok _  -> 
