@@ -1,4 +1,4 @@
-#### 2.1.0-beta003 - February 25, 2020
+#### 2.1.0 - February 26, 2020
 - Performance enhancements for traverseValidationA. Credits [@isaacabraham](https://github.com/isaacabraham) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/110) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/111) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/113)
  
 #### 2.0.0 - November 20, 2020
