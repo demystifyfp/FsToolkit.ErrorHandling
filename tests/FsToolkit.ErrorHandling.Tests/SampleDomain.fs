@@ -224,8 +224,8 @@ let createPostFailure (_ : CreatePostRequest) = async {
 }
 
 
-let notifyNewPostSuccess (PostId _) (UserId _) = async {
-  return Ok ()
+let notifyNewPostSuccess (PostId post) (UserId user) = async {
+  return Ok (post, user)
 }
 
 let notifyNewPostFailure (PostId _) (UserId uId) = async {

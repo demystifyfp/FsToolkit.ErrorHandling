@@ -23,10 +23,11 @@ let traverseJobResultMTests =
 
   testList "List.traverseJobResultM Tests" [
     testCase "traverseJobResultM with a list of valid data" <| fun _ ->
-      let expected = [();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseJobResultM (notifyNewPostSuccess (PostId newPostId)) userIds
       Expect.hasJobOkValue expected actual
+
 
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let expected = sprintf "error: %s" (userId1.ToString())
@@ -48,7 +49,7 @@ let traverseJobResultATests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.traverseJobResultA Tests" [
     testCase "traverseJobResultA with a list of valid data" <| fun _ ->
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseJobResultA (notifyNewPostSuccess (PostId newPostId)) userIds
       Expect.hasJobOkValue expected actual
@@ -66,7 +67,7 @@ let sequenceJobResultMTests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.sequenceJobResultM Tests" [
     testCase "sequenceJobResultM with a list of valid data" <| fun _ ->
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceJobResultM
@@ -85,7 +86,7 @@ let sequenceJobResultATests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.sequenceJobResultA Tests" [
     testCase "sequenceJobResultA with a list of valid data" <| fun _ ->
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceJobResultA
