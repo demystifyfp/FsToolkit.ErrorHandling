@@ -52,14 +52,17 @@ module List =
 
 
   let rec private traverseResultA' state f xs =
-    match xs with
-    | [] -> state
-    | x :: xs ->
+    match state, xs with
+    | Ok v, [] ->
+      Ok (List.rev v)
+    | v, [] ->
+      v
+    | _, x :: xs ->
       let fR =
         f x |> Result.mapError List.singleton
       match state, fR with
       | Ok ys, Ok y ->
-        traverseResultA' (Ok (ys @ [y])) f xs
+        traverseResultA' (Ok (y :: ys)) f xs
       | Error errs, Error e ->
         traverseResultA' (Error (errs @ e)) f xs
       | Ok _, Error e | Error e , Ok _  ->
