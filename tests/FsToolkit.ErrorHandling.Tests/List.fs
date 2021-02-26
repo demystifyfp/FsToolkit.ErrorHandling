@@ -118,7 +118,7 @@ let traverseAsyncResultMTests =
 
   testList "List.traverseAsyncResultM Tests" [
     testCaseAsync "traverseAsyncResultM with a list of valid data" <| async {
-      let expected = [();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseAsyncResultM (notifyNewPostSuccess (PostId newPostId)) userIds
       do! Expect.hasAsyncOkValue expected actual
@@ -144,7 +144,7 @@ let traverseAsyncResultATests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.traverseAsyncResultA Tests" [
     testCaseAsync "traverseAsyncResultA with a list of valid data" <| async {
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
       do! Expect.hasAsyncOkValue expected actual
@@ -164,7 +164,7 @@ let sequenceAsyncResultMTests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.sequenceAsyncResultM Tests" [
     testCaseAsync "sequenceAsyncResultM with a list of valid data" <| async {
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceAsyncResultM
@@ -185,7 +185,7 @@ let sequenceAsyncResultATests =
   let userIds = List.map UserId [userId1;userId2;userId3;userId4]
   testList "List.sequenceAsyncResultA Tests" [
     testCaseAsync "sequenceAsyncResultA with a list of valid data" <| async {
-      let expected = [();();();()]
+      let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceAsyncResultA
