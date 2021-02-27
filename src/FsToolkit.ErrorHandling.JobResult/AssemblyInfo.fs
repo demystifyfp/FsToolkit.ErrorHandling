@@ -4,16 +4,16 @@ open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("FsToolkit.ErrorHandling.JobResult")>]
 [<assembly: AssemblyProductAttribute("FsToolkit.ErrorHandling")>]
-[<assembly: AssemblyDescriptionAttribute("An opinionated error handling library for F#")>]
-[<assembly: AssemblyVersionAttribute("2.1.1")>]
-[<assembly: AssemblyFileVersionAttribute("2.1.1")>]
+[<assembly: AssemblyDescriptionAttribute("FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.")>]
+[<assembly: AssemblyVersionAttribute("2.1.2")>]
+[<assembly: AssemblyFileVersionAttribute("2.1.2")>]
 [<assembly: AssemblyConfigurationAttribute("Release")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "FsToolkit.ErrorHandling.JobResult"
     let [<Literal>] AssemblyProduct = "FsToolkit.ErrorHandling"
-    let [<Literal>] AssemblyDescription = "An opinionated error handling library for F#"
-    let [<Literal>] AssemblyVersion = "2.1.1"
-    let [<Literal>] AssemblyFileVersion = "2.1.1"
+    let [<Literal>] AssemblyDescription = "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
+    let [<Literal>] AssemblyVersion = "2.1.2"
+    let [<Literal>] AssemblyFileVersion = "2.1.2"
     let [<Literal>] AssemblyConfiguration = "Release"
