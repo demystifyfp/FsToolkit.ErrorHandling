@@ -138,9 +138,7 @@ Target.create "AssemblyInfo" (fun _ ->
 
 let releaseNotes = String.toLines release.Notes
 Target.create "NuGet" (fun _ ->
-    ["src/FsToolkit.ErrorHandling"
-     "src/FsToolkit.ErrorHandling.TaskResult"
-     "src/FsToolkit.ErrorHandling.JobResult"]
+    [solutionFile]
     |> Seq.iter (
       DotNet.pack(fun p ->
            { p with
