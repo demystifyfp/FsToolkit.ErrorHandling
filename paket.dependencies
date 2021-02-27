@@ -28,4 +28,4 @@ nuget Fake.DotNet.Testing.Expecto 5.20.4-alpha.1642
 nuget Fake.Tools.Git 5.20.4-alpha.1642
 nuget Fake.JavaScript.Npm 5.20.4-alpha.1642
 nuget Fake.Api.GitHub 5.20.4-alpha.1642
-nuget Paket.Core 6.0.0-alpha022
+
