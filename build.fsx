@@ -15,7 +15,7 @@ open System
 open System.IO
 
 let project = "FsToolkit.ErrorHandling"
-let summary = "An opinionated error handling library for F#"
+let summary = "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
@@ -26,7 +26,6 @@ let distGlob = distDir @@ "*.nupkg"
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
-
 
 let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
 Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
