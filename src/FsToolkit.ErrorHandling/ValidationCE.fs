@@ -11,16 +11,10 @@ module ValidationCE =
         member inline __.ReturnFrom (result : Validation<'T, 'err>) =
             result
 
-        member inline _.BindReturn(x: Validation<'T,'U>, f) : Validation<_,_> = 
-            Result.map f x
-
         member inline __.Bind
             (result: Validation<'T, 'TError>, binder: 'T -> Validation<'U, 'TError>)
             : Validation<'U, 'TError> =
             Validation.bind binder result
-
-        member inline _.MergeSources(t1: Validation<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = 
-            Validation.zip t1 t2
 
         member this.Zero () : Validation<unit, 'TError> =
             this.Return ()
@@ -71,6 +65,19 @@ module ValidationCE =
                 this.While(enum.MoveNext,
                     this.Delay(fun () -> binder enum.Current)))
 
+        member _.BindReturn(x: Validation<'T,'U>, f) = Validation.map f x
+
+        member _.MergeSources(t1: Validation<'T,'U>, t2: Validation<'T1,'U>) = Validation.zip t1 t2
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+        /// 
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        member inline _.Source(result : Validation<_,_>) : Validation<_,_> = result
+
     let validation = ValidationBuilder()
 
 [<AutoOpen>]
@@ -79,45 +86,16 @@ module ValidationCEExtensions =
   // Having members as extensions gives them lower priority in
   // overload resolution and allows skipping more type annotations.
     type ValidationBuilder with
-        member inline __.ReturnFrom (result : Result<'T, 'err>) = 
-            result
-            |> Validation.ofResult
-
-        member inline __.ReturnFrom (result : Choice<'T, 'err>) = 
-            result
-            |> Validation.ofChoice
-
-        member inline __.Bind
-            (result: Result<'T, 'TError>, binder: 'T -> Validation<'U, 'TError>)
-            : Validation<'U, 'TError> =
-            result
-            |> Validation.ofResult
-            |> Validation.bind binder 
-
-        member inline __.Bind
-            (result: Choice<'T, 'TError>, binder: 'T -> Validation<'U, 'TError>)
-            : Validation<'U, 'TError> =
-            result
-            |> Validation.ofChoice
-            |> Validation.bind binder 
-
-        member inline _.BindReturn(x: Result<'T,'U>, f) : Validation<_,_> = 
-            x |> Validation.ofResult |> Result.map f
-        member inline _.BindReturn(x: Choice<'T,'U>, f) : Validation<_,_> = 
-            x |> Validation.ofChoice |> Result.map f
-
-        member inline _.MergeSources(t1: Validation<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = 
-            Validation.zip t1 (Validation.ofResult t2)
-        member inline _.MergeSources(t1: Result<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = 
-            Validation.zip (Validation.ofResult t1) t2
-        member inline _.MergeSources(t1: Result<'T,'U>, t2: Result<'T1,'U>) : Validation<_,_> = 
-            Validation.zip (Validation.ofResult t1) (Validation.ofResult t2)
-
-
-        member inline _.MergeSources(t1: Validation<'T,'U>, t2: Choice<'T1,'U>) : Validation<_,_> = 
-            Validation.zip t1 (Validation.ofChoice t2)
-        member inline _.MergeSources(t1: Choice<'T,'U>, t2: Validation<'T1,'U>) : Validation<_,_> = 
-            Validation.zip (Validation.ofChoice t1) t2
-        member inline _.MergeSources(t1: Choice<'T,'U>, t2: Choice<'T1,'U>) : Validation<_,_> = 
-            Validation.zip (Validation.ofChoice t1) (Validation.ofChoice t2)
-        
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline __.Source(s: #seq<_>) = s
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline __.Source(s: Result<'T, 'Error>) = Validation.ofResult s
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        /// <returns></returns>
+        member inline _.Source(choice : Choice<_,_>) = Validation.ofChoice choice
