@@ -84,7 +84,7 @@ Replaces an error value of an task-wrapped result with a custom error value
 Replaces a unit error value of an task-wrapped result with a custom error value. Safer than `setError` since you're not losing any information.
 
 ```fsharp
-'a -> Task<Result<'b, uni>t> -> Task<Result<'b, 'a>>
+'a -> Task<Result<'b, unit>> -> Task<Result<'b, 'a>>
 ```
 
 ### defaultValue
