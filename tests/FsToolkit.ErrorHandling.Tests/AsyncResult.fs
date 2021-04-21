@@ -470,6 +470,24 @@ let teeErrorIfTests =
     }
   ]
 
+let catchTests =
+  let f (e : exn) = e.Message
+  let asyncThrow () = async {
+    failwith err
+    return Error ""
+  }
+
+  testList "AsyncResult.catch test" [
+    testCaseAsync "catch returns success for Ok" <|
+      Expect.hasAsyncOkValue 42 (AsyncResult.catch f (toAsync (Ok 42)))
+
+    testCaseAsync "catch returns mapped Error for exception" <|
+      Expect.hasAsyncErrorValue err (AsyncResult.catch f (asyncThrow ()))
+
+    testCaseAsync "catch returns unmapped error without exception" <|
+      Expect.hasAsyncErrorValue "unmapped" (AsyncResult.catch f (toAsync (Error "unmapped")))
+  ]
+
 type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest
 | NotAllowedToPost
@@ -542,6 +560,7 @@ let allTests = testList "Async Result tests" [
   teeIfTests
   teeErrorTests
   teeErrorIfTests
+  catchTests
   asyncResultCETests
   asyncResultOperatorTests
 ]
