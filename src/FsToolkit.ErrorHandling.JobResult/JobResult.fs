@@ -144,6 +144,7 @@ module JobResult =
     Job.zip j1 j2
     |> Job.map(fun (r1, r2) -> Result.zip r1 r2)
 
+  /// Catches exceptions and maps them to the Error case using the provided function.
   let catch f x =
     x
     |> Job.catch
@@ -152,8 +153,10 @@ module JobResult =
       | Choice1Of2 (Error err) -> Error err
       | Choice2Of2 ex -> Error (f ex))
 
+  /// Lift Job to JobResult
   let ofJob x =
     x |> Job.map Ok
 
+  /// Lift Result to JobResult
   let ofResult (x : Result<_,_>) =
     x |> Job.singleton

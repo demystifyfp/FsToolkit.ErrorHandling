@@ -148,6 +148,7 @@ module AsyncResult =
     Async.zip x1 x2
     |> Async.map(fun (r1, r2) -> Result.zip r1 r2)
 
+  /// Catches exceptions and maps them to the Error case using the provided function.
   let catch f x =
     x
     |> Async.Catch
@@ -156,8 +157,10 @@ module AsyncResult =
       | Choice1Of2 (Error err) -> Error err
       | Choice2Of2 ex -> Error (f ex))
 
+  /// Lift Async to AsyncResult
   let ofAsync x =
     x |> Async.map Ok
 
+  /// Lift Result to AsyncResult
   let ofResult (x : Result<_,_>) =
     x |> Async.singleton

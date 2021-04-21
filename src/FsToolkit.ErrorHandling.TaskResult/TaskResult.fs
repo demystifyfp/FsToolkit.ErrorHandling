@@ -138,6 +138,7 @@ module TaskResult =
     Task.zip x1 x2
     |> Task.map(fun (r1, r2) -> Result.zip r1 r2)
 
+  /// Catches exceptions and maps them to the Error case using the provided function.
   let catch f x =
     x
     |> Task.catch
@@ -146,8 +147,10 @@ module TaskResult =
       | Choice1Of2 (Error err) -> Error err
       | Choice2Of2 ex -> Error (f ex))
 
+  /// Lift Task to TaskResult
   let ofTask x =
     x |> Task.map Ok
 
+  /// Lift Result to TaskResult
   let ofResult (x : Result<_,_>) =
     x |> Task.singleton
