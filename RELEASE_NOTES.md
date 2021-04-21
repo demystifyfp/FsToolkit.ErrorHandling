@@ -1,8 +1,10 @@
-#### 2.1.2 - February 27, 2020
+#### 2.2.0 - April 21, 2021
+ -AsyncResult, TaskResult, JobResult error helpers Credits [@meridaio](https://github.com/meridaio) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/124)
+#### 2.1.2 - February 27, 2021
 - Converts ValidationCE to use Source overloads Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/115)
-#### 2.1.1 - February 26, 2020
+#### 2.1.1 - February 26, 2021
 - Added Description and License to nuget package Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/114)
-#### 2.1.0 - February 26, 2020
+#### 2.1.0 - February 26, 2021
 - Performance enhancements for traverseValidationA. Credits [@isaacabraham](https://github.com/isaacabraham) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/110) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/111) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/113)
  
 #### 2.0.0 - November 20, 2020
