@@ -452,6 +452,25 @@ let teeErrorIfTests =
       Expect.equal !foo "foo" ""
   ]
 
+[<Tests>]
+let catchTests =
+  let f (e : exn) = e.Message
+  let taskThrow () = task {
+    failwith err
+    return Error ""
+  }
+
+  testList "TaskResult.catch test" [
+    testCase "catch returns success for Ok" <| fun _ ->
+      Expect.hasTaskOkValue 42 (TaskResult.catch f (toTask (Ok 42)))
+
+    testCase "catch returns mapped Error for exception" <| fun _ ->
+      Expect.hasTaskErrorValue err (TaskResult.catch f (taskThrow ()))
+
+    testCase "catch returns unmapped error without exception" <| fun _ ->
+      Expect.hasTaskErrorValue "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
+  ]
+
 type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest
 | NotAllowedToPost
