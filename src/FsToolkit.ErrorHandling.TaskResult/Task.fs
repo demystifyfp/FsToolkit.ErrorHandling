@@ -33,3 +33,12 @@ module Task =
   }
 
   let ofUnit (t : Task) = task { return! t }
+
+  let catch (x : Task<_>) =
+    task {
+      try
+        let! r = x
+        return Choice1Of2 r
+      with
+      | e -> return Choice2Of2 e
+    }

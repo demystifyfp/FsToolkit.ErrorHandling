@@ -143,3 +143,17 @@ module JobResult =
   let zip j1 j2 =
     Job.zip j1 j2
     |> Job.map(fun (r1, r2) -> Result.zip r1 r2)
+
+  let catch f x =
+    x
+    |> Job.catch
+    |> Job.map (function
+      | Choice1Of2 (Ok v) -> Ok v
+      | Choice1Of2 (Error err) -> Error err
+      | Choice2Of2 ex -> Error (f ex))
+
+  let ofJob x =
+    x |> Job.map Ok
+
+  let ofResult (x : Result<_,_>) =
+    x |> Job.singleton
