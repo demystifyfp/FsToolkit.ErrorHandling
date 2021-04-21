@@ -477,7 +477,7 @@ let catchTests =
     return Error ""
   }
 
-  testList "AsyncResult.catch test" [
+  testList "AsyncResult.catch tests" [
     testCaseAsync "catch returns success for Ok" <|
       Expect.hasAsyncOkValue 42 (AsyncResult.catch f (toAsync (Ok 42)))
 
