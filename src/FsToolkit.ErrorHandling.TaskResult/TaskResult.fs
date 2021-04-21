@@ -137,3 +137,17 @@ module TaskResult =
   let zip x1 x2 = 
     Task.zip x1 x2
     |> Task.map(fun (r1, r2) -> Result.zip r1 r2)
+
+  let catch f x =
+    x
+    |> Task.catch
+    |> Task.map (function
+      | Choice1Of2 (Ok v) -> Ok v
+      | Choice1Of2 (Error err) -> Error err
+      | Choice2Of2 ex -> Error (f ex))
+
+  let ofTask x =
+    x |> Task.map Ok
+
+  let ofResult (x : Result<_,_>) =
+    x |> Task.singleton
