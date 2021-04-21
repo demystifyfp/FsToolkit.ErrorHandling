@@ -34,6 +34,10 @@ module Task =
 
   let ofUnit (t : Task) = task { return! t }
 
+  /// Creates a `Task` that attempts to execute the provided task,
+  /// returning `Choice1Of2` with the result if the task completes
+  /// without exceptions, or `Choice2Of2` with the exception if an
+  /// exception is thrown.
   let catch (x : Task<_>) =
     task {
       try
