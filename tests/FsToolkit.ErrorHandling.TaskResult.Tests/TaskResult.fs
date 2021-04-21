@@ -460,7 +460,7 @@ let catchTests =
     return Error ""
   }
 
-  testList "TaskResult.catch test" [
+  testList "TaskResult.catch tests" [
     testCase "catch returns success for Ok" <| fun _ ->
       Expect.hasTaskOkValue 42 (TaskResult.catch f (toTask (Ok 42)))
 
