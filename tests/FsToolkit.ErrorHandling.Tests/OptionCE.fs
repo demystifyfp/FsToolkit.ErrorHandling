@@ -117,6 +117,33 @@ let ceTests =
                 return data
             }
             Expect.equal actual (Some data) "Should be ok"
+        testCase "Nullable value" <| fun () ->
+            let data = 42
+            let actual = option {
+                return! System.Nullable data
+            }
+            Expect.equal actual (Some data) ""
+        testCase "Nullable null" <| fun () ->
+            let actual = option {
+                return! System.Nullable<_> ()
+            }
+            Expect.equal actual None ""
+
+        testCase "string value" <| fun () ->
+            let data = "hello"
+            let actual = option {
+                let! v = data
+                return v
+            }
+            Expect.equal actual (Some data) ""
+
+        testCase "string null" <| fun () ->
+            let (data : string) = null
+            let actual = option {
+                let! v = data
+                return v
+            }
+            Expect.equal actual None ""
     ]
 
 
