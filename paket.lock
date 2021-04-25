@@ -332,7 +332,7 @@ NUGET
       Expecto (>= 9.0.4) - restriction: || (>= net461) (>= netstandard2.0)
       Hopac (>= 0.4.1) - restriction: || (>= net461) (>= netstandard2.0)
     Fable.Core (3.6) - restriction: >= netstandard2.0
-    Fable.Mocha (2.11)
+    Fable.Mocha (2.10)
       Fable.Core (>= 3.0) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7) - restriction: >= netstandard2.0
     FSharp.Core (4.7.2)

@@ -14,7 +14,7 @@ storage: none
 nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
-nuget Fable.Mocha
+nuget Fable.Mocha 2.10.0
 nuget Microsoft.NETFramework.ReferenceAssemblies
 
 group Build
