@@ -12,7 +12,7 @@ source https://api.nuget.org/v3/index.json
 storage: none
 nuget Expecto
 nuget Expecto.Hopac
-nuget Fable.Mocha
+nuget Fable.Mocha 2.10.0
 
 group Build
 source https://api.nuget.org/v3/index.json

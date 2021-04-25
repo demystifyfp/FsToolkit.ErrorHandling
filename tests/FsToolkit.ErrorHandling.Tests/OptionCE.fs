@@ -20,8 +20,6 @@ let makeDisposable () =
 let ceTests = 
     testList "CE Tests" [
         testCase "Return value" <| fun _ ->
-
-
             let expected = Some 42
             let actual = option  {
                 return 42
@@ -132,12 +130,10 @@ let ceTests =
                 return data
             }
             Expect.equal actual (Some data) "Should be ok"
-#if !FABLE_COMPILER
         testCase "Nullable value" <| fun () ->
             let data = 42
             let actual = option {
-                let! value = System.Nullable<int> data
-                return value
+                return! System.Nullable<int> data
             }
             Expect.equal actual (Some data) ""
         testCase "Nullable null" <| fun () ->
@@ -145,7 +141,7 @@ let ceTests =
                 return! System.Nullable<_> ()
             }
             Expect.equal actual None ""
-#endif
+
         testCase "string value" <| fun () ->
             let data = "hello"
             let actual = option {
@@ -204,7 +200,6 @@ let ``OptionCE applicative tests`` =
             }
             Expect.equal actual (Some 4) "Should be Some 4"
 
-#if !FABLE_COMPILER
         testCase "Happy Path Nullable" <| fun () ->
             let actual = option {
                 let! a = Nullable<_> 3
@@ -213,7 +208,7 @@ let ``OptionCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual (Some 4) "Should be Some 4"
-#endif
+
         testCase "Happy Path null Objects" <| fun () ->
             // let hello = CustomClass
             let actual = option {
@@ -252,7 +247,6 @@ let ``OptionCE applicative tests`` =
             }
             Expect.equal actual (Some 6) "Should be Some"
 
-#if !FABLE_COMPILER
         testCase "Happy Path Option.Some/Nullable" <| fun () ->
             let actual = option {
                 let! a = Some 3
@@ -284,7 +278,6 @@ let ``OptionCE applicative tests`` =
             }
             
             Expect.equal actual (Some "3 2 hello 1 5 https://github.com/") "Should be Some"
-#endif 
         testCase "Fail Path Option.None" <| fun () ->
             let actual = option {
                 let! a = Some 3
@@ -293,8 +286,7 @@ let ``OptionCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual None "Should be None"
-
-#if !FABLE_COMPILER     
+            
         testCase "Fail Path Nullable" <| fun () ->
             let actual = option {
                 let! a = Nullable 3
@@ -303,7 +295,7 @@ let ``OptionCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual (None) "Should be None"    
-#endif
+
         testCase "Fail Path Objects" <| fun () ->
             let c1 = CustomClass 3
             let c2 = CustomClass 2
@@ -329,7 +321,6 @@ let ``OptionCE applicative tests`` =
             }
             Expect.equal actual (None) "Should be None"
 
-#if !FABLE_COMPILER
         testCase "Fail Path Option.Some/Nullable" <| fun () ->
             let actual = option {
                 let! a = Nullable<_> 3
@@ -338,7 +329,6 @@ let ``OptionCE applicative tests`` =
                 return a + b - c
             }
             Expect.equal actual None "Should be None"
-#endif
     ]
 
 let allTests = testList "Option CE tests" [
