@@ -1,5 +1,19 @@
 ## Other Useful Functions
 
+### isOk
+
+Returns `true` if the value is Ok, otherwise returns `false`.
+```fsharp
+Result<_> -> bool
+```
+
+### isError
+
+Returns `true` if the value is Error, otherwise returns `false`.
+```fsharp
+Result<_> -> bool
+```
+
 ### requireTrue
 
 Returns the specified error if the value is `false`.
