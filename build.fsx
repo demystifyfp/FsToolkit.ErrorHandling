@@ -54,6 +54,7 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "Restore" (fun _ ->
+  Fake.DotNet.Paket.restore (fun p -> {p with ToolType = ToolType.CreateLocalTool()} )
   DotNet.restore id solutionFile
 )
 
