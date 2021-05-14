@@ -8,6 +8,7 @@ open Expecto
 #endif
 open FsToolkit.ErrorHandling
 open System
+open System.Collections.Generic
 
 let makeDisposable () =
     { new System.IDisposable
@@ -177,7 +178,6 @@ let ceTests =
                 return v
             }
             Expect.equal actual None ""
-
     ]
 
 [<AllowNullLiteral>]

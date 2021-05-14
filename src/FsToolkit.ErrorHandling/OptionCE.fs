@@ -4,23 +4,23 @@ namespace FsToolkit.ErrorHandling
 module OptionCE =  
     open System
     type OptionBuilder() =
-        member inline this.Return(x) = Some x
+        member inline _.Return(x) = Some x
 
-        member inline this.ReturnFrom(m: 'T option) = m
+        member inline _.ReturnFrom(m: 'T option) = m
 
         member inline _.Bind(m : Option<'a>, f: 'a -> Option<'b>) = Option.bind f m
 
-        // Could not get Source to work since in loop cases it would match the #seq overload and ask for type annotation
+        // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
         member this.Bind(m : 'a when 'a:null, f: 'a -> Option<'b>) =  this.Bind(m |> Option.ofObj, f)
 
         member inline this.Zero() = this.Return ()
 
-        member inline this.Combine(m, f) = Option.bind f m
+        member inline _.Combine(m, f) = Option.bind f m
         member inline this.Combine(m1 : Option<_>, m2 : Option<_>) = this.Bind(m1 , fun () -> m2)
 
-        member inline this.Delay(f: unit -> _) = f
+        member inline _.Delay(f: unit -> _) = f
 
-        member inline this.Run(f) = f()
+        member inline _.Run(f) = f()
 
         member inline this.TryWith(m, h) =
             try this.Run m
@@ -84,21 +84,20 @@ module OptionExtensionsLower =
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
 // overload resolution and allows skipping more type annotations.
+// The later declared, the higher than previous extension methods, this is magic
 module OptionExtensions =
-  open System
-  type OptionBuilder with
-    /// <summary>
-    /// Needed to allow `for..in` and `for..do` functionality
-    /// </summary>
-    member inline __.Source(s: #seq<_>) = s
+    open System
+    type OptionBuilder with
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline _.Source(s: #seq<_>) = s
 
 
-    // /// <summary>
-    // /// Method lets us transform data types into our internal representation.
-    // /// </summary>
-    member inline this.Source(nullable : Nullable<'a>) : Option<'a> = nullable |> Option.ofNullable
+        // /// <summary>
+        // /// Method lets us transform data types into our internal representation.
+        // /// </summary>
+        member inline _.Source(nullable : Nullable<'a>) : Option<'a> = nullable |> Option.ofNullable
 
-
-    
 
 
