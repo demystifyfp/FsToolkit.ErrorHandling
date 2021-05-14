@@ -1,4 +1,4 @@
-#### 2.3.0-beta002 - May 14, 2021
+#### 2.3.0 - May 14, 2021
 - Adds Applicative Support to OptionCE. Also adds bindings for Nullable and null objects Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/126)
 
 
