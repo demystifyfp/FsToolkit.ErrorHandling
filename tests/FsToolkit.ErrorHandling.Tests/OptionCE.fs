@@ -7,6 +7,7 @@ open Fable.Mocha
 open Expecto
 #endif
 open FsToolkit.ErrorHandling
+open System
 
 let makeDisposable () =
     { new System.IDisposable
@@ -109,6 +110,14 @@ let ceTests =
                 return data
             }
             Expect.equal actual (Some data) "Should be ok"
+        testCase "For in ResizeArray" <| fun () ->
+            let data = 42
+            let actual = option {
+                for i in ResizeArray [1..10] do
+                    ()
+                return data
+            }
+            Expect.equal actual (Some data) "Should be ok"
         testCase "For to" <| fun () ->
             let data = 42
             let actual = option {
@@ -144,9 +153,183 @@ let ceTests =
                 return v
             }
             Expect.equal actual None ""
+            
+        testCase "Uri null" <| fun () ->
+            let (data : Uri) = null
+            let actual = option {
+                let! v = data
+                return v
+            }
+            Expect.equal actual None ""
+
+        testCase "MemoryStream null" <| fun () ->
+            let (data : IO.MemoryStream) = null
+            let actual = option {
+                let! v = data
+                return v
+            }
+            Expect.equal actual None ""
+
+        testCase "ResizeArray null" <| fun () ->
+            let (data : ResizeArray<string>) = null
+            let actual = option {
+                let! v = data
+                return v
+            }
+            Expect.equal actual None ""
+
     ]
 
+[<AllowNullLiteral>]
+type CustomClass(x : int) =
+
+    member _.getX = x
+
+
+let ``OptionCE applicative tests`` = 
+    testList "OptionCE applicative tests" [
+        testCase "Happy Path Option.Some" <| fun () ->
+            let actual = option {
+                let! a = Some 3
+                and! b = Some 2
+                and! c = Some 1
+                return a + b - c
+            }
+            Expect.equal actual (Some 4) "Should be Some 4"
+
+        testCase "Happy Path Nullable" <| fun () ->
+            let actual = option {
+                let! a = Nullable<_> 3
+                and! b = Nullable<_> 2
+                and! c = Nullable<_> 1
+                return a + b - c
+            }
+            Expect.equal actual (Some 4) "Should be Some 4"
+
+        testCase "Happy Path null Objects" <| fun () ->
+            // let hello = CustomClass
+            let actual = option {
+                let! a = CustomClass 3
+                and! b = CustomClass 2
+                and! c = CustomClass 1
+                return a.getX + b.getX - c.getX
+            }
+            Expect.equal actual (Some 4) "Should be Some 4"
+
+
+        testCase "Happy Path strings" <| fun () ->
+            let hello = "Hello "
+            let world = "world "
+            let fromfsharp = "from F#"
+            let actual = option {
+                let! a = hello
+                and! b = world
+                and! c = fromfsharp
+                return a + b + c
+            }
+            Expect.equal actual (Some "Hello world from F#") "Should be Some"
+
+        testCase "Happy Path ResizeArray" <| fun () ->
+            let r1 = ResizeArray [3]
+            let r2 = ResizeArray [2]
+            let r3 = ResizeArray [1]
+            let actual = option {
+                let! a = r1
+                and! b = r2
+                and! c = r3
+                a.AddRange b
+                a.AddRange c
+                
+                return Seq.sum a
+            }
+            Expect.equal actual (Some 6) "Should be Some"
+
+        testCase "Happy Path Option.Some/Nullable" <| fun () ->
+            let actual = option {
+                let! a = Some 3
+                and! b = Nullable 2
+                and! c = Nullable 1
+                return a + b - c
+            }
+            Expect.equal actual (Some 4) "Should be Some 4"
+
+        testCase "Happy Path Option.Some/Nullable/Objects" <| fun () ->
+            let actual = option {
+                let! a = Some 3
+                and! b = Nullable 2
+                and! c = CustomClass 1
+                return a + b - c.getX
+            }
+            Expect.equal actual (Some 4) "Should be Some 4"
+
+                        
+        testCase "Hapy Combo" <| fun () ->
+            let actual = option {
+                let! a = Nullable<_> 3
+                and! b = Some 2
+                and! c = "Nullable<_>()"
+                and! d = ResizeArray [1]
+                and! e = CustomClass 5
+                and! f = Uri "http://github.com"
+                return a,b,c,d,e,f 
+            }
+            Expect.isSome actual "Should be Some"
+
+        testCase "Fail Path Option.None" <| fun () ->
+            let actual = option {
+                let! a = Some 3
+                and! b = Some 2
+                and! c = None
+                return a + b - c
+            }
+            Expect.isNone actual "Should be None"
+            
+        testCase "Fail Path Nullable" <| fun () ->
+            let actual = option {
+                let! a = Nullable 3
+                and! b = Nullable 2
+                and! c = Nullable<_>()
+                return a + b - c
+            }
+            Expect.equal actual (None) "Should be None"    
+
+        testCase "Fail Path Objects" <| fun () ->
+            let c1 = CustomClass 3
+            let c2 = CustomClass 2
+            let c3 : CustomClass = null
+            let actual = option {
+                let! a = c1
+                and! b = c2
+                and! c = c3
+                return a.getX + b.getX - c.getX
+            }
+            Expect.equal actual (None) "Should be None"
+
+
+        testCase "Fail Path strings" <| fun () ->
+            let c1 = CustomClass 3
+            let c2 = CustomClass 2
+            let c3 : CustomClass = null
+            let actual = option {
+                let! a = c1
+                and! b = c2
+                and! c = c3
+                return a.getX + b.getX - c.getX
+            }
+            Expect.equal actual (None) "Should be None"
+
+        testCase "Fail Path Option.Some/Nullable" <| fun () ->
+            let actual = option {
+                let! a = Nullable<_> 3
+                and! b = Some 2
+                and! c = Nullable<_>()
+                return a + b - c
+            }
+            Expect.isNone actual "Should be None"
+
+    ]
 
 let allTests = testList "Option CE tests" [
     ceTests
+    ``OptionCE applicative tests``
 ]

@@ -50,6 +50,10 @@ module OptionCE =
                 this.While(enum.MoveNext,
                     this.Delay(fun () -> binder enum.Current)))
 
+        member inline _.BindReturn(x, f) = Option.map f x
+        member inline _.BindReturn(x, f) = x |> Option.ofObj |> Option.map f 
+        member inline _.MergeSources(option1, option2) = Option.zip option1 option2
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         /// 
@@ -59,6 +63,23 @@ module OptionCE =
 
                     
     let option = OptionBuilder()
+
+
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module OptionExtensionsLower =
+    type OptionBuilder with
+        member inline _.Source(nullableObj : 'a when 'a:null) = nullableObj |> Option.ofObj
+        member inline _.Source(m : string) = m |> Option.ofObj
+
+        member inline _.MergeSources(nullableObj1, option2) = Option.zip (Option.ofObj nullableObj1) option2
+
+
+        member inline _.MergeSources(option1 , nullableObj2) = Option.zip (option1) (Option.ofObj nullableObj2)
+
+
+        member inline _.MergeSources(nullableObj1 , nullableObj2) = Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
 
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
@@ -79,6 +100,5 @@ module OptionExtensions =
 
 
     
-
 
 

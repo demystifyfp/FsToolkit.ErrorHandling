@@ -19,3 +19,14 @@ module Option =
     | true -> Some output
     | _ -> None
   #endif
+
+  /// <summary>
+  /// Takes two options and returns a tuple of the pair or none if either are none
+  /// </summary>
+  /// <param name="option1">The input option</param>
+  /// <param name="option2">The input option</param>
+  /// <returns></returns>
+  let zip (option1 : option<'a>) (option2 : option<'b>) =
+    match option1, option2 with
+    | Some v1, Some v2 -> Some(v1,v2) 
+    | _ -> None
