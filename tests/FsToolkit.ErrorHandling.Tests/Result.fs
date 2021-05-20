@@ -377,6 +377,18 @@ let defaultValueTests =
   ]
 
 
+let defaultErrorTests =
+  testList "defaultError Tests" [
+    testCase "defaultError returns the error value" <| fun _ ->
+      let v = Result.defaultError 43 (Error 42)
+      Expect.equal v 42 ""
+
+    testCase "defaultError returns the given value for Ok" <| fun _ ->
+      let v = Result.defaultError 43 (Ok 42)
+      Expect.equal v 43 ""
+  ]
+
+
 let defaultWithTests =
   testList "defaultWith Tests" [
     testCase "defaultWith returns the ok value" <| fun _ ->
@@ -565,6 +577,22 @@ let zipTests =
       Expect.equal actual (Error "Bad1") "Should be Error"
   ]
 
+let zipErrorTests =
+  testList "zipError tests" [
+    testCase "Ok, Ok" <| fun () ->
+      let actual = Result.zipError (Ok 1) (Ok 2)
+      Expect.equal actual (Ok (1)) "Should be ok"
+    testCase "Ok, Error" <| fun () ->
+      let actual = Result.zipError (Ok 1) (Error "Bad")
+      Expect.equal actual (Ok 1) "Should be ok"
+    testCase "Error, Ok" <| fun () ->
+      let actual = Result.zipError (Error "Bad") (Ok 1) 
+      Expect.equal actual (Ok 1) "Should be ok"
+    testCase "Error, Error" <| fun () ->
+      let actual = Result.zipError (Error "Bad1") (Error "Bad2")
+      Expect.equal actual (Error ("Bad1", "Bad2")) "Should be Error"
+  ]
+
 let allTests = testList "Result Tests" [
   resultIsOk
   resultIsError
@@ -592,6 +620,7 @@ let allTests = testList "Result Tests" [
   setErrorTests
   withErrorTests
   defaultValueTests
+  defaultErrorTests
   defaultWithTests
   ignoreErrorTests
   teeTests
@@ -601,4 +630,5 @@ let allTests = testList "Result Tests" [
   sequenceAsyncTests
   valueOrTests
   zipTests
+  zipErrorTests
 ]

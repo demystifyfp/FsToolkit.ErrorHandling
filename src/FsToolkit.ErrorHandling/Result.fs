@@ -117,6 +117,12 @@ module Result =
     | Ok x -> x
     | Error _ -> ifError
 
+  // Returns the contained value if Error, otherwise returns ifOk.
+  let defaultError ifOk result =
+      match result with
+      | Error error -> error
+      | Ok _ -> ifOk
+
   /// Returns the contained value if Ok, otherwise evaluates ifErrorThunk and
   /// returns the result.
   let defaultWith ifErrorThunk result =
@@ -179,3 +185,10 @@ module Result =
     | Ok x1res, Ok x2res -> Ok (x1res, x2res)
     | Error e, _ -> Error e
     | _, Error e -> Error e
+
+  /// Takes two results and returns a tuple of the error pair
+  let zipError x1 x2 =
+      match x1, x2 with
+      | Error x1res, Error x2res -> Error(x1res, x2res)
+      | Ok e, _ -> Ok e
+      | _, Ok e -> Ok e
