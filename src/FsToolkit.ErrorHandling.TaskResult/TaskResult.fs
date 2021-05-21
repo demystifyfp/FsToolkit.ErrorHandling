@@ -143,6 +143,11 @@ module TaskResult =
     Task.zip x1 x2
     |> Task.map(fun (r1, r2) -> Result.zip r1 r2)
 
+  /// Takes two results and returns a tuple of the error pair
+  let zipError x1 x2 = 
+    Task.zip x1 x2
+    |> Task.map(fun (r1, r2) -> Result.zipError r1 r2)
+
   /// Catches exceptions and maps them to the Error case using the provided function.
   let catch f x =
     x
