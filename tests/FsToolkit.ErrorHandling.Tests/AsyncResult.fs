@@ -566,6 +566,7 @@ let allTests = testList "Async Result tests" [
   setErrorTests
   withErrorTests
   defaultValueTests
+  defaultErrorTests
   defaultWithTests
   ignoreErrorTests
   teeTests
