@@ -307,6 +307,18 @@ let defaultValueTests =
   ]
 
 [<Tests>]
+let defaultErrorTests = 
+  testList "JobResult.defaultError Tests" [
+    testCase "defaultError returns the error value" <| fun _ ->
+      let v = JobResult.defaultError 43 (toJob (Error 42))
+      Expect.hasJobValue 42 v
+
+    testCase "defaultError returns the given value for Ok" <| fun _ ->
+      let v = JobResult.defaultError 43 (toJob (Ok 42))
+      Expect.hasJobValue 43 v
+  ]
+
+[<Tests>]
 let defaultWithTests =
   testList "JobResult.defaultWith Tests" [
     testCase "defaultWith returns the ok value" <| fun _ ->

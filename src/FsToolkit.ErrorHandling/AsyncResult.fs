@@ -112,6 +112,11 @@ module AsyncResult =
   let defaultValue ifError asyncResult =
     asyncResult |> Async.map (Result.defaultValue ifError)
 
+  /// Extracts the contained value of an async-wrapped result if Error, otherwise
+  /// uses ifOk.
+  let defaultError ifOk asyncResult =
+    asyncResult |> Async.map (Result.defaultError ifOk)
+
   /// Extracts the contained value of an async-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
   let defaultWith ifErrorThunk asyncResult =

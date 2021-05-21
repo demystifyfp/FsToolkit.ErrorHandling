@@ -317,6 +317,18 @@ let defaultValueTests =
   ]
 
 
+let defaultErrorTests = 
+  testList "AsyncResult.defaultError Tests" [
+    testCaseAsync "defaultError returns the error value" <| 
+      (let v = AsyncResult.defaultError 43 (toAsync (Error 42))
+      Expect.hasAsyncValue 42 v)
+
+    testCaseAsync "defaultError returns the given value for Ok" <| 
+      (let v = AsyncResult.defaultError 43 (toAsync (Ok 42))
+      Expect.hasAsyncValue 43 v)
+  ]
+
+
 let defaultWithTests =
   testList "AsyncResult.defaultWith Tests" [
     testCaseAsync "defaultWith returns the ok value" <| 

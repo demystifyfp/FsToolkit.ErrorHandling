@@ -109,6 +109,11 @@ module JobResult =
   let defaultValue ifError jobResult =
     jobResult |> Job.map (Result.defaultValue ifError)
 
+  /// Extracts the contained value of an job-wrapped result if Error, otherwise
+  /// uses ifOk.
+  let defaultError ifOk jobResult =
+    jobResult |> Job.map (Result.defaultError ifOk)
+
   /// Extracts the contained value of an job-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
   let defaultWith ifErrorThunk jobResult =
