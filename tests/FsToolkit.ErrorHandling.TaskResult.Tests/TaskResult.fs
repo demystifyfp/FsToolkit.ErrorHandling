@@ -310,11 +310,11 @@ let defaultValueTests =
 let defaultErrorTests = 
   testList "TaskResult.defaultError Tests" [
     testCase "defaultError returns the error value" <| fun _ ->
-      let v = TaskResult.defaultValue 43 (toTask (Error 42))
+      let v = TaskResult.defaultError 43 (toTask (Error 42))
       Expect.hasTaskValue 42 v
 
     testCase "defaultError returns the given value for Ok" <| fun _ ->
-      let v = TaskResult.defaultValue 43 (toTask (Ok 42))
+      let v = TaskResult.defaultError 43 (toTask (Ok 42))
       Expect.hasTaskValue 43 v
   ]
 
