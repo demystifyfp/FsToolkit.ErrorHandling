@@ -103,6 +103,11 @@ module TaskResult =
   let defaultValue ifError taskResult =
     taskResult |> Task.map (Result.defaultValue ifError)
 
+  /// Extracts the contained value of an task-wrapped result if Error, otherwise
+  /// uses ifOk.
+  let defaultError ifOk taskResult =
+    taskResult |> Task.map (Result.defaultError ifOk)
+
   /// Extracts the contained value of an task-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
   let defaultWith ifErrorThunk taskResult =
