@@ -483,6 +483,46 @@ let catchTests =
       Expect.hasTaskErrorValue "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
   ]
 
+[<Tests>]
+let zipTests =
+  testList "TaskResult.zip tests" [
+    testCase "Ok, Ok" <| fun _ ->
+      let v = TaskResult.zip (toTask (Ok 1)) (toTask (Ok 2))
+      Expect.hasTaskValue (Ok(1, 2)) v
+      
+    testCase "Ok, Error" <| fun _ ->
+      let v = TaskResult.zip (toTask (Ok 1)) (toTask (Error "Bad"))
+      Expect.hasTaskValue (Error("Bad")) v
+      
+    testCase "Error, Ok" <| fun _ ->
+      let v = TaskResult.zip (toTask (Error "Bad")) (toTask (Ok 1))
+      Expect.hasTaskValue (Error("Bad")) v
+      
+    testCase "Error, Error" <| fun _ ->
+      let v = TaskResult.zip (toTask (Error "Bad1")) (toTask (Error "Bad2"))
+      Expect.hasTaskValue (Error("Bad1")) v
+  ]
+
+[<Tests>]
+let zipErrorTests =
+  testList "TaskResult.zipError tests" [
+    testCase "Ok, Ok" <| fun _ ->
+      let v = TaskResult.zipError (toTask (Ok 1)) (toTask (Ok 2))
+      Expect.hasTaskValue (Ok(1)) v
+      
+    testCase "Ok, Error" <| fun _ ->
+      let v = TaskResult.zipError (toTask (Ok 1)) (toTask (Error "Bad"))
+      Expect.hasTaskValue (Ok 1) v
+      
+    testCase "Error, Ok" <| fun _ ->
+      let v = TaskResult.zipError (toTask (Error "Bad")) (toTask (Ok 1))
+      Expect.hasTaskValue (Ok 1) v
+      
+    testCase "Error, Error" <| fun _ ->
+      let v = TaskResult.zipError (toTask (Error "Bad1")) (toTask (Error "Bad2"))
+      Expect.hasTaskValue (Error("Bad1", "Bad2")) v
+  ]
+
 type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest
 | NotAllowedToPost
