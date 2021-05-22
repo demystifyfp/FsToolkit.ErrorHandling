@@ -547,6 +547,49 @@ let asyncResultOperatorTests =
         |> Expect.hasAsyncOkValue (PostId newPostId)
     }
   ]
+  
+
+let zipTests = 
+  testList "AsyncResult.zip Tests" [
+    testCaseAsync "Ok, Ok" <| async {
+      let! v = AsyncResult.zip (toAsync (Ok 1)) (toAsync (Ok 2))
+      Expect.equal v (Ok(1, 2)) "Should be ok"
+    }
+    testCaseAsync "Ok, Error" <| async {
+      let! v = AsyncResult.zip (toAsync (Ok 1)) (toAsync (Error "Bad"))
+      Expect.equal v (Error("Bad")) "Should be Error"
+    }
+    testCaseAsync "Error, Ok" <| async {
+      let! v = AsyncResult.zip (toAsync (Error "Bad")) (toAsync (Ok 1))
+      Expect.equal v (Error("Bad")) "Should be Error"
+    }
+    testCaseAsync "Error, Error" <| async {
+      let! v = AsyncResult.zip (toAsync (Error "Bad1")) (toAsync (Error "Bad2"))
+      Expect.equal v (Error("Bad1")) "Should be Error"
+    }
+  ]
+
+
+let zipErrorTests = 
+  testList "AsyncResult.zipError Tests" [
+    testCaseAsync "Ok, Ok" <| async {
+      let! v = AsyncResult.zipError (toAsync (Ok 1)) (toAsync (Ok 2))
+      Expect.equal v (Ok(1)) "Should be ok"
+    }
+    testCaseAsync "Ok, Error" <| async {
+      let! v = AsyncResult.zipError (toAsync (Ok 1)) (toAsync (Error "Bad"))
+      Expect.equal v (Ok 1) "Should be ok"
+    }
+    testCaseAsync "Error, Ok" <| async {
+      let! v = AsyncResult.zipError (toAsync (Error "Bad")) (toAsync (Ok 1))
+      Expect.equal v (Ok 1) "Should be ok"
+    }
+    testCaseAsync "Error, Error" <| async {
+      let! v = AsyncResult.zipError (toAsync (Error "Bad1")) (toAsync (Error "Bad2"))
+      Expect.equal v (Error("Bad1", "Bad2")) "Should be Error"
+    }
+  ]
+
 
 let allTests = testList "Async Result tests" [
   mapTests
@@ -576,4 +619,6 @@ let allTests = testList "Async Result tests" [
   catchTests
   asyncResultCETests
   asyncResultOperatorTests
+  zipTests
+  zipErrorTests
 ]

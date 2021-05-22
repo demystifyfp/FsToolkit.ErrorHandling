@@ -482,6 +482,48 @@ let catchTests =
     testCase "catch returns unmapped error without exception" <| fun _ ->
       Expect.hasJobErrorValue "unmapped" (JobResult.catch f (toJob (Error "unmapped")))
   ]
+  
+
+[<Tests>]
+let zipTests =
+  testList "JobResult.zip tests" [
+    testCase "Ok, Ok" <| fun _ ->
+      let v = JobResult.zip (toJob (Ok 1)) (toJob (Ok 2))
+      Expect.hasJobValue (Ok(1, 2)) v
+      
+    testCase "Ok, Error" <| fun _ ->
+      let v = JobResult.zip (toJob (Ok 1)) (toJob (Error "Bad"))
+      Expect.hasJobValue (Error("Bad")) v
+      
+    testCase "Error, Ok" <| fun _ ->
+      let v = JobResult.zip (toJob (Error "Bad")) (toJob (Ok 1))
+      Expect.hasJobValue (Error("Bad")) v
+      
+    testCase "Error, Error" <| fun _ ->
+      let v = JobResult.zip (toJob (Error "Bad1")) (toJob (Error "Bad2"))
+      Expect.hasJobValue (Error("Bad1")) v
+  ]
+
+[<Tests>]
+let zipErrorTests =
+  testList "JobResult.zipError tests" [
+    testCase "Ok, Ok" <| fun _ ->
+      let v = JobResult.zipError (toJob (Ok 1)) (toJob (Ok 2))
+      Expect.hasJobValue (Ok(1)) v
+      
+    testCase "Ok, Error" <| fun _ ->
+      let v = JobResult.zipError (toJob (Ok 1)) (toJob (Error "Bad"))
+      Expect.hasJobValue (Ok 1) v
+      
+    testCase "Error, Ok" <| fun _ ->
+      let v = JobResult.zipError (toJob (Error "Bad")) (toJob (Ok 1))
+      Expect.hasJobValue (Ok 1) v
+      
+    testCase "Error, Error" <| fun _ ->
+      let v = JobResult.zipError (toJob (Error "Bad1")) (toJob (Error "Bad2"))
+      Expect.hasJobValue (Error("Bad1", "Bad2")) v
+  ]
+
 
 type CreatePostResult =
 | PostSuccess of NotifyNewPostRequest
