@@ -1,4 +1,4 @@
-#### 2.4.0-beta001 - May 23, 2021
+#### 2.4.0 - May 23, 2021
 - Adds defaultError and zipError helpers Credits [@sep2](https://github.com/sep2) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/130)
 #### 2.3.0 - May 14, 2021
 - Adds Applicative Support to OptionCE. Also adds bindings for Nullable and null objects Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/126)
