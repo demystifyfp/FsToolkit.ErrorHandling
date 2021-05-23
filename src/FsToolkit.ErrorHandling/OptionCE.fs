@@ -69,7 +69,6 @@ module OptionCE =
 
     let option = OptionBuilder()
 
-
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
 // overload resolution and allows skipping more type annotations.
@@ -101,7 +100,6 @@ module OptionExtensions =
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
         member inline _.Source(s: #seq<_>) = s
-
 
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.

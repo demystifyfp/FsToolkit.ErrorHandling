@@ -442,7 +442,29 @@ let ``OptionCE applicative tests`` =
                       return a + b - c
                   }
 
-              Expect.equal actual None "Should be None" ]
+              Expect.equal actual None "Should be None"
+
+          testCase "ValueOption.Some"
+          <| fun () ->
+              let actual =
+                  option {
+                      let! a = ValueSome 3
+                      return a
+                  }
+
+              Expect.equal actual (Some 3) "Should be None"
+
+          testCase "ValueOption.None"
+          <| fun () ->
+              let actual =
+                  option {
+                      let! a = ValueNone
+                      return a
+                  }
+
+              Expect.equal actual (None) "Should be None" ]
+
+
 
 let allTests =
     testList
