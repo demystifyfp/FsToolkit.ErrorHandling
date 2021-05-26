@@ -1,28 +1,39 @@
+#### 2.5.0-beta001 - May 26, 2021
+
+-A dded Async, Task and Job overloads for the relavant Option CEs to resolve Credits [@Jmaharman](https://github.com/Jmaharman) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/132)
+
 #### 2.4.0 - May 23, 2021
+
 - Adds defaultError and zipError helpers Credits [@sep2](https://github.com/sep2) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/130)
 #### 2.3.0 - May 14, 2021
+
 - Adds Applicative Support to OptionCE. Also adds bindings for Nullable and null objects Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/126)
 
 
 #### 2.2.0 - April 21, 2021
+
 - AsyncResult, TaskResult, JobResult error helpers Credits [@meridaio](https://github.com/meridaio) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/124)
 
 #### 2.1.2 - February 27, 2021
+
 - Converts ValidationCE to use Source overloads Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/115)
 
 #### 2.1.1 - February 26, 2021
+
 - Added Description and License to nuget package Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/114)
 
 #### 2.1.0 - February 26, 2021
 - Performance enhancements for traverseValidationA. Credits [@isaacabraham](https://github.com/isaacabraham) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/110) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/111) (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/113)
  
 #### 2.0.0 - November 20, 2020
+
 - Switches TaskResult Library from TaskBuilder to Ply. Credits [Nino Floris](https://github.com/NinoFloris) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/97) 
   - This change replaces [TaskBuilder](https://github.com/rspeele/TaskBuilder.fs) with [Ply](https://github.com/crowded/ply).  Ply has better performance characteristics and more in line with how C# handles Task execution.  To convert from TaskBuilder to Ply, replace the namespace of `FSharp.Control.Tasks.V2.ContextInsensitive` with `FSharp.Control.Tasks`. -
   - This also removes the TargetFramework net461 as a build target. Current netstandard2.0 supports net472 fully according to [this chart](https://docs.microsoft.com/en-us/dotnet/standard/net-standard#net-implementation-support). It's recommended to upgrade your application to net472 if possible. If not, older versions of this library, such as 1.4.3, aren't going anywhere and can still be consumed from older TargetFrameworks.
 - Switch to use Affine for Task related. Credits [@Swoorup](https://github.com/Swoorup). - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/107)
 
 #### 1.4.3 - July 21, 2020
+
 - Adds IF FABLE_COMPILER to any Async.AwaitTask type functions in AsyncResult. Credits [Jimmy Byrd](https://github.com/TheAngryByrd) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/93)
 
 #### 1.4.1 - June 23, 2020 [YANKED]
