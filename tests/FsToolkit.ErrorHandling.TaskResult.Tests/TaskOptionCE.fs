@@ -33,7 +33,7 @@ let ceTests =
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
-        
+
         testCaseTask "ReturnFrom Async None" <| task {
             let expected = None
             let! actual = taskOption  {
@@ -41,8 +41,13 @@ let ceTests =
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
-
-        #if !FABLE_COMPILER
+        testCaseTask "ReturnFrom Async" <| task {
+            let expected = Some 42
+            let! actual = taskOption  {
+                return! (async.Return 42)
+            }
+            Expect.equal actual expected "Should return value wrapped in option"
+        }
         testCaseTask "ReturnFrom Task None" <| task {
             let expected = None
             let! actual = taskOption  {
@@ -50,7 +55,13 @@ let ceTests =
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
-        #endif
+        testCaseTask "ReturnFrom Task" <| task {
+            let expected = Some 42
+            let! actual = taskOption  {
+                return! (Task.FromResult 42)
+            }
+            Expect.equal actual expected "Should return value wrapped in option"
+        }
         testCaseTask "Bind Some" <| task {
             let expected = Some 42
             let! actual = taskOption {
@@ -75,10 +86,26 @@ let ceTests =
             }
             Expect.equal actual expected "Should bind value wrapped in option"
         }
+        testCaseTask "Bind Async" <| task {
+            let expected = Some 42
+            let! actual = taskOption {
+                let! value = async.Return 42
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
         testCaseTask "Bind Task None" <| task {
             let expected = None
             let! actual = taskOption {
                 let! value = Task.FromResult None
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
+        testCaseTask "Bind Task" <| task {
+            let expected = Some 42
+            let! actual = taskOption {
+                let! value = Task.FromResult 42
                 return value
             }
             Expect.equal actual expected "Should bind value wrapped in option"
