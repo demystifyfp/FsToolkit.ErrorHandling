@@ -33,11 +33,18 @@ let ceTests =
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
-        
+
         testCaseJob "ReturnFrom Async None" <| job {
             let expected = None
             let! actual = jobOption  {
                 return! (async.Return None)
+            }
+            Expect.equal actual expected "Should return value wrapped in option"
+        }
+        testCaseJob "ReturnFrom Async" <| job {
+            let expected = Some 42
+            let! actual = jobOption  {
+                return! (async.Return 42)
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
@@ -51,9 +58,9 @@ let ceTests =
         }
 
         testCaseJob "ReturnFrom Job None" <| job {
-            let expected = None
+            let expected = Some 42
             let! actual = jobOption  {
-                return! (Job.result None)
+                return! (Job.result (Some 42))
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
@@ -82,10 +89,26 @@ let ceTests =
             }
             Expect.equal actual expected "Should bind value wrapped in option"
         }
+        testCaseJob "Bind Async" <| job {
+            let expected = Some 42
+            let! actual = jobOption {
+                let! value = async.Return 42
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
         testCaseJob "Bind Task None" <| job {
             let expected = None
             let! actual = jobOption {
                 let! value = Task.FromResult None
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
+        testCaseJob "Bind Task" <| job {
+            let expected = Some 42
+            let! actual = jobOption {
+                let! value = Task.FromResult 42
                 return value
             }
             Expect.equal actual expected "Should bind value wrapped in option"
@@ -95,6 +118,14 @@ let ceTests =
             let expected = None
             let! actual = jobOption {
                 let! value = Job.result None
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
+        testCaseJob "Bind Job" <| job {
+            let expected = Some 42
+            let! actual = jobOption {
+                let! value = Job.result 42
                 return value
             }
             Expect.equal actual expected "Should bind value wrapped in option"
