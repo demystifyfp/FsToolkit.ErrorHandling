@@ -13,29 +13,9 @@ module JobOptionCE =
       job.Return <| option.Return value
 
     member __.ReturnFrom
-        (asyncResult: Async<Option<_>>)
-        : Job<Option<_>> =
-      asyncResult |> Job.fromAsync
-
-    member __.ReturnFrom
         (jobResult: Job<Option<_>>)
         : Job<Option<_>> =
       jobResult
-
-    member __.ReturnFrom
-        (taskResult: Task<Option<_>>)
-        : Job<Option<_>> =
-      Job.awaitTask taskResult
-
-    member __.ReturnFrom
-        (taskResult: unit -> Task<Option<_>>)
-        : Job<Option<_>> =
-      Job.fromTask taskResult
-
-    member __.ReturnFrom
-        (result: Option<_>)
-        : Job<Option<_>> =
-      job.Return result
 
     member __.Zero () : Job<Option<_>> =
       job.Return <| option.Zero ()
@@ -50,28 +30,12 @@ module JobOptionCE =
         | Some x -> return! binder x
         | None -> return None
       }
-    member this.Bind
-        (asyncResult: Async<Option<_>>,
-         binder: 'T -> Job<Option<_>>)
-        : Job<Option<_>> =
-      this.Bind(Job.fromAsync asyncResult, binder)
-
-    member this.Bind
-        (taskResult: Task<Option<_>>,
-         binder: 'T -> Job<Option<_>>)
-        : Job<Option<_>> =
-      this.Bind(Job.awaitTask taskResult, binder)
 
     member this.Bind
         (taskResult: unit -> Task<Option<_>>,
          binder: 'T -> Job<Option<_>>)
         : Job<Option<_>> =
       this.Bind(Job.fromTask taskResult, binder)
-
-    member this.Bind
-        (result: Option<_>, binder: 'T -> Job<Option<_>>)
-        : Job<Option<_>> =
-      this.Bind(this.ReturnFrom result, binder)
 
     member __.Delay
         (generator: unit -> Job<Option<_>>)
@@ -127,4 +91,49 @@ module JobOptionCE =
         this.While(enum.MoveNext,
           this.Delay(fun () -> binder enum.Current)))
 
+        /// <summary>
+        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+        ///
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source(job : Job<Option<_>>) : Job<Option<_>> = job
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
+        member inline _.Source(async : Async<Option<_>>) : Job<Option<_>> = async |> Job.fromAsync
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
+        member inline _.Source(task : Task<Option<_>>) : Job<Option<_>> = task |> Job.awaitTask
+
   let jobOption = JobOptionBuilder() 
+
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module JobOptionCEExtensions =
+
+   type JobOptionBuilder with
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member inline __.Source(s: #seq<_>) = s
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(r: Option<'t>) = Job.singleton r
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Job<'t>) = a |> Job.map Some
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Async<'t>) = a |> Job.fromAsync |> Job.map Some
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Task<'t>) = a |> Job.awaitTask |> Job.map Some
