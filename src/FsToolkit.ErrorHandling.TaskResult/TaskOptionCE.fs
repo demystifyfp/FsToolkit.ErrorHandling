@@ -18,16 +18,6 @@ module TaskOptionCE =
             : Ply<Option<_>> =
           uply.ReturnFrom taskResult
 
-        member inline this.ReturnFrom
-            (asyncResult: Async<Option<_>>)
-            : Ply<Option<_>> =
-          this.ReturnFrom (Async.StartAsTask asyncResult)
-
-        member inline _.ReturnFrom
-            (result: Option<_>)
-            : Ply<Option<_>> =
-          uply.Return result
-
         member inline _.Zero () : Ply<Option<_>> =
           uply.Return <| option.Zero()
 
@@ -40,20 +30,6 @@ module TaskOptionCE =
               | Some x -> binder x
               | None -> uply.Return None
             uply.Bind(taskResult, binder')
-     
-        member inline this.Bind
-            (asyncResult: Async<Option<_>>,
-             binder: 'T -> Ply<Option<_>>)
-            : Ply<Option<_>> =
-          this.Bind(Async.StartAsTask asyncResult, binder)
-
-        member inline this.Bind
-            (result: Option<_>, binder: 'T -> Ply<Option<_>>)
-            : Ply<Option<_>> =
-            let result = 
-              result
-              |> Task.singleton
-            this.Bind(result, binder)
 
         member inline _.Delay
             (generator: unit -> Ply<Option<_>>) =
@@ -117,4 +93,40 @@ module TaskOptionCE =
 
         member inline _.Run(f : unit -> Ply<'m>) = task.Run f
 
+        /// <summary>
+        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source(task : Task<Option<_>>) : Task<Option<_>> = task
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
+        member inline _.Source(async : Async<Option<_>>) : Task<Option<_>> = async |> Async.StartAsTask
+
     let taskOption = TaskOptionBuilder() 
+
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module TaskOptionCEExtensions =
+
+   type TaskOptionBuilder with
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member inline __.Source(s: #seq<_>) = s
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(r: Option<'t>) = Task.singleton r
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Task<'t>) = a |> Task.map Some
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Async<'t>) = a |> Async.StartAsTask |> Task.map Some
