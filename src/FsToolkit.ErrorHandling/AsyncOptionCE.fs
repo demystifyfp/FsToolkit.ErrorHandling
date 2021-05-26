@@ -15,22 +15,10 @@ module AsyncOptionCE =
             : Async<Option<_>> =
           asyncResult
 
-        #if !FABLE_COMPILER
-        member __.ReturnFrom
-            (taskResult: Task<Option<_>>)
-            : Async<Option<_>> =
-          Async.AwaitTask taskResult
-        #endif
-
-        member __.ReturnFrom
-            (result: Option<_>)
-            : Async<Option<_>> =
-          async.Return result
-
         member __.Zero () : Async<Option<_>> =
           async.Return <| option.Zero ()
 
-        member __.Bind
+        member inline __.Bind
             (asyncResult: Async<Option<_>>,
              binder: 'T -> Async<Option<_>>)
             : Async<Option<_>> =
@@ -40,20 +28,6 @@ module AsyncOptionCE =
             | Some x -> return! binder x
             | None -> return None
           }
-
-        #if !FABLE_COMPILER
-        member this.Bind
-            (taskResult: Task<Option<_>>,
-             binder: 'T -> Async<Option<_>>)
-            : Async<Option<_>> =
-          this.Bind(Async.AwaitTask taskResult, binder)
-        #endif
-
-        member this.Bind
-            (result: Option<_>, binder: 'T -> Async<Option<_>>)
-            : Async<Option<_>> =
-          this.Bind(this.ReturnFrom result, binder)
-
 
         member __.Delay
             (generator: unit -> Async<Option<_>>)
@@ -100,5 +74,46 @@ module AsyncOptionCE =
             this.While(enum.MoveNext,
               this.Delay(fun () -> binder enum.Current)))
 
+        /// <summary>
+        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+        ///
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source(async : Async<Option<_>>) : Async<Option<_>> = async
+
+#if !FABLE_COMPILER
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
+        member inline _.Source(task : Task<Option<_>>) : Async<Option<_>> = task |> Async.AwaitTask
+#endif
 
     let asyncOption = AsyncOptionBuilder() 
+
+
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module AsyncOptionCEExtensions =
+
+   type AsyncOptionBuilder with
+    /// <summary>
+    /// Needed to allow `for..in` and `for..do` functionality
+    /// </summary>
+    member inline __.Source(s: #seq<_>) = s
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(r: Option<'t>) = Async.singleton r
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Async<'t>) = a |> Async.map Some
+
+#if !FABLE_COMPILER
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: Task<'t>) = a |> Async.AwaitTask |> Async.map Some
+#endif
