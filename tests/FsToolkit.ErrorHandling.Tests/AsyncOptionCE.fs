@@ -44,12 +44,26 @@ let ceTests =
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
+        testCaseAsync "ReturnFrom Async" <| async {
+            let expected = Some 42
+            let! actual = asyncOption  {
+                return! async { return 42 }
+            }
+            Expect.equal actual expected "Should return value wrapped in option"
+        }
 
         #if !FABLE_COMPILER
         testCaseAsync "ReturnFrom Task None" <| async {
             let expected = None
             let! actual = asyncOption  {
                 return! (Task.FromResult None)
+            }
+            Expect.equal actual expected "Should return value wrapped in option"
+        }
+        testCaseAsync "ReturnFrom Task" <| async {
+            let expected = Some 42
+            let! actual = asyncOption  {
+                return! (Task.FromResult 42)
             }
             Expect.equal actual expected "Should return value wrapped in option"
         }
@@ -78,12 +92,28 @@ let ceTests =
             }
             Expect.equal actual expected "Should bind value wrapped in option"
         }
+        testCaseAsync "Bind Async" <| async {
+            let expected = Some 42
+            let! actual = asyncOption {
+                let! value = async.Return(42)
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
 
         #if !FABLE_COMPILER
         testCaseAsync "Bind Task None" <| async {
             let expected = None
             let! actual = asyncOption {
                 let! value = Task.FromResult None
+                return value
+            }
+            Expect.equal actual expected "Should bind value wrapped in option"
+        }
+        testCaseAsync "Bind Task" <| async {
+            let expected = Some 42
+            let! actual = asyncOption {
+                let! value = Task.FromResult 42
                 return value
             }
             Expect.equal actual expected "Should bind value wrapped in option"
