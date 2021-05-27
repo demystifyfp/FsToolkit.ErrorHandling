@@ -1,6 +1,6 @@
 #### 2.5.0 - May 26, 2021
 
--A dded Async, Task and Job overloads for the relavant Option CEs to resolve Credits [@Jmaharman](https://github.com/Jmaharman) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/132)
+- Added Async, Task and Job overloads for the relevant Option CEs to resolve Credits [@Jmaharman](https://github.com/Jmaharman) - (https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/132)
 
 #### 2.4.0 - May 23, 2021
 
