@@ -42,32 +42,47 @@ let report moduleName (methods : MethodInfo seq) =
 let normalize (name : string) : string =
     String(Char.ToLower(name.[0]) |> Array.singleton) + name.Substring(1)
 
+type Module = {
+    ReflectionLookupName : string
+    CSVOutputName : string
+}
+    with 
+        static member Create r c = 
+            {
+                ReflectionLookupName = r
+                CSVOutputName = c
+            }
+
 /// List of modules to get info for
-let allModules =
+let allModules : list<Module>=
     [
-        "ResultModule" //Fsharp.Core 
-        "OptionModule" //Fsharp.Core
-        "Option"
-        "ValueOption" 
-        "Result" 
-        "Validation" 
-        "Async"
-        "Job"
-        "AsyncResult"
-        "TaskResult" 
-        "JobResult" 
+        Module.Create "OptionModule" "Option" 
+        Module.Create "Option" "Option" 
+        Module.Create "ValueOption" "ValueOption"
+        Module.Create "Validation"  "Validation"
+        Module.Create "Async" "Async"
+        Module.Create "FSharpAsync" "Async"
+        Module.Create "Job" "Job"
+        Module.Create "ResultModule" "Result" 
+        Module.Create "Result" "Result" 
+        Module.Create "AsyncResult" "AsyncResult"
+        Module.Create "TaskResult"  "TaskResult"
+        Module.Create "JobResult"  "JobResult"
     ]
 
 let createCsvRow method modules =
-    let sparseSet = Array.create<string> (allModules.Length) ""
-    for (moduleName, (mInfo : MethodInfo)) in modules do
-        let index = allModules |> List.findIndex (fun m -> m = moduleName)
+    let outputModules = allModules |> List.map(fun m -> m.CSVOutputName) |> List.distinct
+    let sparseSet = Array.create<string> (outputModules |> List.length) ""
+    for ((moduleName : string), (mInfo : MethodInfo)) in modules do
+        let index = outputModules |> List.findIndex (fun m -> m = moduleName)
         sparseSet.[index] <- mInfo.DeclaringType.FullName
     let data = 
         sparseSet 
         |> Array.map (fun b ->
             if b |> contains "FSharp.Core" then "FSharp.Core"
             elif b |> contains "FsToolkit" then "FsToolkit"
+            elif b |> contains "Hopac" then "Hopac"
+            elif b |> contains "FSharpAsync" then "FSharp.Core"
             else b
         ) 
         |> String.concat ","
@@ -84,7 +99,7 @@ let main argv =
         yield! Assembly.Load("FSharp.Core").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling.TaskResult").GetTypes()
-        // yield! Assembly.Load("Hopac").GetTypes()
+        yield! Assembly.Load("Hopac").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling.JobResult").GetTypes()
     ]
     let getMethodsByModuleName name = getMethodsByModuleName name types
@@ -92,11 +107,11 @@ let main argv =
 
     let headers = 
         let methods = "Methods"
-        let tail = allModules |> String.concat ","
+        let tail = allModules |> Seq.map(fun m -> m.CSVOutputName) |> Seq.distinct |> String.concat ","
         sprintf "%s,%s" methods tail
 
     allModules
-    |> Seq.collect(fun name -> getMethodsByModuleName name |> Seq.map(fun m -> name, m))
+    |> Seq.collect(fun name -> getMethodsByModuleName name.ReflectionLookupName |> Seq.map(fun m -> name.CSVOutputName, m))
     |> Seq.groupBy(fun (name, method) -> normalize method.Name)
     |> Seq.sortBy(fst)
     |> Seq.map(fun (method, group) ->
