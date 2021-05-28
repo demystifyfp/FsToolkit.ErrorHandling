@@ -216,4 +216,4 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "Release"
 
 // *** Start Build ***
-Target.runOrDefaultWithArguments "Build"
+Target.runOrDefaultWithArguments "NuGet"

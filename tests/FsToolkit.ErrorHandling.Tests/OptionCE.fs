@@ -66,7 +66,8 @@ let ceTests =
             let actual = option {
                 try 
                     return data
-                with e -> return! raise e
+                with e -> 
+                    return raise e
             }
             Expect.equal actual (Some data) "Try with failed"
         testCase "Try Finally" <| fun () ->
@@ -339,6 +340,21 @@ let ``OptionCE applicative tests`` =
             }
             Expect.equal actual None "Should be None"
 #endif
+
+        testCase "ValueOption.Some" <| fun () ->
+            let actual = option {
+                let! a = ValueSome 3
+                return a
+            }
+            Expect.equal actual (Some 3) "Should be None"
+
+        testCase "ValueOption.None" <| fun () ->
+            let actual = option {
+                let! a = ValueNone
+                return a
+            }
+            Expect.equal actual (None) "Should be None"
+
     ]
 
 let allTests = testList "Option CE tests" [

@@ -3,6 +3,28 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
+  /// <summary>
+  /// Coverts a ValueOption to an Option
+  /// </summary>
+  /// <param name="vopt">The ValueOption to convert</param>
+  /// <typeparam name="'a">Anything</typeparam>
+  /// <returns></returns>
+  let ofValueOption(vopt : ValueOption<'a>) =
+    match vopt with
+    | ValueSome v-> Some v
+    | ValueNone -> None
+
+  /// <summary>
+  /// Coverts an Option to a ValueOption
+  /// </summary>
+  /// <param name="opt">The Option to convert</param>
+  /// <typeparam name="'a">Anything</typeparam>
+  /// <returns></returns>
+  let toValueOption(opt : Option<'a>) =
+    match opt with
+    | Some v-> ValueSome v
+    | None -> ValueNone
+
   let traverseResult f opt =
     match opt with
     | None -> Ok None

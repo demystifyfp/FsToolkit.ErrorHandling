@@ -61,26 +61,32 @@ module OptionCE =
         /// </summary>
         member inline _.Source(result : Option<_>) : Option<_> = result
 
+        // /// <summary>
+        // /// Method lets us transform data types into our internal representation.
+        // /// </summary>
+        member inline _.Source(vopt : ValueOption<_>) : Option<_> = vopt |> Option.ofValueOption
+
                     
     let option = OptionBuilder()
-
 
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
 // overload resolution and allows skipping more type annotations.
 module OptionExtensionsLower =
     type OptionBuilder with
+        // /// <summary>
+        // /// Method lets us transform data types into our internal representation.
+        // /// </summary>
         member inline _.Source(nullableObj : 'a when 'a:null) = nullableObj |> Option.ofObj
+
+        // /// <summary>
+        // /// Method lets us transform data types into our internal representation.
+        // /// </summary>
         member inline _.Source(m : string) = m |> Option.ofObj
-
+        
         member inline _.MergeSources(nullableObj1, option2) = Option.zip (Option.ofObj nullableObj1) option2
-
-
         member inline _.MergeSources(option1 , nullableObj2) = Option.zip (option1) (Option.ofObj nullableObj2)
-
-
         member inline _.MergeSources(nullableObj1 , nullableObj2) = Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
-
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
 // overload resolution and allows skipping more type annotations.
@@ -92,7 +98,6 @@ module OptionExtensions =
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
         member inline _.Source(s: #seq<_>) = s
-
 
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.
