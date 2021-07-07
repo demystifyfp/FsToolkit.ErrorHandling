@@ -65,9 +65,7 @@ module Result =
   /// The result if the result is Ok, else returns <paramref name="ifError"/>.
   /// </returns>  
   let inline orElse (ifError : Result<'ok,'error2>) (result : Result<'ok,'error>)  = 
-    match result with
-    | Ok r -> Ok r
-    | Error _ -> ifError
+    result |> either Ok (fun _ -> ifError)
 
     
   /// <summary>
@@ -90,9 +88,7 @@ module Result =
   /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
   /// </returns>
   let inline orElseWith (ifErrorFunc : 'error -> Result<'ok,'error2>) (result : Result<'ok,'error>) =
-    match result with
-    | Ok r -> Ok r
-    | Error e -> ifErrorFunc e
+    result |> either Ok ifErrorFunc
 
   /// Replaces the wrapped value with unit
   let ignore result =

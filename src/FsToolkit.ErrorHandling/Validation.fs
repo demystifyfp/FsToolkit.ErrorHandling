@@ -45,9 +45,8 @@ module Validation =
   /// The result if the result is Ok, else returns <paramref name="ifError"/>.
   /// </returns>  
   let inline orElse (ifError : Validation<'ok,'error2>) (result : Validation<'ok,'error>) : Validation<'ok,'error2> = 
-    match result with
-    | Ok r -> Ok r
-    | Error _ -> ifError
+    result |> Result.either ok (fun _ -> ifError)
+
 
     
   /// <summary>
@@ -70,9 +69,8 @@ module Validation =
   /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
   /// </returns>
   let inline orElseWith (ifErrorFunc : 'error list -> Validation<'ok,'error2>) (result : Validation<'ok,'error>) : Validation<'ok,'error2> =
-    match result with
-    | Ok r -> Ok r
-    | Error e -> ifErrorFunc e
+    result |> Result.either ok ifErrorFunc
+
 
   let map f (x : Validation<_,_>) : Validation<_,_>= Result.map f x
   

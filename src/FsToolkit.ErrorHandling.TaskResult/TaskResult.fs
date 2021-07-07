@@ -71,11 +71,8 @@ module TaskResult =
   /// The result if the result is Ok, else returns <paramref name="ifError"/>.
   /// </returns>  
   let inline orElse (ifError : Task<Result<'ok,'error2>>) (result : Task<Result<'ok,'error>>)  = 
-    task {
-      match! result with
-      | Ok r -> return Ok r
-      | Error _ -> return! ifError
-    }
+    result
+    |> Task.bind(Result.either ok (fun _ -> ifError))
     
   /// <summary>
   /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -97,11 +94,8 @@ module TaskResult =
   /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
   /// </returns>
   let inline orElseWith (ifErrorFunc : 'error -> Task<Result<'ok,'error2>>) (result : Task<Result<'ok,'error>>) =
-    task {
-      match! result with
-      | Ok r -> return Ok r
-      | Error e -> return! ifErrorFunc e
-    }
+    result
+    |> Task.bind(Result.either ok ifErrorFunc)
 
   /// Replaces the wrapped value with unit
   let ignore tr =

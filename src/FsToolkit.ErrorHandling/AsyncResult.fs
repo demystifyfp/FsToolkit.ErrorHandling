@@ -80,11 +80,8 @@ module AsyncResult =
   /// The result if the result is Ok, else returns <paramref name="ifError"/>.
   /// </returns>  
   let inline orElse (ifError : Async<Result<'ok,'error2>>) (result : Async<Result<'ok,'error>>)  = 
-    async {
-      match! result with
-      | Ok r -> return Ok r
-      | Error _ -> return! ifError
-    }
+    result
+    |> Async.bind(Result.either ok (fun _ -> ifError))
     
   /// <summary>
   /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -106,11 +103,8 @@ module AsyncResult =
   /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
   /// </returns>
   let inline orElseWith (ifErrorFunc : 'error -> Async<Result<'ok,'error2>>) (result : Async<Result<'ok,'error>>) =
-    async {
-      match! result with
-      | Ok r -> return Ok r
-      | Error e -> return! ifErrorFunc e
-    }
+    result
+    |> Async.bind(Result.either ok ifErrorFunc)
 
   /// Replaces the wrapped value with unit
   let ignore ar =
