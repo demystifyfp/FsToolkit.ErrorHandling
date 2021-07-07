@@ -40,9 +40,13 @@ module JobResult =
     Ok x
     |> Job.result
 
+  let ok = retn
+
   let returnError x =
     Error x
     |> Job.result
+
+  let error = returnError
 
   let map2 f xJR yJR =
     Job.map2 (Result.map2 f) xJR yJR
@@ -52,6 +56,58 @@ module JobResult =
 
   let apply fJR xJR =
     map2 (fun f x -> f x) fJR xJR
+
+
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/> 
+  /// </summary>
+  /// <param name="ifError">The value to use if <paramref name="result"/> is <c>Error</c></param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     JobResult.error "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Error ("Second")
+  ///     JobResult.error "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("Second")
+  ///     JobResult.ok "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Ok ("First")
+  ///     JobResult.ok "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else returns <paramref name="ifError"/>.
+  /// </returns>  
+  let inline orElse (ifError : Job<Result<'ok,'error2>>) (result : Job<Result<'ok,'error>>)  = 
+    job {
+      match! result with
+      | Ok r -> return Ok r
+      | Error _ -> return! ifError
+    }
+    
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
+  /// </summary>
+  /// <param name="ifErrorFunc">A function that provides an alternate result when evaluated.</param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="result"/> is an <c>Error</c>.
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Error ("Second")
+  ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("Second")
+  ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Ok ("First")
+  ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
+  /// </returns>
+  let inline orElseWith (ifErrorFunc : 'error -> Job<Result<'ok,'error2>>) (result : Job<Result<'ok,'error>>) =
+    job {
+      match! result with
+      | Ok r -> return Ok r
+      | Error e -> return! ifErrorFunc e
+    }
 
   /// Replaces the wrapped value with unit
   let ignore jr =

@@ -42,10 +42,14 @@ module AsyncResult =
   let retn x =
     Ok x
     |> Async.singleton
+
+  let ok = retn
   
   let returnError x =
     Error x
     |> Async.singleton
+
+  let error = returnError
 
   let map2 f xR yR =
     Async.map2 (Result.map2 f) xR yR
@@ -55,6 +59,58 @@ module AsyncResult =
 
   let apply fAR xAR =
     map2 (fun f x -> f x) fAR xAR
+
+    
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/> 
+  /// </summary>
+  /// <param name="ifError">The value to use if <paramref name="result"/> is <c>Error</c></param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.error "Second") // evaluates to Error ("Second")
+  ///     AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.ok "Second") // evaluates to Ok ("Second")
+  ///     AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.error "Second") // evaluates to Ok ("First")
+  ///     AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.ok "Second") // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else returns <paramref name="ifError"/>.
+  /// </returns>  
+  let inline orElse (ifError : Async<Result<'ok,'error2>>) (result : Async<Result<'ok,'error>>)  = 
+    async {
+      match! result with
+      | Ok r -> return Ok r
+      | Error _ -> return! ifError
+    }
+    
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
+  /// </summary>
+  /// <param name="ifErrorFunc">A function that provides an alternate result when evaluated.</param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="result"/> is an <c>Error</c>.
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second") // evaluates to Error ("Second")
+  ///     AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second") // evaluates to Ok ("Second")
+  ///     AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second") // evaluates to Ok ("First")
+  ///     AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second") // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
+  /// </returns>
+  let inline orElseWith (ifErrorFunc : 'error -> Async<Result<'ok,'error2>>) (result : Async<Result<'ok,'error>>) =
+    async {
+      match! result with
+      | Ok r -> return Ok r
+      | Error e -> return! ifErrorFunc e
+    }
 
   /// Replaces the wrapped value with unit
   let ignore ar =

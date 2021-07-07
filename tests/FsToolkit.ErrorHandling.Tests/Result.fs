@@ -208,6 +208,47 @@ let tryCreateTests =
       Expect.hasErrorValue ("lat", invalidLatMsg) r
   ]
 
+let orElseTests = 
+  testList "Result.orElseWith Tests" [
+    testCase "Ok Ok takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Result.orElse (Ok "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Ok Error takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Result.orElse (Error "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Error Ok takes second Ok" <| fun _ ->
+      (Error "First") 
+      |> Result.orElse (Ok "Second")
+      |> Expect.hasOkValue "Second"
+    testCase "Error Error takes second error" <| fun _ ->
+      (Error "First") 
+      |> Result.orElse (Error "Second")
+      |> Expect.hasErrorValue "Second"
+  ]
+
+let orElseWithTests = 
+  testList "Result.orElse Tests" [
+    testCase "Ok Ok takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Result.orElseWith (fun _ -> Ok "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Ok Error takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Result.orElseWith (fun _ -> Error "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Error Ok takes second Ok" <| fun _ ->
+      (Error "First") 
+      |> Result.orElseWith (fun _ -> Ok "Second")
+      |> Expect.hasOkValue "Second"
+    testCase "Error Error takes second error" <| fun _ ->
+      (Error "First") 
+      |> Result.orElseWith (fun _ -> Error "Second")
+      |> Expect.hasErrorValue "Second"
+  ]
+
+
 
 let ignoreTests =
   testList "ignore Tests" [
@@ -606,6 +647,8 @@ let allTests = testList "Result Tests" [
   resultCETests
   resultOperatorsTests
   tryCreateTests
+  orElseTests
+  orElseWithTests
   ignoreTests
   requireTrueTests
   requireFalseTests

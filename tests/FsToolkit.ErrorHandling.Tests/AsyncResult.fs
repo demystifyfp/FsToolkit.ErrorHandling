@@ -132,6 +132,56 @@ let bindTests =
   ]
 
 
+let orElseTests = 
+  testList "AsyncResult.orElseWith Tests" [
+    testCaseAsync "Ok Ok takes first Ok" <| async {
+      return!
+        AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.ok "Second")
+        |> Expect.hasAsyncOkValue "First"
+    }
+    testCaseAsync "Ok Error takes first Ok" <| async {
+      return!
+        AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.error "Second")
+        |> Expect.hasAsyncOkValue "First"
+    }
+    testCaseAsync "Error Ok takes second Ok" <| async {
+      return!
+        AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.ok "Second")
+        |> Expect.hasAsyncOkValue "Second"
+    }
+    testCaseAsync "Error Error takes second error" <| async {
+      return! 
+        AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.error "Second")
+        |> Expect.hasAsyncErrorValue "Second"
+    }
+  ]
+
+let orElseWithTests = 
+  testList "AsyncResult.orElse Tests" [
+    testCaseAsync "Ok Ok takes first Ok" <|  async {
+      return! 
+        AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second")
+        |> Expect.hasAsyncOkValue "First"
+    }
+    testCaseAsync "Ok Error takes first Ok" <| async {
+      return!
+        AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second")
+        |> Expect.hasAsyncOkValue "First"
+    }
+    testCaseAsync "Error Ok takes second Ok" <| async {
+      return!
+        AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second")
+        |> Expect.hasAsyncOkValue "Second"
+    }
+    testCaseAsync "Error Error takes second error" <| async {
+      return!
+        AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second")
+        |> Expect.hasAsyncErrorValue "Second"
+    }
+  ]
+
+
+
 let ignoreTests =
   testList "AsyncResult.ignore tests" [
     testCaseAsync "ignore with Async(Ok x)" <| async {
@@ -597,6 +647,8 @@ let allTests = testList "Async Result tests" [
   foldResultTests
   mapErrorTests
   bindTests
+  orElseTests
+  orElseWithTests
   ignoreTests
   requireTrueTests
   requireFalseTests

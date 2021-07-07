@@ -103,10 +103,53 @@ let zipTests =
       Expect.equal actual (Error ["Bad1"; "Bad2"]) "Should be Error"
   ]
 
+
+let orElseTests = 
+  testList "Validation.orElseWith Tests" [
+    testCase "Ok Ok takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Validation.orElse (Ok "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Ok Error takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Validation.orElse (Error ["Second"])
+      |> Expect.hasOkValue "First"
+    testCase "Error Ok takes second Ok" <| fun _ ->
+      (Error ["First"]) 
+      |> Validation.orElse (Ok "Second")
+      |> Expect.hasOkValue "Second"
+    testCase "Error Error takes second error" <| fun _ ->
+      (Error ["First"]) 
+      |> Validation.orElse (Error ["Second"])
+      |> Expect.hasErrorValue ["Second"]
+  ]
+
+let orElseWithTests = 
+  testList "Validation.orElse Tests" [
+    testCase "Ok Ok takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Validation.orElseWith (fun _ -> Ok "Second")
+      |> Expect.hasOkValue "First"
+    testCase "Ok Error takes first Ok" <| fun _ ->
+      (Ok "First") 
+      |> Validation.orElseWith (fun _ -> Error ["Second"])
+      |> Expect.hasOkValue "First"
+    testCase "Error Ok takes second Ok" <| fun _ ->
+      (Error ["First"]) 
+      |> Validation.orElseWith (fun _ -> Ok "Second")
+      |> Expect.hasOkValue "Second"
+    testCase "Error Error takes second error" <| fun _ ->
+      (Error ["First"]) 
+      |> Validation.orElseWith (fun _ -> Error ["Second"])
+      |> Expect.hasErrorValue ["Second"]
+  ]
+
 let allTests = testList "ValidationTests" [
   map2Tests
   map3Tests
   applyTests
   operatorsTests
+  orElseTests
+  orElseWithTests
   zipTests
 ]

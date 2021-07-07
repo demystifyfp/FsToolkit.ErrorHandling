@@ -23,6 +23,57 @@ module Validation =
 
   let retn x = ok x
 
+  let returnError e = error 
+
+  
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/> 
+  /// </summary>
+  /// <param name="ifError">The value to use if <paramref name="result"/> is <c>Error</c></param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     Error (["First"]) |> Validation.orElse (Error (["Second"])) // evaluates to Error (["Second"])
+  ///     Error (["First"]) |> Validation.orElseWith (Ok ("Second")) // evaluates to Ok ("Second")
+  ///     Ok ("First") |> Validation.orElseWith (Error (["Second"])) // evaluates to Ok ("First")
+  ///     Ok ("First") |> Validation.orElseWith (Ok ("Second")) // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else returns <paramref name="ifError"/>.
+  /// </returns>  
+  let inline orElse (ifError : Validation<'ok,'error2>) (result : Validation<'ok,'error>) : Validation<'ok,'error2> = 
+    match result with
+    | Ok r -> Ok r
+    | Error _ -> ifError
+
+    
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
+  /// </summary>
+  /// <param name="ifErrorFunc">A function that provides an alternate result when evaluated.</param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="result"/> is an <c>Error</c>.
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     Error (["First"]) |> Validation.orElseWith (fun _ -> Error (["Second"])) // evaluates to Error (["Second"])
+  ///     Error (["First"]) |> Validation.orElseWith (fun _ -> Ok ("Second")) // evaluates to Ok ("Second")
+  ///     Ok ("First") |> Validation.orElseWith (fun _ -> Error (["Second"])) // evaluates to Ok ("First")
+  ///     Ok ("First") |> Validation.orElseWith (fun _ -> Ok ("Second")) // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
+  /// </returns>
+  let inline orElseWith (ifErrorFunc : 'error list -> Validation<'ok,'error2>) (result : Validation<'ok,'error>) : Validation<'ok,'error2> =
+    match result with
+    | Ok r -> Ok r
+    | Error e -> ifErrorFunc e
+
   let map f (x : Validation<_,_>) : Validation<_,_>= Result.map f x
   
   let map2 f (x : Validation<_,_>) (y : Validation<_,_>) : Validation<_,_> =
