@@ -1,4 +1,4 @@
-### 2.6.0-beta001 - July 07, 2021
+### 2.6.0 - July 07, 2021
 - [Implements orElse and orElseWith](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/133) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 
 #### 2.5.0 - May 26, 2021
