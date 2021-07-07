@@ -25,12 +25,12 @@ let mapTests =
     testCase "map with Task(Ok x)" <| fun _ ->
       createPostSuccess validCreatePostRequest
       |> JobResult.map (fun (PostId id) -> {Id = id})
-      |> Expect.hasJobOkValue {Id = newPostId}
+      |> Expect.hasJobOkValueSync {Id = newPostId}
 
     testCase "map with Task(Error x)" <| fun _ ->
       createPostFailure validCreatePostRequest
       |> JobResult.mapError (fun ex -> {Message = ex.Message})
-      |> Expect.hasJobErrorValue {Message = "something went wrong!"}
+      |> Expect.hasJobErrorValueSync {Message = "something went wrong!"}
   ]
 
 [<Tests>]
@@ -41,28 +41,28 @@ let map2Tests =
       let getFollowersResult = getFollowersSuccess (UserId userId) 
       let createPostResult = createPostSuccess validCreatePostRequest 
       JobResult.map2 newPostRequest getFollowersResult createPostResult 
-      |> Expect.hasJobOkValue {NewPostId = PostId newPostId; UserIds = followerIds}
+      |> Expect.hasJobOkValueSync {NewPostId = PostId newPostId; UserIds = followerIds}
     
     testCase "map2 with Task(Error x) Task(Ok y)" <| fun _ ->
       let userId = Guid.NewGuid()
       let getFollowersResult = getFollowersFailure (UserId userId)
       let createPostResult = createPostSuccess validCreatePostRequest 
       JobResult.map2 newPostRequest getFollowersResult createPostResult 
-      |> Expect.hasJobErrorValue getFollowersEx
+      |> Expect.hasJobErrorValueSync getFollowersEx
     
     testCase "map2 with Task(Ok x) Task(Error y)" <| fun _ ->
       let userId = Guid.NewGuid()
       let getFollowersResult = getFollowersSuccess (UserId userId)
       let createPostResult = createPostFailure validCreatePostRequest
       JobResult.map2 newPostRequest getFollowersResult createPostResult 
-      |> Expect.hasJobErrorValue commonEx
+      |> Expect.hasJobErrorValueSync commonEx
 
     testCase "map2 with Task(Error x) Task(Error y)" <| fun _ ->
       let userId = Guid.NewGuid()
       let getFollowersResult = getFollowersFailure (UserId userId) 
       let createPostResult = createPostFailure validCreatePostRequest 
       JobResult.map2 newPostRequest getFollowersResult createPostResult 
-      |> Expect.hasJobErrorValue getFollowersEx
+      |> Expect.hasJobErrorValueSync getFollowersEx
   ]
 
 
@@ -96,7 +96,7 @@ let mapErrorTests =
     testCase "mapError with Task(Error x)" <| fun _ ->
       createPostFailure validCreatePostRequest
       |> JobResult.mapError (fun ex -> ex.Message)
-      |> Expect.hasJobErrorValue (commonEx.Message)
+      |> Expect.hasJobErrorValueSync (commonEx.Message)
   ]
 
 [<Tests>]
@@ -109,12 +109,12 @@ let bindTests =
           return! createPostSuccess validCreatePostRequest
          else
           return (Error (Exception "not allowed to post"))})
-      |> Expect.hasJobOkValue (PostId newPostId)
+      |> Expect.hasJobOkValueSync (PostId newPostId)
 
     testCase "bind with Task(Error x)" <| fun _ ->
       allowedToPost (UserId (Guid.NewGuid()))
       |> JobResult.bind (fun isAllowed -> job {return Ok isAllowed})
-      |> Expect.hasJobErrorValue commonEx
+      |> Expect.hasJobErrorValueSync commonEx
 
     testCase "bind with Task(Ok x) that returns Task (Error x)" <| fun _ ->
       let ex = Exception "not allowed to post"
@@ -122,8 +122,61 @@ let bindTests =
       |> JobResult.bind (fun _ -> job { 
           return (Error ex)
         })
-      |> Expect.hasJobErrorValue ex
+      |> Expect.hasJobErrorValueSync ex
   ]
+
+
+[<Tests>]
+let orElseTests = 
+  testList "JobResult.orElseWith Tests" [
+    testCaseJob "Ok Ok takes first Ok" <| job {
+      return! 
+        JobResult.ok "First" |> JobResult.orElse (JobResult.ok "Second")
+        |> Expect.hasJobOkValue "First"
+    }
+    testCaseJob "Ok Error takes first Ok" <| job {
+      return!
+        JobResult.ok "First" |> JobResult.orElse (JobResult.error "Second")
+        |> Expect.hasJobOkValue "First"
+    }
+    testCaseJob "Error Ok takes second Ok" <| job {
+      return!
+        JobResult.error "First" |> JobResult.orElse (JobResult.ok "Second")
+        |> Expect.hasJobOkValue "Second"
+    }
+    testCaseJob "Error Error takes second error" <| job {
+      return! 
+        JobResult.error "First" |> JobResult.orElse (JobResult.error "Second")
+        |> Expect.hasJobErrorValue "Second"
+    }
+  ]
+
+[<Tests>]
+let orElseWithTests = 
+  testList "JobResult.orElse Tests" [
+    testCaseJob "Ok Ok takes first Ok" <|  job {
+      return! 
+        JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second")
+        |> Expect.hasJobOkValue "First"
+    }
+    testCaseJob "Ok Error takes first Ok" <| job {
+      return!
+        JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second")
+        |> Expect.hasJobOkValue "First"
+    }
+    testCaseJob "Error Ok takes second Ok" <| job {
+      return!
+        JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second")
+        |> Expect.hasJobOkValue "Second"
+    }
+    testCaseJob "Error Error takes second error" <| job {
+      return!
+        JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second")
+        |> Expect.hasJobErrorValue "Second"
+    }
+  ]
+
+
 
 [<Tests>]
 let ignoreTests =
@@ -131,12 +184,12 @@ let ignoreTests =
     testCase "ignore with Task(Ok x)" <| fun _ ->
       createPostSuccess validCreatePostRequest
       |> JobResult.ignore
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "ignore with Task(Error x)" <| fun _ ->
       createPostFailure validCreatePostRequest
       |> JobResult.ignore
-      |> Expect.hasJobErrorValue commonEx
+      |> Expect.hasJobErrorValueSync commonEx
   ]
 
 let err = "foobar"
@@ -148,12 +201,12 @@ let requireTrueTests =
     testCase "requireTrue happy path" <| fun _ ->
       toJob true
       |> JobResult.requireTrue err 
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireTrue error path" <| fun _ ->
       toJob false
       |> JobResult.requireTrue err 
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -162,12 +215,12 @@ let requireFalseTests =
     testCase "requireFalse happy path" <| fun _ ->
       toJob false
       |> JobResult.requireFalse err  
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireFalse error path" <| fun _ ->
       toJob true
       |> JobResult.requireFalse err 
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -176,12 +229,12 @@ let requireSomeTests =
     testCase "requireSome happy path" <| fun _ ->
       toJob (Some 42) 
       |> JobResult.requireSome err 
-      |> Expect.hasJobOkValue 42
+      |> Expect.hasJobOkValueSync 42
 
     testCase "requireSome error path" <| fun _ ->
       toJob None
       |> JobResult.requireSome err  
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -190,12 +243,12 @@ let requireNoneTests =
     testCase "requireNone happy path" <| fun _ ->
       toJob None 
       |> JobResult.requireNone err 
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireNone error path" <| fun _ ->
       toJob (Some 42)
       |> JobResult.requireNone err  
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -204,12 +257,12 @@ let requireEqualToTests =
     testCase "requireEqualTo happy path" <| fun _ ->
       toJob 42
       |> JobResult.requireEqualTo 42 err 
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireEqualTo error path" <| fun _ ->
       toJob 43
       |> JobResult.requireEqualTo 42 err
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -217,11 +270,11 @@ let requireEqualTests =
   testList "JobResult.requireEqual Tests" [
     testCase "requireEqual happy path" <| fun _ ->
       JobResult.requireEqual 42 (toJob 42) err 
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireEqual error path" <| fun _ ->
       JobResult.requireEqual 42 (toJob 43) err
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -230,12 +283,12 @@ let requireEmptyTests =
     testCase "requireEmpty happy path" <| fun _ ->
       toJob []
       |> JobResult.requireEmpty err
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireEmpty error path" <| fun _ ->
       toJob [42]
       |> JobResult.requireEmpty err
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -244,12 +297,12 @@ let requireNotEmptyTests =
     testCase "requireNotEmpty happy path" <| fun _ ->
       toJob [42]
       |> JobResult.requireNotEmpty err
-      |> Expect.hasJobOkValue ()
+      |> Expect.hasJobOkValueSync ()
 
     testCase "requireNotEmpty error path" <| fun _ ->
       toJob []
       |> JobResult.requireNotEmpty err
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -258,12 +311,12 @@ let requireHeadTests =
     testCase "requireHead happy path" <| fun _ ->
       toJob [42]
       |> JobResult.requireHead err
-      |> Expect.hasJobOkValue 42
+      |> Expect.hasJobOkValueSync 42
 
     testCase "requireHead error path" <| fun _ ->
       toJob []
       |> JobResult.requireHead err
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
   ]
 
 [<Tests>]
@@ -272,12 +325,12 @@ let setErrorTests =
     testCase "setError replaces a any error value with a custom error value" <| fun _ ->
       toJob (Error "foo")
       |> JobResult.setError err 
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
 
     testCase "setError does not change an ok value" <| fun _ ->
       toJob (Ok 42)
       |> JobResult.setError err 
-      |> Expect.hasJobOkValue 42
+      |> Expect.hasJobOkValueSync 42
   ]
 
 [<Tests>]
@@ -286,12 +339,12 @@ let withErrorTests =
     testCase "withError replaces a any error value with a custom error value" <| fun _ ->
       toJob (Error ())
       |> JobResult.withError err 
-      |> Expect.hasJobErrorValue err
+      |> Expect.hasJobErrorValueSync err
 
     testCase "withError does not change an ok value" <| fun _ ->
       toJob (Ok 42)
       |> JobResult.withError err 
-      |> Expect.hasJobOkValue 42
+      |> Expect.hasJobOkValueSync 42
   ]
 
 [<Tests>]
@@ -351,7 +404,7 @@ let teeTests =
         input := x
         foo := "bar"
       let result = JobResult.tee bar (toJob (Ok 42))
-      Expect.hasJobOkValue 42 result
+      Expect.hasJobOkValueSync 42 result
       Expect.equal !foo "bar" ""
       Expect.equal !input 42 ""
 
@@ -360,7 +413,7 @@ let teeTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.tee bar (toJob (Error err))
-      Expect.hasJobErrorValue err result
+      Expect.hasJobErrorValueSync err result
       Expect.equal !foo "foo" ""
   ]
 
@@ -381,7 +434,7 @@ let teeIfTests =
         input := x
         foo := "bar"
       let result = JobResult.teeIf returnTrue bar (toJob (Ok 42))
-      Expect.hasJobOkValue 42 result
+      Expect.hasJobOkValueSync 42 result
       Expect.equal !foo "bar" ""
       Expect.equal !input 42 ""
       Expect.equal !pInput 42 ""
@@ -391,7 +444,7 @@ let teeIfTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.teeIf returnFalse bar (toJob (Ok 42))
-      Expect.hasJobOkValue 42 result
+      Expect.hasJobOkValueSync 42 result
       Expect.equal !foo "foo" ""
 
     testCase "teeIf ignores the function for Error" <| fun _ ->
@@ -399,7 +452,7 @@ let teeIfTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.teeIf returnTrue bar (toJob (Error err))
-      Expect.hasJobErrorValue err result
+      Expect.hasJobErrorValueSync err result
       Expect.equal !foo "foo" ""
   ]
 
@@ -414,7 +467,7 @@ let teeErrorTests =
         input := x
         foo := "bar"
       let result = JobResult.teeError bar (toJob (Error err))
-      Expect.hasJobErrorValue err result
+      Expect.hasJobErrorValueSync err result
       Expect.equal !foo "bar" ""
       Expect.equal !input err ""
 
@@ -423,7 +476,7 @@ let teeErrorTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.teeError bar (toJob (Ok 42))
-      Expect.hasJobOkValue 42 result
+      Expect.hasJobOkValueSync 42 result
       Expect.equal !foo "foo" ""
   ]
 
@@ -442,7 +495,7 @@ let teeErrorIfTests =
         input := x
         foo := "bar"
       let result = JobResult.teeErrorIf returnTrue bar (toJob (Error err))
-      Expect.hasJobErrorValue err result
+      Expect.hasJobErrorValueSync err result
       Expect.equal !foo "bar" ""
       Expect.equal !input err ""
       Expect.equal !pInput err ""
@@ -452,7 +505,7 @@ let teeErrorIfTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.teeErrorIf returnFalse bar (toJob (Error err))
-      Expect.hasJobErrorValue err result
+      Expect.hasJobErrorValueSync err result
       Expect.equal !foo "foo" ""
 
     testCase "teeErrorIf ignores the function for Ok" <| fun _ ->
@@ -460,7 +513,7 @@ let teeErrorIfTests =
       let bar _ = 
         foo := "bar"
       let result = JobResult.teeErrorIf returnTrue bar (toJob (Ok 42))
-      Expect.hasJobOkValue 42 result
+      Expect.hasJobOkValueSync 42 result
       Expect.equal !foo "foo" ""
   ]
 
@@ -474,13 +527,13 @@ let catchTests =
 
   testList "JobResult.catch tests" [
     testCase "catch returns success for Ok" <| fun _ ->
-      Expect.hasJobOkValue 42 (JobResult.catch f (toJob (Ok 42)))
+      Expect.hasJobOkValueSync 42 (JobResult.catch f (toJob (Ok 42)))
 
     testCase "catch returns mapped Error for exception" <| fun _ ->
-      Expect.hasJobErrorValue err (JobResult.catch f (jobThrow ()))
+      Expect.hasJobErrorValueSync err (JobResult.catch f (jobThrow ()))
 
     testCase "catch returns unmapped error without exception" <| fun _ ->
-      Expect.hasJobErrorValue "unmapped" (JobResult.catch f (toJob (Error "unmapped")))
+      Expect.hasJobErrorValueSync "unmapped" (JobResult.catch f (toJob (Error "unmapped")))
   ]
   
 
@@ -543,11 +596,11 @@ type CreatePostResult =
 //   testList "JobResult Computation Expression tests" [
 //     testCase "bind with all Ok" <| fun _ ->
 //       createPost sampleUserId
-//       |> Expect.hasJobOkValue (PostSuccess {NewPostId = PostId newPostId; UserIds = followerIds})
+//       |> Expect.hasJobOkValueSync (PostSuccess {NewPostId = PostId newPostId; UserIds = followerIds})
 
 //     testCase "bind with an Error" <| fun _ ->
 //       createPost (UserId (System.Guid.NewGuid()))
-//       |> Expect.hasJobErrorValue commonEx
+//       |> Expect.hasJobErrorValueSync commonEx
 //   ]
 
 // [<Tests>]
@@ -557,7 +610,7 @@ type CreatePostResult =
 //       let getFollowersResult = getFollowersSuccess sampleUserId
 //       let createPostResult = createPostSuccess validCreatePostRequest
 //       newPostRequest <!> getFollowersResult <*> createPostResult
-//       |> Expect.hasJobOkValue {NewPostId = PostId newPostId; UserIds = followerIds}
+//       |> Expect.hasJobOkValueSync {NewPostId = PostId newPostId; UserIds = followerIds}
     
 //     testCase "bind operator" <| fun _ ->
 //       allowedToPost sampleUserId
@@ -566,5 +619,5 @@ type CreatePostResult =
 //               createPostSuccess validCreatePostRequest
 //             else
 //               JobResult.returnError (Exception ""))
-//       |> Expect.hasJobOkValue (PostId newPostId)
+//       |> Expect.hasJobOkValueSync (PostId newPostId)
 //   ]

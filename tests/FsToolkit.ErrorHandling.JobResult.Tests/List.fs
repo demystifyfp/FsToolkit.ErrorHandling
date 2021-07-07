@@ -26,14 +26,14 @@ let traverseJobResultMTests =
       let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseJobResultM (notifyNewPostSuccess (PostId newPostId)) userIds
-      Expect.hasJobOkValue expected actual
+      Expect.hasJobOkValueSync expected actual
 
 
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let expected = sprintf "error: %s" (userId1.ToString())
       let actual = 
         List.traverseJobResultM (notifyNewPostFailure (PostId newPostId)) userIds
-      Expect.hasJobErrorValue expected actual
+      Expect.hasJobErrorValueSync expected actual
   ]
 
 let notifyFailure (PostId _) (UserId uId) = job {
@@ -52,14 +52,14 @@ let traverseJobResultATests =
       let expected = userIds |> List.map(fun (UserId user) -> (newPostId, user))
       let actual = 
         List.traverseJobResultA (notifyNewPostSuccess (PostId newPostId)) userIds
-      Expect.hasJobOkValue expected actual
+      Expect.hasJobOkValueSync expected actual
 
     testCase "traverseResultA with few invalid data" <| fun _ ->
       let expected = [sprintf "error: %s" (userId1.ToString())
                       sprintf "error: %s" (userId3.ToString())]
       let actual = 
         List.traverseJobResultA (notifyFailure (PostId newPostId)) userIds
-      Expect.hasJobErrorValue expected actual
+      Expect.hasJobErrorValueSync expected actual
   ]
 
 [<Tests>]
@@ -71,14 +71,14 @@ let sequenceJobResultMTests =
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceJobResultM
-      Expect.hasJobOkValue expected actual
+      Expect.hasJobOkValueSync expected actual
     
     testCase "sequenceJobResultM with few invalid data" <| fun _ ->
       let expected = sprintf "error: %s" (userId1.ToString())
       let actual = 
         List.map (notifyFailure (PostId newPostId)) userIds
         |> List.sequenceJobResultM
-      Expect.hasJobErrorValue expected actual
+      Expect.hasJobErrorValueSync expected actual
   ]
 
 [<Tests>]
@@ -90,7 +90,7 @@ let sequenceJobResultATests =
       let actual = 
         List.map (notifyNewPostSuccess (PostId newPostId)) userIds
         |> List.sequenceJobResultA
-      Expect.hasJobOkValue expected actual
+      Expect.hasJobOkValueSync expected actual
     
     testCase "sequenceJobResultA with few invalid data" <| fun _ ->
       let expected = [sprintf "error: %s" (userId1.ToString())
@@ -98,5 +98,5 @@ let sequenceJobResultATests =
       let actual = 
         List.map (notifyFailure (PostId newPostId)) userIds
         |> List.sequenceJobResultA
-      Expect.hasJobErrorValue expected actual
+      Expect.hasJobErrorValueSync expected actual
   ]

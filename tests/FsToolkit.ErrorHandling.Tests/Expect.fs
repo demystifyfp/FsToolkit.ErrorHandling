@@ -10,6 +10,8 @@ module Expect =
   open Fable.Mocha
 #else
   open Expecto
+  open System.Threading.Tasks
+  open FSharp.Control.Tasks.Affine
 #endif
 
 
@@ -85,15 +87,24 @@ module Expect =
       ()
     else Tests.failtestf "Expected %A, was %A." v x
 
-  let hasTaskOkValue v taskX = 
+  let hasTaskOkValue v (taskX : Task<_>) = task {
+    let! x = taskX
+    hasOkValue v x
+  }
+  let hasTaskOkValueSync v taskX = 
     let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
     hasOkValue v x
 
   let hasTaskNoneValue taskX = 
     let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
     hasNoneValue x
+  
+  let hasTaskErrorValue v (taskX : Task<_>) = task {
+    let! x = taskX
+    hasErrorValue v x
+  }
 
-  let hasTaskErrorValue v taskX = 
+  let hasTaskErrorValueSync v taskX = 
     let x =  taskX |> Async.AwaitTask |> Async.RunSynchronously
     hasErrorValue v x
 

@@ -45,6 +45,55 @@ module Result =
     tryCreate' x
     |> Result.mapError (fun z -> (fieldName, z))
 
+
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/> 
+  /// </summary>
+  /// <param name="ifError">The value to use if <paramref name="result"/> is <c>Error</c></param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     Error ("First") |> Result.orElse (Error ("Second")) // evaluates to Error ("Second")
+  ///     Error ("First") |> Result.orElseWith (Ok ("Second")) // evaluates to Ok ("Second")
+  ///     Ok ("First") |> Result.orElseWith (Error ("Second")) // evaluates to Ok ("First")
+  ///     Ok ("First") |> Result.orElseWith (Ok ("Second")) // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else returns <paramref name="ifError"/>.
+  /// </returns>  
+  let inline orElse (ifError : Result<'ok,'error2>) (result : Result<'ok,'error>)  = 
+    match result with
+    | Ok r -> Ok r
+    | Error _ -> ifError
+
+    
+  /// <summary>
+  /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
+  /// </summary>
+  /// <param name="ifErrorFunc">A function that provides an alternate result when evaluated.</param>
+  /// <param name="result">The input result.</param>
+  /// <remarks>
+  /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="result"/> is an <c>Error</c>.
+  /// </remarks>
+  /// <example>
+  /// <code>
+  ///     Error ("First") |> Result.orElseWith (fun _ -> Error ("Second")) // evaluates to Error ("Second")
+  ///     Error ("First") |> Result.orElseWith (fun _ -> Ok ("Second")) // evaluates to Ok ("Second")
+  ///     Ok ("First") |> Result.orElseWith (fun _ -> Error ("Second")) // evaluates to Ok ("First")
+  ///     Ok ("First") |> Result.orElseWith (fun _ -> Ok ("Second")) // evaluates to Ok ("First")
+  /// </code>
+  /// </example>
+  /// <returns>
+  /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
+  /// </returns>
+  let inline orElseWith (ifErrorFunc : 'error -> Result<'ok,'error2>) (result : Result<'ok,'error>) =
+    match result with
+    | Ok r -> Ok r
+    | Error e -> ifErrorFunc e
+
   /// Replaces the wrapped value with unit
   let ignore result =
     result |> Result.map ignore
