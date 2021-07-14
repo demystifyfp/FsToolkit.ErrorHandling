@@ -12,14 +12,9 @@ module TaskResult =
   let mapError f tr =
     Task.map (Result.mapError f) tr    
 
-  let bind f (tr : Task<_>) = task {
-    let! result = tr
-    let t = 
-      match result with 
-      | Ok x -> f x
-      | Error e -> task { return Error e }
-    return! t      
-  }
+  let bind f (tr : Task<_>) = 
+    tr
+    |> Task.bind(Result.either f (Error >> Task.singleton))
 
   let foldResult onSuccess onError tr =
     Task.map (Result.fold onSuccess onError) tr

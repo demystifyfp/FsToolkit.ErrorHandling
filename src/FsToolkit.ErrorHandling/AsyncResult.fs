@@ -11,14 +11,9 @@ module AsyncResult =
   let mapError f ar =
     Async.map (Result.mapError f) ar    
 
-  let bind f ar = async {
-    let! result = ar
-    let t = 
-      match result with 
-      | Ok x -> f x
-      | Error e -> async { return Error e }
-    return! t      
-  }
+  let bind f ar = 
+    ar
+    |> Async.bind(Result.either f (Error >> Async.singleton))
 
   let foldResult onSuccess onError ar =
     Async.map (Result.fold onSuccess onError) ar
@@ -26,16 +21,20 @@ module AsyncResult =
 #if !FABLE_COMPILER
 
   let ofTask aTask = 
-    aTask
-    |> Async.AwaitTask 
-    |> Async.Catch 
-    |> Async.map Result.ofChoice
+    async.Delay(fun () ->
+      aTask
+      |> Async.AwaitTask 
+      |> Async.Catch 
+      |> Async.map Result.ofChoice
+    )
 
   let ofTaskAction (aTask : Task) = 
-    aTask
-    |> Async.AwaitTask 
-    |> Async.Catch 
-    |> Async.map Result.ofChoice
+    async.Delay(fun () ->
+      aTask
+      |> Async.AwaitTask 
+      |> Async.Catch 
+      |> Async.map Result.ofChoice
+    )
 
 #endif
 
