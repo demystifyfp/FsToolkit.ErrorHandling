@@ -9,7 +9,7 @@ With adding a reference to `FsToolkit.ErrorHandling.TaskResult` you will also ha
 It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
 FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
-[DUB](https://img.shields.io/dub/l/vibe-d.svg)
+![DUB](https://img.shields.io/dub/l/vibe-d.svg)
 
 
 
