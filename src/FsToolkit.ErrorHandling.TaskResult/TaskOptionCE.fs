@@ -9,6 +9,8 @@ open Ply
 [<AutoOpen>]
 module TaskOptionCE =
     type TaskOptionBuilder() =
+        member val internal SomeUnit = Some ()
+
         member inline _.Return (value: 'T)
           : Ply<Option<_>> =
           uply.Return <| option.Return value
@@ -91,6 +93,8 @@ module TaskOptionCE =
               return result
             }
 
+        member inline this.BindReturn(x: Task<Option<'T>>, f) = this.Bind(x, fun x -> this.Return(f x))
+        member inline _.MergeSources(t1: Task<Option<'T>>, t2: Task<Option<'T1>>) = TaskOption.zip t1 t2
         member inline _.Run(f : unit -> Ply<'m>) = task.Run f
 
         /// <summary>
@@ -102,7 +106,17 @@ module TaskOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.  
         /// </summary>
+        member inline _.Source(t : ValueTask<Option<_>>) : Task<Option<_>> = task { return! t }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
         member inline _.Source(async : Async<Option<_>>) : Task<Option<_>> = async |> Async.StartAsTask
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  
+        /// </summary>
+        member inline _.Source(p : Ply<Option<_>>) : Task<Option<_>> = task { return! p }
 
     let taskOption = TaskOptionBuilder() 
 
@@ -121,10 +135,30 @@ module TaskOptionCEExtensions =
     /// Method lets us transform data types into our internal representation.
     /// </summary>
     member inline __.Source(r: Option<'t>) = Task.singleton r
+
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
     member inline __.Source(a: Task<'t>) = a |> Task.map Some
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline x.Source(a: Task) = task {
+        do! a
+        return x.SomeUnit }
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline __.Source(a: ValueTask<'t>) = a |> Task.mapV Some
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline x.Source(a: ValueTask) = task {
+        do! a
+        return x.SomeUnit }
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
