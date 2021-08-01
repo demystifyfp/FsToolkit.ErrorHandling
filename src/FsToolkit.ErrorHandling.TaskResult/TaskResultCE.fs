@@ -105,7 +105,17 @@ module TaskResultCE =
     /// <summary>
     /// Method lets us transform data types into our internal representation.  
     /// </summary>
+    member inline _.Source(t : ValueTask<Result<_,_>>) : Task<Result<_,_>> = task { return! t }
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.  
+    /// </summary>
     member inline _.Source(result : Async<Result<_,_>>) : Task<Result<_,_>> = result |> Async.StartAsTask
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.  
+    /// </summary>
+    member inline _.Source(p : Ply<Result<_,_>>) : Task<Result<_,_>> = task { return! p }
 
   let taskResult = TaskResultBuilder() 
 
@@ -145,4 +155,25 @@ module TaskResultCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline _.Source(t : Task) : Task<Result<_,_>> = task { return! t } |> Task.map Ok
+    member inline _.Source(t : Task) : Task<Result<_,_>> = task {
+        do! t
+        return Ok () }
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(task : ValueTask<_>) : Task<Result<_,_>> = task |> Task.mapV Ok
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(t : ValueTask) : Task<Result<_,_>> = task {
+        do! t
+        return Ok () }
+
+    /// <summary>
+    /// Method lets us transform data types into our internal representation.
+    /// </summary>
+    member inline _.Source(p : Ply<_>) : Task<Result<_,_>> = task {
+        let! p = p
+        return Ok p }

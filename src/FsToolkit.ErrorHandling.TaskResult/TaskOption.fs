@@ -25,3 +25,7 @@ module TaskOption =
     let apply f x =
         bind (fun f' ->
           bind (fun x' -> retn (f' x')) x) f
+
+    let zip x1 x2 = 
+      Task.zip x1 x2
+      |> Task.map(fun (r1, r2) -> Option.zip r1 r2)

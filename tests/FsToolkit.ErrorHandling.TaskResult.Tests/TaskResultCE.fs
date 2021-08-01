@@ -69,6 +69,23 @@ let ``TaskResultCE return! Tests`` =
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
         }
+        testCaseTask "Return ValueTask Generic" <| task {
+            let innerData = "Foo"
+            let! actual = taskResult { return! ValueTask.FromResult innerData }
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
+        }
+        testCaseTask "Return ValueTask" <| task {
+            let! actual = taskResult { return! ValueTask.CompletedTask }
+        
+            Expect.equal actual (Result.Ok ()) "Should be ok"
+        }
+        testCaseTask "Return Ply" <| task {
+            let innerData = "Foo"
+            let! actual = taskResult { return! Unsafe.uply { return innerData } }
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
+        }
     ]
 
 
@@ -141,6 +158,31 @@ let ``TaskResultCE bind Tests`` =
             }        
         
             Expect.equal actual (Result.Ok ()) "Should be ok"
+        }
+        testCaseTask "Bind ValueTask Generic" <| task {
+            let innerData = "Foo"
+            let! actual = taskResult { 
+                let! data = ValueTask.FromResult innerData
+                return data 
+            }        
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
+        }
+        testCaseTask "Bind ValueTask" <| task {
+            let! actual = taskResult { 
+                do! ValueTask.CompletedTask
+            }        
+        
+            Expect.equal actual (Result.Ok ()) "Should be ok"
+        }
+        testCaseTask "Bind Ply" <| task {
+            let innerData = "Foo"
+            let! actual = taskResult { 
+                let! data = Unsafe.uply { return innerData }
+                return data
+            }        
+        
+            Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
     ]
 
@@ -346,14 +388,16 @@ let ``TaskResultCE applicative tests`` =
             Expect.equal actual (Ok 5) "Should be ok"
         }
 
-        testCaseTask "Happy Path Result/Choice/AsyncResult" <| task {
+        testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask" <| task {
             let! actual = taskResult {
                 let! a = Ok 3
                 and! b = Choice1Of2 2
                 and! c = Ok 1 |> Async.singleton
-                return a + b - c
+                and! d = Unsafe.uply { return Ok 3 }
+                and! e = ValueTask.FromResult (Ok 5)
+                return a + b - c - d + e
             }
-            Expect.equal actual (Ok 4) "Should be ok"
+            Expect.equal actual (Ok 6) "Should be ok"
         }
 
         testCaseTask "Fail Path Result" <| task {
