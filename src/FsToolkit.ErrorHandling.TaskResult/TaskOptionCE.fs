@@ -9,7 +9,7 @@ open Ply
 [<AutoOpen>]
 module TaskOptionCE =
     type TaskOptionBuilder() =
-        member val internal SomeUnit = Some ()
+        member val SomeUnit = Some ()
 
         member inline _.Return (value: 'T)
           : Ply<Option<_>> =
