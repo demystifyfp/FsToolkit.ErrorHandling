@@ -1,4 +1,4 @@
-### 2.7.0-beta001 - August 02, 2021
+### 2.7.0 - August 02, 2021
 - [Extra Task, ValueTask, Ply CE sources](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/135) Credits [@kerams](https://github.com/kerams)
 
 ### 2.6.0 - July 07, 2021
