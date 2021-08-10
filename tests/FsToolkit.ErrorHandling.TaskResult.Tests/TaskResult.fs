@@ -191,7 +191,7 @@ let ignoreTests =
   ]
 
 let err = "foobar"
-let toTask x = task {return x}
+let inline toTask (x : ^a) = task {return x}
 
 [<Tests>]
 let requireTrueTests =

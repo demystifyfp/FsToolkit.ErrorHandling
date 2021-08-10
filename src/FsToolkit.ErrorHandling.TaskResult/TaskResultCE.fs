@@ -162,7 +162,7 @@ module TaskResultCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline _.Source(task : ValueTask<_>) : Task<Result<_,_>> = task |> Task.mapV Ok
+    member inline _.Source(task : ValueTask<_>) : Task<Result<_,_>> = task |> Task.map Ok
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.

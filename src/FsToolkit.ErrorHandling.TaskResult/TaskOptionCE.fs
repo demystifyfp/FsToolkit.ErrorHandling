@@ -151,7 +151,7 @@ module TaskOptionCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline __.Source(a: ValueTask<'t>) = a |> Task.mapV Some
+    member inline __.Source(a: ValueTask<'t>) = a |> Task.map Some
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
