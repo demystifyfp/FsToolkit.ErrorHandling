@@ -4,12 +4,14 @@ source https://api.nuget.org/v3/index.json
 storage: none
 nuget FSharp.Core 4.6.2
 nuget Hopac
+nuget FSharp.Control.AsyncSeq
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Ply
 
 group Test
 source https://api.nuget.org/v3/index.json
 storage: none
+nuget FSharp.Core 4.6.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha
@@ -28,4 +30,3 @@ nuget Fake.DotNet.Testing.Expecto 5.20.4-alpha.1642
 nuget Fake.Tools.Git 5.20.4-alpha.1642
 nuget Fake.JavaScript.Npm 5.20.4-alpha.1642
 nuget Fake.Api.GitHub 5.20.4-alpha.1642
-
