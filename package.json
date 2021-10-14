@@ -1,13 +1,15 @@
 {
   "devDependencies": {
-    "fable-compiler": "^2.9.0",
-    "fable-splitter": "^2.1.13",
-    "mocha": "^6.1.4"
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.4",
+    "@babel/preset-env": "^7.15.4",
+    "mocha": "^6.2.0",
+    "rollup": "^2.56.3"
   },
   "scripts": {
-    "pretest": "fable-splitter tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs",
-    "test": "mocha dist/tests",
-    "watch-build": "fable-splitter  tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs -w",
-    "watch-test": "mocha -watch dist/tests"
+    "pretest": "dotnet fable tests/FsToolkit.ErrorHandling.Fable.Tests -o dist/tests && rollup --format=cjs --file=dist/tests.js dist/tests/Program.js",
+    "test": "mocha dist/tests.js",
+    "watch-build": "dotnet fable watch tests/FsToolkit.ErrorHandling.Fable.Tests -o dist/tests --run rollup --format=cjs --file=dist/tests.js dist/tests/Program.js",
+    "watch-test": "mocha -watch dist/tests.js"
   }
 }

@@ -21,11 +21,3 @@ let allTests = testList "All Tests" [
   ValidationTests.allTests
   ValidationCETests.allTests
 ]
-
-[<EntryPoint>]
-let main argv =
-  #if FABLE_COMPILER
-  Mocha.runTests allTests
-  #else
-  Tests.runTestsWithArgs defaultConfig argv allTests  
-  #endif

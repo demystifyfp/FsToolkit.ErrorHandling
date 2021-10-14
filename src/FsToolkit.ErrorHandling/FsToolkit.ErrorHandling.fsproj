@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>preview</LangVersion>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -39,6 +39,6 @@
     <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
   </ItemGroup>
 
-  
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

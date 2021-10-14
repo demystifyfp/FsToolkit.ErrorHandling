@@ -1,5 +1,6 @@
 FSharp.Core
 FSharp.Control.AsyncSeq
+Ply
 
 group Test
 Expecto
