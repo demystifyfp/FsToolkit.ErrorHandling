@@ -1,0 +1,7 @@
+FSharp.Core
+FSharp.Control.AsyncSeq
+
+group Test
+Expecto
+Fable.Mocha
+Microsoft.NETFramework.ReferenceAssemblies

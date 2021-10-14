@@ -1,13 +1,16 @@
 {
   "type": "module",
   "devDependencies": {
-    "esm": "^3.2.25",
-    "mocha": "^8.3.2"
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.4",
+    "@babel/preset-env": "^7.15.4",
+    "mocha": "^8.3.2",
+    "rollup": "^2.56.3"
   },
   "scripts": {
-    "pretest": "dotnet fable tests/FsToolkit.ErrorHandling.Tests -o dist/tests",
-    "test": "mocha dist/tests",
-    "watch-build": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o dist/tests",
-    "watch-test": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o dist/tests --runWatch mocha dist/tests"
+    "pretest": "dotnet fable tests/FsToolkit.ErrorHandling.Fable.Tests -o dist/tests && rollup --format=es --file=dist/tests.js dist/tests/Program.js",
+    "test": "mocha dist/tests.js",
+    "watch-build": "dotnet fable watch tests/FsToolkit.ErrorHandling.Fable.Tests -o dist/tests --run rollup --format=es --file=dist/tests.js dist/tests/Program.js",
+    "watch-test": "mocha -watch dist/tests.js"
   }
 }

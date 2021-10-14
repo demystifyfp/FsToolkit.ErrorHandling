@@ -2,23 +2,26 @@ source https://api.nuget.org/v3/index.json
 
 
 storage: none
-nuget FSharp.Core 4.7.0
+nuget FSharp.Core 4.7.2
 nuget Hopac
+nuget FSharp.Control.AsyncSeq 3.2.1
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Ply
 
 group Test
 source https://api.nuget.org/v3/index.json
 storage: none
-nuget FSharp.Core 4.7.0
+nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha 2.10.0
+nuget Microsoft.NETFramework.ReferenceAssemblies
 
 group Build
 source https://api.nuget.org/v3/index.json
 
 storage: none
+nuget FSharp.Core 4.7.2
 nuget Fake.Core.Target 5.20.4
 nuget Fake.DotNet.Cli 5.20.4
 nuget Fake.Core.ReleaseNotes 5.20.4
@@ -28,4 +31,4 @@ nuget Fake.DotNet.Testing.Expecto 5.20.4
 nuget Fake.Tools.Git 5.20.4
 nuget Fake.JavaScript.Npm 5.20.4
 nuget Fake.Api.GitHub 5.20.4
-nuget MSBuild.StructuredLogger 2.1.507 
+nuget MSBuild.StructuredLogger 2.1.507

@@ -136,12 +136,12 @@ let runTestAssembly setParams testAssembly =
         if String.isNotNullOrEmpty args.WorkingDirectory
         then args.WorkingDirectory else Fake.IO.Path.getDirectory testAssembly
       (fun (info: ProcStartInfo) ->
-        { info with 
+        { info with
             FileName = "dotnet"
             Arguments = sprintf "%s %s" testAssembly (string args)
             WorkingDirectory = workingDir } )
 
-    let execWithExitCode testAssembly argsString timeout = 
+    let execWithExitCode testAssembly argsString timeout =
       Process.execSimple (fakeStartInfo testAssembly argsString) timeout
 
     execWithExitCode testAssembly (setParams Expecto.Params.DefaultParams) TimeSpan.MaxValue
@@ -161,22 +161,46 @@ let runTests setParams testAssemblies =
   | [] -> ()
   | failedAssemblies ->
       failedAssemblies
-      |> List.map (fun (testAssembly,exitCode) -> 
+      |> List.map (fun (testAssembly,exitCode) ->
           sprintf "Expecto test of assembly '%s' failed. Process finished with exit code %d." testAssembly exitCode )
       |> String.concat System.Environment.NewLine
       |> Fake.Testing.Common.FailedTestsException |> raise
   __.MarkSuccess()
 
-let testAssemblies = "tests/**/bin" </> configuration </> "**" </> "*Tests.dll"
+let testProjects = [
+  "tests/FsToolkit.ErrorHandling.Tests.Runner"
+  "tests/FsToolkit.ErrorHandling.AsyncSeq.Tests.Runner"
+  "tests/FsToolkit.ErrorHandling.JobResult.Tests"
+  "tests/FsToolkit.ErrorHandling.TaskResult.Tests"
+  "tests/FsToolkit.ErrorHandling.Fable.Tests"
+]
+
+let testAssemblies = [
+  for proj in testProjects do
+    let projName = proj.Split('/') |> Array.last
+    let pattern = proj </> "bin" </> configuration </> "**" </> (projName + ".dll")
+
+    yield! (!!pattern)
+]
 
 Target.create "RunTests" (fun _ ->
-  runTests id (!! testAssemblies)
+  runTests id testAssemblies
 )
 
 let runFableTests _ =
   Npm.test id
 
 Target.create "RunFableTests" runFableTests
+
+Target.create "FemtoValidate" (fun _ ->
+  let result =
+    CreateProcess.fromRawCommand "dotnet" [ "femto"; "./tests/FsToolkit.ErrorHandling.Fable.Tests"; "--validate" ]
+    |> Proc.run
+
+  if result.ExitCode <> 0
+  then
+    Fake.Testing.Common.FailedTestsException "Femto failed; perhaps you need to update the package.json?" |> raise
+)
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
@@ -228,7 +252,7 @@ Target.create "PublishNuget" (fun _ ->
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
             WorkingDir = distDir
-            ApiKey = 
+            ApiKey =
               match nugetToken with
               | Some s -> s
               | _ -> p.ApiKey // assume paket-config was set properly
@@ -279,6 +303,7 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "NpmRestore"
   ==> "CheckFormatCode"
   ==> "Build"
+  ==> "FemtoValidate"
   ==> "RunTests"
   ==> "RunFableTests"
   ==> "NuGet"

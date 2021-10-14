@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
@@ -24,6 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
   </ItemGroup>
-  
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
