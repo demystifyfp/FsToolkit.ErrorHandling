@@ -8,15 +8,15 @@ module OptionCE =
 
         member inline _.ReturnFrom(m: 'T option) = m
 
-        member inline _.Bind(m : Option<'a>, f: 'a -> Option<'b>) = Option.bind f m
+        member inline _.Bind(m : 'a option, f: 'a -> 'b option) = Option.bind f m
 
         // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
-        member this.Bind(m : 'a when 'a:null, f: 'a -> Option<'b>) =  this.Bind(m |> Option.ofObj, f)
+        member this.Bind(m : 'a when 'a:null, f: 'a -> 'b option) =  this.Bind(m |> Option.ofObj, f)
 
         member inline this.Zero() = this.Return ()
 
         member inline _.Combine(m, f) = Option.bind f m
-        member inline this.Combine(m1 : Option<_>, m2 : Option<_>) = this.Bind(m1 , fun () -> m2)
+        member inline this.Combine(m1 : _ option, m2 : _ option) = this.Bind(m1 , fun () -> m2)
 
         member inline _.Delay(f: unit -> _) = f
 
@@ -31,21 +31,21 @@ module OptionCE =
             finally compensation()
 
         member inline this.Using
-            (resource: 'T when 'T :> IDisposable, binder) : Option<_>=
+            (resource: 'T when 'T :> IDisposable, binder) : _ option=
             this.TryFinally (
                 (fun () -> binder resource),
                 (fun () -> if not <| obj.ReferenceEquals(resource, null) then resource.Dispose ())
             )
 
         member this.While
-            (guard: unit -> bool, generator: unit -> Option<_>)
-            : Option<_> =
+            (guard: unit -> bool, generator: unit -> _ option)
+            : _ option =
             if not <| guard () then this.Zero ()
             else this.Bind(this.Run generator, fun () -> this.While (guard, generator))
 
         member inline this.For
-            (sequence: #seq<'T>, binder: 'T -> Option<_>)
-            : Option<_> =
+            (sequence: #seq<'T>, binder: 'T -> _ option)
+            : _ option =
             this.Using(sequence.GetEnumerator (), fun enum ->
                 this.While(enum.MoveNext,
                     this.Delay(fun () -> binder enum.Current)))
@@ -59,7 +59,7 @@ module OptionCE =
         /// 
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
-        member inline _.Source(result : Option<_>) : Option<_> = result
+        member inline _.Source(result : _ option) : _ option = result
 
                     
     let option = OptionBuilder()
@@ -97,7 +97,7 @@ module OptionExtensions =
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.
         // /// </summary>
-        member inline _.Source(nullable : Nullable<'a>) : Option<'a> = nullable |> Option.ofNullable
+        member inline _.Source(nullable : Nullable<'a>) : 'a option = nullable |> Option.ofNullable
 
 
 

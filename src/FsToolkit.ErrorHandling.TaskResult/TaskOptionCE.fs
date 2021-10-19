@@ -12,21 +12,21 @@ module TaskOptionCE =
         member val SomeUnit = Some ()
 
         member inline _.Return (value: 'T)
-          : Ply<Option<_>> =
+          : Ply<_ option> =
           uply.Return <| option.Return value
 
         member inline _.ReturnFrom
-            (taskResult: Task<Option<_>>)
-            : Ply<Option<_>> =
+            (taskResult: Task<_ option>)
+            : Ply<_ option> =
           uply.ReturnFrom taskResult
 
-        member inline _.Zero () : Ply<Option<_>> =
+        member inline _.Zero () : Ply<_ option> =
           uply.Return <| option.Zero()
 
         member inline _.Bind
-            (taskResult: Task<Option<_>>,
-             binder: 'T -> Ply<Option<_>>)
-            : Ply<Option<_>> =
+            (taskResult: Task<_ option>,
+             binder: 'T -> Ply<_ option>)
+            : Ply<_ option> =
             let binder' r = 
               match r with
               | Some x -> binder x
@@ -34,39 +34,39 @@ module TaskOptionCE =
             uply.Bind(taskResult, binder')
 
         member inline _.Delay
-            (generator: unit -> Ply<Option<_>>) =
+            (generator: unit -> Ply<_ option>) =
           uply.Delay(generator)
 
         member inline _.Combine
-          (computation1: Ply<Option<'T>>,
-           computation2: unit -> Ply<Option<'U>>)
-          : Ply<Option<'U>> = uply {
+          (computation1: Ply<'T option>,
+           computation2: unit -> Ply<'U option>)
+          : Ply<'U option> = uply {
             match! computation1 with
             | None -> return None
             | Some _ -> return! computation2()
           }
 
         member inline _.TryWith
-            (computation: unit -> Ply<Option<_>>,
-             handler: exn -> Ply<Option<_>>) :
-             Ply<Option<_>> =
+            (computation: unit -> Ply<_ option>,
+             handler: exn -> Ply<_ option>) :
+             Ply<_ option> =
              uply.TryWith(computation, handler)
 
         member inline _.TryFinally
-            (computation: unit -> Ply<Option<_>>,
+            (computation: unit -> Ply<_ option>,
              compensation: unit -> unit)
-            : Ply<Option<_>> =
+            : Ply<_ option> =
              uply.TryFinally(computation, compensation)
 
         member inline _.Using
             (resource: 'T when 'T :> IDisposable,
-             binder: 'T -> Ply<Option<_>>)
-            : Ply<Option<_>> =
+             binder: 'T -> Ply<_ option>)
+            : Ply<_ option> =
             uply.Using(resource, binder)
 
         member _.While
-            (guard: unit -> bool, computation: unit -> Ply<Option<'U>>)
-            : Ply<Option<'U>> = uply {
+            (guard: unit -> bool, computation: unit -> Ply<'U option>)
+            : Ply<'U option> = uply {
               let mutable fin, result = false, None
               while not fin && guard() do
                 match! computation() with
@@ -79,8 +79,8 @@ module TaskOptionCE =
             }
 
         member _.For
-            (sequence: #seq<'T>, binder: 'T -> Ply<Option<'U>>)
-            : Ply<Option<'U>> = uply {
+            (sequence: #seq<'T>, binder: 'T -> Ply<'U option>)
+            : Ply<'U option> = uply {
               use enumerator = sequence.GetEnumerator()
               let mutable fin, result = false, None
               while not fin && enumerator.MoveNext() do
@@ -93,30 +93,30 @@ module TaskOptionCE =
               return result
             }
 
-        member inline this.BindReturn(x: Task<Option<'T>>, f) = this.Bind(x, fun x -> this.Return(f x))
-        member inline _.MergeSources(t1: Task<Option<'T>>, t2: Task<Option<'T1>>) = TaskOption.zip t1 t2
+        member inline this.BindReturn(x: Task<'T option>, f) = this.Bind(x, fun x -> this.Return(f x))
+        member inline _.MergeSources(t1: Task<'T option>, t2: Task<'T1 option>) = TaskOption.zip t1 t2
         member inline _.Run(f : unit -> Ply<'m>) = task.Run f
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
-        member inline _.Source(task : Task<Option<_>>) : Task<Option<_>> = task
+        member inline _.Source(task : Task<_ option>) : Task<_ option> = task
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  
         /// </summary>
-        member inline _.Source(t : ValueTask<Option<_>>) : Task<Option<_>> = task { return! t }
+        member inline _.Source(t : ValueTask<_ option>) : Task<_ option> = task { return! t }
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  
         /// </summary>
-        member inline _.Source(async : Async<Option<_>>) : Task<Option<_>> = async |> Async.StartAsTask
+        member inline _.Source(async : Async<_ option>) : Task<_ option> = async |> Async.StartAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  
         /// </summary>
-        member inline _.Source(p : Ply<Option<_>>) : Task<Option<_>> = task { return! p }
+        member inline _.Source(p : Ply<_ option>) : Task<_ option> = task { return! p }
 
     let taskOption = TaskOptionBuilder() 
 
@@ -134,7 +134,7 @@ module TaskOptionCEExtensions =
     /// <summary>
     /// Method lets us transform data types into our internal representation.
     /// </summary>
-    member inline __.Source(r: Option<'t>) = Task.singleton r
+    member inline __.Source(r: 't option) = Task.singleton r
 
     /// <summary>
     /// Method lets us transform data types into our internal representation.
