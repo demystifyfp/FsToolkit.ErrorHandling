@@ -15,7 +15,7 @@ let makeDisposable () =
         with member this.Dispose() = () }
 
 
-// type Option<'a> = | Some of 'a | None
+// type 'a option = | Some of 'a | None
 
 let ceTests = 
     testList "CE Tests" [
