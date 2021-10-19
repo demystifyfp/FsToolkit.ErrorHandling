@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>benchmarks.Benchmarks-20210907-112019</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.1, OS=macOS Big Sur 11.5.2 (20G95) [Darwin 20.6.0]
+Intel Core i9-9980HK CPU 2.40GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK=5.0.103
+  [Host]     : .NET 5.0.6 (5.0.621.22011), X64 RyuJIT DEBUG
+  DefaultJob : .NET 5.0.6 (5.0.621.22011), X64 RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>        Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th>
+</tr>
+</thead><tbody><tr><td>ResultMap2</td><td>7,417.8 ns</td><td>147.85 ns</td><td>376.34 ns</td><td>7,273.3 ns</td>
+</tr><tr><td>ResultAltMap2</td><td>2,270.1 ns</td><td>29.87 ns</td><td>27.94 ns</td><td>2,275.7 ns</td>
+</tr><tr><td>ResultInlinedMap2</td><td>3,553.9 ns</td><td>39.19 ns</td><td>36.66 ns</td><td>3,559.3 ns</td>
+</tr><tr><td>ResultAltInlinedMap2</td><td>874.0 ns</td><td>11.02 ns</td><td>9.77 ns</td><td>873.7 ns</td>
+</tr></tbody></table>
+</body>
+</html>

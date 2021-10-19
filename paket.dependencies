@@ -14,6 +14,13 @@ nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha 2.10.0
 
+group Benchmarks
+source https://api.nuget.org/v3/index.json
+storage: none
+nuget BenchmarkDotNet 0.13.1
+nuget BenchmarkDotNet.Annotations 0.13.1
+nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
+
 group Build
 source https://api.nuget.org/v3/index.json
 framework: netstandard2.0, netstandard2.1, net5.0
