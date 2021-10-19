@@ -1,3 +1,5 @@
+### 2.7.1-beta001 - October 19, 2021
+- [Canonicalize option type annotations](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/140) Credits [@cmeeren](https://github.com/cmeeren)
 ### 2.7.0 - August 02, 2021
 - [Extra Task, ValueTask, Ply CE sources](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/135) Credits [@kerams](https://github.com/kerams)
 
