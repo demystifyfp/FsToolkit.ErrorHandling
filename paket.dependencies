@@ -15,18 +15,19 @@ nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha
-nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true # allows for building full framework on macOS/linux without mono
+nuget Microsoft.NETFramework.ReferenceAssemblies
 
 group Build
 source https://api.nuget.org/v3/index.json
 
 storage: none
-nuget Fake.Core.Target 5.20.4-alpha.1642
-nuget Fake.DotNet.Cli 5.20.4-alpha.1642
-nuget Fake.Core.ReleaseNotes 5.20.4-alpha.1642
-nuget Fake.DotNet.AssemblyInfoFile 5.20.4-alpha.1642
-nuget Fake.DotNet.Paket 5.20.4-alpha.1642
-nuget Fake.DotNet.Testing.Expecto 5.20.4-alpha.1642
-nuget Fake.Tools.Git 5.20.4-alpha.1642
-nuget Fake.JavaScript.Npm 5.20.4-alpha.1642
-nuget Fake.Api.GitHub 5.20.4-alpha.1642
+nuget Fake.Core.Target 5.20.4
+nuget Fake.DotNet.Cli 5.20.4
+nuget Fake.Core.ReleaseNotes 5.20.4
+nuget Fake.DotNet.AssemblyInfoFile 5.20.4
+nuget Fake.DotNet.Paket 5.20.4
+nuget Fake.DotNet.Testing.Expecto 5.20.4
+nuget Fake.Tools.Git 5.20.4
+nuget Fake.JavaScript.Npm 5.20.4
+nuget Fake.Api.GitHub 5.20.4
+nuget MSBuild.StructuredLogger 2.1.507
