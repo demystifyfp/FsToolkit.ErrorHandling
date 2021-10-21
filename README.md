@@ -1,6 +1,6 @@
 # FsToolkit.ErrorHandling
 
-**FsToolkit.ErrorHandling** is a utility library to work with the `Result` type in F#, and allows you to do clear, simple and powerful error handling. 
+**FsToolkit.ErrorHandling** is a utility library to work with the `Result` type in F#, and allows you to do clear, simple and powerful error handling.
 
 The library provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence` as well as computation expressions and infix operators to work with `Result<'a, 'b>`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>`, and `Result<'a, 'b list>`.
 
@@ -8,10 +8,15 @@ It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.Err
 
 FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
 
-Documentation
--------------
+## Documentation
 
 The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-errorhandling).
+
+## Further material
+
+* The main resource as to learning this style of programming [Railway Oriented Programming](https://fsharpforfunandprofit.com/rop/)
+* However Result isn't a panacea, see what pitfalls and where you shouldn't use `Result`. [In defense of Exceptions: Throw (away) your Result](https://skillsmatter.com/skillscasts/17243-in-defense-of-exceptions-throw-away-your-result)
+
 
 ## Builds
 
@@ -82,3 +87,5 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
 ## Sponsor(s):
 
 <a href="https://www.ajira.tech"><img src="./Ajira-logo.png" alt="Ajira Technologies, India" width="200" /></a>
+
+
