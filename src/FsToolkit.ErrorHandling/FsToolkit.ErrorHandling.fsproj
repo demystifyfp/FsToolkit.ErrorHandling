@@ -31,6 +31,7 @@
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="AsyncOptionOp.fs" />
     <Compile Include="List.fs" />
+    <Compile Include="Seq.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
 
