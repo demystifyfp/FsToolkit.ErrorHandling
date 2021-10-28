@@ -23,6 +23,7 @@
     <Compile Include="AsyncOption.fs" />
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="List.fs" />
+    <Compile Include="Seq.fs" />
     <Compile Include="AsyncResult.fs" />
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />
@@ -30,6 +31,6 @@
     <Compile Include="ValidationCE.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-  
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

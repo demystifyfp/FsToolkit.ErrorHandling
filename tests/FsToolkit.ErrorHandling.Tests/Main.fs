@@ -15,6 +15,7 @@ let allTests = testList "All Tests" [
   AsyncOptionTests.allTests
   AsyncOptionCETests.allTests
   ListTests.allTests
+  SeqTests.allTests
   AsyncResultTests.allTests
   AsyncResultCETests.allTests
   AsyncResultOptionTests.allTests
@@ -27,5 +28,5 @@ let main argv =
   #if FABLE_COMPILER
   Mocha.runTests allTests
   #else
-  Tests.runTestsWithArgs defaultConfig argv allTests  
+  Tests.runTestsWithArgs defaultConfig argv allTests
   #endif
