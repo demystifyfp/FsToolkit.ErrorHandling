@@ -31,6 +31,7 @@
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="AsyncOptionOp.fs" />
     <Compile Include="List.fs" />
+    <Compile Include="Seq.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
 
@@ -39,6 +40,6 @@
     <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
   </ItemGroup>
 
-  
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
