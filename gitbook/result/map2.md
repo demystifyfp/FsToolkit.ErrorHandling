@@ -57,7 +57,7 @@ type Latitude = private Latitude of float with
   member this.Value = let (Latitude lat) = this in lat
   // float -> Result<Latitude, string>
   static member TryCreate (lat : float) =
-    if lat > -180. && lat <= 180. then
+    if lat > -90. && lat <= 90. then
       Ok (Latitude lat)
     else
       sprintf "%A is a invalid latitude value" lat |> Error
@@ -71,7 +71,7 @@ type Longitude = private Longitude of float with
   member this.Value = let (Longitude lng) = this in lng
   // float -> Result<Longitude, string>
   static member TryCreate (lng : float) =
-    if lng >= -90. && lng <= 90. then
+    if lng >= -180. && lng <= 180. then
       Ok (Longitude lng)
     else
       sprintf "%A is a invalid longitude value" lng |> Error
