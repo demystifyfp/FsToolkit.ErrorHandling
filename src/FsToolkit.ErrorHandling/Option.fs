@@ -8,7 +8,7 @@ module Option =
     | None -> Ok None
     | Some v -> f v |> Result.map Some
 
-  let sequenceResult opt = 
+  let sequenceResult opt =
     traverseResult id opt
 
   #if !FABLE_COMPILER
@@ -28,5 +28,10 @@ module Option =
   /// <returns></returns>
   let zip (option1 : option<'a>) (option2 : option<'b>) =
     match option1, option2 with
-    | Some v1, Some v2 -> Some(v1,v2) 
+    | Some v1, Some v2 -> Some(v1,v2)
     | _ -> None
+
+  let ofResult =
+    function
+    | Ok v -> Some v
+    | Error _ -> None
