@@ -16,12 +16,12 @@ let traverseResultTests =
     testCase "traverseResult with Some of valid data" <| fun _ ->
       let (latitude, longitude) =
         (Some lat), (Some lng)
-      
-      latitude 
+
+      latitude
       |> Option.traverseResult Latitude.TryCreate
       |> Expect.hasOkValue (Some validLat)
-      
-      longitude 
+
+      longitude
       |> Option.traverseResult Longitude.TryCreate
       |> Expect.hasOkValue (Some validLng)
   ]
@@ -46,9 +46,19 @@ let tryParseTests =
       Expect.equal parsedValue (Some expectedGuid) "Should be same guid"
     #endif
   ]
-  
+
+
+let ofResultTests =
+  testList "Option.ofResult Tests" [
+    testCase "ofResult simple cases" <| fun _ ->
+      Expect.equal (Option.ofResult (Ok 123)) (Some 123) "Ok int"
+      Expect.equal (Option.ofResult (Ok "abc")) (Some "abc") "Ok string"
+      Expect.equal (Option.ofResult (Error "x")) None "Error _"
+  ]
+
 
 let allTests = testList "Option Tests" [
   traverseResultTests
   tryParseTests
+  ofResultTests
 ]
