@@ -1,4 +1,4 @@
-## Result.tryCreate 
+## Result.tryCreate
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -28,10 +28,10 @@ type Longitude = private Longitude of float with
 
   // float -> Result<Longitude, string>
   static member TryCreate (lng : float) =
-    if lng >= -90. && lng <= 90. then
+    if lng >= -180. && lng <= 180. then
       Ok (Longitude lng)
     else
-      sprintf "%A is a invalid longitude value" lng |> Error 
+      sprintf "%A is a invalid longitude value" lng |> Error
 ```
 
 Let's assume that we have few more similar types as below
@@ -42,10 +42,10 @@ type Longitude = private Longitude of float with
     let (Longitude lng) = this
     lng
   static member TryCreate (lng : float) =
-    if lng > -90. && lng < 90. then
+    if lng > -180. && lng < 180. then
       Ok (Longitude lng)
     else
-      sprintf "%A is a invalid longitude value" lng |> Error 
+      sprintf "%A is a invalid longitude value" lng |> Error
 
 type Tweet = private Tweet of string with
   member this.Value =
@@ -100,7 +100,7 @@ type CreatePostRequestDto = {
 We can then do validation using `Result.tryResult` and the [`Validation` infix operators](../validation/operators.md) as below:
 
 ```fsharp
-open FsToolkit.ErrorHandling.Operator.Validation 
+open FsToolkit.ErrorHandling.Operator.Validation
 
 // CreatePostRequestDto -> Result<CreatePostRequest, (string * string) list>
 let validateCreatePostRequest (dto : CreatePostRequestDto) =
@@ -186,10 +186,10 @@ let validateCreatePostRequest (dto : CreatePostRequestDto) =
   <*^> Result.tryCreate "tweet" dto.Tweet
 ```
 
-Note: We are using the `<!>` operator in the `validateCreatePostRequest` instead of `<!^>` operator as the right side result is returning a list of errors (`Result<Location option, (string * string) list>`). 
+Note: We are using the `<!>` operator in the `validateCreatePostRequest` instead of `<!^>` operator as the right side result is returning a list of errors (`Result<Location option, (string * string) list>`).
 
 ```fsharp
-validateCreatePostRequest 
+validateCreatePostRequest
   {Tweet = ""; Location = Some {Latitude = 300.; Longitude = 400.}}
 //  Error
 //    [("latitude", "300.0 is a invalid latitude value")
