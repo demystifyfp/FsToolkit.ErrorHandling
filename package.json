@@ -2,14 +2,12 @@
   "type": "module",
   "devDependencies": {
     "esm": "^3.2.25",
-    "fable-compiler": "^2.9.0",
-    "fable-splitter": "^2.1.13",
     "mocha": "^8.3.2"
   },
   "scripts": {
     "pretest": "dotnet fable tests/FsToolkit.ErrorHandling.Tests -o dist/tests",
     "test": "mocha dist/tests",
-    "watch-build": "fable-splitter  tests/FsToolkit.ErrorHandling.Tests -o dist/tests --commonjs -w",
-    "watch-test": "mocha -watch dist/tests"
+    "watch-build": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o dist/tests",
+    "watch-test": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o dist/tests --runWatch mocha dist/tests"
   }
 }
