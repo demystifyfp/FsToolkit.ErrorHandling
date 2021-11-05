@@ -395,7 +395,7 @@ paket-files/
 # vscode-ionide
 .ionide/
 
-# FAble
+# Fable
 fable_modules
 .fable
 *.fs.js
