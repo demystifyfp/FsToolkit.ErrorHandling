@@ -1,4 +1,4 @@
-### 2.8.0-beta001 - November 07, 2021
+### 2.8.0 - November 07, 2021
 - [Fixes to example documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/148) Credits [@njlr](https://github.com/njlr)
 - Updates to Fable 3 [#1](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/129) [#2](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/149) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) [@njlr](https://github.com/njlr)
 - [Adds Option.ofResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/147) Credits [@njlr](https://github.com/njlr)
