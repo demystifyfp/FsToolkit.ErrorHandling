@@ -1,3 +1,5 @@
+### 2.8.1 - November 07, 2021
+- [Adds README to nuget package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/commit/966b0b60fa6e95dcc196a51531f981cf905555e6) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.8.0 - November 07, 2021
 - [Fixes to example documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/148) Credits [@njlr](https://github.com/njlr)
 - Updates to Fable 3 [#1](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/129) [#2](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/149) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) [@njlr](https://github.com/njlr)
