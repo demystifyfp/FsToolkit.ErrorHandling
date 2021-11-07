@@ -19,6 +19,16 @@ let summary = "FsToolkit.ErrorHandling is a utility library to work with the Res
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
+let srcCodeGlob =
+    !! (__SOURCE_DIRECTORY__  </> "src/**/*.fs")
+    ++ (__SOURCE_DIRECTORY__  </> "src/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__  </> "src/**/obj/**/*.fs")
+
+let testsCodeGlob =
+    !! (__SOURCE_DIRECTORY__  </> "tests/**/*.fs")
+    ++ (__SOURCE_DIRECTORY__  </> "tests/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__  </> "tests/**/obj/**/*.fs")
+
 let gitOwner ="demystifyfp"
 
 let distDir = __SOURCE_DIRECTORY__  @@ "bin"
@@ -29,6 +39,63 @@ Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
 
 let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
 Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
+
+
+
+let failOnBadExitAndPrint (p : ProcessResult) =
+    if p.ExitCode <> 0 then
+        p.Errors |> Seq.iter Trace.traceError
+        failwithf "failed with exitcode %d" p.ExitCode
+module dotnet =
+    let watch cmdParam program args =
+        DotNet.exec cmdParam (sprintf "watch %s" program) args
+
+    let run cmdParam args =
+        DotNet.exec cmdParam "run" args
+
+    let tool optionConfig command args =
+        DotNet.exec optionConfig (sprintf "%s" command) args
+        |> failOnBadExitAndPrint
+
+    let fantomas args =
+        DotNet.exec id "fantomas" args
+
+
+let formatCode _ =
+    let result =
+        [
+            srcCodeGlob
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> dotnet.fantomas
+
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages
+
+
+let checkFormatCode _ =
+    let result =
+        [
+            srcCodeGlob
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> sprintf "%s --check"
+        |> dotnet.fantomas
+
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, check output for more info"
+    else
+        Trace.logf "Errors while formatting: %A" result.Errors
 
 
 Target.create "Clean" (fun _ ->
@@ -175,6 +242,10 @@ Target.create "NuGet" (fun _ ->
                                                   ("PackageReleaseNotes", releaseNotes)]}}))
 )
 
+
+Target.create "FormatCode" formatCode
+Target.create "CheckFormatCode" checkFormatCode
+
 Target.create "PublishNuget" (fun _ ->
     Paket.push(fun p ->
         { p with
@@ -230,6 +301,7 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "AssemblyInfo"
   ==> "Restore"
   ==> "NpmRestore"
+  ==> "CheckFormatCode"
   ==> "Build"
   ==> "FemtoValidate"
   ==> "RunTests"
