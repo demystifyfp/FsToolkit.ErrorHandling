@@ -1,3 +1,11 @@
+### 2.8.0-beta001 - November 07, 2021
+- [Fixes to example documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/148) Credits [@njlr](https://github.com/njlr)
+- Updates to Fable 3 [#1](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/129) [#2](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/149) Credits [@TheAngryByrd](https://github.com/TheAngryByrd) [@njlr](https://github.com/njlr)
+- [Adds Option.ofResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/147) Credits [@njlr](https://github.com/njlr)
+- [Adds Seq.sequenceResultM](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/146) Credits [@njlr](https://github.com/njlr)
+- [Adds Fantomas for formatting](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/151) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
+- [Adds Github Issue and Pull Request templates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/152) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
+
 ### 2.7.1 - October 19, 2021
 - [Canonicalize option type annotations](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/140) Credits [@cmeeren](https://github.com/cmeeren)
 ### 2.7.0 - August 02, 2021
