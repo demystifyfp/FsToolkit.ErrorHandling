@@ -6,6 +6,7 @@
         <PackageLicenseFile>License</PackageLicenseFile>
     </PropertyGroup>
     <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/"/>    
         <None Include="$(MSBuildThisFileDirectory)..\License" Pack="true" PackagePath=""/>
     </ItemGroup>
 
@@ -13,6 +14,8 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsPackable>true</IsPackable>
         <IsTestProject>false</IsTestProject>
+        <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
+        
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
