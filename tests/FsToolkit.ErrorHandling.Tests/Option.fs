@@ -1,4 +1,5 @@
 module OptionTests
+
 open System
 #if FABLE_COMPILER
 open Fable.Mocha
@@ -12,53 +13,63 @@ open FsToolkit.ErrorHandling
 
 
 let traverseResultTests =
-  testList "Option.traverseResult Tests" [
-    testCase "traverseResult with Some of valid data" <| fun _ ->
-      let (latitude, longitude) =
-        (Some lat), (Some lng)
+    testList
+        "Option.traverseResult Tests"
+        [ testCase "traverseResult with Some of valid data"
+          <| fun _ ->
+              let (latitude, longitude) = (Some lat), (Some lng)
 
-      latitude
-      |> Option.traverseResult Latitude.TryCreate
-      |> Expect.hasOkValue (Some validLat)
+              latitude
+              |> Option.traverseResult Latitude.TryCreate
+              |> Expect.hasOkValue (Some validLat)
 
-      longitude
-      |> Option.traverseResult Longitude.TryCreate
-      |> Expect.hasOkValue (Some validLng)
-  ]
+              longitude
+              |> Option.traverseResult Longitude.TryCreate
+              |> Expect.hasOkValue (Some validLng) ]
 
 
 let tryParseTests =
-  testList "Option.tryParse" [
-    #if !FABLE_COMPILER
-    testCase "Can Parse int" <| fun _ ->
-      let expected = 3
-      let actual = Option.tryParse<int> (string expected)
-      Expect.equal actual (Some expected) "Should be parsed"
+    testList
+        "Option.tryParse"
+        [
+#if !FABLE_COMPILER
+          testCase "Can Parse int"
+          <| fun _ ->
+              let expected = 3
+              let actual = Option.tryParse<int> (string expected)
+              Expect.equal actual (Some expected) "Should be parsed"
 
-    testCase "Can Parse double" <| fun _ ->
-      let expected : float = 3.0
-      let actual = Option.tryParse<float> (string expected)
-      Expect.equal actual (Some expected) "Should be parsed"
+          testCase "Can Parse double"
+          <| fun _ ->
+              let expected: float = 3.0
+              let actual = Option.tryParse<float> (string expected)
+              Expect.equal actual (Some expected) "Should be parsed"
 
-    testCase "Can Parse Guid" <| fun _ ->
-      let expectedGuid = Guid.NewGuid()
-      let parsedValue = Option.tryParse<Guid> (string expectedGuid)
-      Expect.equal parsedValue (Some expectedGuid) "Should be same guid"
-    #endif
-  ]
+          testCase "Can Parse Guid"
+          <| fun _ ->
+              let expectedGuid = Guid.NewGuid()
+
+              let parsedValue =
+                  Option.tryParse<Guid> (string expectedGuid)
+
+              Expect.equal parsedValue (Some expectedGuid) "Should be same guid"
+#endif
+        ]
 
 
 let ofResultTests =
-  testList "Option.ofResult Tests" [
-    testCase "ofResult simple cases" <| fun _ ->
-      Expect.equal (Option.ofResult (Ok 123)) (Some 123) "Ok int"
-      Expect.equal (Option.ofResult (Ok "abc")) (Some "abc") "Ok string"
-      Expect.equal (Option.ofResult (Error "x")) None "Error _"
-  ]
+    testList
+        "Option.ofResult Tests"
+        [ testCase "ofResult simple cases"
+          <| fun _ ->
+              Expect.equal (Option.ofResult (Ok 123)) (Some 123) "Ok int"
+              Expect.equal (Option.ofResult (Ok "abc")) (Some "abc") "Ok string"
+              Expect.equal (Option.ofResult (Error "x")) None "Error _" ]
 
 
-let allTests = testList "Option Tests" [
-  traverseResultTests
-  tryParseTests
-  ofResultTests
-]
+let allTests =
+    testList
+        "Option Tests"
+        [ traverseResultTests
+          tryParseTests
+          ofResultTests ]
