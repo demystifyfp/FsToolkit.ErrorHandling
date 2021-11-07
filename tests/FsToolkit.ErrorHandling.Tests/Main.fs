@@ -6,19 +6,20 @@ open Fable.Mocha
 open Expecto
 #endif
 
-let allTests = testList "All Tests" [
-  ResultTests.allTests
-  ResultCETests.allTests
-  ResultOptionTests.allTests
-  OptionTests.allTests
-  OptionCETests.allTests
-  AsyncOptionTests.allTests
-  AsyncOptionCETests.allTests
-  ListTests.allTests
-  SeqTests.allTests
-  AsyncResultTests.allTests
-  AsyncResultCETests.allTests
-  AsyncResultOptionTests.allTests
-  ValidationTests.allTests
-  ValidationCETests.allTests
-]
+let allTests =
+    testList
+        "All Tests"
+        [ ResultTests.allTests
+          ResultCETests.allTests
+          ResultOptionTests.allTests
+          OptionTests.allTests
+          OptionCETests.allTests
+          AsyncOptionTests.allTests
+          AsyncOptionCETests.allTests
+          ListTests.allTests
+          SeqTests.allTests
+          AsyncResultTests.allTests
+          AsyncResultCETests.allTests
+          AsyncResultOptionTests.allTests
+          ValidationTests.allTests
+          ValidationCETests.allTests ]
