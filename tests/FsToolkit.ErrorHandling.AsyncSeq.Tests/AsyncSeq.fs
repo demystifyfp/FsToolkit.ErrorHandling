@@ -9,7 +9,7 @@ open Expecto
 open FSharp.Control
 open FsToolkit.ErrorHandling
 
-let allTests = testList "AsyncOption.map Tests" [
+let allTests = testList "AsyncSeq Tests" [
   testCaseAsync "simple case 1" <| async {
     let xs =
       asyncSeq {
