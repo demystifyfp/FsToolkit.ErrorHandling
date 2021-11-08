@@ -9,7 +9,7 @@
       ]
     },
     "paket": {
-      "version": "6.2.1",
+      "version": "5.258.1",
       "commands": [
         "paket"
       ]
@@ -29,7 +29,7 @@
     "fantomas-tool": {
       "version": "4.5.4",
       "commands": [
-          "fantomas"
+        "fantomas"
       ]
     }
   }

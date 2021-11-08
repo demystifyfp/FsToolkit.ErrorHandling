@@ -6,6 +6,5 @@ open Fable.Mocha
 open Expecto
 #endif
 
-let allTests = testList "All Tests" [
-  AsyncSeq.allTests
-]
+let allTests =
+    testList "All Tests" [ AsyncSeq.allTests ]
