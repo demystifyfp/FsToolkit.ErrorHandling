@@ -2,7 +2,7 @@ source https://api.nuget.org/v3/index.json
 
 
 storage: none
-nuget FSharp.Core 4.6.2
+nuget FSharp.Core 4.7.2
 nuget Hopac
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Ply
@@ -10,9 +10,12 @@ nuget Ply
 group Test
 source https://api.nuget.org/v3/index.json
 storage: none
+nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha 2.10.0
+nuget Fable.Python 0.16.0
+
 
 group Build
 source https://api.nuget.org/v3/index.json
