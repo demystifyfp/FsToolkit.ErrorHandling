@@ -78,7 +78,7 @@ let ceTests =
                       try
                           return data
                       with
-                      | e -> return! raise e
+                      | e -> return raise e
                   }
 
               Expect.equal actual (Some data) "Try with failed"

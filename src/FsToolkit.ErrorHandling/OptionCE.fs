@@ -67,6 +67,11 @@ module OptionCE =
         member inline _.Source(result: _ option) : _ option = result
 
 
+        // /// <summary>
+        // /// Method lets us transform data types into our internal representation.
+        // /// </summary>
+        member inline _.Source(vopt: ValueOption<_>) : Option<_> = vopt |> Option.ofValueOption
+
     let option = OptionBuilder()
 
 [<AutoOpen>]
