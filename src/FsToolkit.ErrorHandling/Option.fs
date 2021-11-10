@@ -3,13 +3,13 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
-    let ofValueOption (vopt: ValueOption<_>) =
+    let ofValueOption (vopt: _ voption) =
         match vopt with
         | ValueSome v -> Some v
         | ValueNone -> None
 
-    let toValueOption (vopt: Option<_>) =
-        match vopt with
+    let toValueOption (opt: _ option) =
+        match opt with
         | Some v -> ValueSome v
         | None -> ValueNone
 
@@ -40,7 +40,7 @@ module Option =
     /// <param name="option1">The input option</param>
     /// <param name="option2">The input option</param>
     /// <returns></returns>
-    let zip (option1: option<'a>) (option2: option<'b>) =
+    let zip (option1: 'a option) (option2: 'b option) =
         match option1, option2 with
         | Some v1, Some v2 -> Some(v1, v2)
         | _ -> None

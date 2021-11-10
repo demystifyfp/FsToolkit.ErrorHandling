@@ -14,6 +14,10 @@ let allTests =
           ResultOptionTests.allTests
           OptionTests.allTests
           OptionCETests.allTests
+#if !FABLE_COMPILER
+          ValueOptionTests.allTests
+          ValueOptionCETests.allTests
+#endif
           AsyncOptionTests.allTests
           AsyncOptionCETests.allTests
           ListTests.allTests

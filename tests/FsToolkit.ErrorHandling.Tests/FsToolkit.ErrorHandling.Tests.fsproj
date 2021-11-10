@@ -20,6 +20,8 @@
     <Compile Include="ResultOption.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="OptionCE.fs" />
+    <Compile Include="ValueOption.fs" />
+    <Compile Include="ValueOptionCE.fs" />
     <Compile Include="AsyncOption.fs" />
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="List.fs" />
