@@ -1,3 +1,5 @@
+### 2.9.0-beta001 - November 09, 2021
+- [Adds ValueOption CE](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/131) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.8.1 - November 07, 2021
 - [Adds README to nuget package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/commit/966b0b60fa6e95dcc196a51531f981cf905555e6) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.8.0 - November 07, 2021
