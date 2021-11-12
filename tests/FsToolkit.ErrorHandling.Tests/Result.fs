@@ -682,6 +682,23 @@ let sequenceAsyncTests =
               Expect.equal value (Error "foo") ""
              } ]
 
+let traverseAsyncTests =
+  testList "traverseAsync Tests" [
+    testCaseAsync "traverseAsync returns the async value if Ok" <| async {
+      let resAsnc = async { return "foo" } |> Ok
+      let resFunc = id 
+      let! value = (resFunc, resAsnc) ||> Result.traverseAsync
+      Expect.equal value (Ok "foo") ""
+    }
+
+    testCaseAsync "traverseAsync returns the error value if Error" <| async {
+      let resAsnc = Error "foo"
+      let resFunc = id
+      let! value = (resFunc, resAsnc) ||> Result.traverseAsync
+      Expect.equal value (Error "foo") "" 
+    } 
+  ]
+
 let valueOrTests =
     testList
         "valueOrTests Tests"
@@ -781,6 +798,7 @@ let allTests =
           teeErrorTests
           teeErrorIfTests
           sequenceAsyncTests
+          traverseAsyncTests
           valueOrTests
           zipTests
           zipErrorTests ]
