@@ -1,3 +1,5 @@
+### 2.10.0 - November 13, 2021
+- [Adds Result.traverseAsync](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/153) Credits [@saerosV](https://github.com/saerosV)
 ### 2.9.0 - November 09, 2021
 - [Adds ValueOption CE](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/131) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.8.1 - November 07, 2021
