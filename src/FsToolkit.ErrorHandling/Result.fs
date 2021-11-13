@@ -214,8 +214,8 @@ module Result =
             | Error err -> return Error err
         }
 
-    /// 
-    let traverseAsync (f: 't -> Async<'u>) (res: Result<'t, 'e>): Async<Result<'u, 'e>> =
+    ///
+    let traverseAsync (f: 't -> Async<'u>) (res: Result<'t, 'e>) : Async<Result<'u, 'e>> =
         ((Result.map f) >> sequenceAsync) res
 
     /// Returns the Ok value or runs the specified function over the error value.
