@@ -1,4 +1,4 @@
-### 2.11.0-beta002 - November 24, 2021
+### 2.11.0-beta004 - November 24, 2021
 - [integrates FsToolkit.ErrorHandling.AsyncSeq into main repository] Credits [@njlr](https://github.com/njlr)
 
 ### 2.10.0 - November 13, 2021
