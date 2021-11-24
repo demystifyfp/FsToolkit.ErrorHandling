@@ -15,7 +15,6 @@ nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha 2.10.0
-nuget Microsoft.NETFramework.ReferenceAssemblies
 
 group Build
 source https://api.nuget.org/v3/index.json
@@ -32,3 +31,4 @@ nuget Fake.Tools.Git 5.20.4
 nuget Fake.JavaScript.Npm 5.20.4
 nuget Fake.Api.GitHub 5.20.4
 nuget MSBuild.StructuredLogger 2.1.507
+nuget Octokit 0.48
