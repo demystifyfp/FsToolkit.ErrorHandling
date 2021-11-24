@@ -14,10 +14,6 @@ let allTests =
           ResultOptionTests.allTests
           OptionTests.allTests
           OptionCETests.allTests
-#if !FABLE_COMPILER
-          ValueOptionTests.allTests
-          ValueOptionCETests.allTests
-#endif
           AsyncOptionTests.allTests
           AsyncOptionCETests.allTests
           ListTests.allTests
@@ -27,11 +23,3 @@ let allTests =
           AsyncResultOptionTests.allTests
           ValidationTests.allTests
           ValidationCETests.allTests ]
-
-[<EntryPoint>]
-let main argv =
-#if FABLE_COMPILER
-    Mocha.runTests allTests
-#else
-    Tests.runTestsWithArgs defaultConfig argv allTests
-#endif

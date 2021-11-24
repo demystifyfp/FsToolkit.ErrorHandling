@@ -1,19 +1,19 @@
 {
-    "version": 1,
-    "isRoot": true,
-    "tools": {
-      "fake-cli": {
-        "version": "5.20.4",
-        "commands": [
-          "fake"
-        ]
-      },
-      "paket": {
-        "version": "6.2.1",
-        "commands": [
-          "paket"
-        ]
-      },
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "fake-cli": {
+      "version": "5.20.4",
+      "commands": [
+        "fake"
+      ]
+    },
+    "paket": {
+      "version": "6.2.1",
+      "commands": [
+        "paket"
+      ]
+    },
     "fable": {
       "version": "3.4.9",
       "commands": [
@@ -23,7 +23,13 @@
     "fantomas-tool": {
       "version": "4.5.4",
       "commands": [
-          "fantomas"
+        "fantomas"
+      ]
+    },
+    "femto": {
+      "version": "0.9.0",
+      "commands": [
+        "femto"
       ]
     }
   }

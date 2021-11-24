@@ -382,6 +382,7 @@ FakesAssemblies/
 _Pvt_Extensions
 
 # Paket dependency manager
+.paket
 paket-files/
 
 # FAKE - F# Make
@@ -395,4 +396,6 @@ paket-files/
 .ionide/
 
 # Fable
+fable_modules
+.fable
 *.fs.js
