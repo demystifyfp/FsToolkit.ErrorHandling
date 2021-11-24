@@ -1,3 +1,6 @@
+### 2.11.0-beta002 - November 24, 2021
+- [integrates FsToolkit.ErrorHandling.AsyncSeq into main repository] Credits [@njlr](https://github.com/njlr)
+
 ### 2.10.0 - November 13, 2021
 - [Adds Result.traverseAsync](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/153) Credits [@saerosV](https://github.com/saerosV)
 ### 2.9.0 - November 09, 2021
