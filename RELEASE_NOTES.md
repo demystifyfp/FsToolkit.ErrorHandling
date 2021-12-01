@@ -1,3 +1,5 @@
+### 2.11.1-beta001 - December 01, 2021
+- [Seq.sequenceResultM returns seq instead of list](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/159) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.11.0 - November 24, 2021
 - [integrates FsToolkit.ErrorHandling.AsyncSeq into main repository](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/155#issuecomment-978469011) Credits [@njlr](https://github.com/njlr)
 
