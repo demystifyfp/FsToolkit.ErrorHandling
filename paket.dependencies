@@ -8,12 +8,6 @@ nuget Hopac
 nuget FSharp.Control.AsyncSeq 3.2.1
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Ply
-
-group Test
-framework: netstandard2.0, netstandard2.1, net5.0
-source https://api.nuget.org/v3/index.json
-storage: none
-nuget FSharp.Core 4.7.2
 nuget Expecto
 nuget Expecto.Hopac
 nuget Fable.Mocha 2.10.0

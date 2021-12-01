@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>

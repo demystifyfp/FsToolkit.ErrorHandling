@@ -1,6 +1,4 @@
 FSharp.Core
 Ply
-
-group Test
 Expecto
 Fable.Mocha
