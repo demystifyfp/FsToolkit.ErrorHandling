@@ -24,6 +24,7 @@ let sequenceResultMTests =
 
               let actual =
                   Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+                  |> Result.map Seq.toList
 
               Expect.equal actual expected "Should have an empty list of valid tweets"
 
@@ -34,6 +35,7 @@ let sequenceResultMTests =
 
               let actual =
                   Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+                  |> Result.map Seq.toList
 
               Expect.equal actual expected "Should have a list of valid tweets"
 
