@@ -4,10 +4,10 @@ open Expecto
 open FsToolkit.ErrorHandling
 
 let testCaseTask name test =
-    testCaseAsync name (Async.AwaitTask test)
+    testCaseAsync name (async { return! test () |> Async.AwaitTask })
 
 let ptestCaseTask name test =
-    ptestCaseAsync name (Async.AwaitTask test)
+    ptestCaseAsync name (async { return! test () |> Async.AwaitTask })
 
 let ftestCaseTask name test =
-    ftestCaseAsync name (Async.AwaitTask test)
+    ftestCaseAsync name (async { return! test () |> Async.AwaitTask })
