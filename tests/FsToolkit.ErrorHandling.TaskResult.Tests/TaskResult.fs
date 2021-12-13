@@ -151,66 +151,74 @@ let orElseTests =
     testList
         "TaskResult.orElseWith Tests"
         [ testCaseTask "Ok Ok takes first Ok"
-          <| task {
-              do!
-                  TaskResult.ok "First"
-                  |> TaskResult.orElse (TaskResult.ok "Second")
-                  |> Expect.hasTaskOkValue "First"
-             }
+          <| fun () ->
+              task {
+                  do!
+                      TaskResult.ok "First"
+                      |> TaskResult.orElse (TaskResult.ok "Second")
+                      |> Expect.hasTaskOkValue "First"
+              }
           testCaseTask "Ok Error takes first Ok"
-          <| task {
-              return!
-                  TaskResult.ok "First"
-                  |> TaskResult.orElse (TaskResult.error "Second")
-                  |> Expect.hasTaskOkValue "First"
-             }
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.ok "First"
+                      |> TaskResult.orElse (TaskResult.error "Second")
+                      |> Expect.hasTaskOkValue "First"
+              }
           testCaseTask "Error Ok takes second Ok"
-          <| task {
-              return!
-                  TaskResult.error "First"
-                  |> TaskResult.orElse (TaskResult.ok "Second")
-                  |> Expect.hasTaskOkValue "Second"
-             }
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.error "First"
+                      |> TaskResult.orElse (TaskResult.ok "Second")
+                      |> Expect.hasTaskOkValue "Second"
+              }
           testCaseTask "Error Error takes second error"
-          <| task {
-              return!
-                  TaskResult.error "First"
-                  |> TaskResult.orElse (TaskResult.error "Second")
-                  |> Expect.hasTaskErrorValue "Second"
-             } ]
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.error "First"
+                      |> TaskResult.orElse (TaskResult.error "Second")
+                      |> Expect.hasTaskErrorValue "Second"
+              } ]
 
 [<Tests>]
 let orElseWithTests =
     testList
         "TaskResult.orElse Tests"
         [ testCaseTask "Ok Ok takes first Ok"
-          <| task {
-              return!
-                  TaskResult.ok "First"
-                  |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
-                  |> Expect.hasTaskOkValue "First"
-             }
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.ok "First"
+                      |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
+                      |> Expect.hasTaskOkValue "First"
+              }
           testCaseTask "Ok Error takes first Ok"
-          <| task {
-              return!
-                  TaskResult.ok "First"
-                  |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
-                  |> Expect.hasTaskOkValue "First"
-             }
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.ok "First"
+                      |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
+                      |> Expect.hasTaskOkValue "First"
+              }
           testCaseTask "Error Ok takes second Ok"
-          <| task {
-              return!
-                  TaskResult.error "First"
-                  |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
-                  |> Expect.hasTaskOkValue "Second"
-             }
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.error "First"
+                      |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
+                      |> Expect.hasTaskOkValue "Second"
+              }
           testCaseTask "Error Error takes second error"
-          <| task {
-              return!
-                  TaskResult.error "First"
-                  |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
-                  |> Expect.hasTaskErrorValue "Second"
-             } ]
+          <| fun () ->
+              task {
+                  return!
+                      TaskResult.error "First"
+                      |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
+                      |> Expect.hasTaskErrorValue "Second"
+              } ]
 
 [<Tests>]
 let ignoreTests =
