@@ -32,6 +32,16 @@ module Option =
         match parsed with
         | true -> Some output
         | _ -> None
+
+    let inline tryGetValue key dictionary =
+        let mutable output = Unchecked.defaultof< ^Value>
+
+        let parsed =
+            (^Dictionary: (member TryGetValue : string * byref< ^Value > -> bool) (dictionary, key, &output))
+
+        match parsed with
+        | true -> Some output
+        | false -> None
 #endif
 
     /// <summary>
