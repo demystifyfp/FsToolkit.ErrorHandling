@@ -1,13 +1,18 @@
 module ValueOptionTests
 
-#if !FABLE_COMPILER
+
 open System
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
 open SampleDomain
 open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
 
+#if !FABLE_COMPILER
 
 let traverseResultTests =
     testList
@@ -90,4 +95,7 @@ let allTests =
           tryParseTests
           tryGetValueTests
           ofResultTests ]
+#else
+
+let allTests = testList "ValueOption Tests" []
 #endif
