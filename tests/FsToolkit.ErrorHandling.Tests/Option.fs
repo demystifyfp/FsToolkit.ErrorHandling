@@ -61,12 +61,15 @@ let tryGetValueTests =
         "Option.tryGetValue"
         [
 #if !FABLE_COMPILER
-        testCase "Can Parse int"
+          testCase "Can Parse int"
           <| fun _ ->
               let expectedValue = 3
               let expectedKey = "someId"
-              let dictToWorkOn = dict [(expectedKey, expectedValue)]
-              let actual = dictToWorkOn |> Option.tryGetValue expectedKey
+              let dictToWorkOn = dict [ (expectedKey, expectedValue) ]
+
+              let actual =
+                  dictToWorkOn |> Option.tryGetValue expectedKey
+
               Expect.equal actual (Some expectedValue) "Should be some value"
 #endif
         ]

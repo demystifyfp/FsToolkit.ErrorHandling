@@ -61,15 +61,17 @@ let tryParseTests =
 let tryGetValueTests =
     testList
         "ValueOption.tryGetValue"
-        [
-        testCase "Can Parse int"
+        [ testCase "Can Parse int"
           <| fun _ ->
               let expectedValue = 3
               let expectedKey = "someId"
-              let dictToWorkOn = dict [(expectedKey, expectedValue)]
-              let actual = dictToWorkOn |> ValueOption.tryGetValue expectedKey
-              Expect.equal actual (ValueSome expectedValue) "Should be some value"
-        ]
+              let dictToWorkOn = dict [ (expectedKey, expectedValue) ]
+
+              let actual =
+                  dictToWorkOn
+                  |> ValueOption.tryGetValue expectedKey
+
+              Expect.equal actual (ValueSome expectedValue) "Should be some value" ]
 
 let ofResultTests =
     testList
