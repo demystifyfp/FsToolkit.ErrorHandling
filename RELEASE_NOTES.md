@@ -1,4 +1,4 @@
-### 2.12.0-beta001 - January 06, 2022
+### 2.12.0 - January 06, 2022
 - [Option/ValueOption.tryGetValue and reduce testing complexity](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/163) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 
 ### 2.11.1 - December 01, 2021
