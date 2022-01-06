@@ -33,6 +33,16 @@ module ValueOption =
         | true -> ValueSome output
         | _ -> ValueNone
 
+    let inline tryGetValue key dictionary =
+        let mutable output = Unchecked.defaultof< ^Value>
+
+        let parsed =
+            (^Dictionary: (member TryGetValue : string * byref< ^Value > -> bool) (dictionary, key, &output))
+
+        match parsed with
+        | true -> ValueSome output
+        | false -> ValueNone
+
     /// <summary>
     /// Takes two voptions and returns a tuple of the pair or none if either are none
     /// </summary>

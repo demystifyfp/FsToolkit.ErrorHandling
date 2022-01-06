@@ -2,3 +2,5 @@ FSharp.Core
 FSharp.Control.AsyncSeq
 Expecto
 Fable.Mocha
+Microsoft.NET.Test.Sdk
+YoloDev.Expecto.TestSdk

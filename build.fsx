@@ -104,6 +104,8 @@ Target.create "Clean" (fun _ ->
   ++ "tests/**/bin"
   ++ "src/**/obj"
   ++ "tests/**/obj"
+  ++ "dist"
+  ++"js-dist"
   |> Shell.cleanDirs
 
   [
@@ -129,77 +131,42 @@ Target.create "NpmRestore" (fun _ ->
   Npm.install id
 )
 
-let runTestAssembly setParams testAssembly =
-  let exitCode =
-    let fakeStartInfo testAssembly (args : Expecto.Params) =
-      let workingDir =
-        if String.isNotNullOrEmpty args.WorkingDirectory
-        then args.WorkingDirectory else Fake.IO.Path.getDirectory testAssembly
-      (fun (info: ProcStartInfo) ->
-        { info with
-            FileName = "dotnet"
-            Arguments = sprintf "%s %s" testAssembly (string args)
-            WorkingDirectory = workingDir } )
+let dotnetTest ctx =
 
-    let execWithExitCode testAssembly argsString timeout =
-      Process.execSimple (fakeStartInfo testAssembly argsString) timeout
+    let args =
+        [
+            "--no-build"
+        ]
+    DotNet.test(fun c ->
 
-    execWithExitCode testAssembly (setParams Expecto.Params.DefaultParams) TimeSpan.MaxValue
+        { c with
+            Configuration =DotNet.BuildConfiguration.Release
+            Common =
+                c.Common
+                |> DotNet.Options.withAdditionalArgs args
+            }) solutionFile
 
-  testAssembly, exitCode
-
-let runTests setParams testAssemblies =
-  let details = testAssemblies |> String.separated ", "
-  use __ = Trace.traceTask "Expecto" details
-  let res =
-    testAssemblies
-    |> Seq.map (runTestAssembly setParams)
-    |> Seq.filter( snd >> (<>) 0)
-    |> Seq.toList
-
-  match res with
-  | [] -> ()
-  | failedAssemblies ->
-      failedAssemblies
-      |> List.map (fun (testAssembly,exitCode) ->
-          sprintf "Expecto test of assembly '%s' failed. Process finished with exit code %d." testAssembly exitCode )
-      |> String.concat System.Environment.NewLine
-      |> Fake.Testing.Common.FailedTestsException |> raise
-  __.MarkSuccess()
-
-let testProjects = [
-  "tests/FsToolkit.ErrorHandling.Tests.Runner"
-  "tests/FsToolkit.ErrorHandling.AsyncSeq.Tests.Runner"
-  "tests/FsToolkit.ErrorHandling.JobResult.Tests"
-  "tests/FsToolkit.ErrorHandling.TaskResult.Tests"
-  "tests/FsToolkit.ErrorHandling.Fable.Tests"
-]
-
-let testAssemblies = [
-  for proj in testProjects do
-    let projName = proj.Split('/') |> Array.last
-    let pattern = proj </> "bin" </> configuration </> "**" </> (projName + ".dll")
-
-    yield! (!!pattern)
-]
-
-Target.create "RunTests" (fun _ ->
-  runTests id testAssemblies
-)
+Target.create "RunTests" dotnetTest
 
 let runFableTests _ =
   Npm.test id
 
 Target.create "RunFableTests" runFableTests
 
-Target.create "FemtoValidate" (fun _ ->
-  let result =
-    CreateProcess.fromRawCommand "dotnet" [ "femto"; "./tests/FsToolkit.ErrorHandling.Fable.Tests"; "--validate" ]
-    |> Proc.run
+let fableAwareTests = [
+  "./tests/FsToolkit.ErrorHandling.Tests"
+  "./tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
+]
 
-  if result.ExitCode <> 0
-  then
-    Fake.Testing.Common.FailedTestsException "Femto failed; perhaps you need to update the package.json?" |> raise
+Target.create "FemtoValidate" (fun _ ->
+  for testProject in fableAwareTests do
+    let result =
+      CreateProcess.fromRawCommand "dotnet" [ "femto"; testProject; "--validate" ]
+      |> Proc.run
+
+    if result.ExitCode <> 0
+    then
+      Fake.Testing.Common.FailedTestsException "Femto failed; perhaps you need to update the package.json?" |> raise
 )
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"

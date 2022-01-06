@@ -1,17 +1,25 @@
 module ValueOptionCETests
 
-#if !FABLE_COMPILER
 
-open Expecto
-open FsToolkit.ErrorHandling
+
 open System
-open System.Collections.Generic
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
+open Expecto
+#endif
+open SampleDomain
+open TestData
+open TestHelpers
+open FsToolkit.ErrorHandling
 
 let makeDisposable () =
     { new System.IDisposable with
         member this.Dispose() = () }
 
 
+
+#if !FABLE_COMPILER
 // type 'a option = | ValueSome of 'a | None
 
 let ceTests =
@@ -468,4 +476,6 @@ let allTests =
         "ValueOption CE tests"
         [ ceTests
           ``ValueOptionCE applicative tests`` ]
+#else
+let allTests = testList "ValueOption CE tests" []
 #endif

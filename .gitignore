@@ -399,3 +399,4 @@ paket-files/
 fable_modules
 .fable
 *.fs.js
+js-dist/

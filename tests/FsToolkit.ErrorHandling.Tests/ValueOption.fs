@@ -1,13 +1,18 @@
 module ValueOptionTests
 
-#if !FABLE_COMPILER
+
 open System
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
 open SampleDomain
 open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
 
+#if !FABLE_COMPILER
 
 let traverseResultTests =
     testList
@@ -58,6 +63,21 @@ let tryParseTests =
           ]
 
 
+let tryGetValueTests =
+    testList
+        "ValueOption.tryGetValue"
+        [ testCase "Can Parse int"
+          <| fun _ ->
+              let expectedValue = 3
+              let expectedKey = "someId"
+              let dictToWorkOn = dict [ (expectedKey, expectedValue) ]
+
+              let actual =
+                  dictToWorkOn
+                  |> ValueOption.tryGetValue expectedKey
+
+              Expect.equal actual (ValueSome expectedValue) "Should be some value" ]
+
 let ofResultTests =
     testList
         "ValueOption.ofResult Tests"
@@ -73,5 +93,9 @@ let allTests =
         "ValueOption Tests"
         [ traverseResultTests
           tryParseTests
+          tryGetValueTests
           ofResultTests ]
+#else
+
+let allTests = testList "ValueOption Tests" []
 #endif

@@ -56,6 +56,23 @@ let tryParseTests =
 #endif
         ]
 
+let tryGetValueTests =
+    testList
+        "Option.tryGetValue"
+        [
+#if !FABLE_COMPILER
+          testCase "Can Parse int"
+          <| fun _ ->
+              let expectedValue = 3
+              let expectedKey = "someId"
+              let dictToWorkOn = dict [ (expectedKey, expectedValue) ]
+
+              let actual =
+                  dictToWorkOn |> Option.tryGetValue expectedKey
+
+              Expect.equal actual (Some expectedValue) "Should be some value"
+#endif
+        ]
 
 let ofResultTests =
     testList
@@ -72,4 +89,5 @@ let allTests =
         "Option Tests"
         [ traverseResultTests
           tryParseTests
+          tryGetValueTests
           ofResultTests ]

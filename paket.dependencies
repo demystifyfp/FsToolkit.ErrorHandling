@@ -10,6 +10,8 @@ nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Ply
 nuget Expecto
 nuget Expecto.Hopac
+nuget Microsoft.NET.Test.Sdk
+nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha 2.10.0
 
 group Build

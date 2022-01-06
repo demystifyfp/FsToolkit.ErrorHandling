@@ -4,8 +4,9 @@ module FsToolkit.ErrorHandling.Tests
 open Fable.Mocha
 #else
 open Expecto
-#endif
 
+[<Tests>] //needed for `dotnet test` to work
+#endif
 let allTests =
     testList
         "All Tests"
@@ -22,4 +23,15 @@ let allTests =
           AsyncResultCETests.allTests
           AsyncResultOptionTests.allTests
           ValidationTests.allTests
-          ValidationCETests.allTests ]
+          ValidationCETests.allTests
+          ValueOptionTests.allTests
+          ValueOptionCETests.allTests ]
+
+
+[<EntryPoint>]
+let main argv =
+#if FABLE_COMPILER
+    Mocha.runTests allTests
+#else
+    Tests.runTestsWithCLIArgs [] Array.empty allTests
+#endif
