@@ -1,3 +1,5 @@
 FSharp.Core
 Expecto
 Expecto.Hopac
+Microsoft.NET.Test.Sdk
+YoloDev.Expecto.TestSdk
