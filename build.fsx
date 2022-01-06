@@ -151,6 +151,9 @@ let runTestAssembly setParams testAssembly =
 let runTests setParams testAssemblies =
   let details = testAssemblies |> String.separated ", "
   use __ = Trace.traceTask "Expecto" details
+  match testAssemblies with
+  | [] -> raise <| Fake.Testing.Common.FailedTestsException "No test assemblies found"
+  | _ -> ()
   let res =
     testAssemblies
     |> Seq.map (runTestAssembly setParams)
