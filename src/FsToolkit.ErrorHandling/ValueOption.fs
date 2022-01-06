@@ -43,19 +43,6 @@ module ValueOption =
         | true -> ValueSome output
         | false -> ValueNone
 
-    // let foo () =
-    //     let mydict = dict [ "hello", "world" ]
-    //     match mydict |> tryGetValue "hello" with
-    //     | ValueSome x -> printfn "value: %A" x
-    //     | ValueNone -> printfn "no value"
-
-    // let foo2 () =
-    //     let mydict = dict [ "hello", "world" ]
-    //     match mydict.TryGetValue("hello") with
-    //     | (true,x)  -> printfn "value: %A" x
-    //     | _ -> printfn "no value"
-
-
     /// <summary>
     /// Takes two voptions and returns a tuple of the pair or none if either are none
     /// </summary>
