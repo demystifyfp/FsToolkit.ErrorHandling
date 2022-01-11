@@ -87,6 +87,36 @@ let ofResultTests =
               Expect.equal (ValueOption.ofResult (Ok "abc")) (ValueSome "abc") "Ok string"
               Expect.equal (ValueOption.ofResult (Error "x")) ValueNone "Error _" ]
 
+let ofNullTests =
+    testList
+        "ValueOption.ofNull Tests"
+        [ testCase "A not null value"
+          <| fun _ ->
+              let someValue = "hello"
+              Expect.equal (ValueOption.ofNull someValue) (ValueSome someValue) ""
+          testCase "A null value"
+          <| fun _ ->
+              let (someValue: string) = null
+              Expect.equal (ValueOption.ofNull someValue) (ValueNone) "" ]
+
+let bindNullTests =
+    testList
+        "ValueOption.bindNull Tests"
+        [ testCase "ValueSome notNull"
+          <| fun _ ->
+              let value1 = ValueSome "world"
+              let someBinder _ = "hello"
+              Expect.equal (ValueOption.bindNull someBinder value1) (ValueSome "hello") ""
+          testCase "ValueSome null"
+          <| fun _ ->
+              let value1 = ValueSome "world"
+              let someBinder _ = null
+              Expect.equal (ValueOption.bindNull someBinder value1) (ValueNone) ""
+          testCase "ValueNone"
+          <| fun _ ->
+              let value1 = ValueNone
+              let someBinder _ = "won't hit here"
+              Expect.equal (ValueOption.bindNull someBinder value1) (ValueNone) "" ]
 
 let allTests =
     testList
@@ -94,7 +124,9 @@ let allTests =
         [ traverseResultTests
           tryParseTests
           tryGetValueTests
-          ofResultTests ]
+          ofResultTests
+          ofNullTests
+          bindNullTests ]
 #else
 
 let allTests = testList "ValueOption Tests" []
