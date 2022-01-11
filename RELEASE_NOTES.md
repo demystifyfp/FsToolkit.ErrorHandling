@@ -1,4 +1,4 @@
-### 2.13.0-beta001 - January 11, 2022
+### 2.13.0 - January 11, 2022
 - [Option/ValueOption.ofNull and bindNull](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/164) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 
 

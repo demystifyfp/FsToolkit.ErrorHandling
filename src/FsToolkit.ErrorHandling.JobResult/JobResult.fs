@@ -14,7 +14,7 @@ module JobResult =
         Job.bind (Result.either f (Error >> Job.result)) jr
 
     let foldResult onSuccess onError jr =
-        Job.map (Result.fold onSuccess onError) jr
+        Job.map (Result.either onSuccess onError) jr
 
     let ofAsync aAsync =
         aAsync

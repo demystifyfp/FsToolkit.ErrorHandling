@@ -15,7 +15,7 @@ module TaskResult =
         |> Task.bind (Result.either f (Error >> Task.singleton))
 
     let foldResult onSuccess onError tr =
-        Task.map (Result.fold onSuccess onError) tr
+        Task.map (Result.either onSuccess onError) tr
 
     let ofAsync aAsync =
         aAsync

@@ -14,7 +14,7 @@ module AsyncResult =
         |> Async.bind (Result.either f (Error >> Async.singleton))
 
     let foldResult onSuccess onError ar =
-        Async.map (Result.fold onSuccess onError) ar
+        Async.map (Result.either onSuccess onError) ar
 
 #if !FABLE_COMPILER
 
