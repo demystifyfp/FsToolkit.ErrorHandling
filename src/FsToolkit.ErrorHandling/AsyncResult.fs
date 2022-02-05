@@ -1,11 +1,14 @@
 namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
-
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-    let inline map f ar = Async.map (Result.map f) ar
+    let 
+#if !DEBUG
+        inline
+#endif
+        map f ar = Async.map (Result.map f) ar
 
     let mapError f ar = Async.map (Result.mapError f) ar
 

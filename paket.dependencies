@@ -3,6 +3,7 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 framework: netstandard2.0, netstandard2.1, net5.0
+nuget AltCover
 nuget FSharp.Core 4.7.2
 nuget Hopac
 nuget FSharp.Control.AsyncSeq 3.2.1

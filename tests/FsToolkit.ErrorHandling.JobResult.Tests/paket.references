@@ -3,3 +3,4 @@ Expecto
 Expecto.Hopac
 Microsoft.NET.Test.Sdk
 YoloDev.Expecto.TestSdk
+altcover

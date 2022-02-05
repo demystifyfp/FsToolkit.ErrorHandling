@@ -14,10 +14,35 @@ open Fake.JavaScript
 open System
 open System.IO
 
+let environVarAsBoolOrDefault varName defaultValue =
+    let truthyConsts = [
+        "1"
+        "Y"
+        "YES"
+        "T"
+        "TRUE"
+    ]
+    try
+        let envvar = (Environment.environVar varName).ToUpper()
+        truthyConsts |> List.exists((=)envvar)
+    with
+    | _ ->  defaultValue
+
+
+let coverageThresholdPercent = 80
+let coverageReportDir =  __SOURCE_DIRECTORY__ </> "docs" </> "coverage"
+
 let project = "FsToolkit.ErrorHandling"
 let summary = "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 let configuration = "Release"
+
+let testsGlob = __SOURCE_DIRECTORY__ </> "tests/**/*.??proj"
+let toolsGlob = __SOURCE_DIRECTORY__ </> "tools/**/*.??proj"
+
 let solutionFile = "FsToolkit.ErrorHandling.sln"
+
+
+let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
 let srcCodeGlob =
     !! (__SOURCE_DIRECTORY__  </> "src/**/*.fs")
@@ -132,15 +157,24 @@ Target.create "NpmRestore" (fun _ ->
 )
 
 let dotnetTest ctx =
-
+    let excludeCoverage =
+        !! testsGlob
+        ++ toolsGlob
+        |> Seq.map IO.Path.GetFileNameWithoutExtension
+        |> String.concat "|"
     let args =
         [
             "--no-build"
+            sprintf "/p:AltCover=%b" (not disableCodeCoverage)
+            // sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
+            sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
+            "/p:AltCoverLcovReport=lcov.info"
+            "/p:AltCoverLocalSource=true"
         ]
     DotNet.test(fun c ->
 
         { c with
-            Configuration =DotNet.BuildConfiguration.Release
+            Configuration = DotNet.BuildConfiguration.fromString configuration
             Common =
                 c.Common
                 |> DotNet.Options.withAdditionalArgs args

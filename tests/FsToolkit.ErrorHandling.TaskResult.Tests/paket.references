@@ -2,3 +2,4 @@ FSharp.Core
 Expecto
 Microsoft.NET.Test.Sdk
 YoloDev.Expecto.TestSdk
+altcover

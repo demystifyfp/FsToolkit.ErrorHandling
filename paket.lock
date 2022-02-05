@@ -2,6 +2,7 @@ STORAGE: NONE
 RESTRICTION: || (== net5.0) (== netstandard2.0) (== netstandard2.1)
 NUGET
   remote: https://api.nuget.org/v3/index.json
+    AltCover (8.2.833)
     Expecto (9.0.4)
       FSharp.Core (>= 4.6)
       Mono.Cecil (>= 0.11.3)

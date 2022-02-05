@@ -1,20 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Program.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
   </ItemGroup>
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
