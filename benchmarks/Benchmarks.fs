@@ -5,6 +5,11 @@ open BenchmarkDotNet
 open BenchmarkDotNet.Attributes
 // open FsToolkit.ErrorHandling
 
+let okF x = x + 2
+let errorF x = x - 4
+
+let add x y = x + y
+
 module Result =
     module Normal =
 
@@ -22,6 +27,26 @@ module Result =
 
         let map2 f x y =
             (apply (apply (Ok f) x) y)
+
+
+        module NoComposition =
+            let either (okF) (errorF) x =
+                match x with
+                | Ok x -> okF x
+                | Error err -> errorF err
+
+            let eitherMap (okF) (errorF) x =
+                either (fun x -> x |> okF |> Result.Ok) (fun y -> y |> errorF |> Result.Error) x
+
+            let bind (f) x =
+                match x with
+                | Ok x -> f x
+                | Error e -> Error e
+            let apply (f) x =
+                bind (fun f' ->
+                    bind (fun x -> f' x |> Ok) x) f
+            let map2 (f) x y =
+                (apply (apply (Ok f) x) y)
 
     module Inlined =  
 
@@ -43,6 +68,26 @@ module Result =
         let inline map2 f x y =
             (apply (apply (Ok f) x) y)
 
+
+        module NoComposition =
+            let inline either (okF) (errorF) x =
+                match x with
+                | Ok x -> okF x
+                | Error err -> errorF err
+
+            let inline eitherMap (okF) (errorF) x =
+                either (fun x -> x |> okF |> Result.Ok) (fun y -> y |> errorF |> Result.Error) x
+
+            let inline bind (f) x =
+                match x with
+                | Ok x -> f x
+                | Error e -> Error e
+            let inline apply (f) x =
+                bind (fun f' ->
+                    bind (fun x -> f' x |> Ok) x) f
+            let inline map2 (f) x y =
+                (apply (apply (Ok f) x) y)
+
     module InlinedLambda =
         let inline either ([<InlineIfLambda>] okF) ([<InlineIfLambda>] errorF) x =
             match x with
@@ -61,6 +106,26 @@ module Result =
                 bind (f' >> Ok) x) f
         let inline map2 ([<InlineIfLambda>] f) x y =
             (apply (apply (Ok f) x) y)
+
+        module NoComposition =
+            let inline either ([<InlineIfLambda>] okF) ([<InlineIfLambda>] errorF) x =
+                match x with
+                | Ok x -> okF x
+                | Error err -> errorF err
+
+            let inline eitherMap ([<InlineIfLambda>] okF) ([<InlineIfLambda>] errorF) x =
+                either (fun x -> x |> okF |> Result.Ok) (fun y -> y |> errorF |> Result.Error) x
+
+            let inline bind ([<InlineIfLambda>] f) x =
+                match x with
+                | Ok x -> f x
+                | Error e -> Error e
+            let inline apply (f) x =
+                bind (fun f' ->
+                    bind (fun x -> f' x |> Ok) x) f
+            let inline map2 ([<InlineIfLambda>] f) x y =
+                (apply (apply (Ok f) x) y)
+
     module Alt = 
         let eitherMap okF errorF x =
             match x with
@@ -116,107 +181,86 @@ module Result =
                 | _, Error e -> Error e
 
 [<MemoryDiagnoser>]
-type Benchmarks () =
-
-    let okF x = x + 2
-    let errorF x = x - 4
-
-    let add x y = x + y
-
-    let runXTimes (x : int) f =
-        let results = ResizeArray<_>(x)
-        for i=1 to x do
-            f () |> results.Add
-        results
-            
-    // [<Params(0, 1, 15, 100)>]
-    // member val public sleepTime = 0 with get, set
-
-    // [<GlobalSetup>]
-    // member self.GlobalSetup() =
-    //     printfn "%s" "Global Setup"
-
-    // [<GlobalCleanup>]
-    // member self.GlobalCleanup() =
-    //     printfn "%s" "Global Cleanup"
-
-    // [<IterationSetup>]
-    // member self.IterationSetup() =
-    //     printfn "%s" "Iteration Setup"
+type EitherMapBenchmarks () =
     
-    // [<IterationCleanup>]
-    // member self.IterationCleanup() =
-    //     printfn "%s" "Iteration Cleanup"
-    
-    [<Benchmark>]
+    [<Benchmark(Baseline = true)>]
     member this.Result_Normal_EitherMap () =
         Ok 4
         |> Result.Normal.eitherMap okF errorF 
+    [<Benchmark>]
+    member this.Result_Normal_NoComposition_EitherMap () =
+        Ok 4
+        |> Result.Normal.NoComposition.eitherMap okF errorF 
+        
     [<Benchmark>]
     member this.Result_Inlined_EitherMap () =
         Ok 4
         |> Result.Inlined.eitherMap okF errorF 
     [<Benchmark>]
+    member this.Result_Inlined_NoComposition_EitherMap () =
+        Ok 4
+        |> Result.Inlined.NoComposition.eitherMap okF errorF 
+
+    [<Benchmark>]
     member this.Result_InlinedLambda_EitherMap () =
         Ok 4
         |> Result.InlinedLambda.eitherMap okF errorF 
+    [<Benchmark>]
+    member this.Result_Normal_InlinedLambda_NoComposition_EitherMap () = 
+        Ok 4
+        |> Result.InlinedLambda.NoComposition.eitherMap okF errorF
 
     [<Benchmark>]
     member this.Result_Alt_EitherMap () = 
         Ok 4
         |> Result.Alt.eitherMap okF errorF 
     [<Benchmark>]
-    member this.Result_Alt_Inilned_EitherMap () = 
+    member this.Result_Alt_Inlined_EitherMap () = 
         Ok 4
         |> Result.Alt.Inlined.eitherMap okF errorF 
     [<Benchmark>]
-    member this.Result_Alt_InilnedLambda_EitherMap () = 
+    member this.Result_Alt_InlinedLambda_EitherMap () = 
         Ok 4
         |> Result.Alt.InlinedLambda.eitherMap okF errorF 
-    
-    
-    // [<Benchmark>]
-    // member this.ResultApply () : Result<int,int> =
-    //     let okF = Ok okF
-    //     Ok 4
-    //     |> Result.apply okF  
 
-    // [<Benchmark>]
-    // member this.ResultAltApply () : Result<int,int>   = 
-    //     let okF = Ok okF
-    //     Ok 4
-    //     |> Result.Alt.apply okF  
 
+[<MemoryDiagnoser>]
+type Map2Benchmarks () =
     
-    [<Benchmark>]
+    [<Benchmark(Baseline = true)>]
     member this.Result_Normal_Map2 ()  = 
         Result.Normal.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
+    [<Benchmark>]
+    member this.Result_NoComposition_Map2 ()  = 
+        Result.Normal.NoComposition.map2 add (Ok 1) (Ok 2) : Result<int,int>
 
     [<Benchmark>]
     member this.Result_Inlined_Map2 ()  = 
         Result.Inlined.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
+    [<Benchmark>]
+    member this.Result_Inlined_NoComposition_Map2 ()  = 
+        Result.Inlined.NoComposition.map2 add (Ok 1) (Ok 2) : Result<int,int>
 
     [<Benchmark>]
     member this.Result_InlinedLambda_Map2 ()  = 
         Result.InlinedLambda.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
+    [<Benchmark>]
+    member this.Result_InlinedLambda_NoComposition_Map2 ()  = 
+        Result.InlinedLambda.NoComposition.map2 add (Ok 1) (Ok 2) : Result<int,int>
 
     [<Benchmark>]
     member this.Result_Alt_Map2 () = 
         
         Result.Alt.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
-    
     [<Benchmark>]
     member this.Result_Alt_Inlined_Map2 () = 
         
         Result.Alt.Inlined.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
 
     [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_Map2 () = 
-        
+    member this.Result_Alt_InlinedLambda_Map2 () =         
         Result.Alt.InlinedLambda.map2 add (Ok 1) (Ok 2) : Result<int,int>
-    //    |> runXTimes 100
+        
+    [<Benchmark>]
+    member this.Result_Alt_InlinedLambda2_Map2 () =         
+        Result.Alt.InlinedLambda.map2 (fun x y -> x + y) (Ok 1) (Ok 2) : Result<int,int>

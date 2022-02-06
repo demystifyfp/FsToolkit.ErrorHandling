@@ -403,4 +403,4 @@ js-dist/
 
 
 # Benchmarks
-benchmarks/BenchmarkDotNet.Artifacts
+benchmarks/BenchmarkDotNet.Artifacts/
