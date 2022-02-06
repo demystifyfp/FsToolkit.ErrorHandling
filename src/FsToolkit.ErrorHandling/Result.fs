@@ -60,18 +60,18 @@ module Result =
   /// <param name="result1">The first result.</param>
   /// <param name="result2">The second result.</param>
   /// <returns>A result of the input values after applying the mapping function, or Error if either of the input is Error.</returns>
-  let map2 (mapping : 'ok -> 'ok2 -> 'ok3) (result1 : Result<'ok, 'error>) (result2 : Result<'ok2, 'error>) : Result<'ok3,'error> =
+  let inline map2 (mapping : 'ok -> 'ok2 -> 'ok3) (result1 : Result<'ok, 'error>) (result2 : Result<'ok2, 'error>) : Result<'ok3,'error> =
     apply (Result.map mapping result1) result2
 
   /// <summary>
   /// <c>map3 mapping result1 result2 result3</c> evaluates to <c>match result1, result2, result3 with Ok x, Ok y, Ok z -> Ok (mapping x y z) | Error e, _, _ | _, Error e, _ | _,_, Error e -> Error e</c>.
   /// </summary>
-  /// <param name="mapping"></param>
-  /// <param name="result1"></param>
-  /// <param name="result2"></param>
-  /// <param name="result3"></param>
-  /// <returns></returns>
-  let map3 (mapping : 'ok -> 'ok2 -> 'ok3 -> 'ok4) (result1 : Result<'ok, 'error>) (result2 : Result<'ok2, 'error>) (result3 : Result<'ok3, 'error>) : Result<'ok4,'error>  =
+  /// <param name="mapping">A function to apply to the result values.</param>
+  /// <param name="result1">The first result.</param>
+  /// <param name="result2">The second result.</param>
+  /// <param name="result3">The third result.</param>
+  /// <returns>A result of the input values after applying the mapping function, or Error if either of the input is Error.</returns>
+  let inline map3 (mapping : 'ok -> 'ok2 -> 'ok3 -> 'ok4) (result1 : Result<'ok, 'error>) (result2 : Result<'ok2, 'error>) (result3 : Result<'ok3, 'error>) : Result<'ok4,'error>  =
     apply (map2 mapping result1 result2) result3
 
   [<System.ObsoleteAttribute("This isn't a proper implementation of fold, use Result.either instead.")>]
@@ -84,16 +84,22 @@ module Result =
   /// </summary>
   /// <param name="choice">The input choice value.</param>
   /// <returns>A Result value mapping Choice1 to Ok and Choice2 to Error. </returns>
-  let ofChoice (choice : Choice<'ok,'error>) : Result<'ok,'error> =
+  let inline ofChoice (choice : Choice<'ok,'error>) : Result<'ok,'error> =
     match choice with
     | Choice1Of2 x -> Ok x
     | Choice2Of2 x -> Error x
 
 
-  let inline tryCreate fieldName (x : 'a) : Result< ^b, (string * 'c)> =
+  /// <summary>
+  /// Calls the member <c>TryCreate</c> on <typeparamref name="creator"/> to get a Result
+  /// </summary>
+  /// <param name="fieldName">The fieldname to return in the error message</param>
+  /// <param name="creator">The object with <c>TryCreate</c> member</param>
+  /// <returns></returns>
+  let inline tryCreate fieldName (creator : 'creator) : Result< ^createdObject, (string * 'error)> =
     let tryCreate' x =
-      (^b : (static member TryCreate : 'a -> Result< ^b, 'c>) x)
-    tryCreate' x
+      (^createdObject : (static member TryCreate : 'creator -> Result< ^createdObject, 'error>) x)
+    tryCreate' creator
     |> Result.mapError (fun z -> (fieldName, z))
 
 
@@ -141,7 +147,6 @@ module Result =
   let inline orElseWith (ifErrorFunc : 'error -> Result<'ok,'error2>) (result : Result<'ok,'error>) =
     result |> either Ok ifErrorFunc
 
-  /// 
   /// <summary>
   /// Evaluates to <c>result |> Result.map ignore</c>
   /// </summary>
