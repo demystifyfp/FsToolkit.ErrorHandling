@@ -17,6 +17,7 @@ nuget Fable.Mocha 2.10.0
 group Benchmarks
 source https://api.nuget.org/v3/index.json
 storage: none
+nuget FSharp.Core ~> 6
 nuget BenchmarkDotNet 0.13.1
 nuget BenchmarkDotNet.Annotations 0.13.1
 nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
