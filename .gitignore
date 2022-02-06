@@ -400,3 +400,7 @@ fable_modules
 .fable
 *.fs.js
 js-dist/
+
+
+# Benchmarks
+benchmarks/BenchmarkDotNet.Artifacts
