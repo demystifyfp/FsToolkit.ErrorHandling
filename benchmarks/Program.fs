@@ -5,6 +5,8 @@ open benchmarks
 [<EntryPoint>]
 let main argv =
     // BenchmarkRunner.Run<EitherMapBenchmarks>() |> ignore
-    BenchmarkRunner.Run<Map2Benchmarks>() |> ignore
+    // BenchmarkRunner.Run<BindCEBenchmarks>() |> ignore
+    BenchmarkRunner.Run<BindSameBenchmarks>() |> ignore
+// 
     
     0 // return an integer exit code

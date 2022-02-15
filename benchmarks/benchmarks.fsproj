@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <LangVersion>preview</LangVersion>
+    <WarnOn>3517</WarnOn>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>
