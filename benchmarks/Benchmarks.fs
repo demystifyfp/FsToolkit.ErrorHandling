@@ -176,12 +176,6 @@ module Result =
                 | Ok x -> Ok(mapper x)
                 | Error e -> Error e
 
-
-            let inline bindSame ([<InlineIfLambda>] binder: 'ok -> Result<'ok, 'err>) value  =
-                match value with
-                | Ok x -> binder x
-                | Error _ -> value
-
             let inline bind ([<InlineIfLambda>] binder: 'ok -> Result<'ok2, 'err>) value  =
                 match value with
                 | Ok x -> binder x
@@ -263,14 +257,9 @@ type ResultBuilderInlinedLambda() =
 
     member inline this.Zero() : Result<unit, 'TError> = this.Return()
 
-    member inline __.Bind(result: Result<'T, 'TError>, [<InlineIfLambda>] binder: 'T -> Result<'T, 'TError>) : Result<'T, 'TError> =
-        Result.Alt.InlinedLambda.bindSame binder result
-
-[<AutoOpen>]
-module ResultCEExtensions =
-    type ResultBuilderInlinedLambda with
-        member inline __.Bind(result: Result<'T, 'TError>, [<InlineIfLambda>]binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
+    member inline __.Bind(result: Result<'T, 'TError>, [<InlineIfLambda>]binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
             Result.Alt.InlinedLambda.bind binder result
+        
 
 let result = ResultBuilder()
 let resultInlined = ResultBuilderInlined()
@@ -292,22 +281,6 @@ let runTimes x action =
     results
 
 [<MemoryDiagnoser>]
-type BindSameBenchmarks () =
-    [<Benchmark(Baseline = true)>]
-    member this.Result_Alt_InlinedLambda_Bind () : ResizeArray<Result<int,string>> = 
-        runTimes 1000 (fun () -> Result.Alt.InlinedLambda.bind (fun x -> Ok(x + 2) ) (Ok 1) )
-    [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_BindSame () : ResizeArray<Result<int,string>> = 
-        runTimes 1000 (fun () -> Result.Alt.InlinedLambda.bindSame (fun x -> Ok(x + 2) ) (Ok 1) )
-
-    [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_Bind_Error () : ResizeArray<Result<int,string>>  = 
-        runTimes 1000 (fun () -> Result.Alt.InlinedLambda.bind (fun x -> Ok(x + 2) ) (Error "no"))
-    [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_BindSame_Error () : ResizeArray<Result<int,string>> = 
-        runTimes 1000 (fun () -> Result.Alt.InlinedLambda.bindSame (fun x -> Ok(x + 2) ) (Error "no"))
-
-[<MemoryDiagnoser>]
 type BindBenchmarks () =
     [<Benchmark(Baseline = true)>]
     member this.Result_Normal_Bind ()  = 
@@ -317,16 +290,21 @@ type BindBenchmarks () =
     member this.Result_Alt_InlinedLambda_Bind ()  = 
         Result.Alt.InlinedLambda.bind (fun x -> Ok(x + 2) ) (Ok 1) : Result<int,int>
 
-let divide x y = 
+// let inline divide x y = 
+//     if y = LanguagePrimitives.GenericZero then Error "Cannot divide by 0" 
+//     else Ok (x/y)
+    // match y with
+    // | LanguagePrimitives.GenericZero -> 
+    // | _ -> Ok (x/y)
+let divide x y =
     match y with
-    | 0 -> Error "Cannot divide by 0"
-    | _ -> Ok (x/y)
-
+    | 0 -> Error "Cannot divide by 0" 
+    | y -> Ok (x/y)
 [<MemoryDiagnoser>]
 type BindCEBenchmarks () =
     [<Benchmark(Baseline = true)>]
     member this.Result_Normal_Bind_CE()  = 
-        let action () = result {
+        let action () : Result<int,string> = result {
             let! a = Ok 1
             let! b = Ok 3
             let! c = divide a b
@@ -336,7 +314,7 @@ type BindCEBenchmarks () =
 
     [<Benchmark>]
     member this.Result_Alt_Inlined_Bind_CE ()  = 
-        let action () = resultInlined {
+        let action () : Result<int,string> = resultInlined {
             let! a = Ok 1
             let! b = Ok 3
             let! c = divide a b
@@ -344,8 +322,8 @@ type BindCEBenchmarks () =
         }
         action ()
     [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_Bind_CE ()  = 
-        let action () = resultInlinedLambda {
+    member this.Result_Alt_InlinedLambda_Bind_Same_CE ()  = 
+        let action () : Result<int,string> = resultInlinedLambda {
             let! a = Ok 1
             let! b = Ok 3
             let! c = divide a b
@@ -354,8 +332,8 @@ type BindCEBenchmarks () =
         action ()
 
     [<Benchmark>]
-    member this.Result_Alt_InlinedLambda_Bind_CE2 () : Result<int,string> = 
-        let action () = resultInlinedLambda {
+    member this.Result_Alt_InlinedLambda_Bind_CE () = 
+        let action () : Result<int,string> = resultInlinedLambda {
             let! a = Ok 1
             let! b = Ok 3.0
             let! c = divide a (int b)
@@ -363,6 +341,45 @@ type BindCEBenchmarks () =
         }
         action ()
 
+
+    [<Benchmark>]
+    member this.Result_Normal_Bind_CE_Error()  = 
+        let action () : Result<int,string> = result {
+            let! a = Ok 1
+            let! b = Ok 0
+            let! c = divide a b
+            return c
+        }
+        action ()
+
+    [<Benchmark>]
+    member this.Result_Alt_Inlined_Bind_CE_Error ()  = 
+        let action () : Result<int,string> = resultInlined {
+            let! a = Ok 1
+            let! b = Ok 0
+            let! c = divide a b
+            return c
+        }
+        action ()
+    [<Benchmark>]
+    member this.Result_Alt_InlinedLambda_Bind_Same_CE_Error ()  = 
+        let action () : Result<int,string> = resultInlinedLambda {
+            let! a = Ok 1
+            let! b = Result<int, string>.Error ""
+            let! c = divide a b
+            return c
+        }
+        action ()
+
+    [<Benchmark>]
+    member this.Result_Alt_InlinedLambda_Bind_CE_Error () = 
+        let action () : Result<int,string> = resultInlinedLambda {
+            let! a  = Ok 1
+            let! b = Result<float, string>.Error ""
+            let! c = divide a (int b)
+            return c
+        }
+        action ()
 
 [<MemoryDiagnoser>]
 type Map2Benchmarks () =
