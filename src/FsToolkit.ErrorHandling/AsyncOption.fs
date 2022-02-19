@@ -1,25 +1,31 @@
 namespace FsToolkit.ErrorHandling
 
-open System.Threading.Tasks
-
 [<RequireQualifiedAccess>]
 module AsyncOption =
 
-    let inline map f ar = Async.map (Option.map f) ar
+    let inline map
+        ([<InlineIfLambda>] mapper: 'input -> 'output)
+        (input: Async<'input option>)
+        : Async<'output option> =
+        Async.map (Option.map mapper) input
 
-    let bind f ar =
-        async {
-            let! opt = ar
+    let inline bind
+        ([<InlineIfLambda>] binder: 'input -> Async<'output option>)
+        (input: Async<'input option>)
+        : Async<'output option> =
+        Async.bind
+            (fun x ->
+                match x with
+                | Some x -> binder x
+                | None -> Async.singleton None)
+            input
 
-            let t =
-                match opt with
-                | Some x -> f x
-                | None -> async { return None }
+    let inline singleton (value: 'value) : Async<'value option> = Async.singleton (Some value)
+    
+    let inline retn (value: 'value) : Async<'value option> = Async.singleton (Some value)
 
-            return! t
-        }
-
-    let retn x = async { return Some x }
-
-    let apply f x =
-        bind (fun f' -> bind (fun x' -> retn (f' x')) x) f
+    let inline apply
+        (applier: Async<('input -> 'output) option>)
+        (input: Async<'input option>)
+        : Async<'output option> =
+        bind (fun f' -> bind (fun x' -> retn (f' x')) input) applier
