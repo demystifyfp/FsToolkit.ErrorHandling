@@ -14,6 +14,28 @@ nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha 2.10.0
 
+
+group NetStandard2
+source https://api.nuget.org/v3/index.json
+nuget FSharp.Core 4.7.2
+nuget Ply
+nuget Hopac
+nuget FSharp.Control.AsyncSeq
+framework: netstandard2.0
+storage: none
+condition: netstandard2_0
+
+
+group NetStandard2_1
+source https://api.nuget.org/v3/index.json
+nuget FSharp.Core 6.0.3
+nuget Ply
+nuget Hopac
+nuget FSharp.Control.AsyncSeq
+framework: netstandard2.1
+storage: none
+condition: netstandard2_1
+
 group Benchmarks
 source https://api.nuget.org/v3/index.json
 storage: none

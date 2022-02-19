@@ -10,11 +10,11 @@ module AsyncResultCE =
 
         member __.Return(value: 'T) : Async<Result<'T, 'TError>> = async.Return <| result.Return value
 
-        member inline __.ReturnFrom(asyncResult: Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> = asyncResult
+        member __.ReturnFrom(asyncResult: Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> = asyncResult
 
         member __.Zero() : Async<Result<unit, 'TError>> = async.Return <| result.Zero()
 
-        member inline __.Bind
+        member __.Bind
             (
                 asyncResult: Async<Result<'T, 'TError>>,
                 binder: 'T -> Async<Result<'U, 'TError>>
@@ -74,8 +74,8 @@ module AsyncResultCE =
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline __.BindReturn(x: Async<Result<'T, 'U>>, f) = AsyncResult.map f x
-        member inline __.MergeSources(t1: Async<Result<'T, 'U>>, t2: Async<Result<'T1, 'U>>) = AsyncResult.zip t1 t2
+        member __.BindReturn(x: Async<Result<'T, 'U>>, f) = AsyncResult.map f x
+        member __.MergeSources(t1: Async<Result<'T, 'U>>, t2: Async<Result<'T1, 'U>>) = AsyncResult.zip t1 t2
 
 
         /// <summary>
@@ -83,13 +83,13 @@ module AsyncResultCE =
         ///
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
-        member inline _.Source(result: Async<Result<_, _>>) : Async<Result<_, _>> = result
+        member _.Source(result: Async<Result<_, _>>) : Async<Result<_, _>> = result
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<Result<_, _>>) : Async<Result<_, _>> = task |> Async.AwaitTask
+        member _.Source(task: Task<Result<_, _>>) : Async<Result<_, _>> = task |> Async.AwaitTask
 #endif
 
     let asyncResult = AsyncResultBuilder()
@@ -103,32 +103,32 @@ module AsyncResultCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member __.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Result<_, _>) : Async<Result<_, _>> = Async.singleton result
+        member _.Source(result: Result<_, _>) : Async<Result<_, _>> = Async.singleton result
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(choice: Choice<_, _>) : Async<Result<_, _>> =
+        member _.Source(choice: Choice<_, _>) : Async<Result<_, _>> =
             choice |> Result.ofChoice |> Async.singleton
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(asyncComputation: Async<_>) : Async<Result<_, _>> = asyncComputation |> Async.map Ok
+        member __.Source(asyncComputation: Async<_>) : Async<Result<_, _>> = asyncComputation |> Async.map Ok
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<_>) : Async<Result<_, _>> = task |> Async.AwaitTask |> Async.map Ok
+        member _.Source(task: Task<_>) : Async<Result<_, _>> = task |> Async.AwaitTask |> Async.map Ok
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task) : Async<Result<_, _>> = task |> Async.AwaitTask |> Async.map Ok
+        member _.Source(task: Task) : Async<Result<_, _>> = task |> Async.AwaitTask |> Async.map Ok
 #endif

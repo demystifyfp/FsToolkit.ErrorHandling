@@ -7,7 +7,7 @@ open FSharp.Control.Tasks.Affine
 module Task =
     let singleton value = value |> Task.FromResult
 
-    let bind (f: 'a -> Task<'b>) (x: Task<'a>) =
+    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
         task {
             let! x = x
             return! f x
