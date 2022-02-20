@@ -1,40 +1,48 @@
 namespace FsToolkit.ErrorHandling
 
-#if FABLE_COMPILER
-//https://github.com/fable-compiler/Fable/issues/1842
-module Option =
-    let map2 f a b =
-        a
-        |> Option.bind (fun a' -> b |> Option.map (fun b' -> f a' b'))
-
-    let map3 f a b c =
-        a
-        |> Option.bind
-            (fun a' ->
-                b
-                |> Option.bind (fun b' -> c |> Option.map (fun c' -> f a' b' c')))
-#endif
 [<RequireQualifiedAccess>]
 module AsyncResultOption =
-    let map f aro = AsyncResult.map (Option.map f) aro
 
-    let bind f aro =
-        let binder opt =
-            match opt with
-            | Some x -> f x
-            | None -> AsyncResult.retn None
+    let inline map
+        ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+        (input: Async<Result<'okInput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResult.map (Option.map mapper) input
 
-        AsyncResult.bind binder aro
+    let inline bind
+        ([<InlineIfLambda>] binder: 'okInput -> Async<Result<'okOutput option, 'error>>)
+        (input: Async<Result<'okInput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResult.bind
+            (fun opt ->
+                match opt with
+                | Some x -> binder x
+                | None -> AsyncResult.retn None)
+            input
 
-    let map2 f arox aroy =
-        AsyncResult.map2 (Option.map2 f) arox aroy
 
-    let map3 f arox aroy aroz =
-        AsyncResult.map3 (Option.map3 f) arox aroy aroz
+    let inline map2
+        ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
+        (input1: Async<Result<'okInput1 option, 'error>>)
+        (input2: Async<Result<'okInput2 option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResult.map2 (Option.map2 mapper) input1 input2
 
-    let retn value = async { return Ok(Some value) }
+    let inline map3
+        ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okInput3 -> 'okOutput)
+        (input1: Async<Result<'okInput1 option, 'error>>)
+        (input2: Async<Result<'okInput2 option, 'error>>)
+        (input3: Async<Result<'okInput3 option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResult.map3 (Option.map3 mapper) input1 input2 input3
 
-    let apply fARO xARO = map2 (fun f x -> f x) fARO xARO
+    let inline retn (value: 'ok) : Async<Result<'ok option, 'error>> = AsyncResult.retn (Some value)
+
+    let apply
+        (applier: Async<Result<('okInput -> 'okOutput) option, 'error>>)
+        (input: Async<Result<'okInput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        map2 (fun f x -> f x) applier input
 
     /// Replaces the wrapped value with unit
-    let ignore aro = aro |> map ignore
+    let ignore (value: Async<Result<'ok option, 'error>>) : Async<Result<unit option, 'error>> = value |> map ignore
