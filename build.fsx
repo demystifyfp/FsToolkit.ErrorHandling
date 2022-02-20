@@ -268,7 +268,7 @@ Target.create "UpdateDocs" (fun _ ->
   ==> "AssemblyInfo"
   ==> "Restore"
   ==> "NpmRestore"
-  // ==> "CheckFormatCode"
+  ==> "CheckFormatCode"
   ==> "Build"
   ==> "FemtoValidate"
   ==> "RunTests"

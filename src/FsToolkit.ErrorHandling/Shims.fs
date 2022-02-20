@@ -7,9 +7,9 @@ open System
 /// InlineIfLambda doesn't exist until FSharp.Core 6.0.
 /// Since we're targeting netstandard2.0 with FSharp.Core 4.7 to keep this libraries' reach
 /// we need to create a fake attribute that does nothing instead of having ifdefs in each function argument
-[<AttributeUsage (AttributeTargets.Parameter,AllowMultiple=false)>]  
+[<AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)>]
 [<Sealed>]
-type InlineIfLambdaAttribute() = 
+type InlineIfLambdaAttribute() =
     inherit System.Attribute()
 
 open System.Runtime.CompilerServices
@@ -18,7 +18,5 @@ open System.Runtime.CompilerServices
 [<assembly: InternalsVisibleTo("FsToolkit.ErrorHandling.TaskResult")>]
 [<assembly: InternalsVisibleTo("FsToolkit.ErrorHandling.JobResult")>]
 [<assembly: InternalsVisibleTo("FsToolkit.ErrorHandling.AsyncSeq")>]
-do()
+do ()
 #endif
-
-

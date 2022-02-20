@@ -9,7 +9,7 @@ module Result =
 
     let isError x = isOk x |> not
 
-    let inline either ([<InlineIfLambda>]okF) errorF x =
+    let inline either ([<InlineIfLambda>] okF) errorF x =
         match x with
         | Ok x -> okF x
         | Error err -> errorF err
