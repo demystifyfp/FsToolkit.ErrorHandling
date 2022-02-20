@@ -7,13 +7,17 @@ open System
 module AsyncOptionCE =
     type AsyncOptionBuilder() =
 
-        member inline _.Return(value: 'value) : Async<'value option> = async.Return <| option.Return value
+        member inline _.Return(value: 'value) : Async<'value option> = AsyncOption.retn value
 
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
         member inline _.Zero() : Async<unit option> = async.Return <| option.Zero()
 
-        member inline _.Bind(input: Async<'input option>,[<InlineIfLambda>] binder: 'input -> Async<'output option>) : Async<'output option> =
+        member inline _.Bind
+            (
+                input: Async<'input option>,
+                [<InlineIfLambda>] binder: 'input -> Async<'output option>
+            ) : Async<'output option> =
             AsyncOption.bind binder input
 
         member inline _.Delay(generator: unit -> Async<'value option>) : Async<'value option> = async.Delay generator
@@ -28,10 +32,18 @@ module AsyncOptionCE =
             ) : Async<_ option> =
             async.TryWith(computation, handler)
 
-        member inline _.TryFinally(computation: Async<'value option>, [<InlineIfLambda>] compensation: unit -> unit) : Async<'value option> =
+        member inline _.TryFinally
+            (
+                computation: Async<'value option>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Async<'value option> =
             async.TryFinally(computation, compensation)
 
-        member inline this.Using(resource: 'disposable :> IDisposable, [<InlineIfLambda>] binder: 'disposable -> Async<'output option>) : Async<'output option> =
+        member inline this.Using
+            (
+                resource: 'disposable :> IDisposable,
+                [<InlineIfLambda>] binder: 'disposable -> Async<'output option>
+            ) : Async<'output option> =
             this.TryFinally(
                 (binder resource),
                 (fun () ->
