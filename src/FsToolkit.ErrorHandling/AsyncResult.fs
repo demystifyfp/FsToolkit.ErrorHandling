@@ -42,18 +42,20 @@ module AsyncResult =
 #if !FABLE_COMPILER
 
     let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
-        async.Delay (fun () ->
-            aTask
-            |> Async.AwaitTask
-            |> Async.Catch
-            |> Async.map Result.ofChoice)
+        async.Delay
+            (fun () ->
+                aTask
+                |> Async.AwaitTask
+                |> Async.Catch
+                |> Async.map Result.ofChoice)
 
     let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
-        async.Delay (fun () ->
-            aTask
-            |> Async.AwaitTask
-            |> Async.Catch
-            |> Async.map Result.ofChoice)
+        async.Delay
+            (fun () ->
+                aTask
+                |> Async.AwaitTask
+                |> Async.Catch
+                |> Async.map Result.ofChoice)
 
 #endif
 
@@ -251,26 +253,36 @@ module AsyncResult =
 
 
     /// Takes two results and returns a tuple of the pair
-    let inline zip (left : Async<Result<'leftOk,'error>> ) (right : Async<Result<'rightOk,'error>>) : Async<Result<'leftOk * 'rightOk, 'error>> =
+    let inline zip
+        (left: Async<Result<'leftOk, 'error>>)
+        (right: Async<Result<'rightOk, 'error>>)
+        : Async<Result<'leftOk * 'rightOk, 'error>> =
         Async.zip left right
         |> Async.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
-    let inline zipError (left : Async<Result<'ok,'leftError>> )  (right : Async<Result<'ok,'rightError>>) : Async<Result<'ok, 'leftError * 'rightError>> =
+    let inline zipError
+        (left: Async<Result<'ok, 'leftError>>)
+        (right: Async<Result<'ok, 'rightError>>)
+        : Async<Result<'ok, 'leftError * 'rightError>> =
         Async.zip left right
         |> Async.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch ([<InlineIfLambda>] exnMapper : exn -> 'error) (input : Async<Result<'ok,'error>>) : Async<Result<'ok,'error>>=
+    let inline catch
+        ([<InlineIfLambda>] exnMapper: exn -> 'error)
+        (input: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
         input
         |> Async.Catch
-        |> Async.map (function
+        |> Async.map
+            (function
             | Choice1Of2 (Ok v) -> Ok v
             | Choice1Of2 (Error err) -> Error err
             | Choice2Of2 ex -> Error(exnMapper ex))
 
     /// Lift Async to AsyncResult
-    let inline ofAsync (value : Async<'ok>) : Async<Result<'ok,'error>> = value |> Async.map Ok
+    let inline ofAsync (value: Async<'ok>) : Async<Result<'ok, 'error>> = value |> Async.map Ok
 
     /// Lift Result to AsyncResult
-    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok,'error>> = x |> Async.singleton
+    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = x |> Async.singleton

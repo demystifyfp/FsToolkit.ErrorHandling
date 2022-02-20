@@ -18,6 +18,6 @@ module AsyncResultOptionCE =
         member inline _.Combine(aro1, aro2) =
             aro1 |> AsyncResultOption.bind (fun _ -> aro2)
 
-        member inline _.Delay ([<InlineIfLambda>]f : unit -> Async<'a> ) : Async<'a> = async.Delay f
+        member inline _.Delay([<InlineIfLambda>] f: unit -> Async<'a>) : Async<'a> = async.Delay f
 
     let asyncResultOption = new AsyncResultOptionBuilder()
