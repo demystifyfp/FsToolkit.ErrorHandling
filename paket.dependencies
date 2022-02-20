@@ -21,7 +21,12 @@ nuget FSharp.Core 4.7.2
 nuget Ply
 nuget Hopac
 nuget FSharp.Control.AsyncSeq
-framework: netstandard2.0
+nuget Expecto
+nuget Expecto.Hopac
+nuget Microsoft.NET.Test.Sdk
+nuget YoloDev.Expecto.TestSdk
+nuget Fable.Mocha 2.10.0
+framework: netstandard2.0, net5.0
 storage: none
 condition: netstandard2_0
 
@@ -32,7 +37,11 @@ nuget FSharp.Core 6.0.3
 nuget Ply
 nuget Hopac
 nuget FSharp.Control.AsyncSeq
-framework: netstandard2.1
+nuget Expecto
+nuget Expecto.Hopac
+nuget Microsoft.NET.Test.Sdk
+nuget YoloDev.Expecto.TestSdk
+nuget Fable.Mocha 2.10.0
 storage: none
 condition: netstandard2_1
 

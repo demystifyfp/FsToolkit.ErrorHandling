@@ -1,5 +1,15 @@
-Ply
-Expecto
-Fable.Mocha
-Microsoft.NET.Test.Sdk
-YoloDev.Expecto.TestSdk
+group NetStandard2
+    FSharp.Core
+    Ply
+    Expecto
+    Fable.Mocha
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk
+
+group NetStandard2_1
+    FSharp.Core
+    Ply
+    Expecto
+    Fable.Mocha
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk
