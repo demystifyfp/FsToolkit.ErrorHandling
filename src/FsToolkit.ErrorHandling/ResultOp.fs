@@ -4,6 +4,20 @@ open FsToolkit.ErrorHandling
 
 [<AutoOpen>]
 module Result =
-    let inline (<!>) f x = Result.map f x
-    let inline (<*>) f x = Result.apply f x
-    let inline (>>=) x f = Result.bind f x
+    let inline (<!>)
+        (([<InlineIfLambda>] mapper: 'okInput -> 'okOutput))
+        (input: Result<'okInput, 'error>)
+        : Result<'okOutput, 'error> =
+        Result.map mapper input
+
+    let inline (<*>)
+        (applier: Result<'okInput -> 'okOutput, 'error>)
+        (input: Result<'okInput, 'error>)
+        : Result<'okOutput, 'error> =
+        Result.apply applier input
+
+    let inline (>>=)
+        (input: Result<'input, 'error>)
+        ([<InlineIfLambda>] binder: 'input -> Result<'okOutput, 'error>)
+        : Result<'okOutput, 'error> =
+        Result.bind binder input

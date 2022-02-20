@@ -1,6 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
-type Validation<'a, 'err> = Result<'a, 'err list>
+/// Validation<'a, 'err> is defined as Result<'a, 'err list> meaning you can use many of the functions found in the Result module.
+type Validation<'ok, 'error> = Result<'ok, 'error list>
 
 [<RequireQualifiedAccess>]
 module Validation =

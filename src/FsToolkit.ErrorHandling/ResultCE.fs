@@ -6,43 +6,57 @@ open System
 module ResultCE =
 
     type ResultBuilder() =
-        member __.Return(value: 'T) : Result<'T, 'TError> = Ok value
+        member inline _.Return(value: 'ok) : Result<'ok, 'error> = Ok value
 
-        member inline __.ReturnFrom(result: Result<'T, 'TError>) : Result<'T, 'TError> = result
+        member inline _.ReturnFrom(result: Result<'ok, 'error>) : Result<'ok, 'error> = result
 
-        member this.Zero() : Result<unit, 'TError> = this.Return()
+        member this.Zero() : Result<unit, 'error> = this.Return()
 
-        member inline __.Bind(result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
-            Result.bind binder result
+        member inline _.Bind
+            (
+                input: Result<'okInput, 'error>,
+                [<InlineIfLambda>] binder: 'okInput -> Result<'okOutput, 'error>
+            ) : Result<'okOutput, 'error> =
+            Result.bind binder input
 
-        member __.Delay(generator: unit -> Result<'T, 'TError>) : unit -> Result<'T, 'TError> = generator
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>) : unit -> Result<'ok, 'error> =
+            generator
 
-        member inline __.Run(generator: unit -> Result<'T, 'TError>) : Result<'T, 'TError> = generator ()
+        member inline _.Run([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>) : Result<'ok, 'error> =
+            generator ()
 
-        member this.Combine(result: Result<unit, 'TError>, binder: unit -> Result<'T, 'TError>) : Result<'T, 'TError> =
+        member inline this.Combine
+            (
+                result: Result<unit, 'error>,
+                [<InlineIfLambda>] binder: unit -> Result<'ok, 'error>
+            ) : Result<'ok, 'error> =
             this.Bind(result, binder)
 
-        member this.TryWith
+        member inline this.TryWith
             (
-                generator: unit -> Result<'T, 'TError>,
-                handler: exn -> Result<'T, 'TError>
+                [<InlineIfLambda>] generator: unit -> Result<'T, 'TError>,
+                [<InlineIfLambda>] handler: exn -> Result<'T, 'TError>
             ) : Result<'T, 'TError> =
             try
                 this.Run generator
             with
             | e -> handler e
 
-        member this.TryFinally
+        member inline this.TryFinally
             (
-                generator: unit -> Result<'T, 'TError>,
-                compensation: unit -> unit
-            ) : Result<'T, 'TError> =
+                [<InlineIfLambda>] generator: unit -> Result<'ok, 'error>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Result<'ok, 'error> =
             try
                 this.Run generator
             finally
                 compensation ()
 
-        member this.Using(resource: 'T :> IDisposable, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
+        member inline this.Using
+            (
+                resource: 'disposable :> IDisposable,
+                binder: 'disposable -> Result<'ok, 'error>
+            ) : Result<'ok, 'error> =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -50,21 +64,42 @@ module ResultCE =
                         resource.Dispose())
             )
 
-        member this.While(guard: unit -> bool, generator: unit -> Result<unit, 'TError>) : Result<unit, 'TError> =
-            if not <| guard () then
-                this.Zero()
-            else
-                this.Bind(this.Run generator, (fun () -> this.While(guard, generator)))
+        member inline this.While
+            (
+                [<InlineIfLambda>] guard: unit -> bool,
+                [<InlineIfLambda>] generator: unit -> Result<unit, 'error>
+            ) : Result<unit, 'error> =
+            if guard () then
+                let mutable whileBuilder = Unchecked.defaultof<_>
 
-        member this.For(sequence: #seq<'T>, binder: 'T -> Result<unit, 'TError>) : Result<unit, 'TError> =
+                whileBuilder <-
+                    fun () ->
+                        this.Bind(
+                            this.Run generator,
+                            (fun () ->
+                                if guard () then
+                                    this.Run whileBuilder
+                                else
+                                    this.Zero())
+                        )
+
+                this.Run whileBuilder
+            else
+                this.Zero()
+
+        member inline this.For
+            (
+                sequence: #seq<'T>,
+                [<InlineIfLambda>] binder: 'T -> Result<unit, 'TError>
+            ) : Result<unit, 'TError> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member _.BindReturn(x: Result<'T, 'U>, f) = Result.map f x
+        member inline _.BindReturn(x: Result<'okInput, 'error>, [<InlineIfLambda>] f : 'okInput -> 'okOutput) : Result<'okOutput, 'error> = Result.map f x
 
-        member _.MergeSources(t1: Result<'T, 'U>, t2: Result<'T1, 'U>) = Result.zip t1 t2
+        member inline _.MergeSources(left: Result<'left, 'error>, right: Result<'right, 'error>) : Result<'left * 'right, 'error> = Result.zip left right
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
@@ -73,7 +108,7 @@ module ResultCE =
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        member inline _.Source(result: Result<_, _>) : Result<_, _> = result
+        member inline _.Source(result: Result<'ok, 'error>) : Result<'ok, 'error> = result
 
     let result = ResultBuilder()
 
@@ -84,7 +119,7 @@ module ResultCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) : #seq<_> = s
 
 
 // Having Choice<_> members as extensions gives them lower priority in
@@ -96,4 +131,4 @@ module ResultCEChoiceExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<_, _>) = Result.ofChoice choice
+        member inline _.Source(choice: Choice<'ok,'error>) : Result<'ok,'error> = Result.ofChoice choice

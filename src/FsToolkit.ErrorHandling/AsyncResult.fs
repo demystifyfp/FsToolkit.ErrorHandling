@@ -217,20 +217,20 @@ module AsyncResult =
     /// If the async-wrapped result is Ok, executes the function on the Ok value.
     /// Passes through the input value.
     let inline tee
-        ([<InlineIfLambda>] teeFunction: 'ok -> unit)
+        ([<InlineIfLambda>] inspector: 'ok -> unit)
         (asyncResult: Async<Result<'ok, 'error>>)
         : Async<Result<'ok, 'error>> =
-        asyncResult |> Async.map (Result.tee teeFunction)
+        asyncResult |> Async.map (Result.tee inspector)
 
     /// If the async-wrapped result is Ok and the predicate returns true, executes
     /// the function on the Ok value. Passes through the input value.
     let inline teeIf
         ([<InlineIfLambda>] predicate: 'ok -> bool)
-        ([<InlineIfLambda>] teeFunction: 'ok -> unit)
+        ([<InlineIfLambda>] inspector: 'ok -> unit)
         (asyncResult: Async<Result<'ok, 'error>>)
         : Async<Result<'ok, 'error>> =
         asyncResult
-        |> Async.map (Result.teeIf predicate teeFunction)
+        |> Async.map (Result.teeIf predicate inspector)
 
     /// If the async-wrapped result is Error, executes the function on the Error
     /// value. Passes through the input value.
