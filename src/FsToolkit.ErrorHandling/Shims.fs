@@ -9,7 +9,7 @@ open System
 /// we need to create a fake attribute that does nothing instead of having ifdefs in each function argument
 [<AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)>]
 [<Sealed>]
-type InlineIfLambdaAttribute() =
+type internal InlineIfLambdaAttribute() =
     inherit System.Attribute()
 
 open System.Runtime.CompilerServices
