@@ -1,4 +1,4 @@
-### 3.0.0-beta001 - February 21, 2022
+### 3.0.0-beta002 - February 21, 2022
 - [Moves many functions to inline with InlineIfLambda for performance](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/166) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 2.13.0 - January 11, 2022
 - [Option/ValueOption.ofNull and bindNull](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/164) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
