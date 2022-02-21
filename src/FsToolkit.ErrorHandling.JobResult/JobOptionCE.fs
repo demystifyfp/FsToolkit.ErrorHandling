@@ -9,13 +9,13 @@ module JobOptionCE =
 
     type JobOptionBuilder() =
 
-        member __.Return(value: 'T) : Job<_ option> = job.Return <| option.Return value
+        member inline _.Return(value: 'T) : Job<_ option> = job.Return <| option.Return value
 
-        member __.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
+        member inline _.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
 
-        member __.Zero() : Job<_ option> = job.Return <| option.Zero()
+        member inline _.Zero() : Job<_ option> = job.Return <| option.Zero()
 
-        member __.Bind(jobResult: Job<_ option>, binder: 'T -> Job<_ option>) : Job<_ option> =
+        member inline _.Bind(jobResult: Job<_ option>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> =
             job {
                 let! result = jobResult
 
@@ -24,31 +24,51 @@ module JobOptionCE =
                 | None -> return None
             }
 
-        member this.Bind(taskResult: unit -> Task<_ option>, binder: 'T -> Job<_ option>) : Job<_ option> =
+        member inline this.Bind
+            (
+                [<InlineIfLambda>] taskResult: unit -> Task<_ option>,
+                [<InlineIfLambda>] binder: 'T -> Job<_ option>
+            ) : Job<_ option> =
             this.Bind(Job.fromTask taskResult, binder)
 
-        member __.Delay(generator: unit -> Job<_ option>) : Job<_ option> = Job.delay generator
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Job<_ option>) : Job<_ option> = Job.delay generator
 
-        member this.Combine(computation1: Job<_ option>, computation2: Job<_ option>) : Job<_ option> =
+        member inline this.Combine(computation1: Job<_ option>, computation2: Job<_ option>) : Job<_ option> =
             this.Bind(computation1, (fun () -> computation2))
 
-        member __.TryWith(computation: Job<_ option>, handler: System.Exception -> Job<_ option>) : Job<_ option> =
+        member inline _.TryWith
+            (
+                computation: Job<_ option>,
+                [<InlineIfLambda>] handler: System.Exception -> Job<_ option>
+            ) : Job<_ option> =
             Job.tryWith computation handler
 
-        member __.TryWith
+        member inline _.TryWith
             (
-                computation: unit -> Job<_ option>,
-                handler: System.Exception -> Job<_ option>
+                [<InlineIfLambda>] computation: unit -> Job<_ option>,
+                [<InlineIfLambda>] handler: System.Exception -> Job<_ option>
             ) : Job<_ option> =
             Job.tryWithDelay computation handler
 
-        member __.TryFinally(computation: Job<_ option>, compensation: unit -> unit) : Job<_ option> =
+        member inline _.TryFinally
+            (
+                computation: Job<_ option>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Job<_ option> =
             Job.tryFinallyFun computation compensation
 
-        member __.TryFinally(computation: unit -> Job<_ option>, compensation: unit -> unit) : Job<_ option> =
+        member inline _.TryFinally
+            (
+                computation: unit -> Job<_ option>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Job<_ option> =
             Job.tryFinallyFunDelay computation compensation
 
-        member __.Using(resource: 'T :> IDisposable, binder: 'T -> Job<_ option>) : Job<_ option> =
+        member inline _.Using
+            (
+                resource: 'T :> IDisposable,
+                [<InlineIfLambda>] binder: 'T -> Job<_ option>
+            ) : Job<_ option> =
             job.Using(resource, binder)
 
         member this.While(guard: unit -> bool, computation: Job<_ option>) : Job<_ option> =
@@ -57,7 +77,7 @@ module JobOptionCE =
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
 
-        member this.For(sequence: #seq<'T>, binder: 'T -> Job<_ option>) : Job<_ option> =
+        member inline this.For(sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))

@@ -9,16 +9,16 @@ module JobResultCE =
 
     type JobResultBuilder() =
 
-        member __.Return(value: 'T) : Job<Result<'T, 'TError>> = job.Return <| result.Return value
+        member inline_.Return(value: 'T) : Job<Result<'T, 'TError>> = job.Return <| result.Return value
 
         member inline __.ReturnFrom(jobResult: Job<Result<'T, 'TError>>) : Job<Result<'T, 'TError>> = jobResult
 
-        member __.Zero() : Job<Result<unit, 'TError>> = job.Return <| result.Zero()
+        member inline_.Zero() : Job<Result<unit, 'TError>> = job.Return <| result.Zero()
 
         member inline __.Bind
             (
                 jobResult: Job<Result<'T, 'TError>>,
-                binder: 'T -> Job<Result<'U, 'TError>>
+                [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
             ) : Job<Result<'U, 'TError>> =
             job {
                 let! result = jobResult
@@ -28,47 +28,50 @@ module JobResultCE =
                 | Error x -> return Error x
             }
 
-        member __.Delay(generator: unit -> Job<Result<'T, 'TError>>) : Job<Result<'T, 'TError>> = Job.delay generator
+        member inline _.Delay
+            ([<InlineIfLambda>] generator: unit -> Job<Result<'T, 'TError>>)
+            : Job<Result<'T, 'TError>> =
+            Job.delay generator
 
-        member this.Combine
+        member inline this.Combine
             (
                 computation1: Job<Result<unit, 'TError>>,
                 computation2: Job<Result<'U, 'TError>>
             ) : Job<Result<'U, 'TError>> =
             this.Bind(computation1, (fun () -> computation2))
 
-        member __.TryWith
+        member inline _.TryWith
             (
                 computation: Job<Result<'T, 'TError>>,
-                handler: System.Exception -> Job<Result<'T, 'TError>>
+                [<InlineIfLambda>] handler: System.Exception -> Job<Result<'T, 'TError>>
             ) : Job<Result<'T, 'TError>> =
             Job.tryWith computation handler
 
-        member __.TryWith
+        member inline _.TryWith
             (
-                computation: unit -> Job<Result<'T, 'TError>>,
-                handler: System.Exception -> Job<Result<'T, 'TError>>
+                [<InlineIfLambda>] computation: unit -> Job<Result<'T, 'TError>>,
+                [<InlineIfLambda>] handler: System.Exception -> Job<Result<'T, 'TError>>
             ) : Job<Result<'T, 'TError>> =
             Job.tryWithDelay computation handler
 
-        member __.TryFinally
+        member inline _.TryFinally
             (
                 computation: Job<Result<'T, 'TError>>,
-                compensation: unit -> unit
+                [<InlineIfLambda>] compensation: unit -> unit
             ) : Job<Result<'T, 'TError>> =
             Job.tryFinallyFun computation compensation
 
-        member __.TryFinally
+        member inline _.TryFinally
             (
-                computation: unit -> Job<Result<'T, 'TError>>,
-                compensation: unit -> unit
+                [<InlineIfLambda>] computation: unit -> Job<Result<'T, 'TError>>,
+                [<InlineIfLambda>] compensation: unit -> unit
             ) : Job<Result<'T, 'TError>> =
             Job.tryFinallyFunDelay computation compensation
 
-        member __.Using
+        member inline _.Using
             (
                 resource: 'T :> IDisposable,
-                binder: 'T -> Job<Result<'U, 'TError>>
+                [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
             ) : Job<Result<'U, 'TError>> =
             job.Using(resource, binder)
 
@@ -78,13 +81,17 @@ module JobResultCE =
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
 
-        member this.For(sequence: #seq<'T>, binder: 'T -> Job<Result<unit, 'TError>>) : Job<Result<unit, 'TError>> =
+        member inline this.For
+            (
+                sequence: #seq<'T>,
+                [<InlineIfLambda>] binder: 'T -> Job<Result<unit, 'TError>>
+            ) : Job<Result<unit, 'TError>> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline __.BindReturn(x: Job<Result<'T, 'U>>, f) = JobResult.map f x
+        member inline __.BindReturn(x: Job<Result<'T, 'U>>, [<InlineIfLambda>] f) = JobResult.map f x
         member inline __.MergeSources(t1: Job<Result<'T, 'U>>, t2: Job<Result<'T1, 'U>>) = JobResult.zip t1 t2
 
         /// <summary>

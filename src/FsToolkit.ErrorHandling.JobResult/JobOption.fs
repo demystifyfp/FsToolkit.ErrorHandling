@@ -6,9 +6,9 @@ open Hopac.Infixes
 [<RequireQualifiedAccess>]
 module JobOption =
 
-    let inline map f ar = Job.map (Option.map f) ar
+    let inline map ([<InlineIfLambda>] f) ar = Job.map (Option.map f) ar
 
-    let bind f (ar: Job<_>) =
+    let inline bind ([<InlineIfLambda>] f) (ar: Job<_>) =
         job {
             let! opt = ar
 
@@ -20,7 +20,7 @@ module JobOption =
             return! t
         }
 
-    let retn x = job { return Some x }
+    let inline retn x = job { return Some x }
 
-    let apply f x =
+    let inline apply f x =
         bind (fun f' -> bind (fun x' -> retn (f' x')) x) f

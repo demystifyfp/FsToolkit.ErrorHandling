@@ -5,13 +5,13 @@ module JobResultOptionCE =
     open Hopac
 
     type JobResultOptionBuilder() =
-        member __.Return value = JobResultOption.retn value
-        member __.ReturnFrom value = value
-        member __.Bind(result, binder) = JobResultOption.bind binder result
+        member inline _.Return value = JobResultOption.retn value
+        member inline _.ReturnFrom value = value
+        member inline _.Bind(result, [<InlineIfLambda>] binder) = JobResultOption.bind binder result
 
-        member __.Combine(aro1, aro2) =
+        member inline _.Combine(aro1, aro2) =
             aro1 |> JobResultOption.bind (fun _ -> aro2)
 
-        member __.Delay f = Job.delay f
+        member inline _.Delay([<InlineIfLambda>] f) = Job.delay f
 
     let jobResultOption = new JobResultOptionBuilder()
