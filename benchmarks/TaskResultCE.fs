@@ -7,7 +7,6 @@ open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 module TaskResultCE =
 
-
     type TaskResultCEInlinedLambdaBuilder() =
 
         member inline __.Return(value: 'T) : TaskCode<Result<'T, 'TError>,_> = task.Return (Ok value)
