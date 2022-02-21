@@ -1,7 +1,4 @@
-#r "paket: groupref Build //"
-#load "./.fake/build.fsx/intellisense.fsx"
-
-open Fake.Api
+﻿open Fake.Api
 open Fake.Core
 open Fake.IO
 open Fake.DotNet
@@ -13,32 +10,40 @@ open Fake.Tools
 open Fake.JavaScript
 open System
 open System.IO
+open Fake.BuildServer
 
 let project = "FsToolkit.ErrorHandling"
 let summary = "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 let configuration = "Release"
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
+let rootDir = __SOURCE_DIRECTORY__ </> ".."
+
+let srcGlob =rootDir </> "src/**/*.??proj"
+let testsGlob = rootDir </> "tests/**/*.??proj"
+
+let srcAndTest =
+    !! srcGlob
+    ++ testsGlob
+
 let srcCodeGlob =
-    !! (__SOURCE_DIRECTORY__  </> "src/**/*.fs")
-    ++ (__SOURCE_DIRECTORY__  </> "src/**/*.fsx")
-    -- (__SOURCE_DIRECTORY__  </> "src/**/obj/**/*.fs")
+    !! (rootDir  </> "src/**/*.fs")
+    ++ (rootDir  </> "src/**/*.fsx")
+    -- (rootDir  </> "src/**/obj/**/*.fs")
 
 let testsCodeGlob =
-    !! (__SOURCE_DIRECTORY__  </> "tests/**/*.fs")
-    ++ (__SOURCE_DIRECTORY__  </> "tests/**/*.fsx")
-    -- (__SOURCE_DIRECTORY__  </> "tests/**/obj/**/*.fs")
+    !! (rootDir  </> "tests/**/*.fs")
+    ++ (rootDir  </> "tests/**/*.fsx")
+    -- (rootDir  </> "tests/**/obj/**/*.fs")
 
 let gitOwner ="demystifyfp"
 
-let distDir = __SOURCE_DIRECTORY__  @@ "bin"
+let distDir = rootDir  @@ "bin"
 let distGlob = distDir @@ "*.nupkg"
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
-Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
 
 let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
-Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
 
 
 
@@ -98,38 +103,41 @@ let checkFormatCode _ =
         Trace.logf "Errors while formatting: %A" result.Errors
 
 
-Target.create "Clean" (fun _ ->
-  !! "bin"
-  ++ "src/**/bin"
-  ++ "tests/**/bin"
-  ++ "src/**/obj"
-  ++ "tests/**/obj"
-  ++ "dist"
-  ++"js-dist"
-  |> Shell.cleanDirs
+let clean _ =
+    !! "bin"
+    ++ "src/**/bin"
+    ++ "tests/**/bin"
+    ++ "src/**/obj"
+    ++ "tests/**/obj"
+    ++ "dist"
+    ++"js-dist"
+    |> Shell.cleanDirs
+    [
+        "paket-files/paket.restore.cached"
+    ]
+    |> Seq.iter Shell.rm
 
-  [
-    "paket-files/paket.restore.cached"
-  ]
-  |> Seq.iter Shell.rm
-)
 
-Target.create "Build" (fun _ ->
-  let setParams (defaults:DotNet.BuildOptions) =
-        { defaults with
-            NoRestore = true
-            Configuration = DotNet.BuildConfiguration.fromString configuration}
-  DotNet.build setParams solutionFile
-)
 
-Target.create "Restore" (fun _ ->
-  Fake.DotNet.Paket.restore (fun p -> {p with ToolType = ToolType.CreateLocalTool()} )
-  DotNet.restore id solutionFile
-)
 
-Target.create "NpmRestore" (fun _ ->
-  Npm.install id
-)
+let build _ = 
+    let setParams (defaults:DotNet.BuildOptions) =
+            { defaults with
+                NoRestore = true
+                Configuration = DotNet.BuildConfiguration.fromString configuration}
+    DotNet.build setParams solutionFile
+
+
+
+let restore _ =
+    Fake.DotNet.Paket.restore (fun p -> {p with ToolType = ToolType.CreateLocalTool()} )
+    DotNet.restore id solutionFile
+let npmRestore _ =
+    Npm.install id
+
+
+
+
 
 let dotnetTest ctx =
 
@@ -146,19 +154,21 @@ let dotnetTest ctx =
                 |> DotNet.Options.withAdditionalArgs args
             }) solutionFile
 
-Target.create "RunTests" dotnetTest
+
 
 let runFableTests _ =
   Npm.test id
 
-Target.create "RunFableTests" runFableTests
+
 
 let fableAwareTests = [
   "./tests/FsToolkit.ErrorHandling.Tests"
   "./tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
 ]
 
-Target.create "FemtoValidate" (fun _ ->
+
+
+let femtoValidate _ =
   for testProject in fableAwareTests do
     let result =
       CreateProcess.fromRawCommand "dotnet" [ "femto"; testProject; "--validate" ]
@@ -167,11 +177,11 @@ Target.create "FemtoValidate" (fun _ ->
     if result.ExitCode <> 0
     then
       Fake.Testing.Common.FailedTestsException "Femto failed; perhaps you need to update the package.json?" |> raise
-)
 
-let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-Target.create "AssemblyInfo" (fun _ ->
+let release = ReleaseNotes.load (rootDir </> "RELEASE_NOTES.md")
+
+let generateAssemblyInfo _ =
     let getAssemblyInfoAttributes projectName =
         [ AssemblyInfo.Title (projectName)
           AssemblyInfo.Product project
@@ -188,14 +198,15 @@ Target.create "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
-    !! "src/**/*.??proj"
+    srcAndTest
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (_, _, folderName, attributes) ->
         AssemblyInfoFile.createFSharp (folderName </> "AssemblyInfo.fs") attributes)
-)
+
 
 let releaseNotes = String.toLines release.Notes
-Target.create "NuGet" (fun _ ->
+
+let nuget _ =
     [solutionFile]
     |> Seq.iter (
       DotNet.pack(fun p ->
@@ -207,13 +218,9 @@ Target.create "NuGet" (fun _ ->
                                     // "/p" (property) arguments to MSBuild.exe
                                     Properties = [("Version", release.NugetVersion)
                                                   ("PackageReleaseNotes", releaseNotes)]}}))
-)
 
 
-Target.create "FormatCode" formatCode
-Target.create "CheckFormatCode" checkFormatCode
-
-Target.create "PublishNuget" (fun _ ->
+let publishNuget _ = 
     Paket.push(fun p ->
         { p with
             ToolType = ToolType.CreateLocalTool()
@@ -225,21 +232,21 @@ Target.create "PublishNuget" (fun _ ->
               | _ -> p.ApiKey // assume paket-config was set properly
         }
     )
-)
+
 
 let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"
 
+let gitRelease _ = 
 
-Target.create "GitRelease"(fun _ ->
   Git.Staging.stageAll ""
   Git.Commit.exec "" (sprintf "Bump version to %s\n\n%s" release.NugetVersion releaseNotes)
   Git.Branches.push ""
 
   Git.Branches.tag "" release.NugetVersion
   Git.Branches.pushTag "" remote release.NugetVersion
-)
 
-Target.create "GitHubRelease" (fun _ ->
+
+let githubRelease _ = 
     let token =
         match githubToken with
         | Some s -> s
@@ -251,33 +258,70 @@ Target.create "GitHubRelease" (fun _ ->
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
-)
-
-Target.create "Release" ignore
-
-Target.create "UpdateDocs" (fun _ ->
-  Git.Staging.stageAll ""
-  Git.Commit.exec "" "update docs"
-  Git.Branches.push ""
-)
 
 
 
-// *** Define Dependencies ***
-"Clean"
-  ==> "AssemblyInfo"
-  ==> "Restore"
-  ==> "NpmRestore"
-  ==> "CheckFormatCode"
-  ==> "Build"
-  ==> "FemtoValidate"
-  ==> "RunTests"
-  ==> "RunFableTests"
-  ==> "NuGet"
-  ==> "PublishNuGet"
-  ==> "GitRelease"
-  ==> "GitHubRelease"
-  ==> "Release"
 
-// *** Start Build ***
-Target.runOrDefaultWithArguments "NuGet"
+
+let initTargets () =
+    
+
+    BuildServer.install [
+        GitHubActions.Installer
+    ]
+
+    Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" ) githubToken
+    Option.iter(TraceSecrets.register "<NUGET_TOKEN>") nugetToken
+
+
+    Target.create "Clean" clean
+    Target.create "Build" build
+    Target.create "Restore" restore
+    Target.create "NpmRestore" npmRestore
+    Target.create "RunTests" dotnetTest
+    Target.create "RunFableTests" runFableTests 
+    Target.create "FemtoValidate" femtoValidate
+    Target.create "AssemblyInfo" generateAssemblyInfo
+    Target.create "NuGet" nuget
+    Target.create "FormatCode" formatCode
+    Target.create "CheckFormatCode" checkFormatCode
+    Target.create "PublishNuget" publishNuget
+    Target.create "GitRelease" gitRelease
+    Target.create "GitHubRelease" githubRelease
+    Target.create "Release" ignore
+    Target.create "UpdateDocs" (fun _ ->
+        Git.Staging.stageAll ""
+        Git.Commit.exec "" "update docs"
+        Git.Branches.push ""
+    )
+
+    // *** Define Dependencies ***
+    "Clean"
+    ==> "AssemblyInfo"
+    ==> "Restore"
+    ==> "NpmRestore"
+    ==> "CheckFormatCode"
+    ==> "Build"
+    ==> "FemtoValidate"
+    ==> "RunTests"
+    ==> "RunFableTests"
+    ==> "NuGet"
+    ==> "PublishNuGet"
+    ==> "GitRelease"
+    ==> "GitHubRelease"
+    ==> "Release"
+
+//-----------------------------------------------------------------------------
+// Target Start
+//-----------------------------------------------------------------------------
+[<EntryPoint>]
+let main argv =
+    argv
+    |> Array.toList
+    |> Context.FakeExecutionContext.Create false "build.fsx"
+    |> Context.RuntimeContext.Fake
+    |> Context.setExecutionContext
+    initTargets () |> ignore
+    Target.runOrDefaultWithArguments "NuGet"
+
+    0 // return an integer exit code
