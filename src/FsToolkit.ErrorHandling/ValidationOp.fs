@@ -5,14 +5,26 @@ open FsToolkit.ErrorHandling
 [<AutoOpen>]
 module Validation =
 
-    let inline (<!>) f (x: Result<'a, 'b list>) = Result.map f x
+    let inline (<!>)
+        ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Result.map mapper input
 
-    let inline (<!^>) f x =
-        x
-        |> Result.mapError List.singleton
-        |> Result.map f
+    let inline (<!^>)
+        ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+        (input: Result<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Result.map mapper (Validation.ofResult (input))
 
-    let inline (<*>) f x = Validation.apply f x
+    let inline (<*>)
+        (applier: Validation<('okInput -> 'okOutput), 'error>)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Validation.apply applier input
 
-    let inline (<*^>) f x =
-        Validation.apply f (Validation.ofResult x)
+    let inline (<*^>)
+        (applier: Validation<('okInput -> 'okOutput), 'error>)
+        (input: Result<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Validation.apply applier (Validation.ofResult input)
