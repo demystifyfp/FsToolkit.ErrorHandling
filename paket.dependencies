@@ -56,6 +56,7 @@ nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
 group Build
 source https://api.nuget.org/v3/index.json
 storage: none
+framework: net6.0
 nuget FSharp.Core
 nuget Fake.Core.Target 5.22.0
 nuget Fake.DotNet.Cli 5.22.0
