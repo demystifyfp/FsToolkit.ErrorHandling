@@ -4,40 +4,45 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module ValueOption =
 
-    let inline ofOption (opt: 'a option) =
+    let inline ofOption (opt: 'value option) : 'value voption =
         match opt with
         | Some v -> ValueSome v
         | None -> ValueNone
 
-    let inline toOption (vopt: 'a voption) =
+    let inline toOption (vopt: 'value voption) : 'value option =
         match vopt with
         | ValueSome v -> Some v
         | ValueNone -> None
 
-    let inline traverseResult f vopt =
-        match vopt with
+    let inline traverseResult
+        ([<InlineIfLambda>] binder: 'okInput -> Result<'okOutput, 'error>)
+        (input: 'okInput voption)
+        : Result<'okOutput voption, 'error> =
+        match input with
         | ValueNone -> Ok ValueNone
-        | ValueSome v -> f v |> Result.map ValueSome
+        | ValueSome v -> binder v |> Result.map ValueSome
 
-    let inline sequenceResult opt = traverseResult id opt
+    let inline sequenceResult (opt: Result<'okOutput, 'error> voption) : Result<'okOutput voption, 'error> =
+        traverseResult id opt
 
-    let inline tryParse< ^T when ^T: (static member TryParse : string * byref< ^T > -> bool) and ^T: (new : unit -> ^T)>
-        valueToParse
-        =
-        let mutable output = new ^T()
+    let inline tryParse< ^value when ^value: (static member TryParse : string * byref< ^value > -> bool) and ^value: (new :
+        unit -> ^value)>
+        (valueToParse: string)
+        : ^value voption =
+        let mutable output = new ^value ()
 
         let parsed =
-            (^T: (static member TryParse : string * byref< ^T > -> bool) (valueToParse, &output))
+            (^value: (static member TryParse : string * byref< ^value > -> bool) (valueToParse, &output))
 
         match parsed with
         | true -> ValueSome output
         | _ -> ValueNone
 
-    let inline tryGetValue key dictionary =
-        let mutable output = Unchecked.defaultof< ^Value>
+    let inline tryGetValue (key: string) (dictionary: ^Dictionary) : ^value voption =
+        let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue : string * byref< ^Value > -> bool) (dictionary, key, &output))
+            (^Dictionary: (member TryGetValue : string * byref< ^value > -> bool) (dictionary, key, &output))
 
         match parsed with
         | true -> ValueSome output
@@ -49,13 +54,13 @@ module ValueOption =
     /// <param name="voption1">The input option</param>
     /// <param name="voption2">The input option</param>
     /// <returns></returns>
-    let inline zip (voption1: 'a voption) (voption2: 'b voption) =
-        match voption1, voption2 with
+    let inline zip (left: 'left voption) (right: 'right voption) : ('left * 'right) voption =
+        match left, right with
         | ValueSome v1, ValueSome v2 -> ValueSome(v1, v2)
         | _ -> ValueNone
 
 
-    let inline ofResult (result: Result<_, _>) =
+    let inline ofResult (result: Result<'ok, 'error>) : 'ok voption =
         match result with
         | Ok v -> ValueSome v
         | Error _ -> ValueNone
@@ -91,7 +96,10 @@ module ValueOption =
     /// <typeparam name="'nullableValue"></typeparam>
     /// <returns>A voption of the output type of the binder.</returns>
     /// <seealso cref="ofNull"/>
-    let inline bindNull (binder: 'value -> 'nullableValue) (voption: ValueOption<'value>) =
+    let inline bindNull
+        ([<InlineIfLambda>] binder: 'value -> 'nullableValue)
+        (voption: ValueOption<'value>)
+        : 'nullableValue voption =
         match voption with
         | ValueSome x -> binder x |> ofNull
         | ValueNone -> ValueNone

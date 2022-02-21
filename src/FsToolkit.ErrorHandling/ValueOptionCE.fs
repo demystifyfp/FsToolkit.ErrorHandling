@@ -7,37 +7,54 @@ module ValueOptionCE =
     open System
 
     type ValueOptionBuilder() =
-        member inline _.Return(x) = ValueSome x
+        member inline _.Return(x: 'value) : 'value voption = ValueSome x
 
-        member inline _.ReturnFrom(m: 'T voption) = m
+        member inline _.ReturnFrom(m: 'value voption) : 'value voption = m
 
-        member inline _.Bind(m: 'a voption, f: 'a -> 'b voption) = ValueOption.bind f m
+        member inline _.Bind
+            (
+                input: 'input voption,
+                [<InlineIfLambda>] binder: 'input -> 'output voption
+            ) : 'output voption =
+            ValueOption.bind binder input
 
         // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
-        member this.Bind(m: 'a when 'a: null, f: 'a -> 'b voption) = this.Bind(m |> ValueOption.ofObj, f)
+        member inline this.Bind
+            (
+                input: 'input when 'input: null,
+                [<InlineIfLambda>] binder: 'input -> 'output voption
+            ) : 'output voption =
+            this.Bind(ValueOption.ofObj input, binder)
 
-        member inline this.Zero() = this.Return()
+        member inline this.Zero() : unit voption = this.Return()
 
-        member inline _.Combine(m, f) = ValueOption.bind f m
-        member inline this.Combine(m1: _ voption, m2: _ voption) = this.Bind(m1, (fun () -> m2))
+        member inline _.Combine
+            (
+                input: 'input voption,
+                [<InlineIfLambda>] binder: 'input -> 'output voption
+            ) : 'output voption =
+            ValueOption.bind binder input
 
-        member inline _.Delay(f: unit -> _) = f
+        member inline this.Combine(input: unit voption, output: 'output voption) : 'output voption =
+            this.Bind(input, (fun () -> output))
 
-        member inline _.Run(f) = f ()
+        member inline _.Delay([<InlineIfLambda>] f: unit -> 'a) = f
 
-        member inline this.TryWith(m, h) =
+        member inline _.Run([<InlineIfLambda>] f : unit -> 'v) = f ()
+
+        member inline this.TryWith([<InlineIfLambda>] m, [<InlineIfLambda>] handler ) =
             try
                 this.Run m
             with
-            | e -> h e
+            | e -> handler e
 
-        member inline this.TryFinally(m, compensation) =
+        member inline this.TryFinally([<InlineIfLambda>] m, [<InlineIfLambda>] compensation) =
             try
                 this.Run m
             finally
                 compensation ()
 
-        member inline this.Using(resource: 'T :> IDisposable, binder) : _ voption =
+        member inline this.Using(resource: 'T :> IDisposable, [<InlineIfLambda>] binder) : _ voption =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -45,21 +62,34 @@ module ValueOptionCE =
                         resource.Dispose())
             )
 
-        member this.While(guard: unit -> bool, generator: unit -> _ voption) : _ voption =
-            if not <| guard () then
-                this.Zero()
-            else
-                this.Bind(this.Run generator, (fun () -> this.While(guard, generator)))
+        member inline this.While([<InlineIfLambda>]  guard: unit -> bool, [<InlineIfLambda>]  generator: unit -> _ voption) : _ voption =
+            if guard () then
+                let mutable whileBuilder = Unchecked.defaultof<_>
 
-        member inline this.For(sequence: #seq<'T>, binder: 'T -> _ voption) : _ voption =
+                whileBuilder <-
+                    fun () ->
+                        this.Bind(
+                            this.Run generator,
+                            (fun () ->
+                                if guard () then
+                                    this.Run whileBuilder
+                                else
+                                    this.Zero())
+                        )
+
+                this.Run whileBuilder
+            else
+                this.Zero()
+
+        member inline this.For(sequence: #seq<'T>,  [<InlineIfLambda>] binder: 'T -> _ voption) : _ voption =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline _.BindReturn(x, f) = ValueOption.map f x
+        member inline _.BindReturn(x,  [<InlineIfLambda>] f) = ValueOption.map f x
 
-        member inline _.BindReturn(x, f) =
+        member inline _.BindReturn(x,  [<InlineIfLambda>] f) =
             x |> ValueOption.ofObj |> ValueOption.map f
 
         member inline _.MergeSources(option1, option2) = ValueOption.zip option1 option2
@@ -80,8 +110,6 @@ module ValueOptionCE =
     let voption = ValueOptionBuilder()
 
 [<AutoOpen>]
-// Having members as extensions gives them lower priority in
-// overload resolution and allows skipping more type annotations.
 module ValueOptionExtensionsLower =
     type ValueOptionBuilder with
         member inline _.Source(nullableObj: 'a when 'a: null) = nullableObj |> ValueOption.ofObj
@@ -99,9 +127,6 @@ module ValueOptionExtensionsLower =
             ValueOption.zip (ValueOption.ofObj nullableObj1) (ValueOption.ofObj nullableObj2)
 
 [<AutoOpen>]
-// Having members as extensions gives them lower priority in
-// overload resolution and allows skipping more type annotations.
-// The later declared, the higher than previous extension methods, this is magic
 module ValueOptionExtensions =
     open System
 
