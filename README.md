@@ -23,17 +23,17 @@ The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-e
 GitHub Actions |
 :---: |
 [![GitHub Actions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/workflows/Build%20master/badge.svg)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/actions?query=branch%3Amaster) |
-[![Build History](https://buildstats.info/github/chart/demystifyfp/FsToolkit.ErrorHandling)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/demystifyfp/FsToolkit.ErrorHandling?branch=master)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/actions?query=branch%3Amaster) |
 
 
 ### NuGet
 
-| Package name | Badge |
-| --- | --- |
-| FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
-| FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.TaskResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult)
-| FsToolkit.ErrorHandling.JobResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.JobResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult)
-| FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.AsyncSeq.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq)
+| Package name | Release | Prelease
+| --- | --- | --- |
+| FsToolkit.ErrorHandling | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling)](https://www.nuget.org/packages/FsToolkit.ErrorHandling) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling/absoluteLatest)
+| FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.TaskResult)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.TaskResult?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult/absoluteLatest)
+| FsToolkit.ErrorHandling.JobResult | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.JobResult)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.JobResult?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult/absoluteLatest)
+| FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq/absoluteLatest)
 
 
 ### Developing locally
