@@ -5,6 +5,20 @@ open FsToolkit.ErrorHandling
 [<AutoOpen>]
 module AsyncResultOption =
 
-    let inline (<!>) f x = AsyncResultOption.map f x
-    let inline (<*>) f x = AsyncResultOption.apply f x
-    let inline (>>=) x f = AsyncResultOption.bind f x
+    let inline (<!>)
+        ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+        (input: Async<Result<'okInput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResultOption.map mapper input
+
+    let inline (<*>)
+        (applier: Async<Result<('okInput -> 'okOutput) option, 'error>>)
+        (input: Async<Result<'okInput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResultOption.apply applier input
+
+    let inline (>>=)
+        (input: Async<Result<'okInput option, 'error>>)
+        ([<InlineIfLambda>] binder: 'okInput -> Async<Result<'okOutput option, 'error>>)
+        : Async<Result<'okOutput option, 'error>> =
+        AsyncResultOption.bind binder input

@@ -5,20 +5,43 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-    let inline map f ar = Async.map (Result.map f) ar
 
-    let mapError f ar = Async.map (Result.mapError f) ar
+    let inline retn (value: 'ok) : Async<Result<'ok, 'error>> = Ok value |> Async.singleton
 
-    let bind f ar =
-        ar
-        |> Async.bind (Result.either f (Error >> Async.singleton))
+    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> = retn value
 
-    let foldResult onSuccess onError ar =
-        Async.map (Result.fold onSuccess onError) ar
+    let inline returnError (error: 'error) : Async<Result<'ok, 'error>> = Error error |> Async.singleton
+
+    let inline error (error: 'error) : Async<Result<'ok, 'error>> = returnError error
+
+    let inline map
+        ([<InlineIfLambda>] mapper: 'input -> 'output)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.map (Result.map mapper) input
+
+    let inline mapError
+        ([<InlineIfLambda>] mapper: 'inputError -> 'outputError)
+        (input: Async<Result<'ok, 'inputError>>)
+        : Async<Result<'ok, 'outputError>> =
+        Async.map (Result.mapError mapper) input
+
+    let inline bind
+        ([<InlineIfLambda>] binder: 'input -> Async<Result<'output, 'error>>)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.bind (Result.either binder returnError) input
+
+    let inline foldResult
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Async<Result<'input, 'inputError>>)
+        : Async<'output> =
+        Async.map (Result.either onSuccess onError) input
 
 #if !FABLE_COMPILER
 
-    let ofTask aTask =
+    let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
         async.Delay
             (fun () ->
                 aTask
@@ -26,7 +49,7 @@ module AsyncResult =
                 |> Async.Catch
                 |> Async.map Result.ofChoice)
 
-    let ofTaskAction (aTask: Task) =
+    let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
         async.Delay
             (fun () ->
                 aTask
@@ -36,26 +59,34 @@ module AsyncResult =
 
 #endif
 
-    let retn x = Ok x |> Async.singleton
 
-    let ok = retn
+    let inline map2
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'output)
+        (input1: Async<Result<'input1, 'error>>)
+        (input2: Async<Result<'input2, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.map2 (Result.map2 mapper) input1 input2
 
-    let returnError x = Error x |> Async.singleton
+    let inline map3
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'input3 -> 'output)
+        (input1: Async<Result<'input1, 'error>>)
+        (input2: Async<Result<'input2, 'error>>)
+        (input3: Async<Result<'input3, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.map3 (Result.map3 mapper) input1 input2 input3
 
-    let error = returnError
-
-    let map2 f xR yR = Async.map2 (Result.map2 f) xR yR
-
-    let map3 f xR yR zR = Async.map3 (Result.map3 f) xR yR zR
-
-    let apply fAR xAR = map2 (fun f x -> f x) fAR xAR
+    let inline apply
+        (applier: Async<Result<'input -> 'output, 'error>>)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        map2 (fun f x -> f x) applier input
 
 
     /// <summary>
-    /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
+    /// Returns <paramref name="input"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
     /// </summary>
-    /// <param name="ifError">The value to use if <paramref name="result"/> is <c>Error</c></param>
-    /// <param name="result">The input result.</param>
+    /// <param name="ifError">The value to use if <paramref name="input"/> is <c>Error</c></param>
+    /// <param name="input">The input result.</param>
     /// <remarks>
     /// </remarks>
     /// <example>
@@ -69,17 +100,19 @@ module AsyncResult =
     /// <returns>
     /// The result if the result is Ok, else returns <paramref name="ifError"/>.
     /// </returns>
-    let inline orElse (ifError: Async<Result<'ok, 'error2>>) (result: Async<Result<'ok, 'error>>) =
-        result
-        |> Async.bind (Result.either ok (fun _ -> ifError))
+    let inline orElse
+        (ifError: Async<Result<'ok, 'errorOutput>>)
+        (input: Async<Result<'ok, 'errorInput>>)
+        : Async<Result<'ok, 'errorOutput>> =
+        Async.bind (Result.either ok (fun _ -> ifError)) input
 
     /// <summary>
-    /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
+    /// Returns <paramref name="input"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
     /// </summary>
     /// <param name="ifErrorFunc">A function that provides an alternate result when evaluated.</param>
-    /// <param name="result">The input result.</param>
+    /// <param name="input">The input result.</param>
     /// <remarks>
-    /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="result"/> is an <c>Error</c>.
+    /// <paramref name="ifErrorFunc"/>  is not executed unless <paramref name="input"/> is an <c>Error</c>.
     /// </remarks>
     /// <example>
     /// <code>
@@ -92,128 +125,164 @@ module AsyncResult =
     /// <returns>
     /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
     /// </returns>
-    let inline orElseWith (ifErrorFunc: 'error -> Async<Result<'ok, 'error2>>) (result: Async<Result<'ok, 'error>>) =
-        result
-        |> Async.bind (Result.either ok ifErrorFunc)
+    let inline orElseWith
+        ([<InlineIfLambda>] ifErrorFunc: 'errorInput -> Async<Result<'ok, 'errorOutput>>)
+        (input: Async<Result<'ok, 'errorInput>>)
+        : Async<Result<'ok, 'errorOutput>> =
+        Async.bind (Result.either ok ifErrorFunc) input
 
     /// Replaces the wrapped value with unit
-    let ignore ar = ar |> map ignore
+    let inline ignore (value: Async<Result<'ok, 'error>>) : Async<Result<unit, 'error>> = value |> map ignore
 
     /// Returns the specified error if the async-wrapped value is false.
-    let requireTrue error value =
+    let inline requireTrue (error: 'error) (value: Async<bool>) : Async<Result<unit, 'error>> =
         value |> Async.map (Result.requireTrue error)
 
     /// Returns the specified error if the async-wrapped value is true.
-    let requireFalse error value =
+    let inline requireFalse (error: 'error) (value: Async<bool>) : Async<Result<unit, 'error>> =
         value |> Async.map (Result.requireFalse error)
 
     // Converts an async-wrapped Option to a Result, using the given error if None.
-    let requireSome error option =
-        option |> Async.map (Result.requireSome error)
+    let inline requireSome (error: 'error) (value: Async<'ok option>) : Async<Result<'ok, 'error>> =
+        value |> Async.map (Result.requireSome error)
 
     // Converts an async-wrapped Option to a Result, using the given error if Some.
-    let requireNone error option =
-        option |> Async.map (Result.requireNone error)
+    let inline requireNone (error: 'error) (value: Async<'ok option>) : Async<Result<unit, 'error>> =
+        value |> Async.map (Result.requireNone error)
 
     /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
-    let requireEqual x1 x2 error =
-        x2
-        |> Async.map (fun x2' -> Result.requireEqual x1 x2' error)
+    let inline requireEqual (value1: 'value) (value2: Async<'value>) (error: 'error) : Async<Result<unit, 'error>> =
+        value2
+        |> Async.map (fun x2' -> Result.requireEqual value1 x2' error)
 
     /// Returns Ok if the two values are equal, or the specified error if not.
-    let requireEqualTo other error this =
+    let inline requireEqualTo (other: 'value) (error: 'error) (this: Async<'value>) : Async<Result<unit, 'error>> =
         this
         |> Async.map (Result.requireEqualTo other error)
 
     /// Returns Ok if the async-wrapped sequence is empty, or the specified error if not.
-    let requireEmpty error xs =
-        xs |> Async.map (Result.requireEmpty error)
+    let inline requireEmpty (error: 'error) (values: Async<#seq<'ok>>) : Async<Result<unit, 'error>> =
+        values |> Async.map (Result.requireEmpty error)
 
     /// Returns Ok if the async-wrapped sequence is not-empty, or the specified error if not.
-    let requireNotEmpty error xs =
-        xs |> Async.map (Result.requireNotEmpty error)
+    let inline requireNotEmpty (error: 'error) (values: Async<#seq<'ok>>) : Async<Result<unit, 'error>> =
+        values |> Async.map (Result.requireNotEmpty error)
 
     /// Returns the first item of the async-wrapped sequence if it exists, or the specified
     /// error if the sequence is empty
-    let requireHead error xs =
-        xs |> Async.map (Result.requireHead error)
+    let inline requireHead (error: 'error) (values: Async<#seq<'ok>>) : Async<Result<'ok, 'error>> =
+        values |> Async.map (Result.requireHead error)
 
     /// Replaces an error value of an async-wrapped result with a custom error
     /// value.
-    let setError error asyncResult =
+    let inline setError
+        (error: 'errorOutput)
+        (asyncResult: Async<Result<'ok, 'errorInput>>)
+        : Async<Result<'ok, 'errorOutput>> =
         asyncResult |> Async.map (Result.setError error)
 
     /// Replaces a unit error value of an async-wrapped result with a custom
     /// error value. Safer than setError since you're not losing any information.
-    let withError error asyncResult =
+    let inline withError
+        (error: 'errorOutput)
+        (asyncResult: Async<Result<'ok, unit>>)
+        : Async<Result<'ok, 'errorOutput>> =
         asyncResult |> Async.map (Result.withError error)
 
     /// Extracts the contained value of an async-wrapped result if Ok, otherwise
     /// uses ifError.
-    let defaultValue ifError asyncResult =
+    let inline defaultValue (ifError: 'ok) (asyncResult: Async<Result<'ok, 'error>>) : Async<'ok> =
         asyncResult
         |> Async.map (Result.defaultValue ifError)
 
     /// Extracts the contained value of an async-wrapped result if Error, otherwise
     /// uses ifOk.
-    let defaultError ifOk asyncResult =
+    let inline defaultError (ifOk: 'error) (asyncResult: Async<Result<'ok, 'error>>) : Async<'error> =
         asyncResult
         |> Async.map (Result.defaultError ifOk)
 
     /// Extracts the contained value of an async-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
-    let defaultWith ifErrorThunk asyncResult =
+    let inline defaultWith
+        ([<InlineIfLambda>] ifErrorThunk: unit -> 'ok)
+        (asyncResult: Async<Result<'ok, 'error>>)
+        : Async<'ok> =
         asyncResult
         |> Async.map (Result.defaultWith ifErrorThunk)
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
-    let ignoreError result = defaultValue () result
+    let inline ignoreError (result: Async<Result<unit, 'error>>) : Async<unit> = defaultValue () result
 
     /// If the async-wrapped result is Ok, executes the function on the Ok value.
     /// Passes through the input value.
-    let tee f asyncResult = asyncResult |> Async.map (Result.tee f)
+    let inline tee
+        ([<InlineIfLambda>] inspector: 'ok -> unit)
+        (asyncResult: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
+        asyncResult |> Async.map (Result.tee inspector)
 
     /// If the async-wrapped result is Ok and the predicate returns true, executes
     /// the function on the Ok value. Passes through the input value.
-    let teeIf predicate f asyncResult =
+    let inline teeIf
+        ([<InlineIfLambda>] predicate: 'ok -> bool)
+        ([<InlineIfLambda>] inspector: 'ok -> unit)
+        (asyncResult: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
         asyncResult
-        |> Async.map (Result.teeIf predicate f)
+        |> Async.map (Result.teeIf predicate inspector)
 
     /// If the async-wrapped result is Error, executes the function on the Error
     /// value. Passes through the input value.
-    let teeError f asyncResult =
-        asyncResult |> Async.map (Result.teeError f)
+    let inline teeError
+        ([<InlineIfLambda>] teeFunction: 'error -> unit)
+        (asyncResult: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
+        asyncResult
+        |> Async.map (Result.teeError teeFunction)
 
     /// If the async-wrapped result is Error and the predicate returns true,
     /// executes the function on the Error value. Passes through the input value.
-    let teeErrorIf predicate f asyncResult =
+    let inline teeErrorIf
+        ([<InlineIfLambda>] predicate: 'error -> bool)
+        ([<InlineIfLambda>] teeFunction: 'error -> unit)
+        (asyncResult: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
         asyncResult
-        |> Async.map (Result.teeErrorIf predicate f)
+        |> Async.map (Result.teeErrorIf predicate teeFunction)
 
 
     /// Takes two results and returns a tuple of the pair
-    let zip x1 x2 =
-        Async.zip x1 x2
+    let inline zip
+        (left: Async<Result<'leftOk, 'error>>)
+        (right: Async<Result<'rightOk, 'error>>)
+        : Async<Result<'leftOk * 'rightOk, 'error>> =
+        Async.zip left right
         |> Async.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
-    let zipError x1 x2 =
-        Async.zip x1 x2
+    let inline zipError
+        (left: Async<Result<'ok, 'leftError>>)
+        (right: Async<Result<'ok, 'rightError>>)
+        : Async<Result<'ok, 'leftError * 'rightError>> =
+        Async.zip left right
         |> Async.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let catch f x =
-        x
+    let inline catch
+        ([<InlineIfLambda>] exnMapper: exn -> 'error)
+        (input: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
+        input
         |> Async.Catch
         |> Async.map
             (function
             | Choice1Of2 (Ok v) -> Ok v
             | Choice1Of2 (Error err) -> Error err
-            | Choice2Of2 ex -> Error(f ex))
+            | Choice2Of2 ex -> Error(exnMapper ex))
 
     /// Lift Async to AsyncResult
-    let ofAsync x = x |> Async.map Ok
+    let inline ofAsync (value: Async<'ok>) : Async<Result<'ok, 'error>> = value |> Async.map Ok
 
     /// Lift Result to AsyncResult
-    let ofResult (x: Result<_, _>) = x |> Async.singleton
+    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = x |> Async.singleton

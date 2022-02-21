@@ -9,17 +9,34 @@ module AsyncSeqCE =
     type private AsyncSeq<'t> = FSharp.Control.AsyncSeq<'t>
 
     type AsyncResultBuilder with
-        member this.While
+        member inline this.While
             (
-                guard: unit -> Async<option<Result<'T, 'TError>>>,
-                computation: 'T -> Async<Result<unit, 'TError>>
+                [<InlineIfLambda>] guard: unit -> Async<option<Result<'T, 'TError>>>,
+                [<InlineIfLambda>] computation: 'T -> Async<Result<unit, 'TError>>
             ) : Async<Result<unit, 'TError>> =
             async {
                 match! guard () with
-                | Some (Ok x) -> return! this.Bind(computation x, (fun () -> this.While(guard, computation)))
+                | Some (Ok x) ->
+                    let mutable whileAsync = Unchecked.defaultof<_>
+
+                    whileAsync <-
+                        fun x ->
+                            this.Bind(
+                                computation x,
+                                (fun () ->
+                                    async {
+                                        match! guard () with
+                                        | Some (Ok x) -> return! whileAsync x
+                                        | Some (Error e) -> return Error e
+                                        | None -> return! this.Zero()
+                                    })
+                            )
+
+                    return! whileAsync x
                 | Some (Error e) -> return Error e
                 | None -> return! this.Zero()
             }
+
 
         member this.For
             (

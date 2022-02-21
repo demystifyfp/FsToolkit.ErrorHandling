@@ -1,4 +1,9 @@
-FSharp.Core
-Expecto
-Microsoft.NET.Test.Sdk
-YoloDev.Expecto.TestSdk
+group NetStandard2
+    Expecto
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk
+
+group NetStandard2_1
+    Expecto
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk

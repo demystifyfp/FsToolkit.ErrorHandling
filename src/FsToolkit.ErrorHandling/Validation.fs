@@ -1,27 +1,34 @@
 namespace FsToolkit.ErrorHandling
 
-type Validation<'a, 'err> = Result<'a, 'err list>
+/// Validation<'a, 'err> is defined as Result<'a, 'err list> meaning you can use many of the functions found in the Result module.
+type Validation<'ok, 'error> = Result<'ok, 'error list>
 
 [<RequireQualifiedAccess>]
 module Validation =
 
-    let ok x : Validation<_, _> = Ok x
-    let error e : Validation<_, _> = List.singleton e |> Error
+    let inline ok (value: 'ok) : Validation<'ok, 'error> = Ok value
+    let inline error (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
-    let ofResult x : Validation<_, _> = Result.mapError List.singleton x
+    let inline ofResult (result: Result<'ok, 'error>) : Validation<'ok, 'error> = Result.mapError List.singleton result
 
-    let ofChoice x : Validation<_, _> = Result.ofChoice x |> ofResult
+    let inline ofChoice (choice: Choice<'ok, 'error>) : Validation<'ok, 'error> =
+        match choice with
+        | Choice1Of2 x -> ok x
+        | Choice2Of2 e -> error e
 
-    let apply f (x: Validation<_, _>) : Validation<_, _> =
-        match f, x with
+    let inline apply
+        (applier: Validation<'okInput -> 'okOutput, 'error>)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        match applier, input with
         | Ok f, Ok x -> Ok(f x)
         | Error errs, Ok _
         | Ok _, Error errs -> Error errs
         | Error errs1, Error errs2 -> Error(errs1 @ errs2)
 
-    let retn x = ok x
+    let inline retn (value: 'ok) : Validation<'ok, 'error> = ok value
 
-    let returnError e = error
+    let inline returnError (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
 
     /// <summary>
@@ -42,7 +49,10 @@ module Validation =
     /// <returns>
     /// The result if the result is Ok, else returns <paramref name="ifError"/>.
     /// </returns>
-    let inline orElse (ifError: Validation<'ok, 'error2>) (result: Validation<'ok, 'error>) : Validation<'ok, 'error2> =
+    let inline orElse
+        (ifError: Validation<'ok, 'errorOutput>)
+        (result: Validation<'ok, 'errorInput>)
+        : Validation<'ok, 'errorOutput> =
         result |> Result.either ok (fun _ -> ifError)
 
 
@@ -67,27 +77,68 @@ module Validation =
     /// The result if the result is Ok, else the result of executing <paramref name="ifErrorFunc"/>.
     /// </returns>
     let inline orElseWith
-        (ifErrorFunc: 'error list -> Validation<'ok, 'error2>)
-        (result: Validation<'ok, 'error>)
-        : Validation<'ok, 'error2> =
+        ([<InlineIfLambda>] ifErrorFunc: 'errorInput list -> Validation<'ok, 'errorOutput>)
+        (result: Validation<'ok, 'errorInput>)
+        : Validation<'ok, 'errorOutput> =
         result |> Result.either ok ifErrorFunc
 
 
-    let map f (x: Validation<_, _>) : Validation<_, _> = Result.map f x
+    let inline map
+        ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Result.map mapper input
 
-    let map2 f (x: Validation<_, _>) (y: Validation<_, _>) : Validation<_, _> = apply (apply (retn f) x) y
+    let inline map2
+        ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
+        (input1: Validation<'okInput1, 'error>)
+        (input2: Validation<'okInput2, 'error>)
+        : Validation<'okOutput, 'error> =
+        match input1, input2 with
+        | Ok x, Ok y -> Ok(mapper x y)
+        | Ok _, Error errs -> Error errs
+        | Error errs, Ok _ -> Error errs
+        | Error errs1, Error errs2 -> Error(errs1 @ errs2)
 
-    let map3 f (x: Validation<_, _>) (y: Validation<_, _>) (z: Validation<_, _>) : Validation<_, _> =
-        apply (map2 f x y) z
+    let inline map3
+        ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okInput3 -> 'okOutput)
+        (input1: Validation<'okInput1, 'error>)
+        (input2: Validation<'okInput2, 'error>)
+        (input3: Validation<'okInput3, 'error>)
+        : Validation<'okOutput, 'error> =
+        match input1, input2, input3 with
+        | Ok x, Ok y, Ok z -> Ok(mapper x y z)
+        | Error errs, Ok _, Ok _ -> Error errs
+        | Ok _, Error errs, Ok _ -> Error errs
+        | Ok _, Ok _, Error errs -> Error errs
+        | Error errs1, Error errs2, Ok _ -> Error(errs1 @ errs2)
+        | Ok _, Error errs1, Error errs2 -> Error(errs1 @ errs2)
+        | Error errs1, Ok _, Error errs2 -> Error(errs1 @ errs2)
+        | Error errs1, Error errs2, Error errs3 -> Error(errs1 @ errs2 @ errs3)
 
-    let mapError f (x: Validation<_, _>) : Validation<_, _> = x |> Result.mapError (List.map f)
+    let inline mapError
+        ([<InlineIfLambda>] errorMapper: 'errorInput -> 'errorOutput)
+        (input: Validation<'ok, 'errorInput>)
+        : Validation<'ok, 'errorOutput> =
+        Result.mapError (List.map errorMapper) input
 
-    let mapErrors f (x: Validation<_, _>) : Validation<_, _> = x |> Result.mapError (f)
+    let inline mapErrors
+        ([<InlineIfLambda>] errorMapper: 'errorInput list -> 'errorOutput list)
+        (input: Validation<'ok, 'errorInput>)
+        : Validation<'ok, 'errorOutput> =
+        Result.mapError (errorMapper) input
 
-    let bind (f: 'a -> Validation<'b, 'err>) (x: Validation<'a, 'err>) : Validation<_, _> = Result.bind f x
+    let inline bind
+        ([<InlineIfLambda>] binder: 'okInput -> Validation<'okOutput, 'error>)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Result.bind binder input
 
-    let zip (x1: Validation<_, _>) (x2: Validation<_, _>) : Validation<_, _> =
-        match x1, x2 with
+    let inline zip
+        (left: Validation<'left, 'error>)
+        (right: Validation<'right, 'error>)
+        : Validation<'left * 'right, 'error> =
+        match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
         | Error e, Ok _ -> Error e
         | Ok _, Error e -> Error e

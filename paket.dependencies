@@ -14,19 +14,61 @@ nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha 2.10.0
 
-group Build
+
+group NetStandard2
 source https://api.nuget.org/v3/index.json
-framework: netstandard2.0, netstandard2.1, net5.0
-storage: none
 nuget FSharp.Core 4.7.2
-nuget Fake.Core.Target 5.20.4
-nuget Fake.DotNet.Cli 5.20.4
-nuget Fake.Core.ReleaseNotes 5.20.4
-nuget Fake.DotNet.AssemblyInfoFile 5.20.4
-nuget Fake.DotNet.Paket 5.20.4
-nuget Fake.DotNet.Testing.Expecto 5.20.4
-nuget Fake.Tools.Git 5.20.4
-nuget Fake.JavaScript.Npm 5.20.4
-nuget Fake.Api.GitHub 5.20.4
-nuget MSBuild.StructuredLogger 2.1.507
-nuget Octokit 0.48
+nuget Ply
+nuget Hopac
+nuget FSharp.Control.AsyncSeq
+nuget Expecto
+nuget Expecto.Hopac
+nuget Microsoft.NET.Test.Sdk
+nuget YoloDev.Expecto.TestSdk
+nuget Fable.Mocha 2.12.0
+framework: netstandard2.0, net5.0
+storage: none
+condition: netstandard2_0
+
+
+group NetStandard2_1
+source https://api.nuget.org/v3/index.json
+nuget FSharp.Core 6.0.3
+nuget Ply
+nuget Hopac
+nuget FSharp.Control.AsyncSeq
+nuget Expecto
+nuget Expecto.Hopac
+nuget Microsoft.NET.Test.Sdk
+nuget YoloDev.Expecto.TestSdk
+nuget Fable.Mocha 2.12.0
+storage: none
+condition: netstandard2_1
+
+group Benchmarks
+source https://api.nuget.org/v3/index.json
+storage: none
+nuget FSharp.Core ~> 6
+nuget BenchmarkDotNet 0.13.1
+nuget BenchmarkDotNet.Annotations 0.13.1
+nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
+
+
+// [ FAKE GROUP ]
+group Build
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    storage: none
+    nuget FSharp.Core
+    nuget Fake.Core.Target 5.20.4
+    nuget Fake.DotNet.Cli 5.20.4
+    nuget Fake.Core.ReleaseNotes 5.20.4
+    nuget Fake.DotNet.AssemblyInfoFile 5.20.4
+    nuget Fake.DotNet.Paket 5.20.4
+    nuget Fake.DotNet.Testing.Expecto 5.20.4
+    nuget Fake.Tools.Git 5.20.4
+    nuget Fake.JavaScript.Npm 5.20.4
+    nuget Fake.Api.GitHub 5.20.4
+    nuget Fake.BuildServer.GitHubActions 5.20.4
+    nuget MSBuild.StructuredLogger
+    nuget Octokit

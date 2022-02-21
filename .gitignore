@@ -156,7 +156,6 @@ flycheck_*.el
 x64/
 x86/
 bld/
-build/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
@@ -382,7 +381,6 @@ FakesAssemblies/
 _Pvt_Extensions
 
 # Paket dependency manager
-.paket
 paket-files/
 
 # FAKE - F# Make
@@ -400,3 +398,7 @@ fable_modules
 .fable
 *.fs.js
 js-dist/
+
+
+# Benchmarks
+benchmarks/BenchmarkDotNet.Artifacts/

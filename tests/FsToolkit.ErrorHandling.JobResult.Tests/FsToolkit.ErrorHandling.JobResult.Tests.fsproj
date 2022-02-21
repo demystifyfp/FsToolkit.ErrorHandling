@@ -1,13 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0'">
+    <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
-      <Name>FsToolkit.ErrorHandling.JobResult.fsproj</Name>
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
+    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
+    </ProjectReference>
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />

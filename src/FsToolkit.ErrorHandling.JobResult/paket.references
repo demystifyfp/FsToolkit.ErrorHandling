@@ -1,2 +1,6 @@
 Microsoft.SourceLink.GitHub
-Hopac
+
+group NetStandard2
+    Hopac
+group NetStandard2_1
+    Hopac

@@ -3,30 +3,45 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
-    let inline singleton value = value |> async.Return
+    let inline singleton (value: 'value) : Async<'value> = value |> async.Return
+    let inline retn (value: 'value) : Async<'value> = value |> async.Return
 
-    let inline bind f x = async.Bind(x, f)
+    let inline bind ([<InlineIfLambda>] binder: 'input -> Async<'output>) (input: Async<'input>) : Async<'output> =
+        async.Bind(input, binder)
 
-    let apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+    let inline apply (applier: Async<'input -> 'output>) (input: Async<'input>) : Async<'output> =
+        bind (fun f' -> bind (fun x' -> singleton (f' x')) input) applier
 
-    let inline map f x = x |> bind (f >> singleton)
+    let inline map ([<InlineIfLambda>] mapper: 'input -> 'output) (input: Async<'input>) : Async<'output> =
+        bind (fun x' -> mapper x' |> singleton) input
 
-    let map2 f x y = (apply (apply (singleton f) x) y)
+    let inline map2
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'output)
+        (input1: Async<'input1>)
+        (input2: Async<'input2>)
+        : Async<'output> =
+        bind (fun x -> bind (fun y -> mapper x y |> singleton) input2) input1
 
-    let map3 f x y z = apply (map2 f x y) z
+    let inline map3
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'input3 -> 'output)
+        (input1: Async<'input1>)
+        (input2: Async<'input2>)
+        (input3: Async<'input3>)
+        : Async<'output> =
+        bind (fun x -> bind (fun y -> bind (fun z -> mapper x y z |> singleton) input3) input2) input1
 
 
     /// Takes two asyncs and returns a tuple of the pair
-    let zip a1 a2 =
-        async {
-            let! r1 = a1
-            let! r2 = a2
-            return r1, r2
-        }
+    let inline zip (left: Async<'left>) (right: Async<'right>) : Async<'left * 'right> =
+        bind (fun l -> bind (fun r -> singleton (l, r)) right) left
 
 module AsyncOperators =
 
-    let inline (<!>) f x = Async.map f x
-    let inline (<*>) f x = Async.apply f x
-    let inline (>>=) x f = Async.bind f x
+    let inline (<!>) ([<InlineIfLambda>] mapper: 'input -> 'output) (input: Async<'input>) : Async<'output> =
+        Async.map mapper input
+
+    let inline (<*>) (applier: Async<'input -> 'output>) (input: Async<'input>) : Async<'output> =
+        Async.apply applier input
+
+    let inline (>>=) (input: Async<'input>) ([<InlineIfLambda>] binder: 'input -> Async<'output>) : Async<'output> =
+        Async.bind binder input

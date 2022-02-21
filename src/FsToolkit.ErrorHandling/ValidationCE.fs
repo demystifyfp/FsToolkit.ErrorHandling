@@ -5,55 +5,59 @@ open System
 [<AutoOpen>]
 module ValidationCE =
     type ValidationBuilder() =
-        member __.Return(value: 'T) = Validation.ok value
+        member inline _.Return(value: 'ok) : Validation<'ok, 'error> = Validation.ok value
 
-        member inline __.ReturnFrom(result: Validation<'T, 'err>) = result
+        member inline _.ReturnFrom(result: Validation<'ok, 'error>) : Validation<'ok, 'error> = result
 
-        member inline __.Bind
+        member inline _.Bind
             (
-                result: Validation<'T, 'TError>,
-                binder: 'T -> Validation<'U, 'TError>
-            ) : Validation<'U, 'TError> =
+                result: Validation<'okInput, 'error>,
+                [<InlineIfLambda>] binder: 'okInput -> Validation<'okOutput, 'error>
+            ) : Validation<'okOutput, 'error> =
             Validation.bind binder result
 
-        member this.Zero() : Validation<unit, 'TError> = this.Return()
+        member inline this.Zero() : Validation<unit, 'error> = this.Return()
 
-        member __.Delay(generator: unit -> Validation<'T, 'TError>) : unit -> Validation<'T, 'TError> = generator
+        member inline _.Delay
+            ([<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>)
+            : unit -> Validation<'ok, 'error> =
+            generator
 
-        member __.Run(generator: unit -> Validation<'T, 'TError>) : Validation<'T, 'TError> = generator ()
+        member inline _.Run([<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>) : Validation<'ok, 'error> =
+            generator ()
 
-        member this.Combine
+        member inline this.Combine
             (
-                result: Validation<unit, 'TError>,
-                binder: unit -> Validation<'T, 'TError>
-            ) : Validation<'T, 'TError> =
+                result: Validation<unit, 'error>,
+                [<InlineIfLambda>] binder: unit -> Validation<'ok, 'error>
+            ) : Validation<'ok, 'error> =
             this.Bind(result, binder)
 
-        member this.TryWith
+        member inline this.TryWith
             (
-                generator: unit -> Validation<'T, 'TError>,
-                handler: exn -> Validation<'T, 'TError>
-            ) : Validation<'T, 'TError> =
+                [<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>,
+                [<InlineIfLambda>] handler: exn -> Validation<'ok, 'error>
+            ) : Validation<'ok, 'error> =
             try
                 this.Run generator
             with
             | e -> handler e
 
-        member this.TryFinally
+        member inline this.TryFinally
             (
-                generator: unit -> Validation<'T, 'TError>,
-                compensation: unit -> unit
-            ) : Validation<'T, 'TError> =
+                [<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Validation<'ok, 'error> =
             try
                 this.Run generator
             finally
                 compensation ()
 
-        member this.Using
+        member inline this.Using
             (
-                resource: 'T :> IDisposable,
-                binder: 'T -> Validation<'U, 'TError>
-            ) : Validation<'U, 'TError> =
+                resource: 'disposable :> IDisposable,
+                [<InlineIfLambda>] binder: 'disposable -> Validation<'okOutput, 'error>
+            ) : Validation<'okOutput, 'error> =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -61,25 +65,52 @@ module ValidationCE =
                         resource.Dispose())
             )
 
-        member this.While
+        member inline this.While
             (
-                guard: unit -> bool,
-                generator: unit -> Validation<unit, 'TError>
-            ) : Validation<unit, 'TError> =
-            if not <| guard () then
-                this.Zero()
-            else
-                this.Bind(this.Run generator, (fun () -> this.While(guard, generator)))
+                [<InlineIfLambda>] guard: unit -> bool,
+                [<InlineIfLambda>] generator: unit -> Validation<unit, 'error>
+            ) : Validation<unit, 'error> =
+            if guard () then
+                let mutable whileBuilder = Unchecked.defaultof<_>
 
-        member this.For(sequence: #seq<'T>, binder: 'T -> Validation<unit, 'TError>) : Validation<unit, 'TError> =
+                whileBuilder <-
+                    fun () ->
+                        this.Bind(
+                            this.Run generator,
+                            (fun () ->
+                                if guard () then
+                                    this.Run whileBuilder
+                                else
+                                    this.Zero())
+                        )
+
+                this.Run whileBuilder
+            else
+                this.Zero()
+
+        member inline this.For
+            (
+                sequence: #seq<'ok>,
+                [<InlineIfLambda>] binder: 'ok -> Validation<unit, 'error>
+            ) : Validation<unit, 'error> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member _.BindReturn(x: Validation<'T, 'U>, f) = Validation.map f x
+        member inline _.BindReturn
+            (
+                input: Validation<'okInput, 'error>,
+                [<InlineIfLambda>] mapper: 'okInput -> 'okOutput
+            ) : Validation<'okOutput, 'error> =
+            Validation.map mapper input
 
-        member _.MergeSources(t1: Validation<'T, 'U>, t2: Validation<'T1, 'U>) = Validation.zip t1 t2
+        member inline _.MergeSources
+            (
+                left: Validation<'left, 'error>,
+                right: Validation<'right, 'error>
+            ) : Validation<'left * 'right, 'error> =
+            Validation.zip left right
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
@@ -88,7 +119,7 @@ module ValidationCE =
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        member inline _.Source(result: Validation<_, _>) : Validation<_, _> = result
+        member inline _.Source(result: Validation<'ok, 'error>) : Validation<'ok, 'error> = result
 
     let validation = ValidationBuilder()
 
@@ -101,13 +132,13 @@ module ValidationCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) : #seq<_> = s
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(s: Result<'T, 'Error>) = Validation.ofResult s
+        member inline _.Source(s: Result<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofResult s
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<_, _>) = Validation.ofChoice choice
+        member inline _.Source(choice: Choice<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofChoice choice

@@ -1,2 +1,6 @@
-Ply
 Microsoft.SourceLink.GitHub
+
+group NetStandard2
+    Ply
+group NetStandard2_1
+    Ply

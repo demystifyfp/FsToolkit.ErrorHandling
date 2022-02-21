@@ -1,6 +1,14 @@
-FSharp.Core
-FSharp.Control.AsyncSeq
-Expecto
-Fable.Mocha
-Microsoft.NET.Test.Sdk
-YoloDev.Expecto.TestSdk
+group NetStandard2
+    Ply
+    Expecto
+    Fable.Mocha
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk
+
+group NetStandard2_1
+    Ply
+    Expecto
+    Fable.Mocha
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk
+
