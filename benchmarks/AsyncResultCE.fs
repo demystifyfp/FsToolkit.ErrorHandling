@@ -9,13 +9,13 @@ module AsyncResultCE =
 
     type AsyncResultInlinedLambdaBuilder() =
 
-        member __.Return(value: 'T) : Async<Result<'T, 'TError>> = async.Return <| result.Return value
+        member _.Return(value: 'T) : Async<Result<'T, 'TError>> = async.Return <| result.Return value
 
-        member inline __.ReturnFrom(asyncResult: Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> = asyncResult
+        member inline _.ReturnFrom(asyncResult: Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> = asyncResult
 
-        member __.Zero() : Async<Result<unit, 'TError>> = async.Return <| result.Zero()
+        member _.Zero() : Async<Result<unit, 'TError>> = async.Return <| result.Zero()
 
-        member inline __.Bind
+        member inline _.Bind
             (
                 asyncResult: Async<Result<'T, 'TError>>,
                 [<InlineIfLambda>] binder: 'T -> Async<Result<'U, 'TError>>
@@ -25,15 +25,7 @@ module AsyncResultCE =
                 | Ok x -> binder x
                 | Error e -> Error e |> async.Return
             )
-            // async {
-            //     let! result = asyncResult
-
-            //     match result with
-            //     | Ok x -> return! binder x
-            //     | Error x -> return Error x
-            // }
-
-        member inline __.Delay([<InlineIfLambda>] generator: unit -> Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> =
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Async<Result<'T, 'TError>>) : Async<Result<'T, 'TError>> =
             async.Delay generator
 
         /// <summary>
@@ -56,7 +48,7 @@ module AsyncResultCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.

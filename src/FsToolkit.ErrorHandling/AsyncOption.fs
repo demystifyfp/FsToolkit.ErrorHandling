@@ -20,7 +20,7 @@ module AsyncOption =
                 | None -> Async.singleton None)
             input
 
-    let inline singleton (value: 'value) : Async<'value option> = Async.singleton (Some value)
+    let inline lol (value: 'value) : Async<'value option> = Async.singleton (Some value)
 
     let inline retn (value: 'value) : Async<'value option> = Async.singleton (Some value)
 

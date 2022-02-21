@@ -232,32 +232,32 @@ type EitherMapBenchmarks () =
 
 
 type ResultBuilder() =
-    member __.Return(value: 'T) : Result<'T, 'TError> = Ok value
+    member _.Return(value: 'T) : Result<'T, 'TError> = Ok value
 
-    // member inline __.ReturnFrom(result: Result<'T, 'TError>) : Result<'T, 'TError> = result
+    // member inline _.ReturnFrom(result: Result<'T, 'TError>) : Result<'T, 'TError> = result
 
     member this.Zero() : Result<unit, 'TError> = this.Return()
 
-    member __.Bind(result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
+    member _.Bind(result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
         Result.bind binder result
 
 
 type ResultBuilderInlined() =
-    member inline __.Return(value: 'T) : Result<'T, 'TError> = Ok value
+    member inline _.Return(value: 'T) : Result<'T, 'TError> = Ok value
 
-    // member inline __.ReturnFrom(result: Result<'T, 'TError>) : Result<'T, 'TError> = result
+    // member inline _.ReturnFrom(result: Result<'T, 'TError>) : Result<'T, 'TError> = result
 
     member inline this.Zero() : Result<unit, 'TError> = this.Return()
 
-    member inline __.Bind(result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
+    member inline _.Bind(result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
         Result.Inlined.bind binder result
 
 type ResultBuilderInlinedLambda() =
-    member inline __.Return(value: 'T) : Result<'T, 'TError> = Ok value
+    member inline _.Return(value: 'T) : Result<'T, 'TError> = Ok value
 
     member inline this.Zero() : Result<unit, 'TError> = this.Return()
 
-    member inline __.Bind(result: Result<'T, 'TError>, [<InlineIfLambda>]binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
+    member inline _.Bind(result: Result<'T, 'TError>, [<InlineIfLambda>]binder: 'T -> Result<'U, 'TError>) : Result<'U, 'TError> =
             Result.Alt.InlinedLambda.bind binder result
         
 

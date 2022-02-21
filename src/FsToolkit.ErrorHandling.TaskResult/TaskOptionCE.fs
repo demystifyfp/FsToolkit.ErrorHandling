@@ -134,17 +134,17 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(r: 't option) = Task.singleton r
+        member inline _.Source(r: 't option) = Task.singleton r
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Task<'t>) = a |> Task.map Some
+        member inline _.Source(a: Task<'t>) = a |> Task.map Some
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -158,7 +158,7 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: ValueTask<'t>) = a |> Task.mapV Some
+        member inline _.Source(a: ValueTask<'t>) = a |> Task.mapV Some
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -172,4 +172,4 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Async<'t>) = a |> Async.StartAsTask |> Task.map Some
+        member inline _.Source(a: Async<'t>) = a |> Async.StartAsTask |> Task.map Some

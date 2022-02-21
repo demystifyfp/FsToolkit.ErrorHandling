@@ -9,13 +9,13 @@ module TaskResultCE =
 
     type TaskResultCEInlinedLambdaBuilder() =
 
-        member inline __.Return(value: 'T) : TaskCode<Result<'T, 'TError>,_> = task.Return (Ok value)
+        member inline _.Return(value: 'T) : TaskCode<Result<'T, 'TError>,_> = task.Return (Ok value)
 
-        member inline __.ReturnFrom([<InlineIfLambda>] asyncResult: TaskCode<Result<'T, 'TError>,_>) : TaskCode<Result<'T, 'TError>, _> = asyncResult
+        member inline _.ReturnFrom([<InlineIfLambda>] asyncResult: TaskCode<Result<'T, 'TError>,_>) : TaskCode<Result<'T, 'TError>, _> = asyncResult
 
-        member __.Zero() : TaskCode<Result<unit, 'TError>,_> = task.Return <| Ok ()
+        member _.Zero() : TaskCode<Result<unit, 'TError>,_> = task.Return <| Ok ()
 
-        member inline __.Bind
+        member inline _.Bind
             (
                 asyncResult: Task<Result<'T, 'TError>>,
                 [<InlineIfLambda>] binder: 'T -> TaskCode<Result<'U, 'TError>,_>
@@ -53,7 +53,7 @@ module TaskResultCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.

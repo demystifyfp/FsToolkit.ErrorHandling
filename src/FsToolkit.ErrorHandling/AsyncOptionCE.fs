@@ -89,20 +89,20 @@ module AsyncOptionCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) : #seq<_> = s
+        member inline _.Source(s: #seq<_>) : #seq<_> = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(r: 'value option) : Async<option<'value>> = Async.singleton r
+        member inline _.Source(r: 'value option) : Async<option<'value>> = Async.singleton r
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Async<'value>) : Async<option<'value>> = a |> Async.map Some
+        member inline _.Source(a: Async<'value>) : Async<option<'value>> = a |> Async.map Some
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Task<'value>) : Async<option<'value>> = a |> Async.AwaitTask |> Async.map Some
+        member inline _.Source(a: Task<'value>) : Async<option<'value>> = a |> Async.AwaitTask |> Async.map Some
 #endif

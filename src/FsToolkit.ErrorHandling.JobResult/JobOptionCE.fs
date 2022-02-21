@@ -111,21 +111,21 @@ module JobOptionCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(r: 't option) = Job.singleton r
+        member inline _.Source(r: 't option) = Job.singleton r
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Job<'t>) = a |> Job.map Some
+        member inline _.Source(a: Job<'t>) = a |> Job.map Some
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Async<'t>) = a |> Job.fromAsync |> Job.map Some
+        member inline _.Source(a: Async<'t>) = a |> Job.fromAsync |> Job.map Some
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(a: Task<'t>) = a |> Job.awaitTask |> Job.map Some
+        member inline _.Source(a: Task<'t>) = a |> Job.awaitTask |> Job.map Some

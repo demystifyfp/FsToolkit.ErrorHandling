@@ -11,11 +11,11 @@ module JobResultCE =
 
         member inline_.Return(value: 'T) : Job<Result<'T, 'TError>> = job.Return <| result.Return value
 
-        member inline __.ReturnFrom(jobResult: Job<Result<'T, 'TError>>) : Job<Result<'T, 'TError>> = jobResult
+        member inline _.ReturnFrom(jobResult: Job<Result<'T, 'TError>>) : Job<Result<'T, 'TError>> = jobResult
 
         member inline_.Zero() : Job<Result<unit, 'TError>> = job.Return <| result.Zero()
 
-        member inline __.Bind
+        member inline _.Bind
             (
                 jobResult: Job<Result<'T, 'TError>>,
                 [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
@@ -91,8 +91,8 @@ module JobResultCE =
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline __.BindReturn(x: Job<Result<'T, 'U>>, [<InlineIfLambda>] f) = JobResult.map f x
-        member inline __.MergeSources(t1: Job<Result<'T, 'U>>, t2: Job<Result<'T1, 'U>>) = JobResult.zip t1 t2
+        member inline _.BindReturn(x: Job<Result<'T, 'U>>, [<InlineIfLambda>] f) = JobResult.map f x
+        member inline _.MergeSources(t1: Job<Result<'T, 'U>>, t2: Job<Result<'T1, 'U>>) = JobResult.zip t1 t2
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
@@ -123,7 +123,7 @@ module JobResultCEExtensions =
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
-        member inline __.Source(s: #seq<_>) = s
+        member inline _.Source(s: #seq<_>) = s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -138,12 +138,12 @@ module JobResultCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(job': Job<_>) : Job<Result<_, _>> = job' |> Job.map Ok
+        member inline _.Source(job': Job<_>) : Job<Result<_, _>> = job' |> Job.map Ok
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline __.Source(asyncComputation: Async<_>) : Job<Result<_, _>> =
+        member inline _.Source(asyncComputation: Async<_>) : Job<Result<_, _>> =
             asyncComputation |> Job.fromAsync |> Job.map Ok
 
         /// <summary>
