@@ -40,9 +40,9 @@ module ValueOptionCE =
 
         member inline _.Delay([<InlineIfLambda>] f: unit -> 'a) = f
 
-        member inline _.Run([<InlineIfLambda>] f : unit -> 'v) = f ()
+        member inline _.Run([<InlineIfLambda>] f: unit -> 'v) = f ()
 
-        member inline this.TryWith([<InlineIfLambda>] m, [<InlineIfLambda>] handler ) =
+        member inline this.TryWith([<InlineIfLambda>] m, [<InlineIfLambda>] handler) =
             try
                 this.Run m
             with
@@ -62,7 +62,11 @@ module ValueOptionCE =
                         resource.Dispose())
             )
 
-        member inline this.While([<InlineIfLambda>]  guard: unit -> bool, [<InlineIfLambda>]  generator: unit -> _ voption) : _ voption =
+        member inline this.While
+            (
+                [<InlineIfLambda>] guard: unit -> bool,
+                [<InlineIfLambda>] generator: unit -> _ voption
+            ) : _ voption =
             if guard () then
                 let mutable whileBuilder = Unchecked.defaultof<_>
 
@@ -81,15 +85,15 @@ module ValueOptionCE =
             else
                 this.Zero()
 
-        member inline this.For(sequence: #seq<'T>,  [<InlineIfLambda>] binder: 'T -> _ voption) : _ voption =
+        member inline this.For(sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> _ voption) : _ voption =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline _.BindReturn(x,  [<InlineIfLambda>] f) = ValueOption.map f x
+        member inline _.BindReturn(x, [<InlineIfLambda>] f) = ValueOption.map f x
 
-        member inline _.BindReturn(x,  [<InlineIfLambda>] f) =
+        member inline _.BindReturn(x, [<InlineIfLambda>] f) =
             x |> ValueOption.ofObj |> ValueOption.map f
 
         member inline _.MergeSources(option1, option2) = ValueOption.zip option1 option2

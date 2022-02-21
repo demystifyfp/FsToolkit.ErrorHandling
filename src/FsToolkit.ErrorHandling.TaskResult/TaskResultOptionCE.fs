@@ -18,7 +18,7 @@ module TaskResultOptionCE =
         member inline _.Bind
             (
                 taskResult: Task<Result<'T option, 'TError>>,
-                binder: 'T -> Ply<Result<'U option, 'TError>>
+                [<InlineIfLambda>] binder: 'T -> Ply<Result<'U option, 'TError>>
             ) : Ply<Result<'U option, 'TError>> =
             let binder' r =
                 match r with
@@ -33,8 +33,8 @@ module TaskResultOptionCE =
             |> TaskResultOption.bind (fun _ -> tro2)
             |> uply.ReturnFrom
 
-        member inline _.Delay f = uply.Delay f
+        member inline _.Delay([<InlineIfLambda>] f) = uply.Delay f
 
-        member inline _.Run(f: unit -> Ply<'m>) = task.Run f
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = task.Run f
 
     let taskResultOption = TaskResultOptionBuilder()

@@ -291,7 +291,10 @@ module Result =
 
     /// If the result is Error, executes the function on the Error value. Passes
     /// through the input value.
-    let inline teeError ([<InlineIfLambda>] inspector: 'error -> unit) (result: Result<'ok, 'error>) : Result<'ok, 'error> =
+    let inline teeError
+        ([<InlineIfLambda>] inspector: 'error -> unit)
+        (result: Result<'ok, 'error>)
+        : Result<'ok, 'error> =
         teeErrorIf (fun _ -> true) inspector result
 
     /// Converts a Result<Async<_>,_> to an Async<Result<_,_>>
@@ -305,25 +308,31 @@ module Result =
         }
 
     ///
-    let inline traverseAsync ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput>) (res: Result<'okInput, 'error>) : Async<Result<'okOutput, 'error>> =
-        sequenceAsync((map f) res)
+    let inline traverseAsync
+        ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput>)
+        (res: Result<'okInput, 'error>)
+        : Async<Result<'okOutput, 'error>> =
+        sequenceAsync ((map f) res)
 
 
     /// Returns the Ok value or runs the specified function over the error value.
-    let inline valueOr ([<InlineIfLambda>] f : 'error -> 'ok) (res : Result<'ok, 'error>) : 'ok=
+    let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
         match res with
         | Ok x -> x
         | Error x -> f x
 
     /// Takes two results and returns a tuple of the pair
-    let zip (left : Result<'leftOk, 'error>) (right : Result<'rightOk, 'error>)  : Result<'leftOk * 'rightOk, 'error>=
+    let zip (left: Result<'leftOk, 'error>) (right: Result<'rightOk, 'error>) : Result<'leftOk * 'rightOk, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
         | Error e, _ -> Error e
         | _, Error e -> Error e
 
     /// Takes two results and returns a tuple of the error pair
-    let zipError (left :  Result<'ok, 'leftError>) (right :  Result<'ok, 'rightError>) : Result<'ok, 'leftError * 'rightError> =
+    let zipError
+        (left: Result<'ok, 'leftError>)
+        (right: Result<'ok, 'rightError>)
+        : Result<'ok, 'leftError * 'rightError> =
         match left, right with
         | Error x1res, Error x2res -> Error(x1res, x2res)
         | Ok e, _ -> Ok e

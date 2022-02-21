@@ -12,23 +12,25 @@ module AsyncSeqCE =
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> Async<option<Result<'T, 'TError>>>,
-                [<InlineIfLambda>]  computation: 'T -> Async<Result<unit, 'TError>>
+                [<InlineIfLambda>] computation: 'T -> Async<Result<unit, 'TError>>
             ) : Async<Result<unit, 'TError>> =
             async {
                 match! guard () with
-                | Some (Ok x) -> 
+                | Some (Ok x) ->
                     let mutable whileAsync = Unchecked.defaultof<_>
 
-                    whileAsync <- fun x -> 
-                        this.Bind(
-                            computation x,
-                            (fun () -> async {
-                                match! guard () with
-                                | Some (Ok x) -> return! whileAsync x
-                                | Some (Error e) -> return Error e
-                                | None -> return! this.Zero()
-                            })
-                        )
+                    whileAsync <-
+                        fun x ->
+                            this.Bind(
+                                computation x,
+                                (fun () ->
+                                    async {
+                                        match! guard () with
+                                        | Some (Ok x) -> return! whileAsync x
+                                        | Some (Error e) -> return Error e
+                                        | None -> return! this.Zero()
+                                    })
+                            )
 
                     return! whileAsync x
                 | Some (Error e) -> return Error e

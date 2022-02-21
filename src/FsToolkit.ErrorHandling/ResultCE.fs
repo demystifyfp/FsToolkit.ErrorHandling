@@ -97,9 +97,19 @@ module ResultCE =
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
-        member inline _.BindReturn(x: Result<'okInput, 'error>, [<InlineIfLambda>] f : 'okInput -> 'okOutput) : Result<'okOutput, 'error> = Result.map f x
+        member inline _.BindReturn
+            (
+                x: Result<'okInput, 'error>,
+                [<InlineIfLambda>] f: 'okInput -> 'okOutput
+            ) : Result<'okOutput, 'error> =
+            Result.map f x
 
-        member inline _.MergeSources(left: Result<'left, 'error>, right: Result<'right, 'error>) : Result<'left * 'right, 'error> = Result.zip left right
+        member inline _.MergeSources
+            (
+                left: Result<'left, 'error>,
+                right: Result<'right, 'error>
+            ) : Result<'left * 'right, 'error> =
+            Result.zip left right
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
@@ -131,4 +141,4 @@ module ResultCEChoiceExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<'ok,'error>) : Result<'ok,'error> = Result.ofChoice choice
+        member inline _.Source(choice: Choice<'ok, 'error>) : Result<'ok, 'error> = Result.ofChoice choice

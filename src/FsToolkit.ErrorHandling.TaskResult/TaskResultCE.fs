@@ -21,7 +21,7 @@ module TaskResultCE =
         member inline _.Bind
             (
                 taskResult: Task<Result<'T, 'TError>>,
-                binder: 'T -> Ply<Result<'U, 'TError>>
+                [<InlineIfLambda>] binder: 'T -> Ply<Result<'U, 'TError>>
             ) : Ply<Result<'U, 'TError>> =
             let binder' r =
                 match r with
@@ -30,12 +30,12 @@ module TaskResultCE =
 
             uply.Bind(taskResult, binder')
 
-        member inline _.Delay(generator: unit -> Ply<Result<'T, 'TError>>) = uply.Delay(generator)
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Ply<Result<'T, 'TError>>) = uply.Delay(generator)
 
         member inline _.Combine
             (
                 computation1: Ply<Result<unit, 'TError>>,
-                computation2: unit -> Ply<Result<'U, 'TError>>
+                [<InlineIfLambda>] computation2: unit -> Ply<Result<'U, 'TError>>
             ) : Ply<Result<'U, 'TError>> =
             uply {
                 match! computation1 with
@@ -45,29 +45,29 @@ module TaskResultCE =
 
         member inline _.TryWith
             (
-                computation: unit -> Ply<Result<'T, 'TError>>,
-                handler: exn -> Ply<Result<'T, 'TError>>
+                [<InlineIfLambda>] computation: unit -> Ply<Result<'T, 'TError>>,
+                [<InlineIfLambda>] handler: exn -> Ply<Result<'T, 'TError>>
             ) : Ply<Result<'T, 'TError>> =
             uply.TryWith(computation, handler)
 
         member inline _.TryFinally
             (
-                computation: unit -> Ply<Result<'T, 'TError>>,
-                compensation: unit -> unit
+                [<InlineIfLambda>] computation: unit -> Ply<Result<'T, 'TError>>,
+                [<InlineIfLambda>] compensation: unit -> unit
             ) : Ply<Result<'T, 'TError>> =
             uply.TryFinally(computation, compensation)
 
         member inline _.Using
             (
                 resource: 'T :> IDisposable,
-                binder: 'T -> Ply<Result<'U, 'TError>>
+                [<InlineIfLambda>] binder: 'T -> Ply<Result<'U, 'TError>>
             ) : Ply<Result<'U, 'TError>> =
             uply.Using(resource, binder)
 
-        member _.While
+        member inline _.While
             (
-                guard: unit -> bool,
-                computation: unit -> Ply<Result<unit, 'TError>>
+                [<InlineIfLambda>] guard: unit -> bool,
+                [<InlineIfLambda>] computation: unit -> Ply<Result<unit, 'TError>>
             ) : Ply<Result<unit, 'TError>> =
             uply {
                 let mutable fin, result = false, Ok()
@@ -82,7 +82,11 @@ module TaskResultCE =
                 return result
             }
 
-        member _.For(sequence: #seq<'T>, binder: 'T -> Ply<Result<unit, 'TError>>) : Ply<Result<unit, 'TError>> =
+        member inline _.For
+            (
+                sequence: #seq<'T>,
+                [<InlineIfLambda>] binder: 'T -> Ply<Result<unit, 'TError>>
+            ) : Ply<Result<unit, 'TError>> =
             uply {
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, Ok()
@@ -97,11 +101,11 @@ module TaskResultCE =
                 return result
             }
 
-        member inline this.BindReturn(x: Task<Result<'T, 'U>>, f) =
+        member inline this.BindReturn(x: Task<Result<'T, 'U>>, [<InlineIfLambda>] f) =
             this.Bind(x, (fun x -> this.Return(f x)))
 
         member inline _.MergeSources(t1: Task<Result<'T, 'U>>, t2: Task<Result<'T1, 'U>>) = TaskResult.zip t1 t2
-        member inline _.Run(f: unit -> Ply<'m>) = task.Run f
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = task.Run f
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.

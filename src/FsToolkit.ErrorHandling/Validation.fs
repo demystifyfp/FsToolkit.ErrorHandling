@@ -128,10 +128,16 @@ module Validation =
         : Validation<'ok, 'errorOutput> =
         Result.mapError (errorMapper) input
 
-    let inline bind ([<InlineIfLambda>] binder: 'okInput -> Validation<'okOutput, 'error>) (input: Validation<'okInput, 'error>) : Validation<'okOutput, 'error> =
+    let inline bind
+        ([<InlineIfLambda>] binder: 'okInput -> Validation<'okOutput, 'error>)
+        (input: Validation<'okInput, 'error>)
+        : Validation<'okOutput, 'error> =
         Result.bind binder input
 
-    let inline zip (left: Validation<'left, 'error>) (right: Validation<'right, 'error>) : Validation<'left * 'right, 'error> =
+    let inline zip
+        (left: Validation<'left, 'error>)
+        (right: Validation<'right, 'error>)
+        : Validation<'left * 'right, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
         | Error e, Ok _ -> Error e

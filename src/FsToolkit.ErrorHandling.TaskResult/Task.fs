@@ -5,7 +5,7 @@ open FSharp.Control.Tasks.Affine
 
 [<RequireQualifiedAccess>]
 module Task =
-    let singleton value = value |> Task.FromResult
+    let inline singleton value = value |> Task.FromResult
 
     let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
         task {
@@ -13,22 +13,22 @@ module Task =
             return! f x
         }
 
-    let bindV (f: 'a -> Task<'b>) (x: ValueTask<'a>) =
+    let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {
             let! x = x
             return! f x
         }
 
-    let apply f x =
+    let inline apply f x =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
-    let map f x = x |> bind (f >> singleton)
+    let inline map ([<InlineIfLambda>] f) x = x |> bind (f >> singleton)
 
-    let mapV f x = x |> bindV (f >> singleton)
+    let inline mapV ([<InlineIfLambda>] f) x = x |> bindV (f >> singleton)
 
-    let map2 f x y = (apply (apply (singleton f) x) y)
+    let inline map2 ([<InlineIfLambda>] f) x y = (apply (apply (singleton f) x) y)
 
-    let map3 f x y z = apply (map2 f x y) z
+    let inline map3 ([<InlineIfLambda>] f) x y z = apply (map2 f x y) z
 
 
     /// Takes two tasks and returns a tuple of the pair

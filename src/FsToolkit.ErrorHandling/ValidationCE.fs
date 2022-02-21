@@ -105,7 +105,11 @@ module ValidationCE =
             ) : Validation<'okOutput, 'error> =
             Validation.map mapper input
 
-        member inline _.MergeSources(left: Validation<'left, 'error>, right: Validation<'right, 'error>) : Validation<'left * 'right, 'error> =
+        member inline _.MergeSources
+            (
+                left: Validation<'left, 'error>,
+                right: Validation<'right, 'error>
+            ) : Validation<'left * 'right, 'error> =
             Validation.zip left right
 
         /// <summary>
@@ -137,4 +141,4 @@ module ValidationCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<'ok, 'error>) :  Validation<'ok, 'error> = Validation.ofChoice choice
+        member inline _.Source(choice: Choice<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofChoice choice
