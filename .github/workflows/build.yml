@@ -23,10 +23,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '5.0.x'
-    - name: Use .NET Core 6.x SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '6.0.x'
     # Not specifying a version will attempt to install via global.json
     - name: Use .NET Core global.json
       uses: actions/setup-dotnet@v1
