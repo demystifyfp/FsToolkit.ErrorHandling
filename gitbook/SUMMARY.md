@@ -100,3 +100,6 @@
   * [ofResult](validation/ofResult.md)
   * [Operators](validation/operators.md)
   * [Result.tryCreate](validation/tryCreate.md)
+
+* [Test](test/index.md)
+  * [testing](test/testing.md)
