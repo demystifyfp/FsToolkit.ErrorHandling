@@ -1,4 +1,3 @@
-
 open System
 open System.Reflection
 
@@ -44,13 +43,13 @@ let normalize (name : string) : string =
 
 type Module = {
     ReflectionLookupName : string
-    CSVOutputName : string
+    OutputName : string
 }
     with 
         static member Create r c = 
             {
                 ReflectionLookupName = r
-                CSVOutputName = c
+                OutputName = c
             }
 
 /// List of modules to get info for
@@ -59,19 +58,34 @@ let allModules : list<Module>=
         Module.Create "OptionModule" "Option" 
         Module.Create "Option" "Option" 
         Module.Create "ValueOption" "ValueOption"
-        Module.Create "Validation"  "Validation"
         Module.Create "Async" "Async"
         Module.Create "FSharpAsync" "Async"
         Module.Create "Job" "Job"
         Module.Create "ResultModule" "Result" 
         Module.Create "Result" "Result" 
+        Module.Create "Validation"  "Validation"
         Module.Create "AsyncResult" "AsyncResult"
         Module.Create "TaskResult"  "TaskResult"
         Module.Create "JobResult"  "JobResult"
     ]
 
-let createCsvRow method modules =
-    let outputModules = allModules |> List.map(fun m -> m.CSVOutputName) |> List.distinct
+
+let namespaceNormalizer = [
+    Contains, "FSharp.Core", "FSharp.Core"
+    Contains, "FsToolkit", "FsToolkit"
+    Contains, "Hopac", "Hopac"
+    Contains, "FSharpAsync", "FSharp.Core"
+]
+
+let findInNamespaceNormalizer namespaceNormalizer item =
+    namespaceNormalizer 
+    |> List.tryFind(fun (comparer, nameToCompare, _) ->
+        comparison item (comparer, nameToCompare)
+    )
+    |> Option.map(fun (_,_,normalizedName) -> normalizedName)
+
+let createTableRow method modules =
+    let outputModules = allModules |> List.map(fun m -> m.OutputName) |> List.distinct
     let sparseSet = Array.create<string> (outputModules |> List.length) ""
     for ((moduleName : string), (mInfo : MethodInfo)) in modules do
         let index = outputModules |> List.findIndex (fun m -> m = moduleName)
@@ -79,17 +93,20 @@ let createCsvRow method modules =
     let data = 
         sparseSet 
         |> Array.map (fun b ->
-            if b |> contains "FSharp.Core" then "FSharp.Core"
-            elif b |> contains "FsToolkit" then "FsToolkit"
-            elif b |> contains "Hopac" then "Hopac"
-            elif b |> contains "FSharpAsync" then "FSharp.Core"
-            else b
+            findInNamespaceNormalizer namespaceNormalizer b
+            |> Option.defaultValue b
         ) 
-        |> String.concat ","
-    sprintf "%s,%s" method data
+        |> String.concat "|"
+    sprintf "|%s|%s|" method data
 
-let createCsv headers rows =
+let generateTableHeaderSeprator count = 
+    List.replicate count "---"
+    |> String.concat "|"
+    |> sprintf "|%s|"
+
+let createMarkdownTable headers headersCount rows =
     printfn "%s" headers
+    printfn "%s" <| generateTableHeaderSeprator headersCount
     for row in rows do
         printfn "%s" row
 
@@ -105,22 +122,23 @@ let main argv =
     let getMethodsByModuleName name = getMethodsByModuleName name types
     // types |> Seq.iter(fun f -> f.Name |> printfn "%s")
 
-    let headers = 
+    let headers, headersCount = 
         let methods = "Methods"
-        let tail = allModules |> Seq.map(fun m -> m.CSVOutputName) |> Seq.distinct |> String.concat ","
-        sprintf "%s,%s" methods tail
+        let items = methods :: (allModules |> List.map(fun m -> m.OutputName) |> List.distinct)
+        let tail = items |> String.concat "|"
+        sprintf "|%s|" tail , items.Length
 
     allModules
-    |> Seq.collect(fun name -> getMethodsByModuleName name.ReflectionLookupName |> Seq.map(fun m -> name.CSVOutputName, m))
+    |> Seq.collect(fun name -> getMethodsByModuleName name.ReflectionLookupName |> Seq.map(fun m -> name.OutputName, m))
     |> Seq.groupBy(fun (name, method) -> normalize method.Name)
     |> Seq.sortBy(fst)
     |> Seq.map(fun (method, group) ->
         // let moduleNames = group |> Seq.map(fst) |> String.concat ","
         // printfn "%s : %s" method moduleNames
         // let modules = group |> Seq.map(fst)
-        createCsvRow method (group)
+        createTableRow method (group)
     )
-    |> createCsv headers
+    |> createMarkdownTable headers headersCount
     
 
     0 
