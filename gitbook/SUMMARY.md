@@ -103,5 +103,5 @@
 
 * [Test](test/index.md)
   * [testing](test/testing.md)
-    * [testing-nested1](test/testing.md)
-      * [testing-nested2](test/testing.md)
+    * [testing-nested1](test/testing-nested1.md)
+      * [testing-nested2](test/testing-nested2.md)
