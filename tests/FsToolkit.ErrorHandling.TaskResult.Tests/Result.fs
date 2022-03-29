@@ -1,6 +1,8 @@
 ﻿module Result
 
+#if NETSTANDARD2_0 || NET5_0
 open FSharp.Control.Tasks
+#endif
 open Expecto
 open FsToolkit.ErrorHandling
 

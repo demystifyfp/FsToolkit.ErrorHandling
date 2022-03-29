@@ -11,7 +11,12 @@ module Expect =
 #else
     open Expecto
     open System.Threading.Tasks
-    open FSharp.Control.Tasks.Affine
+
+#endif
+
+#if NETSTANDARD2_0 || NET5_0 || NET5
+    //     failwith "LOL"
+    open FSharp.Control.Tasks
 #endif
 
 
@@ -80,6 +85,7 @@ module Expect =
         }
 
 #if !FABLE_COMPILER
+
     let hasTaskValue v taskX =
         let x =
             taskX |> Async.AwaitTask |> Async.RunSynchronously

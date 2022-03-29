@@ -7,7 +7,10 @@ open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
+
+#if NETSTANDARD2_0 || NET5_0
 open FSharp.Control.Tasks
+#endif
 
 [<Tests>]
 let ``TaskResultCE return Tests`` =

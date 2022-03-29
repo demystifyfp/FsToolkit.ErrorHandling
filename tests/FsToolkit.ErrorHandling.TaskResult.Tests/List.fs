@@ -6,7 +6,10 @@ open TestData
 open TestHelpers
 open System
 open FsToolkit.ErrorHandling
+
+#if NETSTANDARD2_0 || NET5_0
 open FSharp.Control.Tasks
+#endif
 
 
 let userId1 = Guid.NewGuid()
