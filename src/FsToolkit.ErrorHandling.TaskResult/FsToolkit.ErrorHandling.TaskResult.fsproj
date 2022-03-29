@@ -3,7 +3,10 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <!-- <TargetFrameworks>netstandard2.1</TargetFrameworks> -->
     <DebugType>portable</DebugType>
+    <LangVersion>preview</LangVersion>
+    <NoWarn>FS3511;FS3513</NoWarn>
   </PropertyGroup>
 
 

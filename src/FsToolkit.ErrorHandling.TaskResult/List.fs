@@ -2,7 +2,9 @@ namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
+#if NETSTANDARD2_0
 open FSharp.Control.Tasks.Affine
+#endif
 
 [<RequireQualifiedAccess>]
 module List =
