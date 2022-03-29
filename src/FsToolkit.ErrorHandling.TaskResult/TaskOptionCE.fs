@@ -506,7 +506,7 @@ open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
 open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 
 [<AutoOpen>]
-module LowPriority =
+module TaskOptionCEExtensionsLowPriority =
     // Low priority extensions
     type TaskOptionBuilderBase with
 
@@ -608,7 +608,7 @@ module LowPriority =
             ResumableCode.Using(resource, body)
 
 [<AutoOpen>]
-module HighPriority =
+module TaskOptionCEExtensionsHighPriority =
     // High priority extensions
     type TaskOptionBuilderBase with
         static member BindDynamic
@@ -684,7 +684,7 @@ module HighPriority =
         member inline _.Source(s: #seq<_>) = s
 
 [<AutoOpen>]
-module MediumPriority =
+module TaskOptionCEExtensionsMediumPriority =
 
     // Medium priority extensions
     type TaskOptionBuilderBase with

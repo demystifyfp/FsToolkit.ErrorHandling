@@ -101,6 +101,7 @@ let ``TaskResultCE return! Tests`` =
 
                   Expect.equal actual (Result.Ok()) "Should be ok"
               }
+#if NETSTANDARD2_0
           testCaseTask "Return Ply"
           <| fun () ->
               task {
@@ -108,7 +109,9 @@ let ``TaskResultCE return! Tests`` =
                   let! actual = taskResult { return! Unsafe.uply { return innerData } }
 
                   Expect.equal actual (Result.Ok innerData) "Should be ok"
-              } ]
+              }
+#endif
+          ]
 
 
 [<Tests>]
@@ -228,6 +231,7 @@ let ``TaskResultCE bind Tests`` =
 
                   Expect.equal actual (Result.Ok()) "Should be ok"
               }
+#if NETSTANDARD2_0
           testCaseTask "Bind Ply"
           <| fun () ->
               task {
@@ -240,7 +244,9 @@ let ``TaskResultCE bind Tests`` =
                       }
 
                   Expect.equal actual (Result.Ok innerData) "Should be ok"
-              } ]
+              }
+#endif
+          ]
 
 
 [<Tests>]
@@ -376,6 +382,50 @@ let ``TaskResultCE loop Tests`` =
 
                   Expect.equal actual (Result.Ok data) "Should be ok"
               }
+          testCaseTask "while fail"
+          <| fun () ->
+              task {
+                  let data = 42
+                  let mutable index = 0
+
+                  let! actual =
+                      taskResult {
+                          while index < 10 do
+                              index <- index + 1
+
+                          return data
+                      }
+
+                  let mutable loopCount = 0
+                  let mutable wasCalled = false
+
+                  let sideEffect () =
+                      wasCalled <- true
+                      "ok"
+
+                  let expected = Error "error"
+
+                  let data =
+                      [ Ok "42"
+                        Ok "1024"
+                        expected
+                        Ok "1M"
+                        Ok "1M"
+                        Ok "1M" ]
+
+                  let! actual =
+                      taskResult {
+                          while loopCount < data.Length do
+                              let! x = data.[loopCount]
+                              loopCount <- loopCount + 1
+
+                          return sideEffect ()
+                      }
+
+                  Expect.equal loopCount 2 "Should only loop twice"
+                  Expect.equal actual expected "Should be an error"
+                  Expect.isFalse wasCalled "No additional side effects should occur"
+              }
           testCaseTask "for in"
           <| fun () ->
               task {
@@ -417,6 +467,8 @@ let ``TaskResultCE loop Tests`` =
                       [ Ok "42"
                         Ok "1024"
                         expected
+                        Ok "1M"
+                        Ok "1M"
                         Ok "1M" ]
 
                   let! actual =
@@ -429,8 +481,8 @@ let ``TaskResultCE loop Tests`` =
                           return "ok"
                       }
 
-                  Expect.equal 2 loopCount "Should only loop twice"
-                  Expect.equal actual expected "Should be and error"
+                  Expect.equal loopCount 2 "Should only loop twice"
+                  Expect.equal actual expected "Should be an error"
               } ]
 
 
@@ -534,6 +586,12 @@ let ``TaskResultCE applicative tests`` =
 
                   Expect.equal actual (Ok 5) "Should be ok"
               }
+          let specialCaseTask returnValue =
+#if NETSTANDARD2_0
+              Unsafe.uply { return returnValue }
+#else
+              Task.FromResult returnValue
+#endif
 
           testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask"
           <| fun () ->
@@ -543,7 +601,7 @@ let ``TaskResultCE applicative tests`` =
                           let! a = Ok 3
                           and! b = Choice1Of2 2
                           and! c = Ok 1 |> Async.singleton
-                          and! d = Unsafe.uply { return Ok 3 }
+                          and! d = specialCaseTask (Ok 3)
                           and! e = ValueTask.FromResult(Ok 5)
                           return a + b - c - d + e
                       }
