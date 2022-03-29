@@ -329,7 +329,22 @@ let ceTests =
                       }
 
                   Expect.equal actual (Some data) "Should be ok"
+              }
+          testCaseTask "Task.Yield"
+          <| fun () ->
+              task {
+
+                  let! actual = taskOption { do! Task.Yield() }
+
+                  Expect.equal actual (Some()) "Should be ok"
               } ]
+
+let specialCaseTask returnValue =
+#if NETSTANDARD2_0
+    Unsafe.uply { return returnValue }
+#else
+    Task.FromResult returnValue
+#endif
 
 [<Tests>]
 let ceTestsApplicative =
@@ -342,7 +357,7 @@ let ceTestsApplicative =
                       taskOption {
                           let! a = Some 3
                           let! b = Some 1 |> Async.singleton
-                          let! c = Unsafe.uply { return Some 3 }
+                          let! c = specialCaseTask (Some 3)
                           let! d = ValueTask.FromResult(Some 5)
                           return a + b - c - d
                       }
@@ -356,7 +371,7 @@ let ceTestsApplicative =
                       taskOption {
                           let! a = Some 3
                           and! b = Some 1 |> Async.singleton
-                          and! c = Unsafe.uply { return None }
+                          and! c = specialCaseTask (None)
                           and! d = ValueTask.FromResult(Some 5)
                           return a + b - c - d
                       }
