@@ -2,32 +2,28 @@ open System
 open System.Reflection
 
 type Comparison =
-| Exact 
-| Contains
+| Exact of string
+| Contains of string
 
 let inline contains (value) (sequence : ^a)   =
     let bool = (^a : (member Contains : 'b -> bool) (sequence, value))
     bool
 
-let inline comparison (value) (comparision, compareValue )  =
+let inline comparison (value) (comparision )  =
     match comparision with
-    | Exact -> value = compareValue
-    | Contains -> value |> contains compareValue      
+    | Exact compareValue -> value = compareValue
+    | Contains compareValue -> value |> contains compareValue   
 
-let namesToFilter = [
-    Exact, "GetType"
-    Exact, "ToString"
-    Exact, "Equals"
-    Exact, "GetHashCode"
-    Contains, "op_"
-]
 
-let getMethodsByModuleName moduleName (types : Type seq) =
+let getMethodsByModuleName namesToFilter moduleName (types : Type seq) =
+    let findWantedModules = Seq.filter(fun (t : Type) -> t.Name = moduleName)
+    let getAllMethods = Seq.collect(fun (t : Type) -> t.GetMethods())
+    let removeUnwantedMethods = Seq.filter(fun (m : MethodInfo) -> namesToFilter |> Seq.exists(comparison m.Name) |> not )
+
     types 
-    |> Seq.filter(fun t -> t.Name = moduleName)
-    |> Seq.collect(fun t -> t.GetMethods())
-    |> Seq.filter(fun m -> namesToFilter |> Seq.exists(comparison m.Name) |> not )
-
+    |> findWantedModules
+    |> getAllMethods
+    |> removeUnwantedMethods
 
 let report moduleName (methods : MethodInfo seq) = 
     printfn "---%s---" moduleName 
@@ -69,20 +65,19 @@ let allModules : list<Module>=
         Module.Create "JobResult"  "JobResult"
     ]
 
-
 let namespaceNormalizer = [
-    Contains, "FSharp.Core", "FSharp.Core"
-    Contains, "FsToolkit", "FsToolkit"
-    Contains, "Hopac", "Hopac"
-    Contains, "FSharpAsync", "FSharp.Core"
+    Contains "FSharp.Core", "FSharp.Core"
+    Contains"FsToolkit", "FsToolkit"
+    Contains "Hopac", "Hopac"
+    Contains "FSharpAsync", "FSharp.Core"
 ]
 
 let findInNamespaceNormalizer namespaceNormalizer item =
     namespaceNormalizer 
-    |> List.tryFind(fun (comparer, nameToCompare, _) ->
-        comparison item (comparer, nameToCompare)
+    |> List.tryFind(fun (comparer, _) ->
+        comparison item (comparer)
     )
-    |> Option.map(fun (_,_,normalizedName) -> normalizedName)
+    |> Option.map(fun (_,normalizedName) -> normalizedName)
 
 let createTableRow method modules =
     let outputModules = allModules |> List.map(fun m -> m.OutputName) |> List.distinct
@@ -110,6 +105,14 @@ let createMarkdownTable headers headersCount rows =
     for row in rows do
         printfn "%s" row
 
+let namesToFilter = [
+    Exact "GetType"
+    Exact "ToString"
+    Exact "Equals"
+    Exact "GetHashCode"
+    Contains "op_"
+]
+
 [<EntryPoint>]
 let main argv =
     let types = [
@@ -118,8 +121,9 @@ let main argv =
         yield! Assembly.Load("FsToolkit.ErrorHandling.TaskResult").GetTypes()
         yield! Assembly.Load("Hopac").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling.JobResult").GetTypes()
+        yield! Assembly.Load("FsToolkit.ErrorHandling.AsyncSeq").GetTypes()
     ]
-    let getMethodsByModuleName name = getMethodsByModuleName name types
+    let getMethodsByModuleName name = getMethodsByModuleName namesToFilter name types
     // types |> Seq.iter(fun f -> f.Name |> printfn "%s")
 
     let headers, headersCount = 
@@ -139,6 +143,5 @@ let main argv =
         createTableRow method (group)
     )
     |> createMarkdownTable headers headersCount
-    
 
     0 
