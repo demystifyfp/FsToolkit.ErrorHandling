@@ -6,7 +6,6 @@ group NetStandard2
     YoloDev.Expecto.TestSdk
 
 group NetStandard2_1
-    Ply
     Expecto
     Fable.Mocha
     Microsoft.NET.Test.Sdk

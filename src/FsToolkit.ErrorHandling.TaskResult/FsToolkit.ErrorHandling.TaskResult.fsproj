@@ -6,7 +6,7 @@
     <!-- <TargetFrameworks>netstandard2.1</TargetFrameworks> -->
     <DebugType>portable</DebugType>
     <LangVersion>preview</LangVersion>
-    <NoWarn>FS3511;FS3513</NoWarn>
+    <NoWarn>FS1204;FS3511;FS3513</NoWarn>
   </PropertyGroup>
 
 

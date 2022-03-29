@@ -1,4 +1,5 @@
 group NetStandard2
+    Ply
     Expecto
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk

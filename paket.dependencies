@@ -34,7 +34,6 @@ condition: netstandard2_0
 group NetStandard2_1
 source https://api.nuget.org/v3/index.json
 nuget FSharp.Core 6.0.3
-nuget Ply
 nuget Hopac
 nuget FSharp.Control.AsyncSeq
 nuget Expecto
