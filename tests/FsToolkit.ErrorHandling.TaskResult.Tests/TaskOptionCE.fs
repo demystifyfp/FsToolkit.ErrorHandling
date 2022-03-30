@@ -391,28 +391,35 @@ let ceTests =
               task {
 
                   let mutable loopCount = 0
-                  let expected = Error "error"
+                  let mutable wasCalled = false
+
+                  let sideEffect () =
+                      wasCalled <- true
+                      "ok"
+
+                  let expected = None
 
                   let data =
-                      [ Ok "42"
-                        Ok "1024"
+                      [ Some "42"
+                        Some "1024"
                         expected
-                        Ok "1M"
-                        Ok "1M"
-                        Ok "1M" ]
+                        Some "1M"
+                        Some "1M"
+                        Some "1M" ]
 
                   let! actual =
-                      taskResult {
+                      taskOption {
                           for i in data do
                               let! x = i
                               loopCount <- loopCount + 1
                               ()
 
-                          return "ok"
+                          return sideEffect ()
                       }
 
                   Expect.equal loopCount 2 "Should only loop twice"
                   Expect.equal actual expected "Should be an error"
+                  Expect.isFalse wasCalled "No additional side effects should occur"
               } ]
 
 let specialCaseTask returnValue =

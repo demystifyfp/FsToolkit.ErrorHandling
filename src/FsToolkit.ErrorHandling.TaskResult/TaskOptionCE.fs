@@ -418,12 +418,20 @@ type TaskOptionBuilderBase() =
                     true)
         )
 
-    member inline _.For
+    member inline this.For
         (
             sequence: seq<'T>,
             body: 'T -> TaskOptionCode<'TOverall, unit>
         ) : TaskOptionCode<'TOverall, unit> =
-        ResumableCode.For(sequence, body)
+        ResumableCode.Using(
+            sequence.GetEnumerator(),
+            // ... and its body is a while loop that advances the enumerator and runs the body on each element.
+            (fun e ->
+                this.While(
+                    (fun () -> e.MoveNext()),
+                    TaskOptionCode<'TOverall, unit>(fun sm -> (body e.Current).Invoke(&sm))
+                ))
+        )
 
     member inline internal this.TryFinallyAsync
         (
