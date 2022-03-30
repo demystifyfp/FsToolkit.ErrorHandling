@@ -1,4 +1,5 @@
 group NetStandard2
+    Ply
     Expecto
     Expecto.Hopac
     Microsoft.NET.Test.Sdk
