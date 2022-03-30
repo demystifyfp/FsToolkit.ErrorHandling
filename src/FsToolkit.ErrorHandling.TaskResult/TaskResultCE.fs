@@ -227,7 +227,7 @@ open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
 
 
-/// Task<'T option>
+/// Task<Result<'T, 'Error>>
 type TaskResult<'T, 'Error> = Task<Result<'T, 'Error>>
 
 [<Struct; NoComparison; NoEquality>]
