@@ -4,8 +4,8 @@ Describe the big picture of your changes here to communicate to the maintainers 
 
 ## Types of changes
 
-What types of changes does your code introduce to MyLib.1?
-_Put an `x` in the boxes that apply_
+What types of changes does your code introduce to FsToolkit.ErrorHandling?
+_Put an `x` in the boxes that apply and remove ones that don't apply_ 
 
 - [ ] Bugfix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
