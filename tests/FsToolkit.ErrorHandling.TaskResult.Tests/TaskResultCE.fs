@@ -234,6 +234,15 @@ let ``TaskResultCE bind Tests`` =
 
                   Expect.equal actual (Result.Ok()) "Should be ok"
               }
+
+          testCaseTask "Task.Yield"
+          <| fun () ->
+              task {
+
+                  let! actual = taskResult { do! Task.Yield() }
+
+                  Expect.equal actual (Ok()) "Should be ok"
+              }
 #if NETSTANDARD2_0
           testCaseTask "Bind Ply"
           <| fun () ->

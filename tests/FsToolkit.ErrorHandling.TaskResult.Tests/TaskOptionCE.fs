@@ -204,6 +204,15 @@ let ceTests =
 
                   Expect.equal actual expected "Should bind value wrapped in option"
               }
+
+          testCaseTask "Task.Yield"
+          <| fun () ->
+              task {
+
+                  let! actual = taskOption { do! Task.Yield() }
+
+                  Expect.equal actual (Some()) "Should be ok"
+              }
           testCaseTask "Zero/Combine/Delay/Run"
           <| fun () ->
               task {
@@ -303,6 +312,50 @@ let ceTests =
 
                   Expect.equal actual (Some data) "Should be ok"
               }
+          testCaseTask "while fail"
+          <| fun () ->
+              task {
+                  let data = 42
+                  let mutable index = 0
+
+                  let! actual =
+                      taskResult {
+                          while index < 10 do
+                              index <- index + 1
+
+                          return data
+                      }
+
+                  let mutable loopCount = 0
+                  let mutable wasCalled = false
+
+                  let sideEffect () =
+                      wasCalled <- true
+                      "ok"
+
+                  let expected = None
+
+                  let data =
+                      [ Some "42"
+                        Some "1024"
+                        expected
+                        Some "1M"
+                        Some "1M"
+                        Some "1M" ]
+
+                  let! actual =
+                      taskOption {
+                          while loopCount < data.Length do
+                              let! x = data.[loopCount]
+                              loopCount <- loopCount + 1
+
+                          return sideEffect ()
+                      }
+
+                  Expect.equal loopCount 2 "Should only loop twice"
+                  Expect.equal actual expected "Should be an error"
+                  Expect.isFalse wasCalled "No additional side effects should occur"
+              }
           testCaseTask "For in"
           <| fun () ->
               task {
@@ -333,13 +386,33 @@ let ceTests =
 
                   Expect.equal actual (Some data) "Should be ok"
               }
-          testCaseTask "Task.Yield"
+          testCaseTask "for in fail"
           <| fun () ->
               task {
 
-                  let! actual = taskOption { do! Task.Yield() }
+                  let mutable loopCount = 0
+                  let expected = Error "error"
 
-                  Expect.equal actual (Some()) "Should be ok"
+                  let data =
+                      [ Ok "42"
+                        Ok "1024"
+                        expected
+                        Ok "1M"
+                        Ok "1M"
+                        Ok "1M" ]
+
+                  let! actual =
+                      taskResult {
+                          for i in data do
+                              let! x = i
+                              loopCount <- loopCount + 1
+                              ()
+
+                          return "ok"
+                      }
+
+                  Expect.equal loopCount 2 "Should only loop twice"
+                  Expect.equal actual expected "Should be an error"
               } ]
 
 let specialCaseTask returnValue =
