@@ -134,6 +134,18 @@ module TaskResultCE =
 
     let taskResult = TaskResultBuilder()
 
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module TaskResultCEExtensionsLower =
+
+    type TaskResultBuilder with
+        member inline this.Source(t: ^TaskLike) : Task<Result<'T, 'Error>> =
+            task {
+                let! r = t
+                return Ok r
+            }
+
 // Having members as extensions gives them lower priority in
 // overload resolution between Task<_> and Task<Result<_,_>>.
 [<AutoOpen>]
@@ -305,10 +317,7 @@ type TaskResultBuilderBase() =
         TaskResultCode<'T, 'Error, _>
             (fun sm ->
                 // printfn "Return Called --> "
-
-                match sm.Data.Result with
-                | Ok _ -> sm.Data.Result <- Ok value
-                | Error e -> ()
+                sm.Data.Result <- Ok value
 
                 true)
 
@@ -381,9 +390,10 @@ type TaskResultBuilderBase() =
                 if __useResumableCode then
                     //-- RESUMABLE CODE START
                     let mutable __stack_go = true
-                    let mutable errored = false
 
-                    while __stack_go && not errored && condition () do
+                    while __stack_go
+                          && not sm.Data.IsResultError
+                          && condition () do
                         // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                         // the code will branch directly into the expanded 'body', branching directly into the while loop
                         let __stack_body_fin = body.Invoke(&sm)
@@ -391,9 +401,8 @@ type TaskResultBuilderBase() =
                         // If the body completed, we go back around the loop (__stack_go = true)
                         // If the body yielded, we yield (__stack_go = false)
                         __stack_go <- __stack_body_fin
-                        errored <- sm.Data.IsResultError
 
-                    if errored then
+                    if sm.Data.IsResultError then
                         // Set the result now to allow short-circuiting of the rest of the CE.
                         // Run/RunDynamic will skip setting the result if it's already been set.
                         // Combine/CombineDynamic will not continue if the result has been set.

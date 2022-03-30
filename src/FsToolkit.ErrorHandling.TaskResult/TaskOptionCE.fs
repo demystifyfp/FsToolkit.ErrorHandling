@@ -212,16 +212,77 @@ type TaskOption<'T> = Task<'T option>
 type TaskOptionStateMachineData<'T> =
 
     [<DefaultValue(false)>]
-    val mutable Result: 'T option
+    val mutable Result: 'T option voption
 
     [<DefaultValue(false)>]
     val mutable MethodBuilder: AsyncTaskOptionMethodBuilder<'T>
+
+    member this.IsResultNone =
+        match this.Result with
+        | ValueNone -> false
+        | ValueSome (None) -> true
+        | ValueSome _ -> false
+
+    member this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
 
 and AsyncTaskOptionMethodBuilder<'TOverall> = AsyncTaskMethodBuilder<'TOverall option>
 and TaskOptionStateMachine<'TOverall> = ResumableStateMachine<TaskOptionStateMachineData<'TOverall>>
 and TaskOptionResumptionFunc<'TOverall> = ResumptionFunc<TaskOptionStateMachineData<'TOverall>>
 and TaskOptionResumptionDynamicInfo<'TOverall> = ResumptionDynamicInfo<TaskOptionStateMachineData<'TOverall>>
 and TaskOptionCode<'TOverall, 'T> = ResumableCode<TaskOptionStateMachineData<'TOverall>, 'T>
+
+
+module TaskOptionBuilderBase =
+
+    let rec WhileDynamic
+        (
+            sm: byref<TaskOptionStateMachine<_>>,
+            condition: unit -> bool,
+            body: TaskOptionCode<_, _>
+        ) : bool =
+        if condition () then
+            if body.Invoke(&sm) then
+                if sm.Data.IsResultNone then
+                    // Set the result now to allow short-circuiting of the rest of the CE.
+                    // Run/RunDynamic will skip setting the result if it's already been set.
+                    // Combine/CombineDynamic will not continue if the result has been set.
+                    sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+                    true
+                else
+                    WhileDynamic(&sm, condition, body)
+            else
+                let rf = sm.ResumptionDynamicInfo.ResumptionFunc
+
+                sm.ResumptionDynamicInfo.ResumptionFunc <-
+                    (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+
+                false
+        else
+            true
+
+    and WhileBodyDynamicAux
+        (
+            sm: byref<TaskOptionStateMachine<_>>,
+            condition: unit -> bool,
+            body: TaskOptionCode<_, _>,
+            rf: TaskOptionResumptionFunc<_>
+        ) : bool =
+        if rf.Invoke(&sm) then
+            if sm.Data.IsResultNone then
+                // Set the result now to allow short-circuiting of the rest of the CE.
+                // Run/RunDynamic will skip setting the result if it's already been set.
+                // Combine/CombineDynamic will not continue if the result has been set.
+                sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+                true
+            else
+                WhileDynamic(&sm, condition, body)
+        else
+            let rf = sm.ResumptionDynamicInfo.ResumptionFunc
+
+            sm.ResumptionDynamicInfo.ResumptionFunc <-
+                (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+
+            false
 
 
 type TaskOptionBuilderBase() =
@@ -236,9 +297,41 @@ type TaskOptionBuilderBase() =
     member inline _.Return(value: 'T) : TaskOptionCode<'T, 'T> =
         TaskOptionCode<'T, _>
             (fun sm ->
-                sm.Data.Result <- Some value
+                sm.Data.Result <- ValueSome(Some value)
                 true)
 
+
+
+    static member inline CombineDynamic
+        (
+            sm: byref<TaskOptionStateMachine<_>>,
+            task1: TaskOptionCode<'TOverall, unit>,
+            task2: TaskOptionCode<'TOverall, 'T>
+        ) : bool =
+        let shouldContinue = task1.Invoke(&sm)
+
+        if sm.Data.IsTaskCompleted then
+            true
+        elif shouldContinue then
+            task2.Invoke(&sm)
+        else
+            let rec resume (mf: TaskOptionResumptionFunc<_>) =
+                TaskOptionResumptionFunc<_>
+                    (fun sm ->
+                        let shouldContinue = mf.Invoke(&sm)
+
+                        if sm.Data.IsTaskCompleted then
+                            true
+                        elif shouldContinue then
+                            task2.Invoke(&sm)
+                        else
+                            sm.ResumptionDynamicInfo.ResumptionFunc <-
+                                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+
+                            false)
+
+            sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+            false
 
     /// Chains together a step with its following step.
     /// Note that this requires that the first step has no result.
@@ -248,7 +341,22 @@ type TaskOptionBuilderBase() =
             task1: TaskOptionCode<'TOverall, unit>,
             task2: TaskOptionCode<'TOverall, 'T>
         ) : TaskOptionCode<'TOverall, 'T> =
-        ResumableCode.Combine(task1, task2)
+
+        TaskOptionCode<'TOverall, 'T>
+            (fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    // NOTE: The code for code1 may contain await points! Resuming may branch directly
+                    // into this code!
+                    // printfn "Combine Called Before Invoke --> "
+                    let __stack_fin = task1.Invoke(&sm)
+                    // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
+
+                    if sm.Data.IsTaskCompleted then true
+                    elif __stack_fin then task2.Invoke(&sm)
+                    else false
+                else
+                    TaskOptionBuilderBase.CombineDynamic(&sm, task1, task2))
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
@@ -256,7 +364,35 @@ type TaskOptionBuilderBase() =
             [<InlineIfLambda>] condition: unit -> bool,
             body: TaskOptionCode<'TOverall, unit>
         ) : TaskOptionCode<'TOverall, unit> =
-        ResumableCode.While(condition, body)
+        TaskOptionCode<'TOverall, unit>
+            (fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    let mutable __stack_go = true
+
+                    while __stack_go
+                          && not sm.Data.IsResultNone
+                          && condition () do
+                        // printfn "While -> %A" sm.Data.Result
+                        // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
+                        // the code will branch directly into the expanded 'body', branching directly into the while loop
+                        let __stack_body_fin = body.Invoke(&sm)
+                        // printfn "While After Invoke --> %A" sm.Data.Result
+                        // If the body completed, we go back around the loop (__stack_go = true)
+                        // If the body yielded, we yield (__stack_go = false)
+                        __stack_go <- __stack_body_fin
+
+                    if sm.Data.IsResultNone then
+                        // Set the result now to allow short-circuiting of the rest of the CE.
+                        // Run/RunDynamic will skip setting the result if it's already been set.
+                        // Combine/CombineDynamic will not continue if the result has been set.
+                        sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+
+                    __stack_go
+                //-- RESUMABLE CODE END
+                else
+                    TaskOptionBuilderBase.WhileDynamic(&sm, condition, body))
+
 
     /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
@@ -349,8 +485,6 @@ type TaskOptionBuilderBase() =
     member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> = task { return! taskOption }
 
 
-
-
 type TaskOptionBuilder() =
 
     inherit TaskOptionBuilderBase()
@@ -376,8 +510,11 @@ type TaskOptionBuilder() =
                         sm.ResumptionDynamicInfo.ResumptionData <- null
                         let step = info.ResumptionFunc.Invoke(&sm)
 
+                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        if sm.Data.IsTaskCompleted then ()
+
                         if step then
-                            sm.Data.MethodBuilder.SetResult(sm.Data.Result)
+                            sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
                         else
                             let mutable awaiter =
                                 sm.ResumptionDynamicInfo.ResumptionData :?> ICriticalNotifyCompletion
@@ -412,8 +549,8 @@ type TaskOptionBuilder() =
                         try
                             let __stack_code_fin = code.Invoke(&sm)
 
-                            if __stack_code_fin then
-                                sm.Data.MethodBuilder.SetResult(sm.Data.Result)
+                            if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                                sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
                         with
                         | exn -> __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
@@ -459,8 +596,8 @@ type BackgroundTaskOptionBuilder() =
                         try
                             let __stack_code_fin = code.Invoke(&sm)
 
-                            if __stack_code_fin then
-                                sm.Data.MethodBuilder.SetResult(sm.Data.Result)
+                            if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                                sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
                         with
                         | exn -> sm.Data.MethodBuilder.SetException exn
                         //-- RESUMABLE CODE END
@@ -513,7 +650,7 @@ module TaskOptionCEExtensionsLowPriority =
         [<NoEagerConstraintApplication>]
         static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall when ^TaskLike: (member GetAwaiter :
             unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1)>
+            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1 option)>
             (
                 sm: byref<_>,
                 task: ^TaskLike,
@@ -527,9 +664,13 @@ module TaskOptionCEExtensionsLowPriority =
                 (TaskOptionResumptionFunc<'TOverall>
                     (fun sm ->
                         let result =
-                            (^Awaiter: (member GetResult : unit -> 'TResult1) (awaiter))
+                            (^Awaiter: (member GetResult : unit -> 'TResult1 option) (awaiter))
 
-                        (continuation result).Invoke(&sm)))
+                        match result with
+                        | Some result -> (continuation result).Invoke(&sm)
+                        | None ->
+                            sm.Data.Result <- ValueSome None
+                            true))
 
             // shortcut to continue immediately
             if (^Awaiter: (member get_IsCompleted : unit -> bool) (awaiter)) then
@@ -542,7 +683,7 @@ module TaskOptionCEExtensionsLowPriority =
         [<NoEagerConstraintApplication>]
         member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall when ^TaskLike: (member GetAwaiter :
             unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1)>
+            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1 option)>
             (
                 task: ^TaskLike,
                 continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>)
@@ -566,9 +707,13 @@ module TaskOptionCEExtensionsLowPriority =
 
                         if __stack_fin then
                             let result =
-                                (^Awaiter: (member GetResult : unit -> 'TResult1) (awaiter))
+                                (^Awaiter: (member GetResult : unit -> 'TResult1 option) (awaiter))
 
-                            (continuation result).Invoke(&sm)
+                            match result with
+                            | Some result -> (continuation result).Invoke(&sm)
+                            | None ->
+                                sm.Data.Result <- ValueSome None
+                                true
                         else
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
                             false
@@ -583,7 +728,7 @@ module TaskOptionCEExtensionsLowPriority =
 
         [<NoEagerConstraintApplication>]
         member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter : unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
+            unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T option)>
             (task: ^TaskLike)
             : TaskOptionCode<'T, 'T> =
 
@@ -626,7 +771,9 @@ module TaskOptionCEExtensionsHighPriority =
 
                         match result with
                         | Some result -> (continuation result).Invoke(&sm)
-                        | None -> true))
+                        | None ->
+                            sm.Data.Result <- ValueSome None
+                            true))
 
             // shortcut to continue immediately
             if awaiter.IsCompleted then
@@ -662,7 +809,9 @@ module TaskOptionCEExtensionsHighPriority =
 
                             match result with
                             | Some result -> (continuation result).Invoke(&sm)
-                            | None -> true
+                            | None ->
+                                sm.Data.Result <- ValueSome None
+                                true
 
                         else
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
