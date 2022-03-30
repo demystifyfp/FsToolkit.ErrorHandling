@@ -9,7 +9,6 @@ open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
 #if NETSTANDARD2_0 || NET5_0
-// open FSharp.Control.Tasks.NonAffine
 let backgroundTask = FSharp.Control.Tasks.NonAffine.task
 #endif
 

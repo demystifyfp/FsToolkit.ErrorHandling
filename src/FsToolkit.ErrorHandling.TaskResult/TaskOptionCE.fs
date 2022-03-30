@@ -5,8 +5,6 @@ open System.Threading.Tasks
 
 
 #if NETSTANDARD2_0
-open FSharp.Control.Tasks.Affine.Unsafe
-open FSharp.Control.Tasks.Affine
 open Ply
 open System.Runtime.CompilerServices
 
@@ -15,11 +13,16 @@ module TaskOptionCE =
     type TaskOptionBuilder() =
         member val SomeUnit = Some()
 
-        member inline _.Return(value: 'T) : Ply<_ option> = uply.Return <| option.Return value
+        member inline _.Return(value: 'T) : Ply<_ option> =
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+            <| option.Return value
 
-        member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> = uply.ReturnFrom taskResult
+        member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
+            FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
-        member inline _.Zero() : Ply<_ option> = uply.Return <| option.Zero()
+        member inline _.Zero() : Ply<_ option> =
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+            <| option.Zero()
 
         member inline _.Bind
             (
@@ -29,18 +32,19 @@ module TaskOptionCE =
             let binder' r =
                 match r with
                 | Some x -> binder x
-                | None -> uply.Return None
+                | None -> FSharp.Control.Tasks.Affine.Unsafe.uply.Return None
 
-            uply.Bind(taskResult, binder')
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Bind(taskResult, binder')
 
-        member inline _.Delay([<InlineIfLambda>] generator: unit -> Ply<_ option>) = uply.Delay(generator)
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Ply<_ option>) =
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Delay(generator)
 
         member inline _.Combine
             (
                 computation1: Ply<'T option>,
                 [<InlineIfLambda>] computation2: unit -> Ply<'U option>
             ) : Ply<'U option> =
-            uply {
+            FSharp.Control.Tasks.Affine.Unsafe.uply {
                 match! computation1 with
                 | None -> return None
                 | Some _ -> return! computation2 ()
@@ -51,28 +55,28 @@ module TaskOptionCE =
                 [<InlineIfLambda>] computation: unit -> Ply<_ option>,
                 [<InlineIfLambda>] handler: exn -> Ply<_ option>
             ) : Ply<_ option> =
-            uply.TryWith(computation, handler)
+            FSharp.Control.Tasks.Affine.Unsafe.uply.TryWith(computation, handler)
 
         member inline _.TryFinally
             (
                 [<InlineIfLambda>] computation: unit -> Ply<_ option>,
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : Ply<_ option> =
-            uply.TryFinally(computation, compensation)
+            FSharp.Control.Tasks.Affine.Unsafe.uply.TryFinally(computation, compensation)
 
         member inline _.Using
             (
                 resource: 'T :> IDisposable,
                 [<InlineIfLambda>] binder: 'T -> Ply<_ option>
             ) : Ply<_ option> =
-            uply.Using(resource, binder)
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Using(resource, binder)
 
         member inline _.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,
                 [<InlineIfLambda>] computation: unit -> Ply<'U option>
             ) : Ply<'U option> =
-            uply {
+            FSharp.Control.Tasks.Affine.Unsafe.uply {
                 let mutable fin, result = false, None
 
                 while not fin && guard () do
@@ -86,7 +90,7 @@ module TaskOptionCE =
             }
 
         member inline _.For(sequence: #seq<'T>, binder: 'T -> Ply<'U option>) : Ply<'U option> =
-            uply {
+            FSharp.Control.Tasks.Affine.Unsafe.uply {
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, None
 
@@ -104,7 +108,7 @@ module TaskOptionCE =
             this.Bind(x, (fun x -> this.Return(f x)))
 
         member inline _.MergeSources(t1: Task<'T option>, t2: Task<'T1 option>) = TaskOption.zip t1 t2
-        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = task.Run f
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = FSharp.Control.Tasks.Affine.task.Run f
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
@@ -115,7 +119,8 @@ module TaskOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(t: ValueTask<_ option>) : Task<_ option> = task { return! t }
+        member inline _.Source(t: ValueTask<_ option>) : Task<_ option> =
+            FSharp.Control.Tasks.Affine.task { return! t }
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -125,9 +130,143 @@ module TaskOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(p: Ply<_ option>) : Task<_ option> = task { return! p }
+        member inline _.Source(p: Ply<_ option>) : Task<_ option> =
+            FSharp.Control.Tasks.Affine.task { return! p }
 
     let taskOption = TaskOptionBuilder()
+
+    type BackgroundTaskOptionBuilder() =
+        member val SomeUnit = Some()
+
+        member inline _.Return(value: 'T) : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+            <| option.Return value
+
+        member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
+
+        member inline _.Zero() : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+            <| option.Zero()
+
+        member inline _.Bind
+            (
+                taskResult: Task<_ option>,
+                [<InlineIfLambda>] binder: 'T -> Ply<_ option>
+            ) : Ply<_ option> =
+            let binder' r =
+                match r with
+                | Some x -> binder x
+                | None -> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return None
+
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Bind(taskResult, binder')
+
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Ply<_ option>) =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Delay(generator)
+
+        member inline _.Combine
+            (
+                computation1: Ply<'T option>,
+                [<InlineIfLambda>] computation2: unit -> Ply<'U option>
+            ) : Ply<'U option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply {
+                match! computation1 with
+                | None -> return None
+                | Some _ -> return! computation2 ()
+            }
+
+        member inline _.TryWith
+            (
+                [<InlineIfLambda>] computation: unit -> Ply<_ option>,
+                [<InlineIfLambda>] handler: exn -> Ply<_ option>
+            ) : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.TryWith(computation, handler)
+
+        member inline _.TryFinally
+            (
+                [<InlineIfLambda>] computation: unit -> Ply<_ option>,
+                [<InlineIfLambda>] compensation: unit -> unit
+            ) : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.TryFinally(computation, compensation)
+
+        member inline _.Using
+            (
+                resource: 'T :> IDisposable,
+                [<InlineIfLambda>] binder: 'T -> Ply<_ option>
+            ) : Ply<_ option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Using(resource, binder)
+
+        member inline _.While
+            (
+                [<InlineIfLambda>] guard: unit -> bool,
+                [<InlineIfLambda>] computation: unit -> Ply<'U option>
+            ) : Ply<'U option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply {
+                let mutable fin, result = false, None
+
+                while not fin && guard () do
+                    match! computation () with
+                    | Some _ as o -> result <- o
+                    | None ->
+                        result <- None
+                        fin <- true
+
+                return result
+            }
+
+        member inline _.For(sequence: #seq<'T>, binder: 'T -> Ply<'U option>) : Ply<'U option> =
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply {
+                use enumerator = sequence.GetEnumerator()
+                let mutable fin, result = false, None
+
+                while not fin && enumerator.MoveNext() do
+                    match! binder enumerator.Current with
+                    | Some _ as o -> result <- o
+                    | None ->
+                        result <- None
+                        fin <- true
+
+                return result
+            }
+
+        member inline this.BindReturn(x: Task<'T option>, [<InlineIfLambda>] f) =
+            this.Bind(x, (fun x -> this.Return(f x)))
+
+        member inline _.MergeSources(t1: Task<'T option>, t2: Task<'T1 option>) =
+            FSharp.Control.Tasks.NonAffine.task {
+                let! o1 = t1
+                let! o2 = t2
+                return Option.zip o1 o2
+            }
+
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) =
+            FSharp.Control.Tasks.NonAffine.task.Run f
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source(task: Task<_ option>) : Task<_ option> = task
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(t: ValueTask<_ option>) : Task<_ option> =
+            FSharp.Control.Tasks.NonAffine.task { return! t }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(async: Async<_ option>) : Task<_ option> = async |> Async.StartAsTask
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(p: Ply<_ option>) : Task<_ option> =
+            FSharp.Control.Tasks.NonAffine.task { return! p }
+
+    let backgroundTaskOption = BackgroundTaskOptionBuilder()
+
 
 
 [<AutoOpen>]
@@ -137,7 +276,14 @@ module TaskOptionCEExtensionsLower =
 
     type TaskOptionBuilder with
         member inline this.Source(t: ^TaskLike) : Task<'T option> =
-            task {
+            FSharp.Control.Tasks.Affine.task {
+                let! r = t
+                return Some r
+            }
+
+    type BackgroundTaskOptionBuilder with
+        member inline this.Source(t: ^TaskLike) : Task<'T option> =
+            FSharp.Control.Tasks.NonAffine.task {
                 let! r = t
                 return Some r
             }
@@ -161,13 +307,17 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Task<'T>) = a |> Task.map Some
+        member inline _.Source(a: Task<'T>) =
+            FSharp.Control.Tasks.Affine.task {
+                let! o = a
+                return Some o
+            }
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline x.Source(a: Task) =
-            task {
+            FSharp.Control.Tasks.Affine.task {
                 do! a
                 return x.SomeUnit
             }
@@ -175,13 +325,17 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: ValueTask<'T>) = a |> Task.mapV Some
+        member inline _.Source(a: ValueTask<'T>) =
+            FSharp.Control.Tasks.Affine.task {
+                let! o = a
+                return Some o
+            }
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline x.Source(a: ValueTask) =
-            task {
+            FSharp.Control.Tasks.Affine.task {
                 do! a
                 return x.SomeUnit
             }
@@ -189,7 +343,70 @@ module TaskOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Async<'t>) = a |> Async.StartAsTask |> Task.map Some
+        member inline _.Source(a: Async<'t>) =
+            FSharp.Control.Tasks.Affine.task {
+                let! o = a |> Async.StartAsTask
+                return Some o
+            }
+
+
+    type BackgroundTaskOptionBuilder with
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline _.Source(s: #seq<_>) = s
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(r: 't option) = Task.singleton r
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(a: Task<'T>) =
+            FSharp.Control.Tasks.NonAffine.task {
+                let! o = a
+                return Some o
+            }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline x.Source(a: Task) =
+            FSharp.Control.Tasks.NonAffine.task {
+                do! a
+                return x.SomeUnit
+            }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(a: ValueTask<'T>) =
+            FSharp.Control.Tasks.NonAffine.task {
+                let! o = a
+                return Some o
+            }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline x.Source(a: ValueTask) =
+            FSharp.Control.Tasks.NonAffine.task {
+                do! a
+                return x.SomeUnit
+            }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(a: Async<'t>) =
+            FSharp.Control.Tasks.NonAffine.task {
+                let! o = a |> Async.StartAsTask
+                return Some o
+            }
+
+
 
 #else
 
