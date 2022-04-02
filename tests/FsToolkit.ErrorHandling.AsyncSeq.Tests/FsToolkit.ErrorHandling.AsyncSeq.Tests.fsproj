@@ -21,6 +21,8 @@
   <ItemGroup>
     <Compile Include="AsyncSeq.fs" />
     <Compile Include="Main.fs" />
+    <None Include="paket.references"/>
+    <Watch Include="@(None)" />
   </ItemGroup>
 
 

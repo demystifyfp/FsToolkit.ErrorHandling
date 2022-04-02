@@ -19,6 +19,9 @@
     <Compile Include="JobResultOption.fs" />
     <Compile Include="JobResultOptionCE.fs" />
     <Compile Include="JobResultOptionOp.fs" />
+
+    <None Include="paket.references"/>
+    <Watch Include="@(None)" />
   </ItemGroup>
 
   <ItemGroup>

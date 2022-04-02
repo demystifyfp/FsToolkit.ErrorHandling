@@ -41,6 +41,7 @@ nuget Expecto.Hopac
 nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha 2.12.0
+nuget IcedTasks
 storage: none
 condition: netstandard2_1
 

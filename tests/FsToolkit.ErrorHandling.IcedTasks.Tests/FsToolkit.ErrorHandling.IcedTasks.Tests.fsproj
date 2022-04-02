@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../FsToolkit.ErrorHandling.TaskResult.Tests/Expecto.fs" />
+    <Compile Include="CancellableTaskResultCE.fs" />
+    <Compile Include="Main.fs" />
+    <None Include="paket.references" />
+    <Watch Include="@(None)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+  </ItemGroup>
+
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

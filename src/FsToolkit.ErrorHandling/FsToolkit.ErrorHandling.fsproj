@@ -36,6 +36,8 @@
     <Compile Include="List.fs" />
     <Compile Include="Seq.fs" />
     <None Include="Script.fsx" />
+    <None Include="paket.references"/>
+    <Watch Include="@(None)" />
   </ItemGroup>
 
   <!-- Add source files to "fable" folder in Nuget package -->

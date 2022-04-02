@@ -34,6 +34,8 @@
     <Compile Include="List.fs" />
     <Compile Include="JobResultOption.fs" />
     <Compile Include="Main.fs" />
+    <None Include="paket.references"/>
+    <Watch Include="@(None)" />
   </ItemGroup>
   
   <Import Project="..\..\.paket\Paket.Restore.targets" />
