@@ -1,0 +1,6 @@
+
+Microsoft.SourceLink.GitHub
+
+group NetStandard2_1
+    FSharp.Core
+    IcedTasks

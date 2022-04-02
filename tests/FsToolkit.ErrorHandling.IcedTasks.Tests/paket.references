@@ -1,0 +1,4 @@
+group NetStandard2_1
+    Expecto
+    Microsoft.NET.Test.Sdk
+    YoloDev.Expecto.TestSdk

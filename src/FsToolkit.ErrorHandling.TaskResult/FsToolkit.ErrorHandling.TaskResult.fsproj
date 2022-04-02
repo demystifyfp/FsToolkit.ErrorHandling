@@ -24,6 +24,8 @@
     <Compile Include="TaskResultOption.fs" />
     <Compile Include="TaskResultOptionCE.fs" />
     <Compile Include="TaskResultOptionOp.fs" />
+    <None Include="paket.references"/>
+    <Watch Include="@(None)" />
   </ItemGroup>
 
   <ItemGroup>
