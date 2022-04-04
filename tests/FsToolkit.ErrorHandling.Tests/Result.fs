@@ -298,7 +298,13 @@ let ignoreTests =
           testCase "ignore with error"
           <| fun _ ->
               Result.ignore (Error "error")
-              |> Expect.hasErrorValue "error" ]
+              |> Expect.hasErrorValue "error"
+
+          testCase "can call ignore without type parameters"
+          <| fun _ -> ignore Result.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ -> ignore<Result<int, string> -> Result<unit, string>> Result.ignore<int, string> ]
 
 let err = "foobar"
 
@@ -520,7 +526,13 @@ let ignoreErrorTests =
           <| fun _ -> Expect.equal (Result.ignoreError (Ok())) () ""
 
           testCase "ignoreError returns the unit for Error"
-          <| fun _ -> Expect.equal (Result.ignoreError (Error 42)) () "" ]
+          <| fun _ -> Expect.equal (Result.ignoreError (Error 42)) () ""
+
+          testCase "can call ignoreError without type parameter"
+          <| fun _ -> ignore Result.ignoreError
+
+          testCase "can call ignoreError with type parameter"
+          <| fun _ -> ignore<Result<unit, string> -> unit> Result.ignoreError<string> ]
 
 
 

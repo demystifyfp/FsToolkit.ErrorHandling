@@ -141,7 +141,13 @@ let ignoreTests =
           testCaseAsync "ignore with Async(Error x)"
           <| (getUserById (UserId(Guid.Empty))
               |> AsyncResultOption.ignore
-              |> Expect.hasAsyncErrorValue "invalid user id") ]
+              |> Expect.hasAsyncErrorValue "invalid user id")
+
+          testCase "can call ignore without type parameters"
+          <| fun () -> ignore AsyncResultOption.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun () -> ignore<Async<Result<int option, string>> -> Async<Result<unit option, string>>> AsyncResultOption.ignore<int, string> ]
 
 let computationExpressionTests =
     testList

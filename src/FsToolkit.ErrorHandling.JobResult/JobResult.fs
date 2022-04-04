@@ -97,7 +97,7 @@ module JobResult =
         result |> Job.bind (Result.either ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
-    let inline ignore jr = jr |> map ignore
+    let inline ignore<'ok, 'error> (jr: Job<Result<'ok, 'error>>) = jr |> map ignore<'ok>
 
     /// Returns the specified error if the job-wrapped value is false.
     let inline requireTrue error value =
@@ -166,7 +166,7 @@ module JobResult =
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
-    let inline ignoreError jobResult = defaultValue () jobResult
+    let inline ignoreError<'error> (jobResult: Job<Result<unit, 'error>>) = defaultValue () jobResult
 
     /// If the job-wrapped result is Ok, executes the function on the Ok value.
     /// Passes through the input value.

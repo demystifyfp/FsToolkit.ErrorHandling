@@ -242,7 +242,13 @@ let ignoreTests =
                   createPostFailure validCreatePostRequest
                   |> AsyncResult.ignore
                   |> Expect.hasAsyncErrorValue commonEx
-             } ]
+             }
+
+          testCase "can call ignore without type parameters"
+          <| fun () -> ignore AsyncResult.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun () -> ignore<Async<Result<int, string>> -> Async<Result<unit, string>>> AsyncResult.ignore<int, string> ]
 
 
 let err = "foobar"
@@ -455,7 +461,13 @@ let ignoreErrorTests =
           <| Expect.hasAsyncValue () (AsyncResult.ignoreError (toAsync (Ok())))
 
           testCaseAsync "ignoreError returns the unit for Error"
-          <| Expect.hasAsyncValue () (AsyncResult.ignoreError (toAsync (Error err))) ]
+          <| Expect.hasAsyncValue () (AsyncResult.ignoreError (toAsync (Error err)))
+
+          testCase "can call ignoreError without type parameter"
+          <| fun () -> ignore AsyncResult.ignoreError
+
+          testCase "can call ignoreError with type parameter"
+          <| fun () -> ignore<Async<Result<unit, string>> -> Async<unit>> AsyncResult.ignoreError<string> ]
 
 
 let teeTests =

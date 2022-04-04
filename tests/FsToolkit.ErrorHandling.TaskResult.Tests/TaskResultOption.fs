@@ -1,5 +1,6 @@
 module TaskResultOptionTests
 
+open System.Threading.Tasks
 open Expecto
 open SampleDomain
 open FsToolkit.ErrorHandling
@@ -160,7 +161,13 @@ let ignoreTests =
           <| fun _ ->
               getUserById (UserId(Guid.Empty))
               |> TaskResultOption.ignore
-              |> Expect.hasTaskErrorValueSync "invalid user id" ]
+              |> Expect.hasTaskErrorValueSync "invalid user id"
+
+          testCase "can call ignore without type parameters"
+          <| fun _ -> ignore TaskResultOption.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ -> ignore<Task<Result<int option, string>> -> Task<Result<unit option, string>>> TaskResultOption.ignore<int, string> ]
 
 [<Tests>]
 let computationExpressionTests =

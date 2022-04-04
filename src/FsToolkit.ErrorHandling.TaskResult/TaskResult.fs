@@ -88,7 +88,7 @@ module TaskResult =
         result |> Task.bind (Result.either ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
-    let inline ignore tr = tr |> map ignore
+    let inline ignore<'ok, 'error> (tr: Task<Result<'ok, 'error>>) = tr |> map ignore<'ok>
 
     /// Returns the specified error if the task-wrapped value is false.
     let inline requireTrue error value =
@@ -158,7 +158,7 @@ module TaskResult =
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
-    let inline ignoreError taskResult = defaultValue () taskResult
+    let inline ignoreError<'error> (taskResult: Task<Result<unit, 'error>>) = defaultValue () taskResult
 
     /// If the task-wrapped result is Ok, executes the function on the Ok value.
     /// Passes through the input value.

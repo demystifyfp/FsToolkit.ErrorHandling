@@ -133,7 +133,13 @@ let ignoreTests =
           <| fun _ ->
               Ok None
               |> ResultOption.ignore
-              |> Expect.hasOkValue None ]
+              |> Expect.hasOkValue None
+
+          testCase "can call ignore without type parameters"
+          <| fun _ -> ignore ResultOption.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ -> ignore<Result<int option, string> -> Result<unit option, string>> ResultOption.ignore<int, string> ]
 
 
 let resultOptionCETests =
