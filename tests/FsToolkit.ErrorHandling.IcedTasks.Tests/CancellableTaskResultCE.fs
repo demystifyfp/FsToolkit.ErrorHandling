@@ -177,14 +177,14 @@ module CancellableTaskResultCE =
                         Expect.equal actual (Ok ()) "Should be able to Return! CancellableTask"
                     }
 
-                    // testCaseTask "return! TaskLike" <| fun () -> task {
-                    //     let ctr = cancellableTaskResult {
-                    //         return! Task.Yield()
-                    //     }
+                    testCaseTask "return! TaskLike" <| fun () -> task {
+                        let ctr = cancellableTaskResult {
+                            return! Task.Yield()
+                        }
 
-                    //     let! actual = ctr CancellationToken.None
-                    //     Expect.equal actual (Ok ()) "Should be able to Return! CancellableTask"
-                    // }
+                        let! actual = ctr CancellationToken.None
+                        Expect.equal actual (Ok ()) "Should be able to Return! CancellableTask"
+                    }
 
                 ]
 
