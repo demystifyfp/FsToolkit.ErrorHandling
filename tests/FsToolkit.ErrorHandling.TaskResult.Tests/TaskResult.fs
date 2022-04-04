@@ -237,7 +237,13 @@ let ignoreTests =
           <| fun _ ->
               createPostFailure validCreatePostRequest
               |> TaskResult.ignore
-              |> Expect.hasTaskErrorValueSync commonEx ]
+              |> Expect.hasTaskErrorValueSync commonEx
+
+          testCase "can call ignore without type parameters"
+          <| fun _ -> ignore TaskResult.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ -> ignore<Task<Result<int, string>> -> Task<Result<unit, string>>> TaskResult.ignore<int, string> ]
 
 let err = "foobar"
 let toTask x = task { return x }
@@ -478,7 +484,13 @@ let ignoreErrorTests =
           <| fun _ -> Expect.hasTaskValue () (TaskResult.ignoreError (toTask (Ok())))
 
           testCase "ignoreError returns the unit for Error"
-          <| fun _ -> Expect.hasTaskValue () (TaskResult.ignoreError (toTask (Error err))) ]
+          <| fun _ -> Expect.hasTaskValue () (TaskResult.ignoreError (toTask (Error err)))
+
+          testCase "can call ignoreError without type parameter"
+          <| fun _ -> ignore TaskResult.ignoreError
+
+          testCase "can call ignoreError with type parameter"
+          <| fun _ -> ignore<Task<Result<unit, string>> -> Task<unit>> TaskResult.ignoreError<string> ]
 
 [<Tests>]
 let teeTests =

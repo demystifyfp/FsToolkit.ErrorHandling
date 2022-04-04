@@ -161,7 +161,13 @@ let ignoreTests =
           <| fun _ ->
               getUserById (UserId(Guid.Empty))
               |> JobResultOption.ignore
-              |> Expect.hasJobErrorValueSync "invalid user id" ]
+              |> Expect.hasJobErrorValueSync "invalid user id"
+
+          testCase "can call ignore without type parameters"
+          <| fun _ -> ignore JobResultOption.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ -> ignore<Job<Result<int option, string>> -> Job<Result<unit option, string>>> JobResultOption.ignore<int, string> ]
 
 [<Tests>]
 let computationExpressionTests =

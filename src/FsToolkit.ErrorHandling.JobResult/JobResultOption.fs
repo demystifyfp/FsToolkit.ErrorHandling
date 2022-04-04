@@ -24,4 +24,4 @@ module JobResultOption =
     let apply fJRO xJRO = map2 (fun f x -> f x) fJRO xJRO
 
     /// Replaces the wrapped value with unit
-    let inline ignore jro = jro |> map ignore
+    let inline ignore<'a, 'b> (jro: Job<Result<'a option, 'b>>) = jro |> map ignore<'a>

@@ -160,7 +160,7 @@ module Result =
         | Error e -> ifErrorFunc e
 
     /// Replaces the wrapped value with unit
-    let inline ignore (result: Result<'ok, 'error>) : Result<unit, 'error> =
+    let inline ignore<'ok, 'error> (result: Result<'ok, 'error>) : Result<unit, 'error> =
         match result with
         | Ok _ -> Ok()
         | Error e -> Error e
@@ -256,7 +256,7 @@ module Result =
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
-    let inline ignoreError (result: Result<unit, 'error>) : unit = defaultValue () result
+    let inline ignoreError<'error> (result: Result<unit, 'error>) : unit = defaultValue () result
 
     /// If the result is Ok and the predicate returns true, executes the function
     /// on the Ok value. Passes through the input value.

@@ -228,7 +228,15 @@ let ignoreTests =
           <| fun _ ->
               createPostFailure validCreatePostRequest
               |> JobResult.ignore
-              |> Expect.hasJobErrorValueSync commonEx ]
+              |> Expect.hasJobErrorValueSync commonEx
+
+          testCase "can call ignore without type parameters"
+          <| fun _ ->
+              ignore JobResult.ignore
+
+          testCase "can call ignore with type parameters"
+          <| fun _ ->
+              ignore<Job<Result<int, string>> -> Job<Result<unit, string>>> JobResult.ignore<int, string> ]
 
 let err = "foobar"
 let toJob = Job.singleton
@@ -469,7 +477,13 @@ let ignoreErrorTests =
           <| fun _ -> Expect.hasJobValue () (JobResult.ignoreError (toJob (Ok())))
 
           testCase "ignoreError returns the unit for Error"
-          <| fun _ -> Expect.hasJobValue () (JobResult.ignoreError (toJob (Error err))) ]
+          <| fun _ -> Expect.hasJobValue () (JobResult.ignoreError (toJob (Error err)))
+
+          testCase "Can call ignoreError without type parameter"
+          <| fun _ -> ignore JobResult.ignoreError
+
+          testCase "Can call ignoreError with type parameter"
+          <| fun _ -> ignore<Job<Result<unit, string>> -> Job<unit>> JobResult.ignoreError<string> ]
 
 [<Tests>]
 let teeTests =

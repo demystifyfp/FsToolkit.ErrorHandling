@@ -1,5 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
+open System.Threading.Tasks
+
 
 [<RequireQualifiedAccess>]
 module TaskResultOption =
@@ -24,4 +26,4 @@ module TaskResultOption =
     let inline apply fTRO xTRO = map2 (fun f x -> f x) fTRO xTRO
 
     /// Replaces the wrapped value with unit
-    let inline ignore tro = tro |> map ignore
+    let inline ignore<'ok, 'error> (tro: Task<Result<'ok option, 'error>>) = tro |> map ignore<'ok>
