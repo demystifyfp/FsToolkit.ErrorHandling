@@ -162,6 +162,8 @@ module CancellableTaskResultCE =
             )
 
         member inline this.Source(ctr: CancellableTaskResult<'T, 'Error>) : CancellableTaskResult<'T, 'Error> = ctr
+        member inline this.Source(ctr: CancellableTaskResultCode<'T,'Error,'T>) : CancellableTaskResultCode<'T,'Error,'T> = ctr
+
 
         member inline _.Source(result: TaskResult<_, _>) : CancellableTaskResult<_, _> = fun _ -> result 
         member inline _.Source(result: Async<Result<_, _>>) : CancellableTaskResult<_, _> = fun ct -> Async.StartAsTask(result, cancellationToken=ct)
@@ -368,33 +370,18 @@ module CancellableTaskResultCE =
     module LowPriority =
         // Low priority extensions           
         
-        type BackgroundCancellableTaskResultBuilder with
-            [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike2, ^Awaiter2, 'T, 'Error when ^TaskLike2: (member GetAwaiter : unit -> ^Awaiter2) and ^Awaiter2 :> ICriticalNotifyCompletion and ^Awaiter2: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter2: (member GetResult : unit -> 'T)>
-                (t: ^TaskLike2)
-                : CancellableTaskResult<'T, 'Error> =
-                // TODO: Gets errors like "error FS0073: internal error: Undefined or unsolved type variable:  ^Awaiter"
-                // this.Run(this.ReturnFrom(t))
-                fun _ ->
-                    backgroundTask {
-                        let! result = t
-                        return Ok result
-                    }
-        type CancellableTaskResultBuilder with
-            
-            [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter : unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
-                (t: ^TaskLike)
-                : CancellableTaskResult<'T, 'Error> =
-                // TODO: Gets errors like "error FS0073: internal error: Undefined or unsolved type variable:  ^Awaiter"
-                // this.Run(this.ReturnFrom(t))
-                fun _ ->
-                    task {
-                        let! result = t
-                        return Ok result
-                    }
+        // type BackgroundCancellableTaskResultBuilder with
+        //     [<NoEagerConstraintApplication>]
+        //     member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter : unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
+        //         unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
+        //         (t: ^TaskLike)
+        //         : CancellableTaskResult<'T, 'Error> =
+        //         fun _ ->
+        //             backgroundTask {
+        //                 let! result = t
+        //                 return Ok result
+        //             }
+        
 
         type CancellableTaskResultBuilderBase with
 
@@ -475,77 +462,77 @@ module CancellableTaskResultCE =
                 //-- RESUMABLE CODE END
                 )
 
-            // [<NoEagerConstraintApplication>]
-            // static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-            //     unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            //     unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
-            //     (
-            //         sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall,'Error>>>,
-            //         task: ^TaskLike,
-            //         continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
-            //     ) : bool =
-            //     sm.Data.CancellationToken.ThrowIfCancellationRequested()
+            [<NoEagerConstraintApplication>]
+            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+                (
+                    sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall,'Error>>>,
+                    task: ^TaskLike,
+                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                ) : bool =
+                sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
-            //     let mutable awaiter =
-            //         (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
+                let mutable awaiter =
+                    (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
 
-            //     let cont =
-            //         (CancellableTaskResultResumptionFunc<'TOverall, 'Error> (fun sm ->
-            //             let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
+                let cont =
+                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error> (fun sm ->
+                        let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
                         
-            //             (continuation result).Invoke(&sm)
-            //         ))
+                        (continuation result).Invoke(&sm)
+                    ))
 
-            //     // shortcut to continue immediately
-            //     if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
-            //         cont.Invoke(&sm)
-            //     else
-            //         sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
-            //         sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-            //         false
+                // shortcut to continue immediately
+                if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                    cont.Invoke(&sm)
+                else
+                    sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                    sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                    false
 
-            // [<NoEagerConstraintApplication>]
-            // member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-            //     unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            //     unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
-            //     (
-            //         task: ^TaskLike,
-            //         continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
-            //     ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
+            [<NoEagerConstraintApplication>]
+            member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+                (
+                    task: ^TaskLike,
+                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
                 
                 
-            //     CancellableTaskResultCode<'TOverall, _, _> (fun sm ->
-            //         if __useResumableCode then
-            //             //-- RESUMABLE CODE START
-            //             sm.Data.CancellationToken.ThrowIfCancellationRequested()
-            //             // Get an awaiter from the awaitable
-            //             let mutable awaiter =
-            //                 (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
+                CancellableTaskResultCode<'TOverall, _, _> (fun sm ->
+                    if __useResumableCode then
+                        //-- RESUMABLE CODE START
+                        sm.Data.CancellationToken.ThrowIfCancellationRequested()
+                        // Get an awaiter from the awaitable
+                        let mutable awaiter =
+                            (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
 
-            //             let mutable __stack_fin = true
+                        let mutable __stack_fin = true
 
-            //             if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
-            //                 // This will yield with __stack_yield_fin = false
-            //                 // This will resume with __stack_yield_fin = true
-            //                 let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-            //                 __stack_fin <- __stack_yield_fin
+                        if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                            // This will yield with __stack_yield_fin = false
+                            // This will resume with __stack_yield_fin = true
+                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                            __stack_fin <- __stack_yield_fin
 
-            //             if __stack_fin then
-            //                 let result = (^Awaiter: (member GetResult: unit ->'TResult1) (awaiter))
-            //                 (continuation result).Invoke(&sm)
+                        if __stack_fin then
+                            let result = (^Awaiter: (member GetResult: unit ->'TResult1) (awaiter))
+                            (continuation result).Invoke(&sm)
 
-            //             else
-            //                 sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-            //                 false
-            //         else
+                        else
+                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            false
+                    else
                         
-            //             CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
-            //                 &sm,
-            //                 task,
-            //                 continuation
-            //             )
-            //     //-- RESUMABLE CODE END
-            //     )
+                        CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                            &sm,
+                            task,
+                            continuation
+                        )
+                //-- RESUMABLE CODE END
+                )
 
 
             // [<NoEagerConstraintApplication>]
@@ -585,13 +572,13 @@ module CancellableTaskResultCE =
 
             //     this.Bind(task, (fun v -> this.Return v))
 
-            // [<NoEagerConstraintApplication>]
-            // member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            //     unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
-            //     (task: ^TaskLike)
-            //     : CancellableTaskResultCode<'T, 'Error, 'T> =
+            [<NoEagerConstraintApplication>]
+            member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
+                (task: ^TaskLike)
+                : CancellableTaskResultCode<'T, 'Error, 'T> =
 
-            //     this.Bind(task, (fun v -> this.Return v))
+                this.Bind(task, (fun v -> this.Return v))
 
             member inline _.Using<'Resource, 'TOverall, 'Error, 'T when 'Resource :> IDisposable>
                 (
@@ -601,7 +588,7 @@ module CancellableTaskResultCE =
                 ResumableCode.Using(resource, body)
 
 
-        
+
 
     [<AutoOpen>]
     module HighPriority =
@@ -616,6 +603,24 @@ module CancellableTaskResultCE =
                 fun ct -> Async.StartAsTask(computation, cancellationToken = ct)
 
 
+
+        
+        type CancellableTaskResultBuilder with
+            
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter : unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
+                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
+                (t: ^TaskLike)
+                : CancellableTaskResult<_, _> =
+                // : CancellableTaskResultCode<_,_,_> =
+                // TODO: Gets errors like "error FS0073: internal error: Undefined or unsolved type variable:  ^Awaiter"
+                // this.Run(this.ReturnFrom(t))
+                // this.ReturnFrom(t)
+                fun _ -> task {
+                    let! r = t
+                    return Ok r
+                }
+                
         // High priority extensions
         type CancellableTaskResultBuilderBase with
 
@@ -707,46 +712,31 @@ module CancellableTaskResultCE =
         
         type CancellableTaskResultBuilder with
             
-            member inline this.Source(t: Task<'T>) : CancellableTaskResult<'T, 'Error> = 
+            member inline this.Source(t: Task<'T>) 
+                // : CancellableTaskResult<'T, 'Error> = 
+                =
+                // this.ReturnFrom(t)
                 fun _ -> 
                     task {
                         let! r = t
                         return Ok r
                     }
-            member inline this.Source(t: Task) : CancellableTaskResult<unit, 'Error> =
-                fun _ -> 
+            member inline _.Source(result: CancellableTask<'T>) : CancellableTaskResult<'T, 'Error> = 
+                fun ct -> 
+                    // TODO: using `cancellableTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
                     task {
-                        do! t
-                        return Ok()
-                    }
+                        let! r = result ct
+                        return Ok r
+                    } 
         // Medium priority extensions
         type CancellableTaskResultBuilderBase with
 
 
-
-        member inline this.Source(t: ValueTask<'T>) : CancellableTaskResult<'T, 'Error> = fun _ -> t |> Task.mapV Ok
-
-        member inline this.Source(t: ValueTask) : CancellableTaskResult<unit, 'Error> =
-            fun _ -> 
-                task {
-                    do! t
-                    return Ok()
-                }
         member inline this.Source(t: Async<'T>) : CancellableTaskResult<'T, 'Error> = 
             fun ct -> 
                 let t = t |> Async.map Ok
                 Async.StartAsTask(t, cancellationToken = ct)
-      
-        // TODO: Use backgroundTask?
-        member inline _.Source(result: CancellableTask<'T>) : CancellableTaskResult<'T, 'Error> = 
-            fun ct -> 
-                // TODO: using `cancellableTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
-                task {
-                    let! r = result ct
-                    return Ok r
-                } 
 
- 
             // member inline this.Bind
             //     (
             //         [<InlineIfLambda>] computation: ColdTask<'TResult1>,
