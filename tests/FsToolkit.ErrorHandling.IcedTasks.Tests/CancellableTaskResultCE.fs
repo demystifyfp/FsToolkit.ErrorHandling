@@ -203,7 +203,7 @@ module CancellableTaskResultCE =
                         task {
 
                             let ctr =
-                                cancellableTaskResult { return! fun ct -> Task.CompletedTask }
+                                cancellableTaskResult { return! fun (ct : CancellationToken) -> Task.CompletedTask }
 
                             let! actual = ctr CancellationToken.None
                             Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
@@ -477,8 +477,22 @@ module CancellableTaskResultCE =
 
                             let ctr =
                                 cancellableTaskResult {
-                                    let! someValue = fun ct -> Task.CompletedTask
+                                    let! someValue = fun (ct : CancellationToken) -> Task.CompletedTask
                                     return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
+                        }
+                    testCaseTask "do! CancellableTask"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    do! fun (ct : CancellationToken) -> Task.CompletedTask
+                                    // return someValue
                                 }
 
                             let! actual = ctr CancellationToken.None

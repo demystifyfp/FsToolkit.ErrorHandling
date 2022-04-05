@@ -18,7 +18,7 @@ module CancellableTaskResultCE =
     open IcedTasks
 
     /// CancellationToken -> Task<Result<'T, 'Error>>
-    type CancellableTaskResult<'T, 'Error> = CancellationToken -> TaskResult<'T, 'Error>
+    type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
 
     /// The extra data stored in ResumableStateMachine for tasks
@@ -850,6 +850,13 @@ module CancellableTaskResultCE =
                     }
 
             member inline _.Source(result: CancellableTask<'T>) : CancellableTaskResult<'T, 'Error> =
+                cancellableTask {
+                    let! r = result
+                    return Ok r
+                }
+
+
+            member inline _.Source(result: CancellableTask) : CancellableTaskResult<unit, 'Error> =
                 cancellableTask {
                     let! r = result
                     return Ok r
