@@ -1,701 +1,854 @@
 namespace FsToolkit.ErrorHandling.IcedTasks.Tests
+
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading
 open System.Threading.Tasks
 open IcedTasks
+
 module CancellableTaskResultCE =
-    
+
+
+    let makeDisposable () =
+        { new System.IDisposable with
+            member this.Dispose() = () }
 
     [<Tests>]
     let cancellableTaskResultBuilderTests =
         testList
-            "CancellableTaskResultBuilder" [ 
-                testList "Return" [
-                    testCaseTask "return" <| fun () -> task {
+            "CancellableTaskResultBuilder"
+            [ testList
+                "Return"
+                [ testCaseTask "return"
+                  <| fun () ->
+                      task {
+                          let data = 42
+                          let ctr = cancellableTaskResult { return data }
+                          let! actual = ctr CancellationToken.None
+                          Expect.equal actual (Ok data) "Should be able to Return value"
+                      } ]
+              testList
+                  "ReturnFrom"
+                  [ testCaseTask "return! cancellableTaskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! cancellableTaskResult { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! cancellableTaskResult"
+                        }
+                    testCaseTask "return! taskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! taskResult { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! taskResult"
+                        }
+                    testCaseTask "return! asyncResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! asyncResult { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! asyncResult"
+                        }
+                    testCaseTask "return! asyncChoice"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! async { return Choice1Of2 data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! asyncChoice"
+                        }
+
+                    testCaseTask "return! valueTaskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! ValueTask.FromResult(Ok data) }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
+                        }
+                    testCaseTask "return! result"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! Ok data }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! result"
+                        }
+                    testCaseTask "return! choice"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! Choice1Of2 data }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! choice"
+                        }
+
+                    testCaseTask "return! task<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! task { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! task<'T>"
+                        }
+
+                    testCaseTask "return! task"
+                    <| fun () ->
+                        task {
+                            let ctr =
+                                cancellableTaskResult { return! Task.CompletedTask }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok()) "Should be able to Return! task"
+                        }
+
+                    testCaseTask "return! valuetask<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! ValueTask.FromResult data }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
+                        }
+
+                    testCaseTask "return! valuetask"
+                    <| fun () ->
+                        task {
+                            let ctr =
+                                cancellableTaskResult { return! ValueTask.CompletedTask }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok()) "Should be able to Return! valuetask"
+                        }
+
+                    testCaseTask "return! async<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! async { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! async<'T>"
+                        }
+                    testCaseTask "return! ColdTask<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! coldTask { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! ColdTask<'T>"
+                        }
+
+                    testCaseTask "return! ColdTask"
+                    <| fun () ->
+                        task {
+
+                            let ctr =
+                                cancellableTaskResult { return! fun () -> Task.CompletedTask }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok()) "Should be able to Return! ColdTask"
+                        }
+
+                    testCaseTask "return! CancellableTask<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult { return! cancellableTask { return data } }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
+                        }
+
+                    testCaseTask "return! CancellableTask"
+                    <| fun () ->
+                        task {
+
+                            let ctr =
+                                cancellableTaskResult { return! fun ct -> Task.CompletedTask }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
+                        }
+
+                    testCaseTask "return! TaskLike"
+                    <| fun () ->
+                        task {
+                            let ctr =
+                                cancellableTaskResult { return! Task.Yield() }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
+                        }
+
+                    ]
+
+              testList
+                  "Binds"
+                  [ testCaseTask "let! cancellableTaskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = cancellableTaskResult { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! cancellableTaskResult"
+                        }
+
+                    testCaseTask "let! taskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = taskResult { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! taskResult"
+                        }
+
+                    testCaseTask "let! asyncResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = asyncResult { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! asyncResult"
+                        }
+
+                    testCaseTask "let! asyncChoice"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = async { return Choice1Of2 data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! asyncChoice"
+                        }
+                    testCaseTask "let! valueTaskResult"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = ValueTask.FromResult(Ok data)
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! valueTaskResult"
+                        }
+                    testCaseTask "let! Result.Ok"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Ok data
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! Result.Ok"
+                        }
+
+                    testCaseTask "let! Result.Error"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Error data
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Error data) "Should be able to let! Result.Error"
+                        }
+                    testCaseTask "let! Choice1Of2"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Choice1Of2 data
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! choice"
+                        }
+                    testCaseTask "let! Choice2Of2"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Choice2Of2 data
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Error data) "Should be able to let! choice"
+                        }
+                    testCaseTask "let! task<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = task { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! task<'T>"
+                        }
+
+                    testCaseTask "let! task"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Task.CompletedTask
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! task"
+                        }
+
+                    testCaseTask "let! valuetask<'T>"
+                    <| fun () ->
+                        task {
+                            let data = 42
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = ValueTask.FromResult data
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! valuetask<'T>"
+                        }
+
+                    testCaseTask "let! valuetask"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = ValueTask.CompletedTask
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! valuetask"
+                        }
+
+                    testCaseTask "let! async<'t>"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = async { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! async<'t>"
+                        }
+
+                    testCaseTask "let! ColdTask<'t>"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = coldTask { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! ColdTask<'t>"
+                        }
+                    testCaseTask "let! ColdTask"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = fun () -> Task.CompletedTask
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! ColdTask"
+                        }
+                    testCaseTask "let! CancellableTask<'T>"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = cancellableTask { return data }
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! CancellableTask<'T>"
+                        }
+                    testCaseTask "let! CancellableTask"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = fun ct -> Task.CompletedTask
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
+                        }
+                    testCaseTask "let! TaskLike"
+                    <| fun () ->
+                        task {
+                            let data = ()
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    let! someValue = Task.Yield()
+                                    return someValue
+                                }
+
+                            let! actual = ctr CancellationToken.None
+                            Expect.equal actual (Ok data) "Should be able to let! TaskLike"
+                        }
+
+
+                    ]
+              testList
+                  "Zero/Combine/Delay"
+                  [ testCaseAsync "if statement"
+                    <| async {
                         let data = 42
-                        let ctr = 
+
+                        let! actual =
                             cancellableTaskResult {
+                                let result = data
+                                if true then ()
+                                return result
+                            }
+
+                        Expect.equal actual (Ok data) "Zero/Combine/Delay should work"
+                       } ]
+              testList
+                  "TryWith"
+                  [ testCaseAsync "try with"
+                    <| async {
+                        let data = 42
+
+                        let! actual =
+                            cancellableTaskResult {
+                                let data = data
+
+                                try
+                                    ()
+                                with
+                                | _ -> ()
+
                                 return data
                             }
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return value"
-                    }
-                ]
-                testList "ReturnFrom" [
-                    testCaseTask "return!" <| fun () -> task {
+
+                        Expect.equal actual (Ok data) "TryWith should work"
+                       } ]
+
+
+              testList
+                  "TryFinally"
+                  [ testCaseAsync "try finally"
+                    <| async {
                         let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! cancellableTaskResult { return data } 
-                        }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! cancellableTaskResult"
-                    }
-                    testCaseTask "return! taskResult" <| fun () -> task {
+                        let! actual =
+                            cancellableTaskResult {
+                                let data = data
+
+                                try
+                                    ()
+                                finally
+                                    ()
+
+                                return data
+                            }
+
+                        Expect.equal actual (Ok data) "TryFinally should work"
+                       } ]
+
+              testList
+                  "Using"
+                  [ testCaseAsync "use"
+                    <| async {
                         let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! taskResult { return data } 
-                        }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! taskResult"
-                    }
-                    testCaseTask "return! asyncResult" <| fun () -> task {
+                        let! actual =
+                            cancellableTaskResult {
+                                use d = makeDisposable ()
+                                return data
+                            }
+
+                        Expect.equal actual (Ok data) "Should be able to use use"
+                       }
+                    testCaseAsync "use!"
+                    <| async {
                         let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! asyncResult { return data } 
-                        }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! asyncResult"
-                    }
-                    testCaseTask "return! asyncChoice" <| fun () -> task {
+                        let! actual =
+                            cancellableTaskResult {
+                                use! d = makeDisposable () |> async.Return
+                                return data
+                            }
+
+                        Expect.equal actual (Ok data) "Should be able to use use!"
+                       }
+                    testCaseAsync "null"
+                    <| async {
                         let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! async { return Choice1Of2 data } 
+
+                        let! actual =
+                            cancellableTaskResult {
+                                use d = null
+                                return data
+                            }
+
+                        Expect.equal actual (Ok data) "Should be able to use null"
+                       } ]
+
+              testList
+                  "While"
+                  [ testCaseAsync "while"
+                    <| async {
+                        let loops = 10
+                        let mutable index = 0
+
+                        let! actual =
+                            cancellableTaskResult {
+                                while index < loops do
+                                    index <- index + 1
+
+                                return index
+                            }
+
+                        Expect.equal actual (Ok loops) "Should be ok"
+                       }
+                    testCaseTask "while fail"
+                    <| fun () ->
+                        task {
+
+                            let mutable loopCount = 0
+                            let mutable wasCalled = false
+
+                            let sideEffect () =
+                                wasCalled <- true
+                                "ok"
+
+                            let expected = Error "error"
+
+                            let data =
+                                [ Ok "42"
+                                  Ok "1024"
+                                  expected
+                                  Ok "1M"
+                                  Ok "1M"
+                                  Ok "1M" ]
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    while loopCount < data.Length do
+                                        let! x = data.[loopCount]
+                                        loopCount <- loopCount + 1
+
+                                    return sideEffect ()
+                                }
+
+                            let! actual = ctr CancellationToken.None
+
+                            Expect.equal loopCount 2 "Should only loop twice"
+                            Expect.equal actual expected "Should be an error"
+                            Expect.isFalse wasCalled "No additional side effects should occur"
                         }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! asyncChoice"
-                    }
+                    ]
 
-                    testCaseTask "return! valueTaskResult" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! ValueTask.FromResult(Ok data)
+              testList
+                  "For"
+                  [ testCaseAsync "for in"
+                    <| async {
+                        let loops = 10
+                        let mutable index = 0
+
+                        let! actual =
+                            cancellableTaskResult {
+                                for i in [ 1 .. 10 ] do
+                                    index <- i + i
+
+                                return index
+                            }
+
+                        Expect.equal actual (Ok index) "Should be ok"
+                       }
+
+
+                    testCaseAsync "for to"
+                    <| async {
+                        let loops = 10
+                        let mutable index = 0
+
+                        let! actual =
+                            cancellableTaskResult {
+                                for i = 1 to loops do
+                                    index <- i + i
+
+                                return index
+                            }
+
+                        Expect.equal actual (Ok index) "Should be ok"
+                       }
+                    testCaseTask "for in fail"
+                    <| fun () ->
+                        task {
+
+                            let mutable loopCount = 0
+                            let expected = Error "error"
+
+                            let data =
+                                [ Ok "42"
+                                  Ok "1024"
+                                  expected
+                                  Ok "1M"
+                                  Ok "1M"
+                                  Ok "1M" ]
+
+                            let ctr =
+                                cancellableTaskResult {
+                                    for i in data do
+                                        let! x = i
+                                        loopCount <- loopCount + 1
+                                        ()
+
+                                    return "ok"
+                                }
+
+                            let! actual = ctr CancellationToken.None
+
+                            Expect.equal loopCount 2 "Should only loop twice"
+                            Expect.equal actual expected "Should be an error"
+                        } ]
+              testList
+                  "Cancellations"
+                  [ testCaseTask "Simple Cancellation"
+                    <| fun () ->
+                        task {
+                            do!
+                                Expect.CancellationRequested(
+                                    task {
+                                        let foo = cancellableTaskResult { return "lol" }
+                                        use cts = new CancellationTokenSource()
+                                        cts.Cancel()
+                                        let! result = foo cts.Token
+                                        failtestf "Should not get here"
+                                    }
+                                )
                         }
+                    testCaseTask "CancellableTasks are lazily evaluated"
+                    <| fun () ->
+                        task {
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
-                    }
-                    testCaseTask "return! result" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! Ok data
+                            let mutable someValue = null
+
+                            do!
+                                Expect.CancellationRequested(
+                                    task {
+                                        let work =
+                                            cancellableTaskResult { someValue <- "lol" }
+
+                                        do! Async.Sleep(100)
+                                        Expect.equal someValue null ""
+                                        use cts = new CancellationTokenSource()
+                                        cts.Cancel()
+                                        let workInProgress = work cts.Token
+                                        do! Async.Sleep(100)
+                                        Expect.equal someValue null ""
+
+                                        let! _ = workInProgress
+
+                                        failtestf "Should not get here"
+                                    }
+                                )
                         }
+                    testCase
+                        "CancellationToken flows from Async<T> to CancellableTaskResult<T> via Async.AwaitCancellableTask"
+                    <| fun () ->
+                        let innerTask =
+                            cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! result"
-                    }
-                    testCaseTask "return! choice" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! Choice1Of2 data
-                        }
+                        let outerAsync =
+                            async { return! innerTask |> Async.AwaitCancellableTaskResult }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! choice"
-                    }
+                        use cts = new CancellationTokenSource()
 
+                        let actual =
+                            Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
 
-                    testCaseTask "return! task<'T>" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! task { return data }
-                        }
+                        Expect.equal actual (Ok cts.Token) ""
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! task<'T>"
-                    }
 
-                    testCaseTask "return! task" <| fun () -> task {
-                        let ctr = cancellableTaskResult {
-                            return! Task.CompletedTask
-                        }
+                    testCase "CancellationToken flows from AsyncResult<T> to CancellableTaskResult<T>"
+                    <| fun () ->
+                        let innerTask =
+                            cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok ()) "Should be able to Return! task"
-                    }
+                        let outerAsync = asyncResult { return! innerTask }
 
+                        use cts = new CancellationTokenSource()
 
-                    testCaseTask "return! valuetask<'T>" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! ValueTask.FromResult data
-                        }
+                        let actual =
+                            Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
-                    }
+                        Expect.equal actual (Ok cts.Token) ""
 
-                    testCaseTask "return! valuetask" <| fun () -> task {
-                        let ctr = cancellableTaskResult {
-                            return! ValueTask.CompletedTask
-                        }
+                    testCase "CancellationToken flows from CancellableTasResultk<T> to Async<unit>"
+                    <| fun () ->
+                        let innerAsync =
+                            async { return! Async.CancellationToken }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok ()) "Should be able to Return! valuetask"
-                    }
+                        let outerTask =
+                            cancellableTaskResult { return! innerAsync }
 
-                    testCaseTask "return! async<'T>" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! async { return data }
-                        }
+                        use cts = new CancellationTokenSource()
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! async<'T>"
-                    }
-                    testCaseTask "return! ColdTask<'T>" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! coldTask { return data }
-                        }
+                        let actual =
+                            (outerTask cts.Token).GetAwaiter().GetResult()
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! ColdTask<'T>"
-                    }
+                        Expect.equal actual (Ok cts.Token) ""
 
-                    testCaseTask "return! ColdTask" <| fun () -> task {
+                    testCase "CancellationToken flows from CancellableTaskResult<T> to AsyncResult<unit>"
+                    <| fun () ->
+                        let innerAsync =
+                            asyncResult { return! Async.CancellationToken }
 
-                        let ctr = cancellableTaskResult {
-                            return! fun () -> Task.CompletedTask
-                        }
+                        let outerTask =
+                            cancellableTaskResult { return! innerAsync }
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok ()) "Should be able to Return! ColdTask"
-                    }
+                        use cts = new CancellationTokenSource()
 
-                    testCaseTask "return! CancellableTask<'T>" <| fun () -> task {
-                        let data = 42
-                        let ctr = cancellableTaskResult {
-                            return! cancellableTask { return data }
-                        }
+                        let actual =
+                            (outerTask cts.Token).GetAwaiter().GetResult()
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
-                    }
+                        Expect.equal actual (Ok cts.Token) ""
+                    testCase "CancellationToken flows from CancellableTaskResult<T> to CancellableTask<T>"
+                    <| fun () ->
+                        let innerAsync =
+                            cancellableTask { return! CancellableTask.getCancellationToken }
 
-                    testCaseTask "return! CancellableTask" <| fun () -> task {
+                        let outerTask =
+                            cancellableTaskResult { return! innerAsync }
 
-                        let ctr = cancellableTaskResult {
-                            return! fun ct -> Task.CompletedTask
-                        }
+                        use cts = new CancellationTokenSource()
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok ()) "Should be able to Return! CancellableTask"
-                    }
+                        let actual =
+                            (outerTask cts.Token).GetAwaiter().GetResult()
 
-                    testCaseTask "return! TaskLike" <| fun () -> task {
-                        let ctr = cancellableTaskResult {
-                            return! Task.Yield()
-                        }
+                        Expect.equal actual (Ok cts.Token) ""
 
-                        let! actual = ctr CancellationToken.None
-                        Expect.equal actual (Ok ()) "Should be able to Return! CancellableTask"
-                    }
+                    testCase "CancellationToken flows from CancellableTaskResult<T> to CancellableTaskResult<T>"
+                    <| fun () ->
+                        let innerAsync =
+                            cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
 
-                ]
+                        let outerTask =
+                            cancellableTaskResult { return! innerAsync }
 
-                // testList "Binds" [
-                //     testCaseAsync "let!" <| async {
-                //         let data = 42
-                //         let! actual = parallelAsync {
+                        use cts = new CancellationTokenSource()
 
-                //             let! someValue = async.Return data
-                //             return someValue
-                //         }
-                //         Expect.equal actual data "Should be able to Return! value"
-                //     }
-                //     testCaseAsync "do!" <| async {
-                //         do! parallelAsync {
-                //             do! async.Return ()
-                //         }
-                //     }
+                        let actual =
+                            (outerTask cts.Token).GetAwaiter().GetResult()
 
-                // ]
-                // testList "Zero/Combine/Delay" [
-                //     testCaseAsync "if statement" <| async {
-                //         let data = 42
-                //         let! actual = parallelAsync {
-                //             let result = data
-                //             if true then ()
-                //             return result
-                //         }
-                //         Expect.equal actual data "Zero/Combine/Delay should work"
-                //     }
-                // ]
-                // testList "TryWith" [
-                //     testCaseAsync "try with" <| async {
-                //         let data = 42
-                //         let! actual = parallelAsync {
-                //             let data = data
-                //             try ()
-                //             with _ -> ()
+                        Expect.equal actual (Ok cts.Token) ""
 
-                //             return data
-                //         }
-                //         Expect.equal actual data "TryWith should work"
-                //     }
-                // ]
 
-
-                // testList "TryFinally" [
-                //     testCaseAsync "try finally" <| async {
-                //         let data = 42
-                //         let! actual = parallelAsync {
-                //             let data = data
-                //             try ()
-                //             finally ()
-
-                //             return data
-                //         }
-                //         Expect.equal actual data "TryFinally should work"
-                //     }
-                // ]
-
-                // testList "Using" [
-                //     testCaseAsync "use" <| async {
-                //         let data = 42
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 use d = TestHelpers.makeDisposable ()
-                //                 return data
-                //             }
-
-                //         Expect.equal actual data "Should be able to use use"
-                //     }
-                //     testCaseAsync "use!" <| async {
-                //         let data = 42
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 use! d = TestHelpers.makeDisposable () |> async.Return
-                //                 return data
-                //             }
-
-                //         Expect.equal actual data "Should be able to use use"
-                //     }
-                //     testCaseAsync "null" <| async {
-                //         let data = 42
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 use d = null
-                //                 return data
-                //             }
-
-                //         Expect.equal actual data "Should be able to use use"
-                //     }
-                // ]
-
-                // testList "While" [
-                //     testCaseAsync "while" <| async {
-                //         let loops = 10
-                //         let mutable index = 0
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 while index < loops do
-                //                     index <- index + 1
-
-                //                 return index
-                //             }
-
-                //         Expect.equal actual loops "Should be ok"
-                //     }
-                // ]
-
-                // testList "For" [
-                //     testCaseAsync "for in" <| async {
-                //         let loops = 10
-                //         let mutable index = 0
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 for i in [ 1 .. 10 ] do
-                //                     index <- i + i
-
-                //                 return index
-                //             }
-
-                //         Expect.equal actual index "Should be ok"
-                //     }
-
-
-                //     testCaseAsync "for to" <| async {
-                //         let loops = 10
-                //         let mutable index = 0
-
-                //         let! actual =
-                //             parallelAsync {
-                //                 for i = 1 to loops do
-                //                     index <- i + i
-
-                //                 return index
-                //             }
-
-                //         Expect.equal actual index "Should be ok"
-                //     }
-                // ]
-
-                // testList "MergeSources" [
-                //     testCaseAsync "and!" <| async {
-                //         let data = 42
-                //         let! actual = parallelAsync {
-                //             let! r1 = async.Return data
-                //             and! r2 = async.Return data
-                //             and! r3 = async.Return data
-
-                //             return r1 + r2 + r3
-                //         }
-
-                //         Expect.equal actual 126 "and! works"
-                //     }
-                // ]
-            //   testCaseAsync "Simple Return"
-            //   <| async {
-            //       let foo = cancellableTask { return "lol" }
-            //       let! result = foo |> Async.AwaitCancellableTask
-
-            //       Expect.equal result "lol" ""
-            //   }
-
-            //   testCaseAsync "Simple Cancellation"
-            //   <| async {
-            //       do!
-            //           Expect.CancellationRequested(
-            //               cancellableTask {
-
-            //                   let foo = cancellableTask { return "lol" }
-            //                   use cts = new CancellationTokenSource()
-            //                   cts.Cancel()
-            //                   let! result = foo cts.Token
-            //                   Expect.equal result "lol" ""
-            //               }
-            //           )
-            //   }
-
-
-            //   testCaseAsync "CancellableTasks are lazily evaluated"
-            //   <| async {
-
-            //       let mutable someValue = null
-
-            //       do!
-            //           Expect.CancellationRequested(
-            //               cancellableTask {
-            //                   let fooColdTask = cancellableTask { someValue <- "lol" }
-            //                   do! Async.Sleep(100)
-            //                   Expect.equal someValue null ""
-            //                   use cts = new CancellationTokenSource()
-            //                   cts.Cancel()
-            //                   let fooAsync = fooColdTask cts.Token
-            //                   do! Async.Sleep(100)
-            //                   Expect.equal someValue null ""
-
-            //                   do! fooAsync
-
-            //                   Expect.equal someValue "lol" ""
-            //               }
-            //           )
-
-            //       Expect.equal someValue null ""
-            //   }
-            //   testCaseAsync "Can extract context's CancellationToken via CancellableTask.getCancellationToken"
-            //   <| async {
-            //       let fooTask =
-            //           cancellableTask {
-            //               let! ct = CancellableTask.getCancellationToken
-            //               return ct
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! result = fooTask cts.Token |> Async.AwaitTask
-            //       Expect.equal result cts.Token ""
-            //   }
-
-            //   testCaseAsync
-            //       "Can extract context's CancellationToken via CancellableTask.getCancellationToken in a deeply nested CE"
-            //   <| async {
-            //       do!
-            //           Expect.CancellationRequested(
-            //               cancellableTask {
-            //                   let fooTask =
-            //                       cancellableTask {
-            //                           return!
-            //                               cancellableTask {
-            //                                   do!
-            //                                       cancellableTask {
-            //                                           let! ct = CancellableTask.getCancellationToken
-            //                                           do! Task.Delay(1000, ct)
-            //                                       }
-            //                               }
-            //                       }
-
-            //                   use cts = new CancellationTokenSource()
-            //                   cts.CancelAfter(100)
-            //                   do! fooTask cts.Token
-            //               }
-            //           )
-
-            //   }
-
-            //   testCaseAsync "pass along CancellationToken to async bind"
-            //   <| async {
-
-            //       let fooTask =
-            //           cancellableTask {
-            //               let! result =
-            //                   async {
-            //                       let! ct = Async.CancellationToken
-            //                       return ct
-            //                   }
-
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! passedct = fooTask cts.Token |> Async.AwaitTask
-            //       Expect.equal passedct cts.Token ""
-            //   }
-
-
-            //   testCaseAsync "Can Bind CancellableTask"
-            //   <| async {
-            //       let fooTask: CancellableTask = fun ct -> Task.FromResult()
-            //       let outerTask = cancellableTask { do! fooTask }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-            //   testCaseAsync "Can ReturnFrom CancellableTask"
-            //   <| async {
-            //       let fooTask: CancellableTask = fun ct -> Task.FromResult()
-            //       let outerTask = cancellableTask { return! fooTask }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-
-            //   testCaseAsync "Can Bind CancellableTask<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let fooTask: CancellableTask<_> = fun ct -> Task.FromResult expected
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = fooTask
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-
-            //   testCaseAsync "Can ReturnFrom CancellableTask<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let fooTask: CancellableTask<_> = fun ct -> Task.FromResult expected
-            //       let outerTask = cancellableTask { return! fooTask }
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-
-
-            //   testCaseAsync "Can Bind Task"
-            //   <| async {
-            //       let outerTask = cancellableTask { do! Task.FromResult() }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-            //   testCaseAsync "Can ReturnFrom Task"
-            //   <| async {
-            //       let outerTask = cancellableTask { return! Task.FromResult() }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-
-            //   testCaseAsync "Can Bind Task<T>"
-            //   <| async {
-            //       let expected = "lol"
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = Task.FromResult expected
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-            //   testCaseAsync "Can ReturnFrom Task<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let outerTask = cancellableTask { return! Task.FromResult expected }
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-
-            //   testCaseAsync "Can Bind ColdTask<T>"
-            //   <| async {
-            //       let expected = "lol"
-
-            //       let coldT = coldTask { return expected }
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = coldT
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-            //   testCaseAsync "Can ReturnFrom ColdTask<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let coldT = coldTask { return expected }
-            //       let outerTask = cancellableTask { return! coldT }
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-
-
-            //   testCaseAsync "Can Bind ColdTask"
-            //   <| async {
-
-            //       let coldT: ColdTask = fun () -> Task.FromResult()
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = coldT
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-            //   testCaseAsync "Can ReturnFrom ColdTask"
-            //   <| async {
-            //       let coldT: ColdTask = fun () -> Task.FromResult()
-            //       let outerTask = cancellableTask { return! coldT }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is a sufficient Expect
-            //   }
-
-
-            //   testCaseAsync "Can Bind cold TaskLike"
-            //   <| async {
-            //       let fooTask = fun () -> Task.Yield()
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = fooTask
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is sufficient expect
-            //   }
-            //   testCaseAsync "Can ReturnFrom cold TaskLike"
-            //   <| async {
-            //       let fooTask = fun () -> Task.Yield()
-            //       let outerTask = cancellableTask { return! fooTask }
-            //       use cts = new CancellationTokenSource()
-            //       do! outerTask cts.Token |> Async.AwaitTask
-            //   // Compiling is sufficient expect
-            //   }
-
-            //   testCaseAsync "Can Bind Async<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let fooTask = async.Return expected
-
-            //       let outerTask =
-            //           cancellableTask {
-            //               let! result = fooTask
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-            //   testCaseAsync "Can ReturnFrom Async<T>"
-            //   <| async {
-            //       let expected = "lol"
-            //       let fooTask = async.Return expected
-            //       let outerTask = cancellableTask { return! fooTask }
-            //       use cts = new CancellationTokenSource()
-            //       let! actual = outerTask cts.Token |> Async.AwaitTask
-            //       Expect.equal actual expected ""
-            //   }
-
-            //   testCase "CancellationToken flows from Async<unit> to CancellableTask<T> via Async.AwaitCancellableTask"
-            //   <| fun () ->
-            //       let innerTask = cancellableTask { return! CancellableTask.getCancellationToken }
-            //       let outerAsync = async { return! innerTask |> Async.AwaitCancellableTask }
-
-            //       use cts = new CancellationTokenSource()
-            //       let actual = Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token ""
-
-            //   testCase "CancellationToken flows from Async<unit> to CancellableTask via Async.AwaitCancellableTask"
-            //   <| fun () ->
-            //       let mutable actual = CancellationToken.None
-            //       let innerTask: CancellableTask = fun ct -> task { actual <- ct } :> Task
-            //       let outerAsync = async { return! innerTask |> Async.AwaitCancellableTask }
-
-            //       use cts = new CancellationTokenSource()
-            //       Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token ""
-
-
-            //   testCase "AsyncBuilder can Bind CancellableTask<T>"
-            //   <| fun () ->
-            //       let innerTask = cancellableTask { return! CancellableTask.getCancellationToken }
-
-            //       let outerAsync =
-            //           async {
-            //               let! result = innerTask
-            //               return result
-            //           }
-
-            //       use cts = new CancellationTokenSource()
-            //       let actual = Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token ""
-
-
-            //   testCase "AsyncBuilder can ReturnFrom CancellableTask<T>"
-            //   <| fun () ->
-            //       let innerTask = cancellableTask { return! CancellableTask.getCancellationToken }
-            //       let outerAsync = async { return! innerTask }
-
-            //       use cts = new CancellationTokenSource()
-            //       let actual = Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token ""
-
-
-            //   testCase "AsyncBuilder can Bind CancellableTask"
-            //   <| fun () ->
-            //       let mutable actual = CancellationToken.None
-            //       let innerTask: CancellableTask = fun ct -> task { actual <- ct } :> Task
-            //       let outerAsync = async { do! innerTask }
-
-            //       use cts = new CancellationTokenSource()
-            //       Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token ""
-            //   testCase "AsyncBuilder can ReturnFrom CancellableTask"
-            //   <| fun () ->
-            //       let mutable actual = CancellationToken.None
-            //       let innerTask: CancellableTask = fun ct -> task { actual <- ct } :> Task
-            //       let outerAsync = async { return! innerTask }
-
-            //       use cts = new CancellationTokenSource()
-            //       Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
-            //       Expect.equal actual cts.Token "" 
-            ]
+                    ] ]
