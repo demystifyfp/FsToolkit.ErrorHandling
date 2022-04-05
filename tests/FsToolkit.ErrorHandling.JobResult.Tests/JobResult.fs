@@ -231,12 +231,10 @@ let ignoreTests =
               |> Expect.hasJobErrorValueSync commonEx
 
           testCase "can call ignore without type parameters"
-          <| fun _ ->
-              ignore JobResult.ignore
+          <| fun _ -> ignore JobResult.ignore
 
           testCase "can call ignore with type parameters"
-          <| fun _ ->
-              ignore<Job<Result<int, string>> -> Job<Result<unit, string>>> JobResult.ignore<int, string> ]
+          <| fun _ -> ignore<Job<Result<int, string>> -> Job<Result<unit, string>>> JobResult.ignore<int, string> ]
 
 let err = "foobar"
 let toJob = Job.singleton

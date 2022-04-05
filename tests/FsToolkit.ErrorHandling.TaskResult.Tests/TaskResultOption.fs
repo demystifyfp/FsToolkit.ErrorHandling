@@ -167,7 +167,9 @@ let ignoreTests =
           <| fun _ -> ignore TaskResultOption.ignore
 
           testCase "can call ignore with type parameters"
-          <| fun _ -> ignore<Task<Result<int option, string>> -> Task<Result<unit option, string>>> TaskResultOption.ignore<int, string> ]
+          <| fun _ ->
+              ignore<Task<Result<int option, string>> -> Task<Result<unit option, string>>>
+                  TaskResultOption.ignore<int, string> ]
 
 [<Tests>]
 let computationExpressionTests =
