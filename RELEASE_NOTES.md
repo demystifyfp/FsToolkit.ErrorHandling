@@ -1,8 +1,9 @@
-### 3.0.0-beta004 - April 05, 2022
+### 3.0.0-beta005 - April 05, 2022
 
 - [Moves many functions to inline with InlineIfLambda for performance](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/166) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 - [Native Tasks for TaskResult, TaskOption, and TaskResultOption](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/169) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 - [Add explicit type parameters to ignore functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/174) Credits [@cmeeren](https://github.com/cmeeren)
+- [Adds CancellableTaskResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/172) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 
 ### 2.13.0 - January 11, 2022
 
