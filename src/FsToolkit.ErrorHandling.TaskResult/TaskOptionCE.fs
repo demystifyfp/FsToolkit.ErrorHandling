@@ -440,6 +440,12 @@ type TaskOptionStateMachineData<'T> =
         | ValueSome (None) -> true
         | ValueSome _ -> false
 
+    member this.SetResult() =
+        match this.Result with
+        | ValueNone -> this.MethodBuilder.SetResult None
+        | ValueSome x -> this.MethodBuilder.SetResult x
+
+
     member this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
 
 and AsyncTaskOptionMethodBuilder<'TOverall> = AsyncTaskMethodBuilder<'TOverall option>
@@ -463,7 +469,7 @@ module TaskOptionBuilderBase =
                     // Set the result now to allow short-circuiting of the rest of the CE.
                     // Run/RunDynamic will skip setting the result if it's already been set.
                     // Combine/CombineDynamic will not continue if the result has been set.
-                    sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+                    sm.Data.SetResult()
                     true
                 else
                     WhileDynamic(&sm, condition, body)
@@ -489,7 +495,7 @@ module TaskOptionBuilderBase =
                 // Set the result now to allow short-circuiting of the rest of the CE.
                 // Run/RunDynamic will skip setting the result if it's already been set.
                 // Combine/CombineDynamic will not continue if the result has been set.
-                sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+                sm.Data.SetResult()
                 true
             else
                 WhileDynamic(&sm, condition, body)
@@ -603,7 +609,7 @@ type TaskOptionBuilderBase() =
                         // Set the result now to allow short-circuiting of the rest of the CE.
                         // Run/RunDynamic will skip setting the result if it's already been set.
                         // Combine/CombineDynamic will not continue if the result has been set.
-                        sm.Data.MethodBuilder.SetResult sm.Data.Result.Value
+                        sm.Data.SetResult()
 
                     __stack_go
                 //-- RESUMABLE CODE END
@@ -739,7 +745,7 @@ type TaskOptionBuilder() =
                         if sm.Data.IsTaskCompleted then ()
 
                         if step then
-                            sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
+                            sm.Data.SetResult()
                         else
                             let mutable awaiter =
                                 sm.ResumptionDynamicInfo.ResumptionData :?> ICriticalNotifyCompletion
@@ -775,7 +781,7 @@ type TaskOptionBuilder() =
                             let __stack_code_fin = code.Invoke(&sm)
 
                             if __stack_code_fin && not sm.Data.IsTaskCompleted then
-                                sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
+                                sm.Data.SetResult()
                         with
                         | exn -> __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567

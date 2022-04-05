@@ -1,11 +1,56 @@
 namespace FsToolkit.ErrorHandling.IcedTasks.Tests
 
 open Expecto
-open FsToolkit.ErrorHandling
 open System.Threading
 open System.Threading.Tasks
+open FsToolkit.ErrorHandling
 open IcedTasks
 
+// module Affected =
+// let testFunctionCTR<'Dto>() =
+//         cancellableTaskResult {
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+// let testFunctionCTR<'Dto>() =
+//         backgroundCancellableTaskResult {
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+
+// let testFunctionCanT<'Dto>() =
+//         cancellableTask {
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+
+// let testFunctionCoT<'Dto>() =
+//         coldTask {
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+
+// let testFunctionBTR<'Dto>() =
+//         backgroundTaskResult{
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+// let testFunctionBTO<'Dto>() =
+//         backgroundTaskOption{
+//             let dto = Unchecked.defaultof<'Dto>
+//             System.Console.WriteLine(dto)
+//         }
+// module NotAffected =
+//     let testFunctionTR<'Dto>() =
+//             taskResult {
+//                 let dto = Unchecked.defaultof<'Dto>
+//                 System.Console.WriteLine(dto)
+//             }
+//     let testFunctionTO<'Dto>() =
+//             taskOption {
+//                 let dto = Unchecked.defaultof<'Dto>
+//                 System.Console.WriteLine(dto)
+//             }
 module CancellableTaskResultCE =
 
 
@@ -203,7 +248,7 @@ module CancellableTaskResultCE =
                         task {
 
                             let ctr =
-                                cancellableTaskResult { return! fun (ct : CancellationToken) -> Task.CompletedTask }
+                                cancellableTaskResult { return! fun (ct: CancellationToken) -> Task.CompletedTask }
 
                             let! actual = ctr CancellationToken.None
                             Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
@@ -477,7 +522,7 @@ module CancellableTaskResultCE =
 
                             let ctr =
                                 cancellableTaskResult {
-                                    let! someValue = fun (ct : CancellationToken) -> Task.CompletedTask
+                                    let! someValue = fun (ct: CancellationToken) -> Task.CompletedTask
                                     return someValue
                                 }
 
@@ -490,13 +535,11 @@ module CancellableTaskResultCE =
                             let data = ()
 
                             let ctr =
-                                cancellableTaskResult {
-                                    do! fun (ct : CancellationToken) -> Task.CompletedTask
-                                    // return someValue
-                                }
+                                cancellableTaskResult { do! fun (ct: CancellationToken) -> Task.CompletedTask }
 
                             let! actual = ctr CancellationToken.None
                             Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
+                        // return someValue
                         }
                     testCaseTask "let! TaskLike"
                     <| fun () ->
@@ -512,7 +555,6 @@ module CancellableTaskResultCE =
                             let! actual = ctr CancellationToken.None
                             Expect.equal actual (Ok data) "Should be able to let! TaskLike"
                         }
-
 
                     ]
               testList

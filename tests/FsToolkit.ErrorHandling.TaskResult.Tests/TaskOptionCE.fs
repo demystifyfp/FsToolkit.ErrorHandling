@@ -8,6 +8,13 @@ open System.Threading.Tasks
 open FSharp.Control.Tasks
 #endif
 
+module TestFuncs =
+    let testFunctionTO<'Dto> () =
+        taskOption {
+            let dto = Unchecked.defaultof<'Dto>
+            System.Console.WriteLine(dto)
+        }
+
 let makeDisposable () =
     { new System.IDisposable with
         member this.Dispose() = () }
@@ -420,6 +427,12 @@ let ceTests =
                   Expect.equal loopCount 2 "Should only loop twice"
                   Expect.equal actual expected "Should be an error"
                   Expect.isFalse wasCalled "No additional side effects should occur"
+              }
+          testCaseTask "Empty result"
+          <| fun () ->
+              task {
+                  let! _ = TestFuncs.testFunctionTO ()
+                  ()
               } ]
 
 let specialCaseTask returnValue =
