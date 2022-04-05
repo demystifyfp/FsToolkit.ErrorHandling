@@ -132,7 +132,8 @@ module AsyncResult =
         Async.bind (Result.either ok ifErrorFunc) input
 
     /// Replaces the wrapped value with unit
-    let inline ignore<'ok, 'error> (value: Async<Result<'ok, 'error>>) : Async<Result<unit, 'error>> = value |> map ignore<'ok>
+    let inline ignore<'ok, 'error> (value: Async<Result<'ok, 'error>>) : Async<Result<unit, 'error>> =
+        value |> map ignore<'ok>
 
     /// Returns the specified error if the async-wrapped value is false.
     let inline requireTrue (error: 'error) (value: Async<bool>) : Async<Result<unit, 'error>> =

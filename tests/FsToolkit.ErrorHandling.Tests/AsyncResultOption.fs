@@ -147,7 +147,9 @@ let ignoreTests =
           <| fun () -> ignore AsyncResultOption.ignore
 
           testCase "can call ignore with type parameters"
-          <| fun () -> ignore<Async<Result<int option, string>> -> Async<Result<unit option, string>>> AsyncResultOption.ignore<int, string> ]
+          <| fun () ->
+              ignore<Async<Result<int option, string>> -> Async<Result<unit option, string>>>
+                  AsyncResultOption.ignore<int, string> ]
 
 let computationExpressionTests =
     testList
