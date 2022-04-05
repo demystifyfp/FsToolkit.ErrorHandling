@@ -34,6 +34,7 @@ GitHub Actions |
 | FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.TaskResult)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.TaskResult?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult/absoluteLatest)
 | FsToolkit.ErrorHandling.JobResult | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.JobResult)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.JobResult?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.JobResult/absoluteLatest)
 | FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq/absoluteLatest)
+| FsToolkit.ErrorHandling.IcedTasks | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks/absoluteLatest)
 
 
 ### Developing locally
