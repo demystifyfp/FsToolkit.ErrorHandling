@@ -79,7 +79,7 @@ let formatCode _ =
         |> dotnet.fantomas
 
     if not result.OK then
-        printfn "Errors while formatting all files: %A" result.Messages
+        Trace.traceErrorfn "Errors while formatting all files: %A" result.Messages
 
 
 let checkFormatCode _ =
