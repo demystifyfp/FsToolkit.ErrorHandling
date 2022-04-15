@@ -234,6 +234,21 @@ let ceTests =
 
                   Expect.equal actual (Some data) "Should be ok"
               }
+          testCaseTask "If do!"
+          <| fun () ->
+              task {
+                  let data = 42
+
+                  let taskRes (call: unit -> Task) maybeCall : Task<Option<int>> =
+                      taskOption {
+                          if true then do! call ()
+
+                          let! (res: string) = maybeCall (): Task<Option<string>>
+                          return data
+                      }
+
+                  ()
+              }
           testCaseTask "Try With"
           <| fun () ->
               task {
