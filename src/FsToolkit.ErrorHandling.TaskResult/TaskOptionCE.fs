@@ -514,16 +514,18 @@ type TaskOptionBuilderBase() =
         TaskOptionCode<'TOverall, 'T>(fun sm -> (generator ()).Invoke(&sm))
 
     /// Used to represent no-ops like the implicit empty "else" branch of an "if" expression.
-    // [<DefaultValue>] // TODO: Figureout if this attribute is needed, without it it allows tests to pass with implicit else branches resulting in `Some ()`
-    member inline _.Zero<'TOverall>() : TaskOptionCode<'TOverall, unit> = ResumableCode.Zero()
+    [<DefaultValue>]
+    member inline _.Zero<'TOverall>() : TaskOptionCode<'TOverall, unit> =
+        TaskOptionCode<_, _>
+            (fun sm ->
+                sm.Data.Result <- ValueSome(Some Unchecked.defaultof<'TOverall>)
+                true)
 
     member inline _.Return(value: 'T) : TaskOptionCode<'T, 'T> =
         TaskOptionCode<'T, _>
             (fun sm ->
                 sm.Data.Result <- ValueSome(Some value)
                 true)
-
-
 
     static member inline CombineDynamic
         (

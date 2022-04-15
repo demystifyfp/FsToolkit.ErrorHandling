@@ -278,7 +278,24 @@ let ``TaskResultCE combine/zero/delay/run Tests`` =
                       }
 
                   Expect.equal actual (Result.Ok data) "Should be ok"
-              } ]
+              }
+          testCaseTask "If do!"
+          <| fun () ->
+              task {
+                  let data = 42
+
+                  let taskRes (call: unit -> Task) maybeCall : Task<Result<int, unit>> =
+                      taskResult {
+                          if true then do! call ()
+
+                          let! (res: string) = maybeCall (): Task<Result<string, unit>>
+                          return data
+                      }
+
+                  ()
+              }
+
+          ]
 
 
 

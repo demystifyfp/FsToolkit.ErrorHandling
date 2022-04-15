@@ -544,7 +544,7 @@ type TaskResultBuilderBase() =
         TaskResultCode<'TOverall, 'Error, 'T>(fun sm -> (generator ()).Invoke(&sm))
 
     /// Used to represent no-ops like the implicit empty "else" branch of an "if" expression.
-    // [<DefaultValue>] // TODO: Figureout if this attribute is needed, without it it allows tests to pass with implicit else branches resulting in `Some ()`
+    [<DefaultValue>]
     member inline _.Zero<'TOverall, 'Error>() : TaskResultCode<'TOverall, 'Error, unit> = ResumableCode.Zero()
 
     member inline _.Return(value: 'T) : TaskResultCode<'T, 'Error, 'T> =
