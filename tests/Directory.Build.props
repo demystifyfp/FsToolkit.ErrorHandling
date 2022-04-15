@@ -5,4 +5,9 @@
         <IsTestProject>true</IsTestProject>
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <VSTestLogger>trx</VSTestLogger>
+        <VSTestLogFilePrefix>testResults</VSTestLogFilePrefix>
+    </PropertyGroup>
 </Project>
