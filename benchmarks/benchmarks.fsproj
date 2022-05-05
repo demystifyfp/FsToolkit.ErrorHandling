@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
@@ -26,8 +26,17 @@
   <ItemGroup>
     <Compile Include="Program.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
+  <!-- <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0'">
+    <ProjectReference Include="../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+    <ProjectReference Include="../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup> -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
+    <ProjectReference Include="../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

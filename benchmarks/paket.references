@@ -3,3 +3,6 @@ FSharp.Core
 BenchmarkDotNet
 BenchmarkDotNet.Annotations
 BenchmarkDotNet.Diagnostics.Windows
+
+group NetStandard2
+    Ply

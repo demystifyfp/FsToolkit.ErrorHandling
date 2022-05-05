@@ -2,7 +2,7 @@ namespace FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
 module List =
-
+    open Microsoft.FSharp.Core.CompilerServices
     let rec private traverseResultM' (state: Result<_, _>) (f: _ -> Result<_, _>) xs =
         match xs with
         | [] -> state |> Result.map List.rev
@@ -35,7 +35,24 @@ module List =
                 | Error _ -> return r
             }
 
-    let traverseResultM f xs = traverseResultM' (Ok []) f xs
+    let traverseResultM f xs = 
+        // #if NETSTANDARD2_1
+        // let mutable oks = ListCollector()
+        // let mutable hasError = false
+        // let mutable error = Unchecked.defaultof<_>
+        // use i = (xs : seq<_>).GetEnumerator()
+        // while not hasError && i.MoveNext() do
+        //     match f i.Current with
+        //     | Ok o -> oks.Add o
+        //     | Error e ->
+        //         hasError <- true
+        //         error <- Error e
+        // if hasError then error
+        // else
+        //     Ok (oks.Close())
+        // #else
+        traverseResultM' (Ok []) f xs
+        // #endif
 
     let sequenceResultM xs = traverseResultM id xs
 
@@ -47,14 +64,14 @@ module List =
 
     let rec private traverseResultA' state f xs =
         match xs with
-        | [] -> state |> Result.map List.rev
+        | [] -> state |> Result.map List.rev |> Result.mapError List.rev
         | x :: xs ->
-            let fR = f x |> Result.mapError List.singleton
+            let fR : Result<'a, 'b> = f x 
 
             match state, fR with
             | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
-            | Error errs, Error e -> traverseResultA' (Error(errs @ e)) f xs
-            | Ok _, Error e
+            | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
+            | Ok _, Error e -> traverseResultA' (Error [e]) f xs
             | Error e, Ok _ -> traverseResultA' (Error e) f xs
 
     let rec private traverseAsyncResultA' state f xs =
@@ -72,7 +89,23 @@ module List =
                 | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
             }
 
-    let traverseResultA f xs = traverseResultA' (Ok []) f xs
+    let traverseResultA f xs = 
+        // #if NETSTANDARD2_1
+        // let mutable oks = ListCollector()
+        // let mutable hasErrors = false
+        // let mutable errors = ListCollector()
+        // for x in xs do
+        //     match f x with
+        //     | Ok o -> 
+        //         oks.Add o
+        //     | Error e -> 
+        //         hasErrors <- true
+        //         errors.Add e
+        // if hasErrors then Error (errors.Close())
+        // else Ok (oks.Close())
+        // #else
+        traverseResultA' (Ok []) f xs
+        // #endif
 
     let sequenceResultA xs = traverseResultA id xs
 

@@ -3,6 +3,8 @@
 open System
 open BenchmarkDotNet
 open BenchmarkDotNet.Attributes
+open BenchmarkDotNet.Running
+open BenchmarkDotNet.Configs
 // open FsToolkit.ErrorHandling
 
 let okF x = x + 2
@@ -415,3 +417,50 @@ type Map2Benchmarks () =
     member this.Result_Alt_InlinedLambda_Map2 () =         
         Result.Alt.InlinedLambda.map2 add (Ok 1) (Ok 2) : Result<int,int>
         
+
+let allOk x = Ok x
+let allError x = Error x
+let evensOk x = if x % 2 = 0 then Ok x else Error x
+
+open FsToolkit.ErrorHandling
+[<MemoryDiagnoser>]
+[<GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)>]
+[<CategoriesColumn>]
+type ListTraverseResultBenchmarks () =
+
+    [<Params(10000)>]
+    member val public entries = 0 with get, set
+
+    member this.GenerateList() = 
+        [1..this.entries]
+
+    [<BenchmarkCategory("traverseResultM");Benchmark>]
+    member this.List_traverseResultM_normal_allOks() : Result<list<int>,int>  = 
+        this.GenerateList()
+        |> List.traverseResultM allOk
+
+    [<BenchmarkCategory("traverseResultM");Benchmark>]
+    member this.List_traverseResultM_normal_allErrors() : Result<list<int>,int> = 
+        this.GenerateList()
+        |> List.traverseResultM allError
+
+    [<BenchmarkCategory("traverseResultM");Benchmark>]
+    member this.List_traverseResultM_normal_half() : Result<list<int>,int> = 
+        this.GenerateList()
+        |> List.traverseResultM evensOk
+
+
+    [<BenchmarkCategory("traverseResultA");Benchmark>]
+    member this.List_traverseResultA_normal_allOks() : Result<list<int>,list<int>> = 
+        this.GenerateList()
+        |> List.traverseResultA allOk
+
+    [<BenchmarkCategory("traverseResultA");Benchmark>]
+    member this.List_traverseResultA_normal_allErrors() : Result<list<int>,list<int>> = 
+        this.GenerateList()
+        |> List.traverseResultA allError
+
+    [<BenchmarkCategory("traverseResultA");Benchmark>]
+    member this.List_traverseResultA_normal_half() : Result<list<int>,list<int>> = 
+        this.GenerateList()
+        |> List.traverseResultA evensOk

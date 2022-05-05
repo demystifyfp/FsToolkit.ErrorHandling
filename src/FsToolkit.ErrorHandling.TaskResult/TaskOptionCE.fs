@@ -429,15 +429,15 @@ type TaskOption<'T> = Task<'T option>
 type TaskOptionStateMachineData<'T> =
 
     [<DefaultValue(false)>]
-    val mutable Result: 'T option voption
+    val mutable Result: 'T option voption // Use voption to determine whether `'T Option` value has actually been set or not
 
     [<DefaultValue(false)>]
     val mutable MethodBuilder: AsyncTaskOptionMethodBuilder<'T>
 
     member this.IsResultNone =
         match this.Result with
-        | ValueNone -> false
         | ValueSome (None) -> true
+        | ValueNone 
         | ValueSome _ -> false
 
     member this.SetResult() =
@@ -830,7 +830,7 @@ type BackgroundTaskOptionBuilder() =
                             let __stack_code_fin = code.Invoke(&sm)
 
                             if __stack_code_fin && not sm.Data.IsTaskCompleted then
-                                sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
+                                sm.Data.SetResult()
                         with
                         | exn -> sm.Data.MethodBuilder.SetException exn
                         //-- RESUMABLE CODE END

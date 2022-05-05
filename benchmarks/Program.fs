@@ -13,8 +13,9 @@ let main argv =
             // .AddJob(Job.Default.WithRuntime(CoreRuntime.Core50)) 
             .AddJob(Job.Default.WithRuntime(CoreRuntime.Core60))
     // BenchmarkRunner.Run<EitherMapBenchmarks>() |> ignore
-    BenchmarkRunner.Run<TaskResult_BindCEBenchmarks>(cfg) |> ignore
+    // BenchmarkRunner.Run<TaskResult_BindCEBenchmarks>(cfg) |> ignore
     // BenchmarkRunner.Run<BindSameBenchmarks>() |> ignore
+    BenchmarkRunner.Run<ListTraverseResultBenchmarks>(cfg) |> ignore
 // 
     
     0 // return an integer exit code
