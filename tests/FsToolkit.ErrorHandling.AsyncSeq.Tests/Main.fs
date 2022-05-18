@@ -7,8 +7,7 @@ open Expecto
 
 [<Tests>] //needed for `dotnet test` to work
 #endif
-let allTests =
-    testList "All Tests" [ AsyncSeq.allTests ]
+let allTests = testList "All Tests" [ AsyncSeq.allTests ]
 
 [<EntryPoint>]
 let main argv =

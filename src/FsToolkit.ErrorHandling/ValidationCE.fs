@@ -133,10 +133,12 @@ module ValidationCEExtensions =
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
         member inline _.Source(s: #seq<_>) : #seq<_> = s
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(s: Result<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofResult s
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>

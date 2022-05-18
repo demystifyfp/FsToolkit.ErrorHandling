@@ -24,13 +24,13 @@ module Option =
     let inline sequenceResult (opt: Result<'ok, 'error> option) : Result<'ok option, 'error> = traverseResult id opt
 
 #if !FABLE_COMPILER
-    let inline tryParse< ^T when ^T: (static member TryParse : string * byref< ^T > -> bool) and ^T: (new : unit -> ^T)>
+    let inline tryParse< ^T when ^T: (static member TryParse: string * byref< ^T > -> bool) and ^T: (new: unit -> ^T)>
         (valueToParse: string)
         : ^T option =
         let mutable output = new ^T()
 
         let parsed =
-            (^T: (static member TryParse : string * byref< ^T > -> bool) (valueToParse, &output))
+            (^T: (static member TryParse: string * byref< ^T > -> bool) (valueToParse, &output))
 
         match parsed with
         | true -> Some output
@@ -40,7 +40,7 @@ module Option =
         let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue : string * byref< ^value > -> bool) (dictionary, key, &output))
+            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary, key, &output))
 
         match parsed with
         | true -> Some output

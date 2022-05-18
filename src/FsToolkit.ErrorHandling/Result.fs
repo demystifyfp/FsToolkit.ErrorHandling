@@ -103,7 +103,7 @@ module Result =
 
     let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, (string * 'c) > =
         let tryCreate' x =
-            (^b: (static member TryCreate : 'a -> Result< ^b, 'c >) x)
+            (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
         tryCreate' x |> mapError (fun z -> (fieldName, z))
 
@@ -298,14 +298,13 @@ module Result =
         teeErrorIf (fun _ -> true) inspector result
 
     /// Converts a Result<Async<_>,_> to an Async<Result<_,_>>
-    let inline sequenceAsync (resAsync: Result<Async<'ok>, 'error>) : Async<Result<'ok, 'error>> =
-        async {
-            match resAsync with
-            | Ok asnc ->
-                let! x = asnc
-                return Ok x
-            | Error err -> return Error err
-        }
+    let inline sequenceAsync (resAsync: Result<Async<'ok>, 'error>) : Async<Result<'ok, 'error>> = async {
+        match resAsync with
+        | Ok asnc ->
+            let! x = asnc
+            return Ok x
+        | Error err -> return Error err
+    }
 
     ///
     let inline traverseAsync

@@ -15,14 +15,13 @@ module JobOptionCE =
 
         member inline _.Zero() : Job<_ option> = job.Return <| option.Zero()
 
-        member inline _.Bind(jobResult: Job<_ option>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> =
-            job {
-                let! result = jobResult
+        member inline _.Bind(jobResult: Job<_ option>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> = job {
+            let! result = jobResult
 
-                match result with
-                | Some x -> return! binder x
-                | None -> return None
-            }
+            match result with
+            | Some x -> return! binder x
+            | None -> return None
+        }
 
         member inline this.Bind
             (
@@ -117,14 +116,17 @@ module JobOptionCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(r: 't option) = Job.singleton r
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(a: Job<'t>) = a |> Job.map Some
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(a: Async<'t>) = a |> Job.fromAsync |> Job.map Some
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>

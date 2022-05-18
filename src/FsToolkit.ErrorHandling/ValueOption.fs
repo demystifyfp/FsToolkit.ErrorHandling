@@ -25,14 +25,14 @@ module ValueOption =
     let inline sequenceResult (opt: Result<'okOutput, 'error> voption) : Result<'okOutput voption, 'error> =
         traverseResult id opt
 
-    let inline tryParse< ^value when ^value: (static member TryParse : string * byref< ^value > -> bool) and ^value: (new :
+    let inline tryParse< ^value when ^value: (static member TryParse: string * byref< ^value > -> bool) and ^value: (new:
         unit -> ^value)>
         (valueToParse: string)
         : ^value voption =
         let mutable output = new ^value ()
 
         let parsed =
-            (^value: (static member TryParse : string * byref< ^value > -> bool) (valueToParse, &output))
+            (^value: (static member TryParse: string * byref< ^value > -> bool) (valueToParse, &output))
 
         match parsed with
         | true -> ValueSome output
@@ -42,7 +42,7 @@ module ValueOption =
         let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue : string * byref< ^value > -> bool) (dictionary, key, &output))
+            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary, key, &output))
 
         match parsed with
         | true -> ValueSome output

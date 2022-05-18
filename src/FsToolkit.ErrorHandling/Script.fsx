@@ -51,24 +51,27 @@ type Longitude =
             sprintf "%A is a invalid longitude value" lng
             |> Error
 
-type Location =
-    { Latitude: Latitude
-      Longitude: Longitude }
+type Location = {
+    Latitude: Latitude
+    Longitude: Longitude
+}
 
 let location lat lng = { Latitude = lat; Longitude = lng }
 
-type CreatePostRequest =
-    { Tweet: Tweet
-      Location: Location option }
+type CreatePostRequest = {
+    Tweet: Tweet
+    Location: Location option
+}
 
 let createPostRequest location tweet = { Tweet = tweet; Location = location }
 
 
 type LocationDto = { Latitude: double; Longitude: double }
 
-type CreatePostRequestDto =
-    { Tweet: string
-      Location: LocationDto option }
+type CreatePostRequestDto = {
+    Tweet: string
+    Location: LocationDto option
+}
 
 let validateLocation (dto: LocationDto) =
     location
