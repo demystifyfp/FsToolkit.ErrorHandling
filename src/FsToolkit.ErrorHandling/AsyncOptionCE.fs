@@ -95,6 +95,7 @@ module AsyncOptionCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(r: 'value option) : Async<option<'value>> = Async.singleton r
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>

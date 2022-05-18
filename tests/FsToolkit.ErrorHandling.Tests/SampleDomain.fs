@@ -38,9 +38,10 @@ type Longitude =
             |> Error
 
 
-type Location =
-    { Latitude: Latitude
-      Longitude: Longitude }
+type Location = {
+    Latitude: Latitude
+    Longitude: Longitude
+}
 
 let location lat lng = { Latitude = lat; Longitude = lng }
 
@@ -119,9 +120,10 @@ type DateOfBirth =
         let (DateOfBirth dob) = this
         dob
 
-type CreateUserRequest =
-    { Name: PersonName
-      DateOfBirth: DateOfBirth }
+type CreateUserRequest = {
+    Name: PersonName
+    DateOfBirth: DateOfBirth
+}
 
 let createUserRequest name dob = { Name = name; DateOfBirth = dob }
 
@@ -132,81 +134,84 @@ let commonEx = new Exception("something went wrong!")
 type User = { Id: UserId; Name: PersonName }
 
 type UserDto =
-    { Id: Guid
-      Name: string }
-    static member ToUser(dto: UserDto) =
-        result {
-            let! name = PersonName.TryCreate dto.Name
-            return { User.Id = UserId dto.Id; Name = name }
-        }
+    {
+        Id: Guid
+        Name: string
+    }
+    static member ToUser(dto: UserDto) = result {
+        let! name = PersonName.TryCreate dto.Name
+        return { User.Id = UserId dto.Id; Name = name }
+    }
 
 let sampleUserGuid = System.Guid.NewGuid()
 let sampleUserId = UserId sampleUserGuid
 
-let sampleUserDto =
-    { Id = sampleUserGuid
-      Name = "someone" }
+let sampleUserDto = {
+    Id = sampleUserGuid
+    Name = "someone"
+}
 
 let sampleUser =
     UserDto.ToUser
-        { Id = sampleUserGuid
-          Name = "someone" }
+        {
+            Id = sampleUserGuid
+            Name = "someone"
+        }
     |> okOrFail
 
-let getUserById (userId: UserId) =
-    async {
-        if userId = sampleUserId then
-            let user = Some sampleUserDto
-            return Option.traverseResult UserDto.ToUser user
-        elif userId = UserId Guid.Empty then
-            return Error "invalid user id"
-        else
-            return Ok None
-    }
+let getUserById (userId: UserId) = async {
+    if userId = sampleUserId then
+        let user = Some sampleUserDto
+        return Option.traverseResult UserDto.ToUser user
+    elif userId = UserId Guid.Empty then
+        return Error "invalid user id"
+    else
+        return Ok None
+}
 
 
-type CreatePostRequest =
-    { UserId: UserId
-      Tweet: Tweet
-      Location: Location option }
+type CreatePostRequest = {
+    UserId: UserId
+    Tweet: Tweet
+    Location: Location option
+}
 
 
 
-let createPostRequest lat long tweet =
-    { Tweet = tweet
-      Location = Some(location lat long)
-      UserId = sampleUserId }
+let createPostRequest lat long tweet = {
+    Tweet = tweet
+    Location = Some(location lat long)
+    UserId = sampleUserId
+}
 
 
-let getFollowersEx =
-    new Exception("unable to fetch followers!")
+let getFollowersEx = new Exception("unable to fetch followers!")
 
-let allowedToPost userId =
-    async {
-        if (userId = sampleUserId) then
-            return Ok true
-        else
-            return Error commonEx
-    }
+let allowedToPost userId = async {
+    if (userId = sampleUserId) then
+        return Ok true
+    else
+        return Error commonEx
+}
 
-let allowedToPostOptional userId =
-    async {
-        if (userId = sampleUserId) then
-            return Some true
-        else
-            return None
-    }
+let allowedToPostOptional userId = async {
+    if (userId = sampleUserId) then
+        return Some true
+    else
+        return None
+}
 
 let newPostId = Guid.NewGuid()
 
 type PostId = PostId of Guid
 let samplePostId = PostId newPostId
 
-type Post =
-    { Id: PostId
-      UserId: UserId
-      Tweet: Tweet
-      Location: Location option }
+type Post = {
+    Id: PostId
+    UserId: UserId
+    Tweet: Tweet
+    Location: Location option
+}
 
 
 
@@ -215,9 +220,10 @@ let createPostSuccess (_: CreatePostRequest) = async { return Ok samplePostId }
 
 let createPostSome (_: CreatePostRequest) = async { return Some samplePostId }
 
-let followerIds =
-    [ UserId(Guid.NewGuid())
-      UserId(Guid.NewGuid()) ]
+let followerIds = [
+    UserId(Guid.NewGuid())
+    UserId(Guid.NewGuid())
+]
 
 let getFollowersSuccess (UserId _) = async { return Ok followerIds }
 
@@ -230,69 +236,75 @@ let createPostFailure (_: CreatePostRequest) = async { return Error commonEx }
 
 let notifyNewPostSuccess (PostId post) (UserId user) = async { return Ok(post, user) }
 
-let notifyNewPostFailure (PostId _) (UserId uId) =
-    async { return sprintf "error: %s" (uId.ToString()) |> Error }
+let notifyNewPostFailure (PostId _) (UserId uId) = async { return sprintf "error: %s" (uId.ToString()) |> Error }
 
-type NotifyNewPostRequest =
-    { UserIds: UserId list
-      NewPostId: PostId }
+type NotifyNewPostRequest = {
+    UserIds: UserId list
+    NewPostId: PostId
+}
 
-let newPostRequest userIds newPostsId =
-    { UserIds = userIds
-      NewPostId = newPostsId }
+let newPostRequest userIds newPostsId = {
+    UserIds = userIds
+    NewPostId = newPostsId
+}
 
 type LocationDto =
-    { Latitude: double
-      Longitude: double }
-    static member ToLocation(dto: LocationDto) =
-        result {
-            let! lat = Latitude.TryCreate dto.Latitude
-            let! lng = Longitude.TryCreate dto.Longitude
+    {
+        Latitude: double
+        Longitude: double
+    }
+    static member ToLocation(dto: LocationDto) = result {
+        let! lat = Latitude.TryCreate dto.Latitude
+        let! lng = Longitude.TryCreate dto.Longitude
 
-            return
-                { Location.Latitude = lat
-                  Longitude = lng }
+        return {
+            Location.Latitude = lat
+            Longitude = lng
         }
+    }
 
-type CreatePostRequestDto =
-    { Tweet: string
-      Location: LocationDto option }
+type CreatePostRequestDto = {
+    Tweet: string
+    Location: LocationDto option
+}
 
 type PostDto =
-    { Id: Guid
-      UserId: Guid
-      Tweet: string
-      Location: LocationDto option }
-    static member ToPost(dto: PostDto) =
-        result {
-            let! location =
-                dto.Location
-                |> Option.traverseResult LocationDto.ToLocation
-
-            let! tweet = Tweet.TryCreate dto.Tweet
-
-            return
-                { Post.Id = PostId dto.Id
-                  UserId = UserId dto.UserId
-                  Tweet = tweet
-                  Location = location }
-        }
-
-let samplePostDto =
-    { Id = newPostId
-      UserId = sampleUserGuid
-      Tweet = "Hello, World!"
-      Location = None }
-
-let getPostById postId =
-    async {
-        if postId = samplePostId then
-            return Option.traverseResult PostDto.ToPost (Some samplePostDto)
-        elif postId = (PostId Guid.Empty) then
-            return Error "invalid post id"
-        else
-            return Ok None
+    {
+        Id: Guid
+        UserId: Guid
+        Tweet: string
+        Location: LocationDto option
     }
+    static member ToPost(dto: PostDto) = result {
+        let! location =
+            dto.Location
+            |> Option.traverseResult LocationDto.ToLocation
+
+        let! tweet = Tweet.TryCreate dto.Tweet
+
+        return {
+            Post.Id = PostId dto.Id
+            UserId = UserId dto.UserId
+            Tweet = tweet
+            Location = location
+        }
+    }
+
+let samplePostDto = {
+    Id = newPostId
+    UserId = sampleUserGuid
+    Tweet = "Hello, World!"
+    Location = None
+}
+
+let getPostById postId = async {
+    if postId = samplePostId then
+        return Option.traverseResult PostDto.ToPost (Some samplePostDto)
+    elif postId = (PostId Guid.Empty) then
+        return Error "invalid post id"
+    else
+        return Ok None
+}
 
 
 type Response = { Id: Guid }

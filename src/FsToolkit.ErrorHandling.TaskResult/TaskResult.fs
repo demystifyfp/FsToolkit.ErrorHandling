@@ -194,8 +194,7 @@ module TaskResult =
     let inline catch ([<InlineIfLambda>] f) x =
         x
         |> Task.catch
-        |> Task.map
-            (function
+        |> Task.map (function
             | Choice1Of2 (Ok v) -> Ok v
             | Choice1Of2 (Error err) -> Error err
             | Choice2Of2 ex -> Error(f ex))

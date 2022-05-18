@@ -20,27 +20,25 @@ module Expect =
 
     [<RequiresExplicitTypeArguments>]
     /// Expects the passed function to throw `'texn`.
-    let throwsTAsync<'a, 'texn when 'texn :> exn> (f: Async<'a>) message =
-        async {
-            let! thrown =
-                async {
-                    try
-                        let! r = f
-                        return Choice2Of2 r
-                    with
-                    | e -> return Choice1Of2 e
-                }
-
-            match thrown with
-            | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom (e.GetType())) ->
-                failtestf
-                    "%s. Expected f to throw an exn of type %s, but one of type %s was thrown."
-                    message
-                    (typeof<'texn>.FullName)
-                    (e.GetType().FullName)
-            | Choice1Of2 _ -> ()
-            | Choice2Of2 result -> failtestf "%s. Expected f to throw. returned %A" message result
+    let throwsTAsync<'a, 'texn when 'texn :> exn> (f: Async<'a>) message = async {
+        let! thrown = async {
+            try
+                let! r = f
+                return Choice2Of2 r
+            with
+            | e -> return Choice1Of2 e
         }
+
+        match thrown with
+        | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom (e.GetType())) ->
+            failtestf
+                "%s. Expected f to throw an exn of type %s, but one of type %s was thrown."
+                message
+                (typeof<'texn>.FullName)
+                (e.GetType().FullName)
+        | Choice1Of2 _ -> ()
+        | Choice2Of2 result -> failtestf "%s. Expected f to throw. returned %A" message result
+    }
 
 type Expect =
 

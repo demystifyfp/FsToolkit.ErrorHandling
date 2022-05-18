@@ -7,19 +7,17 @@ module List =
     let rec private traverseJobResultM' (state: Job<Result<_, _>>) (f: _ -> Job<Result<_, _>>) xs =
         match xs with
         | [] -> state |> JobResult.map List.rev
-        | x :: xs ->
-            job {
-                let! r =
-                    jobResult {
-                        let! ys = state
-                        let! y = f x
-                        return y :: ys
-                    }
-
-                match r with
-                | Ok _ -> return! traverseJobResultM' (Job.singleton r) f xs
-                | Error _ -> return r
+        | x :: xs -> job {
+            let! r = jobResult {
+                let! ys = state
+                let! y = f x
+                return y :: ys
             }
+
+            match r with
+            | Ok _ -> return! traverseJobResultM' (Job.singleton r) f xs
+            | Error _ -> return r
+          }
 
     let traverseJobResultM f xs =
         traverseJobResultM' (JobResult.retn []) f xs
@@ -30,17 +28,16 @@ module List =
     let rec private traverseJobResultA' state f xs =
         match xs with
         | [] -> state |> JobResult.map List.rev
-        | x :: xs ->
-            job {
-                let! s = state
-                let! fR = f x |> JobResult.mapError List.singleton
+        | x :: xs -> job {
+            let! s = state
+            let! fR = f x |> JobResult.mapError List.singleton
 
-                match s, fR with
-                | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.retn (y :: ys)) f xs
-                | Error errs, Error e -> return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
-                | Ok _, Error e
-                | Error e, Ok _ -> return! traverseJobResultA' (JobResult.returnError e) f xs
-            }
+            match s, fR with
+            | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.retn (y :: ys)) f xs
+            | Error errs, Error e -> return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
+            | Ok _, Error e
+            | Error e, Ok _ -> return! traverseJobResultA' (JobResult.returnError e) f xs
+          }
 
 
     let traverseJobResultA f xs =

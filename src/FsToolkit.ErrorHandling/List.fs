@@ -7,12 +7,11 @@ module List =
         match xs with
         | [] -> state |> Result.map List.rev
         | x :: xs ->
-            let r =
-                result {
-                    let! y = f x
-                    let! ys = state
-                    return y :: ys
-                }
+            let r = result {
+                let! y = f x
+                let! ys = state
+                return y :: ys
+            }
 
             match r with
             | Ok _ -> traverseResultM' r f xs
@@ -21,19 +20,17 @@ module List =
     let rec private traverseAsyncResultM' (state: Async<Result<_, _>>) (f: _ -> Async<Result<_, _>>) xs =
         match xs with
         | [] -> state |> AsyncResult.map List.rev
-        | x :: xs ->
-            async {
-                let! r =
-                    asyncResult {
-                        let! ys = state
-                        let! y = f x
-                        return y :: ys
-                    }
-
-                match r with
-                | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
-                | Error _ -> return r
+        | x :: xs -> async {
+            let! r = asyncResult {
+                let! ys = state
+                let! y = f x
+                return y :: ys
             }
+
+            match r with
+            | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
+            | Error _ -> return r
+          }
 
     let traverseResultM f xs = traverseResultM' (Ok []) f xs
 
@@ -60,17 +57,16 @@ module List =
     let rec private traverseAsyncResultA' state f xs =
         match xs with
         | [] -> state |> AsyncResult.map List.rev
-        | x :: xs ->
-            async {
-                let! s = state
-                let! fR = f x |> AsyncResult.mapError List.singleton
+        | x :: xs -> async {
+            let! s = state
+            let! fR = f x |> AsyncResult.mapError List.singleton
 
-                match s, fR with
-                | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.retn (y :: ys)) f xs
-                | Error errs, Error e -> return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f xs
-                | Ok _, Error e
-                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
-            }
+            match s, fR with
+            | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.retn (y :: ys)) f xs
+            | Error errs, Error e -> return! traverseAsyncResultA' (AsyncResult.returnError (errs @ e)) f xs
+            | Ok _, Error e
+            | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
+          }
 
     let traverseResultA f xs = traverseResultA' (Ok []) f xs
 

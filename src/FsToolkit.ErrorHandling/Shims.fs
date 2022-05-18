@@ -4,6 +4,7 @@ namespace FsToolkit.ErrorHandling
 
 #if NETSTANDARD2_0
 open System
+
 /// InlineIfLambda doesn't exist until FSharp.Core 6.0.
 /// Since we're targeting netstandard2.0 with FSharp.Core 4.7 to keep this libraries' reach
 /// we need to create a fake attribute that does nothing instead of having ifdefs in each function argument

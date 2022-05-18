@@ -42,20 +42,18 @@ module AsyncResult =
 #if !FABLE_COMPILER
 
     let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
-        async.Delay
-            (fun () ->
-                aTask
-                |> Async.AwaitTask
-                |> Async.Catch
-                |> Async.map Result.ofChoice)
+        async.Delay(fun () ->
+            aTask
+            |> Async.AwaitTask
+            |> Async.Catch
+            |> Async.map Result.ofChoice)
 
     let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
-        async.Delay
-            (fun () ->
-                aTask
-                |> Async.AwaitTask
-                |> Async.Catch
-                |> Async.map Result.ofChoice)
+        async.Delay(fun () ->
+            aTask
+            |> Async.AwaitTask
+            |> Async.Catch
+            |> Async.map Result.ofChoice)
 
 #endif
 
@@ -276,8 +274,7 @@ module AsyncResult =
         : Async<Result<'ok, 'error>> =
         input
         |> Async.Catch
-        |> Async.map
-            (function
+        |> Async.map (function
             | Choice1Of2 (Ok v) -> Ok v
             | Choice1Of2 (Error err) -> Error err
             | Choice2Of2 ex -> Error(exnMapper ex))

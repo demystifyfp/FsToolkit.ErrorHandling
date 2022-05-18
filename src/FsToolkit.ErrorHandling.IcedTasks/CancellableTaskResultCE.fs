@@ -76,8 +76,8 @@ module CancellableTaskResultCE =
                     let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
                     sm.ResumptionDynamicInfo.ResumptionFunc <-
-                        (CancellableTaskResultResumptionFunc<_, _>
-                            (fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+                        (CancellableTaskResultResumptionFunc<_, _>(fun sm ->
+                            WhileBodyDynamicAux(&sm, condition, body, rf)))
 
                     false
             else
@@ -121,10 +121,9 @@ module CancellableTaskResultCE =
             ResumableCode.Zero()
 
         member inline _.Return(value: 'T) : CancellableTaskResultCode<'T, 'Error, 'T> =
-            CancellableTaskResultCode<'T, _, _>
-                (fun sm ->
-                    sm.Data.Result <- Ok value
-                    true)
+            CancellableTaskResultCode<'T, _, _>(fun sm ->
+                sm.Data.Result <- Ok value
+                true)
 
 
 
@@ -142,19 +141,18 @@ module CancellableTaskResultCE =
                 task2.Invoke(&sm)
             else
                 let rec resume (mf: CancellableTaskResultResumptionFunc<_, _>) =
-                    CancellableTaskResultResumptionFunc<_, _>
-                        (fun sm ->
-                            let shouldContinue = mf.Invoke(&sm)
+                    CancellableTaskResultResumptionFunc<_, _>(fun sm ->
+                        let shouldContinue = mf.Invoke(&sm)
 
-                            if sm.Data.IsTaskCompleted then
-                                true
-                            elif shouldContinue then
-                                task2.Invoke(&sm)
-                            else
-                                sm.ResumptionDynamicInfo.ResumptionFunc <-
-                                    (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+                        if sm.Data.IsTaskCompleted then
+                            true
+                        elif shouldContinue then
+                            task2.Invoke(&sm)
+                        else
+                            sm.ResumptionDynamicInfo.ResumptionFunc <-
+                                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
 
-                                false)
+                            false)
 
                 sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
                 false
@@ -168,21 +166,20 @@ module CancellableTaskResultCE =
                 task2: CancellableTaskResultCode<'TOverall, 'Error, 'T>
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
 
-            CancellableTaskResultCode<'TOverall, 'Error, 'T>
-                (fun sm ->
-                    if __useResumableCode then
-                        //-- RESUMABLE CODE START
-                        // NOTE: The code for code1 may contain await points! Resuming may branch directly
-                        // into this code!
-                        // printfn "Combine Called Before Invoke --> "
-                        let __stack_fin = task1.Invoke(&sm)
-                        // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
+            CancellableTaskResultCode<'TOverall, 'Error, 'T>(fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    // NOTE: The code for code1 may contain await points! Resuming may branch directly
+                    // into this code!
+                    // printfn "Combine Called Before Invoke --> "
+                    let __stack_fin = task1.Invoke(&sm)
+                    // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
 
-                        if sm.Data.IsTaskCompleted then true
-                        elif __stack_fin then task2.Invoke(&sm)
-                        else false
-                    else
-                        CancellableTaskResultBuilderBase.CombineDynamic(&sm, task1, task2))
+                    if sm.Data.IsTaskCompleted then true
+                    elif __stack_fin then task2.Invoke(&sm)
+                    else false
+                else
+                    CancellableTaskResultBuilderBase.CombineDynamic(&sm, task1, task2))
 
 
 
@@ -192,34 +189,33 @@ module CancellableTaskResultCE =
                 [<InlineIfLambda>] condition: unit -> bool,
                 body: CancellableTaskResultCode<'TOverall, 'Error, unit>
             ) : CancellableTaskResultCode<'TOverall, 'Error, unit> =
-            CancellableTaskResultCode<'TOverall, 'Error, unit>
-                (fun sm ->
-                    if __useResumableCode then
-                        //-- RESUMABLE CODE START
-                        let mutable __stack_go = true
+            CancellableTaskResultCode<'TOverall, 'Error, unit>(fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    let mutable __stack_go = true
 
-                        while __stack_go
-                              && not sm.Data.IsResultError
-                              && condition () do
-                            // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
-                            // the code will branch directly into the expanded 'body', branching directly into the while loop
-                            let __stack_body_fin = body.Invoke(&sm)
-                            // printfn "While After Invoke --> %A" sm.Data.Result
-                            // If the body completed, we go back around the loop (__stack_go = true)
-                            // If the body yielded, we yield (__stack_go = false)
-                            __stack_go <- __stack_body_fin
+                    while __stack_go
+                          && not sm.Data.IsResultError
+                          && condition () do
+                        // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
+                        // the code will branch directly into the expanded 'body', branching directly into the while loop
+                        let __stack_body_fin = body.Invoke(&sm)
+                        // printfn "While After Invoke --> %A" sm.Data.Result
+                        // If the body completed, we go back around the loop (__stack_go = true)
+                        // If the body yielded, we yield (__stack_go = false)
+                        __stack_go <- __stack_body_fin
 
-                        if sm.Data.IsResultError then
-                            // Set the result now to allow short-circuiting of the rest of the CE.
-                            // Run/RunDynamic will skip setting the result if it's already been set.
-                            // Combine/CombineDynamic will not continue if the result has been set.
-                            sm.Data.MethodBuilder.SetResult sm.Data.Result
+                    if sm.Data.IsResultError then
+                        // Set the result now to allow short-circuiting of the rest of the CE.
+                        // Run/RunDynamic will skip setting the result if it's already been set.
+                        // Combine/CombineDynamic will not continue if the result has been set.
+                        sm.Data.MethodBuilder.SetResult sm.Data.Result
 
-                        __stack_go
-                    //-- RESUMABLE CODE END
-                    else
-                        // failwith "no dynamic yet"
-                        CancellableTaskResultBuilderBase.WhileDynamic(&sm, condition, body))
+                    __stack_go
+                //-- RESUMABLE CODE END
+                else
+                    // failwith "no dynamic yet"
+                    CancellableTaskResultBuilderBase.WhileDynamic(&sm, condition, body))
 
         /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
         /// to retrieve the step, and in the continuation of the step (if any).
@@ -239,10 +235,9 @@ module CancellableTaskResultCE =
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
             ResumableCode.TryFinally(
                 body,
-                ResumableCode<_, _>
-                    (fun _sm ->
-                        compensation ()
-                        true)
+                ResumableCode<_, _>(fun _sm ->
+                    compensation ()
+                    true)
             )
 
         member inline this.For
@@ -267,38 +262,36 @@ module CancellableTaskResultCE =
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
             ResumableCode.TryFinallyAsync(
                 body,
-                ResumableCode<_, _>
-                    (fun sm ->
-                        if __useResumableCode then
-                            let mutable __stack_condition_fin = true
-                            let __stack_vtask = compensation ()
+                ResumableCode<_, _>(fun sm ->
+                    if __useResumableCode then
+                        let mutable __stack_condition_fin = true
+                        let __stack_vtask = compensation ()
 
-                            if not __stack_vtask.IsCompleted then
-                                let mutable awaiter = __stack_vtask.GetAwaiter()
-                                let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                                __stack_condition_fin <- __stack_yield_fin
+                        if not __stack_vtask.IsCompleted then
+                            let mutable awaiter = __stack_vtask.GetAwaiter()
+                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                            __stack_condition_fin <- __stack_yield_fin
 
-                                if not __stack_condition_fin then
-                                    sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            if not __stack_condition_fin then
+                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
-                            __stack_condition_fin
+                        __stack_condition_fin
+                    else
+                        let vtask = compensation ()
+                        let mutable awaiter = vtask.GetAwaiter()
+
+                        let cont =
+                            CancellableTaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
+                                awaiter.GetResult() |> ignore
+                                true)
+
+                        // shortcut to continue immediately
+                        if awaiter.IsCompleted then
+                            true
                         else
-                            let vtask = compensation ()
-                            let mutable awaiter = vtask.GetAwaiter()
-
-                            let cont =
-                                CancellableTaskResultResumptionFunc<'TOverall, 'Error>
-                                    (fun sm ->
-                                        awaiter.GetResult() |> ignore
-                                        true)
-
-                            // shortcut to continue immediately
-                            if awaiter.IsCompleted then
-                                true
-                            else
-                                sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
-                                sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                                false)
+                            sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                            sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                            false)
             )
 
         member inline this.Using<'Resource, 'TOverall, 'Error, 'T when 'Resource :> IAsyncDisposable>
@@ -351,8 +344,7 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultCode<'T, 'Error, 'T>)
             : CancellableTaskResult<'T, 'Error> =
 
-            let mutable sm =
-                CancellableTaskResultStateMachine<'T, 'Error>()
+            let mutable sm = CancellableTaskResultStateMachine<'T, 'Error>()
 
             let initialResumptionFunc =
                 CancellableTaskResultResumptionFunc<'T, 'Error>(fun sm -> code.Invoke(&sm))
@@ -387,7 +379,8 @@ module CancellableTaskResultCE =
                             sm.Data.MethodBuilder.SetException exn
 
                     member _.SetStateMachine(sm, state) =
-                        sm.Data.MethodBuilder.SetStateMachine(state) }
+                        sm.Data.MethodBuilder.SetStateMachine(state)
+                }
 
             fun (ct) ->
                 if ct.IsCancellationRequested then
@@ -402,41 +395,39 @@ module CancellableTaskResultCE =
         member inline _.Run(code: CancellableTaskResultCode<'T, 'Error, 'T>) : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
                 __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<'T, 'Error>>
-                    (MoveNextMethodImpl<_>
-                        (fun sm ->
-                            //-- RESUMABLE CODE START
-                            __resumeAt sm.ResumptionPoint
-                            let mutable __stack_exn: Exception = null
+                    (MoveNextMethodImpl<_>(fun sm ->
+                        //-- RESUMABLE CODE START
+                        __resumeAt sm.ResumptionPoint
+                        let mutable __stack_exn: Exception = null
 
-                            try
-                                let __stack_code_fin = code.Invoke(&sm)
+                        try
+                            let __stack_code_fin = code.Invoke(&sm)
 
-                                if __stack_code_fin && not sm.Data.IsTaskCompleted then
-                                    sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                            with
-                            | exn -> __stack_exn <- exn
-                            // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
-                            match __stack_exn with
-                            | null -> ()
-                            | exn ->
-                                // printfn "%A" exn
-                                sm.Data.MethodBuilder.SetException exn
-                            //-- RESUMABLE CODE END
-                            ))
+                            if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                                sm.Data.MethodBuilder.SetResult(sm.Data.Result)
+                        with
+                        | exn -> __stack_exn <- exn
+                        // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
+                        match __stack_exn with
+                        | null -> ()
+                        | exn ->
+                            // printfn "%A" exn
+                            sm.Data.MethodBuilder.SetException exn
+                    //-- RESUMABLE CODE END
+                    ))
                     (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
-                    (AfterCode<_, _>
-                        (fun sm ->
-                            let sm = sm
+                    (AfterCode<_, _>(fun sm ->
+                        let sm = sm
 
-                            fun (ct) ->
-                                if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct)
-                                else
-                                    let mutable sm = sm
-                                    sm.Data.CancellationToken <- ct
-                                    sm.Data.MethodBuilder <- CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
-                                    sm.Data.MethodBuilder.Start(&sm)
-                                    sm.Data.MethodBuilder.Task))
+                        fun (ct) ->
+                            if ct.IsCancellationRequested then
+                                Task.FromCanceled<_>(ct)
+                            else
+                                let mutable sm = sm
+                                sm.Data.CancellationToken <- ct
+                                sm.Data.MethodBuilder <- CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                sm.Data.MethodBuilder.Start(&sm)
+                                sm.Data.MethodBuilder.Task))
             else
                 CancellableTaskResultBuilder.RunDynamic(code)
 
@@ -456,70 +447,67 @@ module CancellableTaskResultCE =
                 CancellableTaskResultBuilder.RunDynamic(code)
             else
                 fun (ct) ->
-                    Task.Run<Result<'T, 'Error>>((fun () -> CancellableTaskResultBuilder.RunDynamic(code) (ct)), ct)
+                    Task.Run<Result<'T, 'Error>>((fun () -> CancellableTaskResultBuilder.RunDynamic (code) (ct)), ct)
 
         //// Same as CancellableTaskResultBuilder.Run except the start is inside Task.Run if necessary
         member inline _.Run(code: CancellableTaskResultCode<'T, 'Error, 'T>) : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
                 __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<'T, 'Error>>
-                    (MoveNextMethodImpl<_>
-                        (fun sm ->
-                            //-- RESUMABLE CODE START
-                            __resumeAt sm.ResumptionPoint
+                    (MoveNextMethodImpl<_>(fun sm ->
+                        //-- RESUMABLE CODE START
+                        __resumeAt sm.ResumptionPoint
 
-                            try
-                                let __stack_code_fin = code.Invoke(&sm)
+                        try
+                            let __stack_code_fin = code.Invoke(&sm)
 
-                                if __stack_code_fin && not sm.Data.IsTaskCompleted then
-                                    sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                            with
-                            | exn ->
+                            if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                                sm.Data.MethodBuilder.SetResult(sm.Data.Result)
+                        with
+                        | exn ->
 
-                                // printfn "%A" exn
-                                sm.Data.MethodBuilder.SetException exn
-                            //-- RESUMABLE CODE END
-                            ))
+                            // printfn "%A" exn
+                            sm.Data.MethodBuilder.SetException exn
+                    //-- RESUMABLE CODE END
+                    ))
                     (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
-                    (AfterCode<_, CancellableTaskResult<'T, 'Error>>
-                        (fun sm ->
-                            // backgroundTask { .. } escapes to a background thread where necessary
-                            // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
-                            if
-                                isNull SynchronizationContext.Current
-                                && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
-                            then
-                                let mutable sm = sm
+                    (AfterCode<_, CancellableTaskResult<'T, 'Error>>(fun sm ->
+                        // backgroundTask { .. } escapes to a background thread where necessary
+                        // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
+                        if
+                            isNull SynchronizationContext.Current
+                            && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
+                        then
+                            let mutable sm = sm
 
-                                fun (ct) ->
-                                    if ct.IsCancellationRequested then
-                                        Task.FromCanceled<_>(ct)
-                                    else
-                                        sm.Data.CancellationToken <- ct
+                            fun (ct) ->
+                                if ct.IsCancellationRequested then
+                                    Task.FromCanceled<_>(ct)
+                                else
+                                    sm.Data.CancellationToken <- ct
 
-                                        sm.Data.MethodBuilder <-
-                                            CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                    sm.Data.MethodBuilder <- CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
 
-                                        sm.Data.MethodBuilder.Start(&sm)
-                                        sm.Data.MethodBuilder.Task
-                            else
-                                let sm = sm // copy contents of state machine so we can capture it
+                                    sm.Data.MethodBuilder.Start(&sm)
+                                    sm.Data.MethodBuilder.Task
+                        else
+                            let sm = sm // copy contents of state machine so we can capture it
 
-                                fun (ct) ->
-                                    if ct.IsCancellationRequested then
-                                        Task.FromCanceled<_>(ct)
-                                    else
-                                        Task.Run<Result<'T, 'Error>>(
-                                            (fun () ->
-                                                let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-                                                sm.Data.CancellationToken <- ct
+                            fun (ct) ->
+                                if ct.IsCancellationRequested then
+                                    Task.FromCanceled<_>(ct)
+                                else
+                                    Task.Run<Result<'T, 'Error>>(
+                                        (fun () ->
+                                            let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
+                                            sm.Data.CancellationToken <- ct
 
-                                                sm.Data.MethodBuilder <-
-                                                    CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                            sm.Data.MethodBuilder <-
+                                                CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
 
-                                                sm.Data.MethodBuilder.Start(&sm)
-                                                sm.Data.MethodBuilder.Task),
-                                            ct
-                                        )))
+                                            sm.Data.MethodBuilder.Start(&sm)
+                                            sm.Data.MethodBuilder.Task),
+                                        ct
+                                    )))
             else
                 BackgroundCancellableTaskResultBuilder.RunDynamic(code)
 
@@ -536,9 +524,9 @@ module CancellableTaskResultCE =
         type CancellableTaskResultBuilderBase with
 
             [<NoEagerConstraintApplication>]
-            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter :
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> Result<'TResult1, 'Error>)>
+            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
                     sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
                     task: CancellationToken -> ^TaskLike,
@@ -547,79 +535,77 @@ module CancellableTaskResultCE =
                 sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
                 let mutable awaiter =
-                    (^TaskLike: (member GetAwaiter : unit -> ^Awaiter) (task sm.Data.CancellationToken))
+                    (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task sm.Data.CancellationToken))
 
                 let cont =
-                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>
-                        (fun sm ->
+                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
+                        let result =
+                            (^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>) (awaiter))
+
+                        match result with
+                        | Ok result -> (continuation result).Invoke(&sm)
+                        | Error e ->
+                            sm.Data.Result <- Error e
+                            true))
+
+                // shortcut to continue immediately
+                if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                    cont.Invoke(&sm)
+                else
+                    sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                    sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                    false
+
+            [<NoEagerConstraintApplication>]
+            member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
+                (
+                    task: CancellationToken -> ^TaskLike,
+                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
+
+                CancellableTaskResultCode<'TOverall, _, _>(fun sm ->
+                    if __useResumableCode then
+                        //-- RESUMABLE CODE START
+                        sm.Data.CancellationToken.ThrowIfCancellationRequested()
+                        // Get an awaiter from the awaitable
+                        let mutable awaiter =
+                            (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task sm.Data.CancellationToken))
+
+                        let mutable __stack_fin = true
+
+                        if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                            // This will yield with __stack_yield_fin = false
+                            // This will resume with __stack_yield_fin = true
+                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                            __stack_fin <- __stack_yield_fin
+
+                        if __stack_fin then
                             let result =
-                                (^Awaiter: (member GetResult : unit -> Result<'TResult1, 'Error>) (awaiter))
+                                (^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>) (awaiter))
 
                             match result with
                             | Ok result -> (continuation result).Invoke(&sm)
                             | Error e ->
                                 sm.Data.Result <- Error e
-                                true))
-
-                // shortcut to continue immediately
-                if (^Awaiter: (member get_IsCompleted : unit -> bool) (awaiter)) then
-                    cont.Invoke(&sm)
-                else
-                    sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
-                    sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                    false
-
-            [<NoEagerConstraintApplication>]
-            member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter :
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> Result<'TResult1, 'Error>)>
-                (
-                    task: CancellationToken -> ^TaskLike,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
-                ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
-
-                CancellableTaskResultCode<'TOverall, _, _>
-                    (fun sm ->
-                        if __useResumableCode then
-                            //-- RESUMABLE CODE START
-                            sm.Data.CancellationToken.ThrowIfCancellationRequested()
-                            // Get an awaiter from the awaitable
-                            let mutable awaiter =
-                                (^TaskLike: (member GetAwaiter : unit -> ^Awaiter) (task sm.Data.CancellationToken))
-
-                            let mutable __stack_fin = true
-
-                            if not (^Awaiter: (member get_IsCompleted : unit -> bool) (awaiter)) then
-                                // This will yield with __stack_yield_fin = false
-                                // This will resume with __stack_yield_fin = true
-                                let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                                __stack_fin <- __stack_yield_fin
-
-                            if __stack_fin then
-                                let result =
-                                    (^Awaiter: (member GetResult : unit -> Result<'TResult1, 'Error>) (awaiter))
-
-                                match result with
-                                | Ok result -> (continuation result).Invoke(&sm)
-                                | Error e ->
-                                    sm.Data.Result <- Error e
-                                    true
-                            else
-                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-                                false
+                                true
                         else
-                            CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
-                                &sm,
-                                task,
-                                continuation
-                            )
-                        //-- RESUMABLE CODE END
+                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            false
+                    else
+                        CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                            &sm,
+                            task,
+                            continuation
                         )
+                //-- RESUMABLE CODE END
+                )
 
             [<NoEagerConstraintApplication>]
-            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter :
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1)>
+            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
                     sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
                     task: ^TaskLike,
@@ -627,19 +613,16 @@ module CancellableTaskResultCE =
                 ) : bool =
                 sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
-                let mutable awaiter =
-                    (^TaskLike: (member GetAwaiter : unit -> ^Awaiter) (task))
+                let mutable awaiter = (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
 
                 let cont =
-                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>
-                        (fun sm ->
-                            let result =
-                                (^Awaiter: (member GetResult : unit -> 'TResult1) (awaiter))
+                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
+                        let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
 
-                            (continuation result).Invoke(&sm)))
+                        (continuation result).Invoke(&sm)))
 
                 // shortcut to continue immediately
-                if (^Awaiter: (member get_IsCompleted : unit -> bool) (awaiter)) then
+                if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
                     cont.Invoke(&sm)
                 else
                     sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
@@ -647,56 +630,53 @@ module CancellableTaskResultCE =
                     false
 
             [<NoEagerConstraintApplication>]
-            member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter :
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'TResult1)>
+            member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
                     task: ^TaskLike,
                     continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
 
-                CancellableTaskResultCode<'TOverall, _, _>
-                    (fun sm ->
-                        if __useResumableCode then
-                            //-- RESUMABLE CODE START
-                            sm.Data.CancellationToken.ThrowIfCancellationRequested()
-                            // Get an awaiter from the awaitable
-                            let mutable awaiter =
-                                (^TaskLike: (member GetAwaiter : unit -> ^Awaiter) (task))
+                CancellableTaskResultCode<'TOverall, _, _>(fun sm ->
+                    if __useResumableCode then
+                        //-- RESUMABLE CODE START
+                        sm.Data.CancellationToken.ThrowIfCancellationRequested()
+                        // Get an awaiter from the awaitable
+                        let mutable awaiter = (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
 
-                            let mutable __stack_fin = true
+                        let mutable __stack_fin = true
 
-                            if not (^Awaiter: (member get_IsCompleted : unit -> bool) (awaiter)) then
-                                // This will yield with __stack_yield_fin = false
-                                // This will resume with __stack_yield_fin = true
-                                let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                                __stack_fin <- __stack_yield_fin
+                        if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                            // This will yield with __stack_yield_fin = false
+                            // This will resume with __stack_yield_fin = true
+                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                            __stack_fin <- __stack_yield_fin
 
-                            if __stack_fin then
-                                let result =
-                                    (^Awaiter: (member GetResult : unit -> 'TResult1) (awaiter))
+                        if __stack_fin then
+                            let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
 
-                                (continuation result).Invoke(&sm)
-
-                            else
-                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-                                false
+                            (continuation result).Invoke(&sm)
 
                         else
+                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            false
 
-                            CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
-                                &sm,
-                                task,
-                                continuation
-                            )
-                        //-- RESUMABLE CODE END
+                    else
+
+                        CancellableTaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                            &sm,
+                            task,
+                            continuation
                         )
+                //-- RESUMABLE CODE END
+                )
 
             [<NoEagerConstraintApplication>]
-            member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter :
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
+            member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter:
+                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
                 (task: ^TaskLike)
                 : CancellableTaskResultCode<'T, 'Error, 'T> =
 
@@ -715,11 +695,10 @@ module CancellableTaskResultCE =
     [<AutoOpen>]
     module HighPriority =
         type Microsoft.FSharp.Control.Async with
-            static member inline AwaitCancellableTaskResult([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>) =
-                async {
-                    let! ct = Async.CancellationToken
-                    return! t ct |> Async.AwaitTask
-                }
+            static member inline AwaitCancellableTaskResult([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>) = async {
+                let! ct = Async.CancellationToken
+                return! t ct |> Async.AwaitTask
+            }
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
                 fun ct -> Async.StartAsTask(computation, cancellationToken = ct)
@@ -730,19 +709,18 @@ module CancellableTaskResultCE =
         type CancellableTaskResultBuilder with
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter : unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted :
-                unit -> bool) and ^Awaiter: (member GetResult : unit -> 'T)>
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
+                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
                 (t: ^TaskLike)
                 : CancellableTaskResult<_, _> =
                 // : CancellableTaskResultCode<_,_,_> =
                 // TODO: Gets errors like "error FS0073: internal error: Undefined or unsolved type variable:  ^Awaiter"
                 // this.Run(this.ReturnFrom(t))
                 // this.ReturnFrom(t)
-                fun _ ->
-                    task {
-                        let! r = t
-                        return Ok r
-                    }
+                fun _ -> task {
+                    let! r = t
+                    return Ok r
+                }
 
         // High priority extensions
         type CancellableTaskResultBuilderBase with
@@ -762,15 +740,14 @@ module CancellableTaskResultCE =
                         task(ct).GetAwaiter()
 
                 let cont =
-                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>
-                        (fun sm ->
-                            let result = awaiter.GetResult()
+                    (CancellableTaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
+                        let result = awaiter.GetResult()
 
-                            match result with
-                            | Ok result -> (continuation result).Invoke(&sm)
-                            | Error e ->
-                                sm.Data.Result <- Error e
-                                true))
+                        match result with
+                        | Ok result -> (continuation result).Invoke(&sm)
+                        | Error e ->
+                            sm.Data.Result <- Error e
+                            true))
 
                 // shortcut to continue immediately
                 if awaiter.IsCompleted then
@@ -787,42 +764,41 @@ module CancellableTaskResultCE =
                     continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
-                CancellableTaskResultCode<'TOverall, 'Error, _>
-                    (fun sm ->
-                        if __useResumableCode then
-                            //-- RESUMABLE CODE START
-                            // Get an awaiter from the task
-                            let mutable awaiter =
-                                let ct = sm.Data.CancellationToken
+                CancellableTaskResultCode<'TOverall, 'Error, _>(fun sm ->
+                    if __useResumableCode then
+                        //-- RESUMABLE CODE START
+                        // Get an awaiter from the task
+                        let mutable awaiter =
+                            let ct = sm.Data.CancellationToken
 
-                                if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct).GetAwaiter()
-                                else
-                                    task(ct).GetAwaiter()
-
-                            let mutable __stack_fin = true
-
-                            if not awaiter.IsCompleted then
-                                // This will yield with __stack_yield_fin = false
-                                // This will resume with __stack_yield_fin = true
-                                let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                                __stack_fin <- __stack_yield_fin
-
-                            if __stack_fin then
-                                let result = awaiter.GetResult()
-
-                                match result with
-                                | Ok result -> (continuation result).Invoke(&sm)
-                                | Error e ->
-                                    sm.Data.Result <- Error e
-                                    true
+                            if ct.IsCancellationRequested then
+                                Task.FromCanceled<_>(ct).GetAwaiter()
                             else
-                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-                                false
+                                task(ct).GetAwaiter()
+
+                        let mutable __stack_fin = true
+
+                        if not awaiter.IsCompleted then
+                            // This will yield with __stack_yield_fin = false
+                            // This will resume with __stack_yield_fin = true
+                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                            __stack_fin <- __stack_yield_fin
+
+                        if __stack_fin then
+                            let result = awaiter.GetResult()
+
+                            match result with
+                            | Ok result -> (continuation result).Invoke(&sm)
+                            | Error e ->
+                                sm.Data.Result <- Error e
+                                true
                         else
-                            CancellableTaskResultBuilderBase.BindDynamic(&sm, task, continuation)
-                        //-- RESUMABLE CODE END
-                        )
+                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            false
+                    else
+                        CancellableTaskResultBuilderBase.BindDynamic(&sm, task, continuation)
+                //-- RESUMABLE CODE END
+                )
 
 
             member inline this.ReturnFrom
@@ -843,40 +819,37 @@ module CancellableTaskResultCE =
                 // : CancellableTaskResult<'T, 'Error> =
                 =
                 // this.ReturnFrom(t)
-                fun _ ->
-                    task {
-                        let! r = t
-                        return Ok r
-                    }
-
-            member inline _.Source(result: CancellableTask<'T>) : CancellableTaskResult<'T, 'Error> =
-                cancellableTask {
-                    let! r = result
+                fun _ -> task {
+                    let! r = t
                     return Ok r
                 }
 
+            member inline _.Source(result: CancellableTask<'T>) : CancellableTaskResult<'T, 'Error> = cancellableTask {
+                let! r = result
+                return Ok r
+            }
 
-            member inline _.Source(result: CancellableTask) : CancellableTaskResult<unit, 'Error> =
-                cancellableTask {
-                    let! r = result
-                    return Ok r
-                }
+
+            member inline _.Source(result: CancellableTask) : CancellableTaskResult<unit, 'Error> = cancellableTask {
+                let! r = result
+                return Ok r
+            }
 
             member inline _.Source(result: ColdTask<_>) : CancellableTaskResult<_, _> =
                 fun _ ->
-                    // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
-                    task {
-                        let! r = result ()
-                        return Ok r
-                    }
+                // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
+                task {
+                    let! r = result ()
+                    return Ok r
+                }
 
             member inline _.Source(result: ColdTask) : CancellableTaskResult<_, _> =
                 fun _ ->
-                    // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
-                    task {
-                        let! r = result ()
-                        return Ok r
-                    }
+                // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
+                task {
+                    let! r = result ()
+                    return Ok r
+                }
 
         // Medium priority extensions
         type CancellableTaskResultBuilderBase with
@@ -912,8 +885,7 @@ module CancellableTaskResultCE =
     module CancellableTaskResult =
         let getCancellationToken () : CancellableTaskResult<CancellationToken, 'Error> =
             CancellableTaskResultBuilder.cancellableTaskResult.Run(
-                CancellableTaskResultCode<_, 'Error, _>
-                    (fun sm ->
-                        sm.Data.Result <- Ok sm.Data.CancellationToken
-                        true)
+                CancellableTaskResultCode<_, 'Error, _>(fun sm ->
+                    sm.Data.Result <- Ok sm.Data.CancellationToken
+                    true)
             )
