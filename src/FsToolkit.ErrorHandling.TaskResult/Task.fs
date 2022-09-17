@@ -8,7 +8,9 @@ open FSharp.Control.Tasks.Affine
 
 [<RequireQualifiedAccess>]
 module Task =
-    let inline singleton value = value |> Task.FromResult
+    let inline singleton value =
+        value
+        |> Task.FromResult
 
     let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) = task {
         let! x = x
@@ -23,9 +25,19 @@ module Task =
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
-    let inline map ([<InlineIfLambda>] f) x = x |> bind (f >> singleton)
+    let inline map ([<InlineIfLambda>] f) x =
+        x
+        |> bind (
+            f
+            >> singleton
+        )
 
-    let inline mapV ([<InlineIfLambda>] f) x = x |> bindV (f >> singleton)
+    let inline mapV ([<InlineIfLambda>] f) x =
+        x
+        |> bindV (
+            f
+            >> singleton
+        )
 
     let inline map2 ([<InlineIfLambda>] f) x y = (apply (apply (singleton f) x) y)
 

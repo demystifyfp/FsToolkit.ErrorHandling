@@ -15,11 +15,26 @@ open FSharp.Control.Tasks
 #endif
 
 let runTaskSync (task: Task<_>) = task.Result
-let createPostSuccess = createPostSuccess >> Async.StartAsTask
-let createPostFailure = createPostFailure >> Async.StartAsTask
-let getFollowersSuccess = getFollowersSuccess >> Async.StartAsTask
-let getFollowersFailure = getFollowersFailure >> Async.StartAsTask
-let allowedToPost = allowedToPost >> Async.StartAsTask
+
+let createPostSuccess =
+    createPostSuccess
+    >> Async.StartAsTask
+
+let createPostFailure =
+    createPostFailure
+    >> Async.StartAsTask
+
+let getFollowersSuccess =
+    getFollowersSuccess
+    >> Async.StartAsTask
+
+let getFollowersFailure =
+    getFollowersFailure
+    >> Async.StartAsTask
+
+let allowedToPost =
+    allowedToPost
+    >> Async.StartAsTask
 
 [<Tests>]
 let mapTests =
@@ -130,7 +145,8 @@ let bindTests =
                     return! createPostSuccess validCreatePostRequest
                 else
                     return (Error(Exception "not allowed to post"))
-            })
+            }
+            )
             |> Expect.hasTaskOkValueSync (PostId newPostId)
 
         testCase "bind with Task(Error x)"
@@ -234,7 +250,9 @@ let ignoreTests =
         <| fun _ -> ignore TaskResult.ignore
 
         testCase "can call ignore with type parameters"
-        <| fun _ -> ignore<Task<Result<int, string>> -> Task<Result<unit, string>>> TaskResult.ignore<int, string>
+        <| fun _ ->
+            ignore<Task<Result<int, string>> -> Task<Result<unit, string>>>
+                TaskResult.ignore<int, string>
     ]
 
 let err = "foobar"
@@ -244,37 +262,58 @@ let toTask x = task { return x }
 let requireTrueTests =
     testList "TaskResult.requireTrue Tests" [
         testCase "requireTrue happy path"
-        <| fun _ -> toTask true |> TaskResult.requireTrue err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask true
+            |> TaskResult.requireTrue err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireTrue error path"
-        <| fun _ -> toTask false |> TaskResult.requireTrue err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask false
+            |> TaskResult.requireTrue err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireFalseTests =
     testList "TaskResult.requireFalse Tests" [
         testCase "requireFalse happy path"
-        <| fun _ -> toTask false |> TaskResult.requireFalse err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask false
+            |> TaskResult.requireFalse err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireFalse error path"
-        <| fun _ -> toTask true |> TaskResult.requireFalse err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask true
+            |> TaskResult.requireFalse err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireSomeTests =
     testList "TaskResult.requireSome Tests" [
         testCase "requireSome happy path"
-        <| fun _ -> toTask (Some 42) |> TaskResult.requireSome err |> Expect.hasTaskOkValueSync 42
+        <| fun _ ->
+            toTask (Some 42)
+            |> TaskResult.requireSome err
+            |> Expect.hasTaskOkValueSync 42
 
         testCase "requireSome error path"
-        <| fun _ -> toTask None |> TaskResult.requireSome err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask None
+            |> TaskResult.requireSome err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireNoneTests =
     testList "TaskResult.requireNone Tests" [
         testCase "requireNone happy path"
-        <| fun _ -> toTask None |> TaskResult.requireNone err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask None
+            |> TaskResult.requireNone err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireNone error path"
         <| fun _ ->
@@ -287,7 +326,10 @@ let requireNoneTests =
 let requireEqualToTests =
     testList "TaskResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
-        <| fun _ -> toTask 42 |> TaskResult.requireEqualTo 42 err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask 42
+            |> TaskResult.requireEqualTo 42 err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireEqualTo error path"
         <| fun _ ->
@@ -300,40 +342,62 @@ let requireEqualToTests =
 let requireEqualTests =
     testList "TaskResult.requireEqual Tests" [
         testCase "requireEqual happy path"
-        <| fun _ -> TaskResult.requireEqual 42 (toTask 42) err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            TaskResult.requireEqual 42 (toTask 42) err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireEqual error path"
-        <| fun _ -> TaskResult.requireEqual 42 (toTask 43) err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            TaskResult.requireEqual 42 (toTask 43) err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireEmptyTests =
     testList "TaskResult.requireEmpty Tests" [
         testCase "requireEmpty happy path"
-        <| fun _ -> toTask [] |> TaskResult.requireEmpty err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask []
+            |> TaskResult.requireEmpty err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireEmpty error path"
-        <| fun _ -> toTask [ 42 ] |> TaskResult.requireEmpty err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask [ 42 ]
+            |> TaskResult.requireEmpty err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireNotEmptyTests =
     testList "TaskResult.requireNotEmpty Tests" [
         testCase "requireNotEmpty happy path"
-        <| fun _ -> toTask [ 42 ] |> TaskResult.requireNotEmpty err |> Expect.hasTaskOkValueSync ()
+        <| fun _ ->
+            toTask [ 42 ]
+            |> TaskResult.requireNotEmpty err
+            |> Expect.hasTaskOkValueSync ()
 
         testCase "requireNotEmpty error path"
-        <| fun _ -> toTask [] |> TaskResult.requireNotEmpty err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask []
+            |> TaskResult.requireNotEmpty err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
 let requireHeadTests =
     testList "TaskResult.requireHead Tests" [
         testCase "requireHead happy path"
-        <| fun _ -> toTask [ 42 ] |> TaskResult.requireHead err |> Expect.hasTaskOkValueSync 42
+        <| fun _ ->
+            toTask [ 42 ]
+            |> TaskResult.requireHead err
+            |> Expect.hasTaskOkValueSync 42
 
         testCase "requireHead error path"
-        <| fun _ -> toTask [] |> TaskResult.requireHead err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask []
+            |> TaskResult.requireHead err
+            |> Expect.hasTaskErrorValueSync err
     ]
 
 [<Tests>]
@@ -346,17 +410,26 @@ let setErrorTests =
             |> Expect.hasTaskErrorValueSync err
 
         testCase "setError does not change an ok value"
-        <| fun _ -> toTask (Ok 42) |> TaskResult.setError err |> Expect.hasTaskOkValueSync 42
+        <| fun _ ->
+            toTask (Ok 42)
+            |> TaskResult.setError err
+            |> Expect.hasTaskOkValueSync 42
     ]
 
 [<Tests>]
 let withErrorTests =
     testList "TaskResult.withError Tests" [
         testCase "withError replaces a any error value with a custom error value"
-        <| fun _ -> toTask (Error()) |> TaskResult.withError err |> Expect.hasTaskErrorValueSync err
+        <| fun _ ->
+            toTask (Error())
+            |> TaskResult.withError err
+            |> Expect.hasTaskErrorValueSync err
 
         testCase "withError does not change an ok value"
-        <| fun _ -> toTask (Ok 42) |> TaskResult.withError err |> Expect.hasTaskOkValueSync 42
+        <| fun _ ->
+            toTask (Ok 42)
+            |> TaskResult.withError err
+            |> Expect.hasTaskOkValueSync 42
     ]
 
 [<Tests>]
@@ -434,7 +507,9 @@ let teeTests =
 
             let bar x =
                 input := x
-                foo := "bar"
+
+                foo
+                := "bar"
 
             let result = TaskResult.tee bar (toTask (Ok 42))
             Expect.hasTaskOkValueSync 42 result
@@ -444,7 +519,11 @@ let teeTests =
         testCase "tee ignores the function for Error"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
+
             let result = TaskResult.tee bar (toTask (Error err))
             Expect.hasTaskErrorValueSync err result
             Expect.equal !foo "foo" ""
@@ -463,12 +542,16 @@ let teeIfTests =
             let pInput = ref 0
 
             let returnTrue x =
-                pInput := x
+                pInput
+                := x
+
                 true
 
             let bar x =
                 input := x
-                foo := "bar"
+
+                foo
+                := "bar"
 
             let result = TaskResult.teeIf returnTrue bar (toTask (Ok 42))
 
@@ -480,7 +563,10 @@ let teeIfTests =
         testCase "teeIf ignores the function for Ok and false predicate"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
 
             let result = TaskResult.teeIf returnFalse bar (toTask (Ok 42))
 
@@ -490,7 +576,10 @@ let teeIfTests =
         testCase "teeIf ignores the function for Error"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
 
             let result = TaskResult.teeIf returnTrue bar (toTask (Error err))
 
@@ -509,7 +598,9 @@ let teeErrorTests =
 
             let bar x =
                 input := x
-                foo := "bar"
+
+                foo
+                := "bar"
 
             let result = TaskResult.teeError bar (toTask (Error err))
 
@@ -520,7 +611,11 @@ let teeErrorTests =
         testCase "teeError ignores the function for Ok"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
+
             let result = TaskResult.teeError bar (toTask (Ok 42))
             Expect.hasTaskOkValueSync 42 result
             Expect.equal !foo "foo" ""
@@ -537,12 +632,16 @@ let teeErrorIfTests =
             let pInput = ref ""
 
             let returnTrue x =
-                pInput := x
+                pInput
+                := x
+
                 true
 
             let bar x =
                 input := x
-                foo := "bar"
+
+                foo
+                := "bar"
 
             let result = TaskResult.teeErrorIf returnTrue bar (toTask (Error err))
 
@@ -554,7 +653,10 @@ let teeErrorIfTests =
         testCase "teeErrorIf ignores the function for Error and false predicate"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
 
             let result = TaskResult.teeErrorIf returnFalse bar (toTask (Error err))
 
@@ -564,7 +666,10 @@ let teeErrorIfTests =
         testCase "teeErrorIf ignores the function for Ok"
         <| fun _ ->
             let foo = ref "foo"
-            let bar _ = foo := "bar"
+
+            let bar _ =
+                foo
+                := "bar"
 
             let result = TaskResult.teeErrorIf returnTrue bar (toTask (Ok 42))
 
@@ -589,7 +694,8 @@ let catchTests =
         <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catch f (taskThrow ()))
 
         testCase "catch returns unmapped error without exception"
-        <| fun _ -> Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
+        <| fun _ ->
+            Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
     ]
 
 [<Tests>]
@@ -697,7 +803,9 @@ let TaskResultOperatorTests =
             let getFollowersResult = getFollowersSuccess sampleUserId
             let createPostResult = createPostSuccess validCreatePostRequest
 
-            newPostRequest <!> getFollowersResult <*> createPostResult
+            newPostRequest
+            <!> getFollowersResult
+            <*> createPostResult
             |> Expect.hasTaskOkValueSync
                 {
                     NewPostId = PostId newPostId
@@ -711,6 +819,7 @@ let TaskResultOperatorTests =
                 if isAllowed then
                     createPostSuccess validCreatePostRequest
                 else
-                    TaskResult.returnError (Exception ""))
+                    TaskResult.returnError (Exception "")
+            )
             |> Expect.hasTaskOkValueSync (PostId newPostId)
     ]

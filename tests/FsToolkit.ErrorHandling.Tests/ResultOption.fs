@@ -28,7 +28,9 @@ let map2Tests =
             |> Expect.hasOkValue None
 
         testCase "map2 with Ok(None) Ok(None)"
-        <| fun _ -> ResultOption.map2 location (Ok None) (Ok None) |> Expect.hasOkValue None
+        <| fun _ ->
+            ResultOption.map2 location (Ok None) (Ok None)
+            |> Expect.hasOkValue None
 
         testCase "map2 with Error(Some x) Error(Some x)"
         <| fun _ ->
@@ -47,7 +49,11 @@ let map3Tests =
 
         testCase "map3 with Ok(Some x) Ok(Some y) Ok (Some z)"
         <| fun _ ->
-            ResultOption.map3 createPostRequest (Ok(Some validLat)) (Ok(Some validLng)) (Ok(Some validTweet))
+            ResultOption.map3
+                createPostRequest
+                (Ok(Some validLat))
+                (Ok(Some validLng))
+                (Ok(Some validTweet))
             |> Expect.hasOkValue (Some validCreatePostRequest)
 
         testCase "map3 with Ok(Some x) Ok(None) Ok(None)"
@@ -62,7 +68,11 @@ let map3Tests =
 
         testCase "map3 with Error(Some x) Error(Some x) (Ok None)"
         <| fun _ ->
-            ResultOption.map3 createPostRequest (Error(Some validLat)) (Error(Some validLat2)) (Ok None)
+            ResultOption.map3
+                createPostRequest
+                (Error(Some validLat))
+                (Error(Some validLat2))
+                (Ok None)
             |> Expect.hasErrorValue (Some validLat)
 
         testCase "map3 with Ok(Some x) Error(Some x) (Ok None)"
@@ -97,7 +107,10 @@ let mapTests =
             |> Expect.hasOkValue (Some 267)
 
         testCase "map with Ok(None)"
-        <| fun _ -> Ok None |> ResultOption.map remainingCharacters |> Expect.hasOkValue None
+        <| fun _ ->
+            Ok None
+            |> ResultOption.map remainingCharacters
+            |> Expect.hasOkValue None
     ]
 
 
@@ -114,16 +127,24 @@ let bindTests =
 let ignoreTests =
     testList "ResultOption.ignore Tests" [
         testCase "ignore with Ok(Some x)"
-        <| fun _ -> Ok(Some validTweet) |> ResultOption.ignore |> Expect.hasOkValue (Some())
+        <| fun _ ->
+            Ok(Some validTweet)
+            |> ResultOption.ignore
+            |> Expect.hasOkValue (Some())
 
         testCase "ignore with Ok(None)"
-        <| fun _ -> Ok None |> ResultOption.ignore |> Expect.hasOkValue None
+        <| fun _ ->
+            Ok None
+            |> ResultOption.ignore
+            |> Expect.hasOkValue None
 
         testCase "can call ignore without type parameters"
         <| fun _ -> ignore ResultOption.ignore
 
         testCase "can call ignore with type parameters"
-        <| fun _ -> ignore<Result<int option, string> -> Result<unit option, string>> ResultOption.ignore<int, string>
+        <| fun _ ->
+            ignore<Result<int option, string> -> Result<unit option, string>>
+                ResultOption.ignore<int, string>
     ]
 
 
@@ -134,7 +155,11 @@ let resultOptionCETests =
             let createPostRequest = resultOption {
                 let! lat = Ok(Some validLat)
                 let! lng = Ok(Some validLng)
-                let! tweet = validTweetR |> Result.map Some
+
+                let! tweet =
+                    validTweetR
+                    |> Result.map Some
+
                 return createPostRequest lat lng tweet
             }
 
@@ -143,14 +168,22 @@ let resultOptionCETests =
         testCase "bind with Error"
         <| fun _ ->
             let post = resultOption {
-                let! lat = invalidLatR |> Result.map Some
+                let! lat =
+                    invalidLatR
+                    |> Result.map Some
+
                 Tests.failtestf "this should not get executed!"
                 let! lng = Ok(Some validLng)
-                let! tweet = validTweetR |> Result.map Some
+
+                let! tweet =
+                    validTweetR
+                    |> Result.map Some
+
                 return createPostRequest lat lng tweet
             }
 
-            post |> Expect.hasErrorValue invalidLatMsg
+            post
+            |> Expect.hasErrorValue invalidLatMsg
     ]
 
 
@@ -159,11 +192,17 @@ let resultOptionOperatorsTests =
     testList "ResultOption Operators Tests" [
         testCase "map & apply operators"
         <| fun _ ->
-            createPostRequest <!> Ok(Some validLat) <*> Ok(Some validLng) <*^> Ok validTweet
+            createPostRequest
+            <!> Ok(Some validLat)
+            <*> Ok(Some validLng)
+            <*^> Ok validTweet
             |> Expect.hasOkValue (Some validCreatePostRequest)
 
         testCase "bind operator"
-        <| fun _ -> Ok(Some validTweet2) >>= firstURLInTweet |> Expect.hasOkValue (Some validURL)
+        <| fun _ ->
+            Ok(Some validTweet2)
+            >>= firstURLInTweet
+            |> Expect.hasOkValue (Some validURL)
     ]
 
 let allTests =

@@ -17,7 +17,8 @@ module AsyncResultOption =
             (fun opt ->
                 match opt with
                 | Some x -> binder x
-                | None -> AsyncResult.retn None)
+                | None -> AsyncResult.retn None
+            )
             input
 
 
@@ -45,5 +46,8 @@ module AsyncResultOption =
         map2 (fun f x -> f x) applier input
 
     /// Replaces the wrapped value with unit
-    let ignore<'ok, 'error> (value: Async<Result<'ok option, 'error>>) : Async<Result<unit option, 'error>> =
-        value |> map ignore<'ok>
+    let ignore<'ok, 'error>
+        (value: Async<Result<'ok option, 'error>>)
+        : Async<Result<unit option, 'error>> =
+        value
+        |> map ignore<'ok>

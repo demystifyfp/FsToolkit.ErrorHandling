@@ -200,7 +200,10 @@ let ceTests =
             let data = 42
 
             let! actual = asyncOption {
-                use! d = (makeDisposable () |> Some)
+                use! d =
+                    (makeDisposable ()
+                     |> Some)
+
                 return data
             }
 

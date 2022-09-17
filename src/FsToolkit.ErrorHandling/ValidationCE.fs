@@ -7,7 +7,8 @@ module ValidationCE =
     type ValidationBuilder() =
         member inline _.Return(value: 'ok) : Validation<'ok, 'error> = Validation.ok value
 
-        member inline _.ReturnFrom(result: Validation<'ok, 'error>) : Validation<'ok, 'error> = result
+        member inline _.ReturnFrom(result: Validation<'ok, 'error>) : Validation<'ok, 'error> =
+            result
 
         member inline _.Bind
             (
@@ -23,7 +24,9 @@ module ValidationCE =
             : unit -> Validation<'ok, 'error> =
             generator
 
-        member inline _.Run([<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>) : Validation<'ok, 'error> =
+        member inline _.Run
+            ([<InlineIfLambda>] generator: unit -> Validation<'ok, 'error>)
+            : Validation<'ok, 'error> =
             generator ()
 
         member inline this.Combine
@@ -61,8 +64,12 @@ module ValidationCE =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
-                    if not <| obj.ReferenceEquals(resource, null) then
-                        resource.Dispose())
+                    if
+                        not
+                        <| obj.ReferenceEquals(resource, null)
+                    then
+                        resource.Dispose()
+                )
             )
 
         member inline this.While
@@ -134,10 +141,12 @@ module ValidationCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(s: Result<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofResult s
+        member inline _.Source(s: Result<'ok, 'error>) : Validation<'ok, 'error> =
+            Validation.ofResult s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<'ok, 'error>) : Validation<'ok, 'error> = Validation.ofChoice choice
+        member inline _.Source(choice: Choice<'ok, 'error>) : Validation<'ok, 'error> =
+            Validation.ofChoice choice

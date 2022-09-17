@@ -8,11 +8,18 @@ module AsyncResultCE =
 
     type AsyncResultBuilder() =
 
-        member inline _.Return(value: 'ok) : Async<Result<'ok, 'error>> = async.Return <| result.Return value
+        member inline _.Return(value: 'ok) : Async<Result<'ok, 'error>> =
+            async.Return
+            <| result.Return value
 
-        member inline _.ReturnFrom(asyncResult: Async<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> = asyncResult
+        member inline _.ReturnFrom
+            (asyncResult: Async<Result<'ok, 'error>>)
+            : Async<Result<'ok, 'error>> =
+            asyncResult
 
-        member inline _.Zero() : Async<Result<unit, 'error>> = async.Return <| result.Zero()
+        member inline _.Zero() : Async<Result<unit, 'error>> =
+            async.Return
+            <| result.Zero()
 
         member inline _.Bind
             (
@@ -62,7 +69,8 @@ module AsyncResultCE =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
-                whileAsync <- this.Bind(computation, (fun () -> if guard () then whileAsync else this.Zero()))
+                whileAsync <-
+                    this.Bind(computation, (fun () -> if guard () then whileAsync else this.Zero()))
 
                 whileAsync
             else
@@ -76,7 +84,11 @@ module AsyncResultCE =
             ) : Async<Result<unit, 'error>> =
             this.Using(
                 sequence.GetEnumerator(),
-                fun enum -> this.While((fun () -> enum.MoveNext()), this.Delay(fun () -> binder enum.Current))
+                fun enum ->
+                    this.While(
+                        (fun () -> enum.MoveNext()),
+                        this.Delay(fun () -> binder enum.Current)
+                    )
             )
 
         member inline _.BindReturn
@@ -99,13 +111,16 @@ module AsyncResultCE =
         ///
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
-        member inline _.Source(result: Async<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> = result
+        member inline _.Source(result: Async<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
+            result
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> = task |> Async.AwaitTask
+        member inline _.Source(task: Task<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
+            task
+            |> Async.AwaitTask
 #endif
 
     let asyncResult = AsyncResultBuilder()
@@ -123,28 +138,38 @@ module AsyncResultCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = Async.singleton result
+        member inline _.Source(result: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
+            Async.singleton result
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(choice: Choice<'ok, 'error>) : Async<Result<'ok, 'error>> =
-            choice |> Result.ofChoice |> Async.singleton
+            choice
+            |> Result.ofChoice
+            |> Async.singleton
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(asyncComputation: Async<'ok>) : Async<Result<'ok, 'error>> =
-            asyncComputation |> Async.map Ok
+            asyncComputation
+            |> Async.map Ok
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<'ok>) : Async<Result<'ok, 'error>> = task |> Async.AwaitTask |> Async.map Ok
+        member inline _.Source(task: Task<'ok>) : Async<Result<'ok, 'error>> =
+            task
+            |> Async.AwaitTask
+            |> Async.map Ok
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task) : Async<Result<unit, 'error>> = task |> Async.AwaitTask |> Async.map Ok
+        member inline _.Source(task: Task) : Async<Result<unit, 'error>> =
+            task
+            |> Async.AwaitTask
+            |> Async.map Ok
 #endif

@@ -13,9 +13,12 @@ module TaskResultOptionCE =
 #if NETSTANDARD2_0
     type TaskResultOptionBuilder() =
         member inline _.Return(value: 'T) : Ply<Result<'T option, 'TError>> =
-            uply.Return <| result.Return(Some value)
+            uply.Return
+            <| result.Return(Some value)
 
-        member inline _.ReturnFrom(taskResult: Task<Result<'T option, 'TError>>) : Ply<Result<'T option, 'TError>> =
+        member inline _.ReturnFrom
+            (taskResult: Task<Result<'T option, 'TError>>)
+            : Ply<Result<'T option, 'TError>> =
             uply.ReturnFrom taskResult
 
         member inline _.Bind
@@ -26,13 +29,19 @@ module TaskResultOptionCE =
             let binder' r =
                 match r with
                 | Ok (Some x) -> binder x
-                | Ok None -> uply.Return <| Ok None
-                | Error x -> uply.Return <| Error x
+                | Ok None ->
+                    uply.Return
+                    <| Ok None
+                | Error x ->
+                    uply.Return
+                    <| Error x
 
             uply.Bind(taskResult, binder')
 
         member inline _.Combine(tro1, tro2) =
-            tro1 |> TaskResultOption.bind (fun _ -> tro2) |> uply.ReturnFrom
+            tro1
+            |> TaskResultOption.bind (fun _ -> tro2)
+            |> uply.ReturnFrom
 
         member inline _.Delay([<InlineIfLambda>] f) = uply.Delay f
 
@@ -74,7 +83,8 @@ module TaskResultOptionCE =
 
         member this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
 
-    and AsyncTaskResultOptionMethodBuilder<'TOverall, 'Error> = AsyncTaskMethodBuilder<Result<'TOverall option, 'Error>>
+    and AsyncTaskResultOptionMethodBuilder<'TOverall, 'Error> =
+        AsyncTaskMethodBuilder<Result<'TOverall option, 'Error>>
 
     and TaskResultOptionStateMachine<'TOverall, 'Error> =
         ResumableStateMachine<TaskResultOptionStateMachineData<'TOverall, 'Error>>
@@ -94,7 +104,8 @@ module TaskResultOptionCE =
                 // printfn "Return Called --> "
                 sm.Data.Result <- Ok(Some value)
 
-                true)
+                true
+            )
 
         static member BindDynamic
             (
@@ -116,7 +127,8 @@ module TaskResultOptionCE =
                         true
                     | Error e ->
                         sm.Data.Result <- Error e
-                        true))
+                        true
+                ))
 
             // shortcut to continue immediately
             if awaiter.IsCompleted then
@@ -171,7 +183,9 @@ module TaskResultOptionCE =
             )
 
 
-        member inline this.ReturnFrom(task: TaskResultOption<'T, 'Error>) : TaskResultOptionCode<'T, 'Error, 'T> =
+        member inline this.ReturnFrom
+            (task: TaskResultOption<'T, 'Error>)
+            : TaskResultOptionCode<'T, 'Error, 'T> =
             this.Bind(task, (fun v -> this.Return v))
 
 
@@ -184,7 +198,9 @@ module TaskResultOptionCE =
             : TaskResultOptionCode<'TOverall, 'Error, 'T> =
             TaskResultOptionCode<'TOverall, 'Error, 'T>(fun sm -> (generator ()).Invoke(&sm))
 
-        static member RunDynamic(code: TaskResultOptionCode<'T, 'Error, 'T>) : TaskResultOption<'T, 'Error> =
+        static member RunDynamic
+            (code: TaskResultOptionCode<'T, 'Error, 'T>)
+            : TaskResultOption<'T, 'Error> =
             let mutable sm = TaskResultOptionStateMachine<'T, 'Error>()
 
             let initialResumptionFunc =
@@ -209,7 +225,8 @@ module TaskResultOptionCE =
                                 sm.Data.MethodBuilder.SetResult(sm.Data.Result)
                             else
                                 let mutable awaiter =
-                                    sm.ResumptionDynamicInfo.ResumptionData :?> ICriticalNotifyCompletion
+                                    sm.ResumptionDynamicInfo.ResumptionData
+                                    :?> ICriticalNotifyCompletion
 
                                 assert not (isNull awaiter)
                                 sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
@@ -230,7 +247,9 @@ module TaskResultOptionCE =
             sm.Data.MethodBuilder.Start(&sm)
             sm.Data.MethodBuilder.Task
 
-        member inline _.Run(code: TaskResultOptionCode<'T, 'Error, 'T>) : TaskResultOption<'T, 'Error> =
+        member inline _.Run
+            (code: TaskResultOptionCode<'T, 'Error, 'T>)
+            : TaskResultOption<'T, 'Error> =
             if __useResumableCode then
                 __stateMachine<TaskResultOptionStateMachineData<'T, 'Error>, TaskResultOption<'T, 'Error>>
                     (MoveNextMethodImpl<_>(fun sm ->
@@ -244,7 +263,10 @@ module TaskResultOptionCE =
                             let __stack_code_fin = code.Invoke(&sm)
                             // printfn "Run Task.Status --> %A" sm.Data.MethodBuilder.Task.Status
                             // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
-                            if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                            if
+                                __stack_code_fin
+                                && not sm.Data.IsTaskCompleted
+                            then
 
                                 // printfn "Run __stack_code_fin Data  --> %A" sm.Data.Result
                                 sm.Data.MethodBuilder.SetResult(sm.Data.Result)
@@ -256,11 +278,16 @@ module TaskResultOptionCE =
                         | exn -> sm.Data.MethodBuilder.SetException exn
                     //-- RESUMABLE CODE END
                     ))
-                    (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
+                    (SetStateMachineMethodImpl<_>(fun sm state ->
+                        sm.Data.MethodBuilder.SetStateMachine(state)
+                    ))
                     (AfterCode<_, _>(fun sm ->
-                        sm.Data.MethodBuilder <- AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create ()
+                        sm.Data.MethodBuilder <-
+                            AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create ()
+
                         sm.Data.MethodBuilder.Start(&sm)
-                        sm.Data.MethodBuilder.Task))
+                        sm.Data.MethodBuilder.Task
+                    ))
             else
                 TaskResultOptionBuilder.RunDynamic(code)
 

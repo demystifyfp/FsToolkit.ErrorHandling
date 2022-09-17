@@ -9,7 +9,8 @@ module Validation =
     let inline ok (value: 'ok) : Validation<'ok, 'error> = Ok value
     let inline error (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
-    let inline ofResult (result: Result<'ok, 'error>) : Validation<'ok, 'error> = Result.mapError List.singleton result
+    let inline ofResult (result: Result<'ok, 'error>) : Validation<'ok, 'error> =
+        Result.mapError List.singleton result
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : Validation<'ok, 'error> =
         match choice with
@@ -24,7 +25,11 @@ module Validation =
         | Ok f, Ok x -> Ok(f x)
         | Error errs, Ok _
         | Ok _, Error errs -> Error errs
-        | Error errs1, Error errs2 -> Error(errs1 @ errs2)
+        | Error errs1, Error errs2 ->
+            Error(
+                errs1
+                @ errs2
+            )
 
     let inline retn (value: 'ok) : Validation<'ok, 'error> = ok value
 
@@ -53,7 +58,8 @@ module Validation =
         (ifError: Validation<'ok, 'errorOutput>)
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
-        result |> Result.either ok (fun _ -> ifError)
+        result
+        |> Result.either ok (fun _ -> ifError)
 
 
     /// <summary>
@@ -79,7 +85,8 @@ module Validation =
         ([<InlineIfLambda>] ifErrorFunc: 'errorInput list -> Validation<'ok, 'errorOutput>)
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
-        result |> Result.either ok ifErrorFunc
+        result
+        |> Result.either ok ifErrorFunc
 
 
     let inline map
@@ -97,7 +104,11 @@ module Validation =
         | Ok x, Ok y -> Ok(mapper x y)
         | Ok _, Error errs -> Error errs
         | Error errs, Ok _ -> Error errs
-        | Error errs1, Error errs2 -> Error(errs1 @ errs2)
+        | Error errs1, Error errs2 ->
+            Error(
+                errs1
+                @ errs2
+            )
 
     let inline map3
         ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okInput3 -> 'okOutput)
@@ -110,10 +121,27 @@ module Validation =
         | Error errs, Ok _, Ok _ -> Error errs
         | Ok _, Error errs, Ok _ -> Error errs
         | Ok _, Ok _, Error errs -> Error errs
-        | Error errs1, Error errs2, Ok _ -> Error(errs1 @ errs2)
-        | Ok _, Error errs1, Error errs2 -> Error(errs1 @ errs2)
-        | Error errs1, Ok _, Error errs2 -> Error(errs1 @ errs2)
-        | Error errs1, Error errs2, Error errs3 -> Error(errs1 @ errs2 @ errs3)
+        | Error errs1, Error errs2, Ok _ ->
+            Error(
+                errs1
+                @ errs2
+            )
+        | Ok _, Error errs1, Error errs2 ->
+            Error(
+                errs1
+                @ errs2
+            )
+        | Error errs1, Ok _, Error errs2 ->
+            Error(
+                errs1
+                @ errs2
+            )
+        | Error errs1, Error errs2, Error errs3 ->
+            Error(
+                errs1
+                @ errs2
+                  @ errs3
+            )
 
     let inline mapError
         ([<InlineIfLambda>] errorMapper: 'errorInput -> 'errorOutput)

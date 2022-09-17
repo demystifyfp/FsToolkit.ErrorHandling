@@ -54,12 +54,20 @@ module ValueOptionCE =
             finally
                 compensation ()
 
-        member inline this.Using(resource: 'T :> IDisposable, [<InlineIfLambda>] binder) : _ voption =
+        member inline this.Using
+            (
+                resource: 'T :> IDisposable,
+                [<InlineIfLambda>] binder
+            ) : _ voption =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
-                    if not <| obj.ReferenceEquals(resource, null) then
-                        resource.Dispose())
+                    if
+                        not
+                        <| obj.ReferenceEquals(resource, null)
+                    then
+                        resource.Dispose()
+                )
             )
 
         member inline this.While
@@ -81,7 +89,11 @@ module ValueOptionCE =
             else
                 this.Zero()
 
-        member inline this.For(sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> _ voption) : _ voption =
+        member inline this.For
+            (
+                sequence: #seq<'T>,
+                [<InlineIfLambda>] binder: 'T -> _ voption
+            ) : _ voption =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
@@ -90,7 +102,9 @@ module ValueOptionCE =
         member inline _.BindReturn(x, [<InlineIfLambda>] f) = ValueOption.map f x
 
         member inline _.BindReturn(x, [<InlineIfLambda>] f) =
-            x |> ValueOption.ofObj |> ValueOption.map f
+            x
+            |> ValueOption.ofObj
+            |> ValueOption.map f
 
         member inline _.MergeSources(option1, option2) = ValueOption.zip option1 option2
 
@@ -105,7 +119,9 @@ module ValueOptionCE =
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.
         // /// </summary>
-        member inline _.Source(vopt: _ option) : _ voption = vopt |> ValueOption.ofOption
+        member inline _.Source(vopt: _ option) : _ voption =
+            vopt
+            |> ValueOption.ofOption
 
     let voption = ValueOptionBuilder()
 
@@ -113,8 +129,13 @@ module ValueOptionCE =
 module ValueOptionExtensionsLower =
     type ValueOptionBuilder with
 
-        member inline _.Source(nullableObj: 'a when 'a: null) = nullableObj |> ValueOption.ofObj
-        member inline _.Source(m: string) = m |> ValueOption.ofObj
+        member inline _.Source(nullableObj: 'a when 'a: null) =
+            nullableObj
+            |> ValueOption.ofObj
+
+        member inline _.Source(m: string) =
+            m
+            |> ValueOption.ofObj
 
         member inline _.MergeSources(nullableObj1, option2) =
             ValueOption.zip (ValueOption.ofObj nullableObj1) option2
@@ -141,5 +162,7 @@ module ValueOptionExtensions =
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.
         // /// </summary>
-        member inline _.Source(nullable: Nullable<'a>) : 'a voption = nullable |> ValueOption.ofNullable
+        member inline _.Source(nullable: Nullable<'a>) : 'a voption =
+            nullable
+            |> ValueOption.ofNullable
 #endif

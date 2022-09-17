@@ -18,10 +18,14 @@ type Latitude =
         lat
 
     static member TryCreate(lat: double) =
-        if lat > -180. && lat < 180. then
+        if
+            lat > -180.
+            && lat < 180.
+        then
             Ok(Latitude lat)
         else
-            sprintf "%A is a invalid latitude value" lat |> Error
+            sprintf "%A is a invalid latitude value" lat
+            |> Error
 
 type Longitude =
     private
@@ -32,10 +36,14 @@ type Longitude =
         lng
 
     static member TryCreate(lng: double) =
-        if lng > -90. && lng < 90. then
+        if
+            lng > -90.
+            && lng < 90.
+        then
             Ok(Longitude lng)
         else
-            sprintf "%A is a invalid longitude value" lng |> Error
+            sprintf "%A is a invalid longitude value" lng
+            |> Error
 
 
 type Location = {
@@ -68,7 +76,8 @@ type Url =
         if isWellFormedUrl url then
             Ok(Url url)
         else
-            sprintf "%s is a invalid URL" url |> Error
+            sprintf "%s is a invalid URL" url
+            |> Error
 
 
 type Tweet =
@@ -85,7 +94,9 @@ type Tweet =
         | x when x.Length > 280 -> Error "Tweet shouldn't contain more than 280 characters"
         | x -> Ok(Tweet x)
 
-let remainingCharacters (tweet: Tweet) = 280 - tweet.Value.Length
+let remainingCharacters (tweet: Tweet) =
+    280
+    - tweet.Value.Length
 
 let firstURLInTweet (tweet: Tweet) =
     tweet.Value.Split([| ' ' |])
@@ -221,7 +232,10 @@ let createPostSuccess (_: CreatePostRequest) = async { return Ok samplePostId }
 
 let createPostSome (_: CreatePostRequest) = async { return Some samplePostId }
 
-let followerIds = [ UserId(Guid.NewGuid()); UserId(Guid.NewGuid()) ]
+let followerIds = [
+    UserId(Guid.NewGuid())
+    UserId(Guid.NewGuid())
+]
 
 let getFollowersSuccess (UserId _) = async { return Ok followerIds }
 
@@ -234,7 +248,11 @@ let createPostFailure (_: CreatePostRequest) = async { return Error commonEx }
 
 let notifyNewPostSuccess (PostId post) (UserId user) = async { return Ok(post, user) }
 
-let notifyNewPostFailure (PostId _) (UserId uId) = async { return sprintf "error: %s" (uId.ToString()) |> Error }
+let notifyNewPostFailure (PostId _) (UserId uId) = async {
+    return
+        sprintf "error: %s" (uId.ToString())
+        |> Error
+}
 
 type NotifyNewPostRequest = {
     UserIds: UserId list
@@ -276,7 +294,9 @@ type PostDto =
     }
 
     static member ToPost(dto: PostDto) = result {
-        let! location = dto.Location |> Option.traverseResult LocationDto.ToLocation
+        let! location =
+            dto.Location
+            |> Option.traverseResult LocationDto.ToLocation
 
         let! tweet = Tweet.TryCreate dto.Tweet
 

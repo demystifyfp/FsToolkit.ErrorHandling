@@ -21,27 +21,45 @@ let sequenceResultMTests =
             let expected = Ok []
 
             let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets) |> Result.map Seq.toList
+                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+                |> Result.map Seq.toList
 
             Expect.equal actual expected "Should have an empty list of valid tweets"
 
         testCase "traverseResult with a sequence of valid data"
         <| fun _ ->
-            let tweets = [ "Hi"; "Hello"; "Hola" ]
-            let expected = List.map tweet tweets |> Ok
+            let tweets = [
+                "Hi"
+                "Hello"
+                "Hola"
+            ]
+
+            let expected =
+                List.map tweet tweets
+                |> Ok
 
             let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets) |> Result.map Seq.toList
+                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+                |> Result.map Seq.toList
 
             Expect.equal actual expected "Should have a list of valid tweets"
 
         testCase "sequenceResultM with few invalid data"
         <| fun _ ->
-            let tweets = [ ""; "Hello"; aLongerInvalidTweet ] :> seq<_>
+            let tweets =
+                [
+                    ""
+                    "Hello"
+                    aLongerInvalidTweet
+                ]
+                :> seq<_>
 
             let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
 
-            Expect.equal actual (Error emptyTweetErrMsg) "traverse the sequence and return the first error"
+            Expect.equal
+                actual
+                (Error emptyTweetErrMsg)
+                "traverse the sequence and return the first error"
 
         testCase "sequenceResultM stops after first invalid data"
         <| fun _ ->
@@ -52,12 +70,19 @@ let sequenceResultMTests =
                 "Hello"
                 "Hola"
                 aLongerInvalidTweet
-                counter <- counter + 1
+
+                counter <-
+                    counter
+                    + 1
             }
 
             let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
 
-            Expect.equal actual (Error longerTweetErrMsg) "traverse the sequence and return the first error"
+            Expect.equal
+                actual
+                (Error longerTweetErrMsg)
+                "traverse the sequence and return the first error"
+
             Expect.equal counter 0 "evaluation of the sequence stops at the first error"
     ]
 

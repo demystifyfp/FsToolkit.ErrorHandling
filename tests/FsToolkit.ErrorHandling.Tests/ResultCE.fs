@@ -51,7 +51,9 @@ let ``ResultCE return! Tests`` =
         testCase "Non-annotated overload resolution"
         <| fun _ ->
             let f res = result { return! res }
-            f (Ok()) |> ignore
+
+            f (Ok())
+            |> ignore
     ]
 
 
@@ -124,7 +126,9 @@ let ``ResultCE bind Tests`` =
         testCase "Non-annotated overload resolution"
         <| fun _ ->
             let f res = result { do! res }
-            f (Ok()) |> ignore
+
+            f (Ok())
+            |> ignore
     ]
 
 
@@ -206,7 +210,10 @@ let ``ResultCE using Tests`` =
             let data = 42
 
             let actual = result {
-                use! d = makeDisposable () |> Result.Ok
+                use! d =
+                    makeDisposable ()
+                    |> Result.Ok
+
                 return data
             }
 

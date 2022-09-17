@@ -6,13 +6,31 @@ open System
 open System.Threading.Tasks
 
 let testCaseTask name test =
-    testCaseAsync name (async { return! test () |> Async.AwaitTask })
+    testCaseAsync
+        name
+        (async {
+            return!
+                test ()
+                |> Async.AwaitTask
+        })
 
 let ptestCaseTask name test =
-    ptestCaseAsync name (async { return! test () |> Async.AwaitTask })
+    ptestCaseAsync
+        name
+        (async {
+            return!
+                test ()
+                |> Async.AwaitTask
+        })
 
 let ftestCaseTask name test =
-    ftestCaseAsync name (async { return! test () |> Async.AwaitTask })
+    ftestCaseAsync
+        name
+        (async {
+            return!
+                test ()
+                |> Async.AwaitTask
+        })
 
 
 module Expect =
@@ -47,4 +65,5 @@ type Expect =
 
 
     static member CancellationRequested(operation: Task<_>) =
-        Expect.CancellationRequested(Async.AwaitTask operation) |> Async.StartAsTask
+        Expect.CancellationRequested(Async.AwaitTask operation)
+        |> Async.StartAsTask

@@ -36,7 +36,8 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            })
+            }
+            )
             |> Expect.hasAsyncSomeValue (PostId newPostId))
 
         testCaseAsync "bind with Async(None)"
@@ -66,7 +67,8 @@ let applyTests =
 let retnTests =
     testList "AsyncOption.retn Tests" [
         testCaseAsync "retn with x"
-        <| (AsyncOption.retn 267 |> Expect.hasAsyncSomeValue (267))
+        <| (AsyncOption.retn 267
+            |> Expect.hasAsyncSomeValue (267))
     ]
 
 let asyncOptionOperatorTests =
@@ -77,7 +79,9 @@ let asyncOptionOperatorTests =
             let createPostResult = createPostSome validCreatePostRequest
 
             do!
-                newPostRequest <!> getFollowersResult <*> createPostResult
+                newPostRequest
+                <!> getFollowersResult
+                <*> createPostResult
                 |> Expect.hasAsyncSomeValue
                     {
                         NewPostId = PostId newPostId
@@ -93,10 +97,17 @@ let asyncOptionOperatorTests =
                     if isAllowed then
                         createPostSome validCreatePostRequest
                     else
-                        Async.singleton None)
+                        Async.singleton None
+                )
                 |> Expect.hasAsyncSomeValue (PostId newPostId)
         }
     ]
 
 let allTests =
-    testList "Async Option Tests" [ mapTests; bindTests; applyTests; retnTests; asyncOptionOperatorTests ]
+    testList "Async Option Tests" [
+        mapTests
+        bindTests
+        applyTests
+        retnTests
+        asyncOptionOperatorTests
+    ]

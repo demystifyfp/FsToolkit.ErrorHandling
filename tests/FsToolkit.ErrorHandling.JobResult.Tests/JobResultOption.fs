@@ -8,8 +8,13 @@ open System
 open Hopac
 open Expects.JobResult
 
-let getUserById x = getUserById x |> Job.fromAsync
-let getPostById x = getPostById x |> Job.fromAsync
+let getUserById x =
+    getUserById x
+    |> Job.fromAsync
+
+let getPostById x =
+    getPostById x
+    |> Job.fromAsync
 
 
 [<Tests>]
@@ -57,7 +62,8 @@ let bindTests =
             getPostById (PostId(Guid.NewGuid()))
             |> JobResultOption.bind (fun post ->
                 failwith "this shouldn't be called!!"
-                getUserById post.UserId)
+                getUserById post.UserId
+            )
             |> Expect.hasJobOkValueSync None
 
         testCase "bind with Job(Ok Some(x)) Job(Ok None)"
@@ -71,7 +77,8 @@ let bindTests =
             getPostById (PostId(Guid.NewGuid()))
             |> JobResultOption.bind (fun _ ->
                 failwith "this shouldn't be called!!"
-                getUserById (UserId(Guid.NewGuid())))
+                getUserById (UserId(Guid.NewGuid()))
+            )
             |> Expect.hasJobOkValueSync None
 
         testCase "bind with Job(Error x) Job(Ok (Some y))"
@@ -79,7 +86,8 @@ let bindTests =
             getPostById (PostId Guid.Empty)
             |> JobResultOption.bind (fun _ ->
                 failwith "this shouldn't be called!!"
-                getUserById (UserId(Guid.NewGuid())))
+                getUserById (UserId(Guid.NewGuid()))
+            )
             |> Expect.hasJobErrorValueSync "invalid post id"
     ]
 
@@ -105,21 +113,24 @@ let map2Tests =
             let postARO = getPostById samplePostId
             let userARO = getUserById (UserId(Guid.NewGuid()))
 
-            JobResultOption.map2 userTweet postARO userARO |> Expect.hasJobOkValueSync None
+            JobResultOption.map2 userTweet postARO userARO
+            |> Expect.hasJobOkValueSync None
 
         testCase "map2 with Job(Ok Some(x)) Job(Ok None)"
         <| fun _ ->
             let postARO = getPostById (PostId(Guid.NewGuid()))
             let userARO = getUserById sampleUserId
 
-            JobResultOption.map2 userTweet postARO userARO |> Expect.hasJobOkValueSync None
+            JobResultOption.map2 userTweet postARO userARO
+            |> Expect.hasJobOkValueSync None
 
         testCase "map2 with Job(Ok None) Job(Ok None)"
         <| fun _ ->
             let postARO = getPostById (PostId(Guid.NewGuid()))
             let userARO = getUserById (UserId(Guid.NewGuid()))
 
-            JobResultOption.map2 userTweet postARO userARO |> Expect.hasJobOkValueSync None
+            JobResultOption.map2 userTweet postARO userARO
+            |> Expect.hasJobOkValueSync None
 
         testCase "map2 with Job(Error x) Job(Ok None)"
         <| fun _ ->
@@ -222,7 +233,9 @@ let operatorTests =
             let getPostResult = getPostById samplePostId
             let getUserResult = getUserById sampleUserId
 
-            userTweet <!> getPostResult <*> getUserResult
+            userTweet
+            <!> getPostResult
+            <*> getUserResult
             |> Expect.hasJobOkValueSync (
                 Some
                     {
@@ -234,7 +247,10 @@ let operatorTests =
         testCase "bind & map operator"
         <| fun _ ->
             getPostById samplePostId
-            >>= (fun post -> (fun user -> userTweet post user) <!> getUserById post.UserId)
+            >>= (fun post ->
+                (fun user -> userTweet post user)
+                <!> getUserById post.UserId
+            )
             |> Expect.hasJobOkValueSync (
                 Some
                     {

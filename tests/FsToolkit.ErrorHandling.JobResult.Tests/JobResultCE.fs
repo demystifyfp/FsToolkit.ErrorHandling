@@ -116,19 +116,29 @@ let ``JobResultCE bind Tests`` =
         testCaseJob "Bind Ok AsyncResult"
         <| job {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Async.singleton
+
+            let data =
+                Result.Ok innerData
+                |> Async.singleton
 
             let! actual = jobResult {
                 let! data = data
                 return data
             }
 
-            Expect.equal actual (data |> Async.RunSynchronously) "Should be ok"
+            Expect.equal
+                actual
+                (data
+                 |> Async.RunSynchronously)
+                "Should be ok"
         }
         testCaseJob "Bind Ok TaskResult"
         <| job {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Task.singleton
+
+            let data =
+                Result.Ok innerData
+                |> Task.singleton
 
             let! actual = jobResult {
                 let! data = data
@@ -253,7 +263,10 @@ let ``JobResultCE using Tests`` =
             let data = 42
 
             let! actual = jobResult {
-                use! d = makeDisposable () |> Result.Ok
+                use! d =
+                    makeDisposable ()
+                    |> Result.Ok
+
                 return data
             }
 
@@ -322,12 +335,21 @@ let ``JobResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M" ]
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+            ]
 
             let! actual = jobResult {
                 for i in data do
                     let! x = i
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
+
                     ()
 
                 return "ok"
@@ -441,7 +463,11 @@ let ``AsyncResultCE applicative tests`` =
             let! actual = jobResult {
                 let! a = Ok 3
                 and! b = Choice1Of2 2
-                and! c = Ok 1 |> Async.singleton
+
+                and! c =
+                    Ok 1
+                    |> Async.singleton
+
                 return a + b - c
             }
 
@@ -482,7 +508,11 @@ let ``AsyncResultCE applicative tests`` =
 
             let! actual = jobResult {
                 let! a = Choice1Of2 3
-                and! b = Ok 2 |> Async.singleton
+
+                and! b =
+                    Ok 2
+                    |> Async.singleton
+
                 and! c = Error errorMsg
                 return a + b - c
             }

@@ -105,7 +105,8 @@ module Result =
         let tryCreate' x =
             (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
-        tryCreate' x |> mapError (fun z -> (fieldName, z))
+        tryCreate' x
+        |> mapError (fun z -> (fieldName, z))
 
 
     /// <summary>
@@ -126,7 +127,10 @@ module Result =
     /// <returns>
     /// The result if the result is Ok, else returns <paramref name="ifError"/>.
     /// </returns>
-    let inline orElse (ifError: Result<'ok, 'errorOutput>) (result: Result<'ok, 'error>) : Result<'ok, 'errorOutput> =
+    let inline orElse
+        (ifError: Result<'ok, 'errorOutput>)
+        (result: Result<'ok, 'error>)
+        : Result<'ok, 'errorOutput> =
         match result with
         | Ok x -> Ok x
         | Error e -> ifError
@@ -166,7 +170,8 @@ module Result =
         | Error e -> Error e
 
     /// Returns the specified error if the value is false.
-    let inline requireTrue (error: 'error) (value: bool) : Result<unit, 'error> = if value then Ok() else Error error
+    let inline requireTrue (error: 'error) (value: bool) : Result<unit, 'error> =
+        if value then Ok() else Error error
 
     /// Returns the specified error if the value is true.
     let inline requireFalse (error: 'error) (value: bool) : Result<unit, 'error> =
@@ -193,7 +198,11 @@ module Result =
     /// Returns Ok if the two values are equal, or the specified error if not.
     /// Same as requireEqual, but with a signature that fits piping better than
     /// normal function application.
-    let inline requireEqualTo (other: 'value) (error: 'error) (this: 'value) : Result<unit, 'error> =
+    let inline requireEqualTo
+        (other: 'value)
+        (error: 'error)
+        (this: 'value)
+        : Result<unit, 'error> =
         if this = other then Ok() else Error error
 
     /// Returns Ok if the two values are equal, or the specified error if not.
@@ -219,12 +228,14 @@ module Result =
 
     /// Replaces an error value with a custom error value.
     let inline setError (error: 'error) (result: Result<'ok, 'errorIgnored>) : Result<'ok, 'error> =
-        result |> mapError (fun _ -> error)
+        result
+        |> mapError (fun _ -> error)
 
     /// Replaces a unit error value with a custom error value. Safer than setError
     /// since you're not losing any information.
     let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, 'error> =
-        result |> mapError (fun () -> error)
+        result
+        |> mapError (fun () -> error)
 
     /// Returns the contained value if Ok, otherwise returns ifError.
     let inline defaultValue (ifError: 'ok) (result: Result<'ok, 'error>) : 'ok =
@@ -240,7 +251,10 @@ module Result =
 
     /// Returns the contained value if Ok, otherwise evaluates ifErrorThunk and
     /// returns the result.
-    let inline defaultWith ([<InlineIfLambda>] ifErrorThunk: unit -> 'ok) (result: Result<'ok, 'error>) : 'ok =
+    let inline defaultWith
+        ([<InlineIfLambda>] ifErrorThunk: unit -> 'ok)
+        (result: Result<'ok, 'error>)
+        : 'ok =
         match result with
         | Ok x -> x
         | Error _ -> ifErrorThunk ()
@@ -281,7 +295,10 @@ module Result =
 
     /// If the result is Ok, executes the function on the Ok value. Passes through
     /// the input value.
-    let inline tee ([<InlineIfLambda>] inspector: 'ok -> unit) (result: Result<'ok, 'error>) : Result<'ok, 'error> =
+    let inline tee
+        ([<InlineIfLambda>] inspector: 'ok -> unit)
+        (result: Result<'ok, 'error>)
+        : Result<'ok, 'error> =
         teeIf (fun _ -> true) inspector result
 
     /// If the result is Error, executes the function on the Error value. Passes
@@ -316,7 +333,10 @@ module Result =
         | Error x -> f x
 
     /// Takes two results and returns a tuple of the pair
-    let zip (left: Result<'leftOk, 'error>) (right: Result<'rightOk, 'error>) : Result<'leftOk * 'rightOk, 'error> =
+    let zip
+        (left: Result<'leftOk, 'error>)
+        (right: Result<'rightOk, 'error>)
+        : Result<'leftOk * 'rightOk, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
         | Error e, _ -> Error e

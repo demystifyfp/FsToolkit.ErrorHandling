@@ -11,7 +11,9 @@ module AsyncOptionCE =
 
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
-        member inline _.Zero() : Async<unit option> = async.Return <| option.Zero()
+        member inline _.Zero() : Async<unit option> =
+            async.Return
+            <| option.Zero()
 
         member inline _.Bind
             (
@@ -20,9 +22,14 @@ module AsyncOptionCE =
             ) : Async<'output option> =
             AsyncOption.bind binder input
 
-        member inline _.Delay(generator: unit -> Async<'value option>) : Async<'value option> = async.Delay generator
+        member inline _.Delay(generator: unit -> Async<'value option>) : Async<'value option> =
+            async.Delay generator
 
-        member inline this.Combine(computation1: Async<_ option>, computation2: Async<_ option>) : Async<_ option> =
+        member inline this.Combine
+            (
+                computation1: Async<_ option>,
+                computation2: Async<_ option>
+            ) : Async<_ option> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -47,17 +54,32 @@ module AsyncOptionCE =
             this.TryFinally(
                 (binder resource),
                 (fun () ->
-                    if not <| obj.ReferenceEquals(resource, null) then
-                        resource.Dispose())
+                    if
+                        not
+                        <| obj.ReferenceEquals(resource, null)
+                    then
+                        resource.Dispose()
+                )
             )
 
-        member this.While(guard: unit -> bool, computation: Async<unit option>) : Async<unit option> =
-            if not <| guard () then
+        member this.While
+            (
+                guard: unit -> bool,
+                computation: Async<unit option>
+            ) : Async<unit option> =
+            if
+                not
+                <| guard ()
+            then
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
 
-        member inline this.For(sequence: #seq<'input>, binder: 'input -> Async<unit option>) : Async<unit option> =
+        member inline this.For
+            (
+                sequence: #seq<'input>,
+                binder: 'input -> Async<unit option>
+            ) : Async<unit option> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
@@ -74,7 +96,9 @@ module AsyncOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<'value option>) : Async<'value option> = task |> Async.AwaitTask
+        member inline _.Source(task: Task<'value option>) : Async<'value option> =
+            task
+            |> Async.AwaitTask
 #endif
 
     let asyncOption = AsyncOptionBuilder()
@@ -100,11 +124,16 @@ module AsyncOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Async<'value>) : Async<option<'value>> = a |> Async.map Some
+        member inline _.Source(a: Async<'value>) : Async<option<'value>> =
+            a
+            |> Async.map Some
 
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Task<'value>) : Async<option<'value>> = a |> Async.AwaitTask |> Async.map Some
+        member inline _.Source(a: Task<'value>) : Async<option<'value>> =
+            a
+            |> Async.AwaitTask
+            |> Async.map Some
 #endif

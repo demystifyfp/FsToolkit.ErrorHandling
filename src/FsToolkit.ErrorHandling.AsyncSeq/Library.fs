@@ -29,7 +29,8 @@ module AsyncSeqCE =
                                     | Some (Ok x) -> return! whileAsync x
                                     | Some (Error e) -> return Error e
                                     | None -> return! this.Zero()
-                                })
+                                }
+                                )
                             )
 
                     return! whileAsync x
@@ -45,11 +46,17 @@ module AsyncSeqCE =
             ) : Async<Result<unit, 'TError>> =
             this.Using(xs.GetEnumerator(), (fun enum -> this.While(enum.MoveNext, binder)))
 
-        member this.For(xs: AsyncSeq<'T>, binder: 'T -> Async<Result<unit, 'TError>>) : Async<Result<unit, 'TError>> =
+        member this.For
+            (
+                xs: AsyncSeq<'T>,
+                binder: 'T -> Async<Result<unit, 'TError>>
+            ) : Async<Result<unit, 'TError>> =
             this.Using(
                 xs.GetEnumerator(),
                 fun enum ->
-                    let moveNext = enum.MoveNext >> Async.map (Option.map Ok)
+                    let moveNext =
+                        enum.MoveNext
+                        >> Async.map (Option.map Ok)
 
                     this.While(moveNext, binder)
             )

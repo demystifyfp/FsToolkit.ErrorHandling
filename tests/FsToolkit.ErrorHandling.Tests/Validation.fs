@@ -35,7 +35,10 @@ let map2Tests =
         testCase "map2 with two Error parts"
         <| fun _ ->
             Validation.map2 location (lift invalidLatR) (lift invalidLngR)
-            |> Expect.hasErrorValue [ invalidLatMsg; invalidLngMsg ]
+            |> Expect.hasErrorValue [
+                invalidLatMsg
+                invalidLngMsg
+            ]
     ]
 
 
@@ -59,13 +62,25 @@ let map3Tests =
 
         testCase "map3 with (Ok, Ok, Error)"
         <| fun _ ->
-            Validation.map3 createPostRequest (lift validLatR) (lift validLngR) (lift emptyInvalidTweetR)
+            Validation.map3
+                createPostRequest
+                (lift validLatR)
+                (lift validLngR)
+                (lift emptyInvalidTweetR)
             |> Expect.hasErrorValue [ emptyTweetErrMsg ]
 
         testCase "map3 with (Error, Error, Error)"
         <| fun _ ->
-            Validation.map3 createPostRequest (lift invalidLatR) (lift invalidLngR) (lift emptyInvalidTweetR)
-            |> Expect.hasErrorValue [ invalidLatMsg; invalidLngMsg; emptyTweetErrMsg ]
+            Validation.map3
+                createPostRequest
+                (lift invalidLatR)
+                (lift invalidLngR)
+                (lift emptyInvalidTweetR)
+            |> Expect.hasErrorValue [
+                invalidLatMsg
+                invalidLngMsg
+                emptyTweetErrMsg
+            ]
     ]
 
 
@@ -91,14 +106,18 @@ let operatorsTests =
     testList "Validation Operators Tests" [
         testCase "map & apply operators"
         <| fun _ ->
-            createPostRequest <!> (lift validLatR)
+            createPostRequest
+            <!> (lift validLatR)
             <*> (lift validLngR)
             <*> (lift validTweetR)
             |> Expect.hasOkValue validCreatePostRequest
 
         testCase "map^ & apply^ operators"
         <| fun _ ->
-            createPostRequest <!^> validLatR <*^> validLngR <*^> validTweetR
+            createPostRequest
+            <!^> validLatR
+            <*^> validLngR
+            <*^> validTweetR
             |> Expect.hasOkValue validCreatePostRequest
     ]
 
@@ -122,14 +141,23 @@ let zipTests =
         <| fun () ->
             let actual = Validation.zip (Validation.error "Bad1") (Validation.error "Bad2")
 
-            Expect.equal actual (Error [ "Bad1"; "Bad2" ]) "Should be Error"
+            Expect.equal
+                actual
+                (Error [
+                    "Bad1"
+                    "Bad2"
+                ])
+                "Should be Error"
     ]
 
 
 let orElseTests =
     testList "Validation.orElseWith Tests" [
         testCase "Ok Ok takes first Ok"
-        <| fun _ -> (Ok "First") |> Validation.orElse (Ok "Second") |> Expect.hasOkValue "First"
+        <| fun _ ->
+            (Ok "First")
+            |> Validation.orElse (Ok "Second")
+            |> Expect.hasOkValue "First"
         testCase "Ok Error takes first Ok"
         <| fun _ ->
             (Ok "First")

@@ -33,10 +33,14 @@ type Latitude =
         lat
 
     static member TryCreate(lat: double) =
-        if lat > -180. && lat < 180. then
+        if
+            lat > -180.
+            && lat < 180.
+        then
             Ok(Latitude lat)
         else
-            sprintf "%A is a invalid latitude value" lat |> Error
+            sprintf "%A is a invalid latitude value" lat
+            |> Error
 
 type Longitude =
     private
@@ -47,10 +51,14 @@ type Longitude =
         lng
 
     static member TryCreate(lng: double) =
-        if lng > -90. && lng < 90. then
+        if
+            lng > -90.
+            && lng < 90.
+        then
             Ok(Longitude lng)
         else
-            sprintf "%A is a invalid longitude value" lng |> Error
+            sprintf "%A is a invalid longitude value" lng
+            |> Error
 
 type Location = {
     Latitude: Latitude
@@ -75,9 +83,11 @@ type CreatePostRequestDto = {
 }
 
 let validateLocation (dto: LocationDto) =
-    location <!^> Result.tryCreate "latitude" dto.Latitude
+    location
+    <!^> Result.tryCreate "latitude" dto.Latitude
     <*^> Result.tryCreate "longitude" dto.Longitude
 
 let validateCreatePostRequest (dto: CreatePostRequestDto) =
-    createPostRequest <!> Option.traverseResult validateLocation dto.Location
+    createPostRequest
+    <!> Option.traverseResult validateLocation dto.Location
     <*^> Result.tryCreate "tweet" dto.Tweet

@@ -23,4 +23,6 @@ module ResultOption =
     let map3 f x y z = apply (map2 f x y) z
 
     /// Replaces the wrapped value with unit
-    let ignore<'ok, 'error> (ro: Result<'ok option, 'error>) = ro |> map ignore<'ok>
+    let ignore<'ok, 'error> (ro: Result<'ok option, 'error>) =
+        ro
+        |> map ignore<'ok>

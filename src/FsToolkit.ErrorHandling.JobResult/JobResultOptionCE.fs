@@ -10,7 +10,8 @@ module JobResultOptionCE =
         member inline _.Bind(result, [<InlineIfLambda>] binder) = JobResultOption.bind binder result
 
         member inline _.Combine(aro1, aro2) =
-            aro1 |> JobResultOption.bind (fun _ -> aro2)
+            aro1
+            |> JobResultOption.bind (fun _ -> aro2)
 
         member inline _.Delay([<InlineIfLambda>] f) = Job.delay f
 

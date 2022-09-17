@@ -8,8 +8,13 @@ open FsToolkit.ErrorHandling.Operator.TaskResultOption
 open System
 open TestHelpers
 
-let getUserById x = getUserById x |> Async.StartAsTask
-let getPostById x = getPostById x |> Async.StartAsTask
+let getUserById x =
+    getUserById x
+    |> Async.StartAsTask
+
+let getPostById x =
+    getPostById x
+    |> Async.StartAsTask
 
 
 [<Tests>]
@@ -57,7 +62,8 @@ let bindTests =
             getPostById (PostId(Guid.NewGuid()))
             |> TaskResultOption.bind (fun post ->
                 failwith "this shouldn't be called!!"
-                getUserById post.UserId)
+                getUserById post.UserId
+            )
             |> Expect.hasTaskOkValueSync None
 
         testCase "bind with Task(Ok Some(x)) Task(Ok None)"
@@ -71,7 +77,8 @@ let bindTests =
             getPostById (PostId(Guid.NewGuid()))
             |> TaskResultOption.bind (fun _ ->
                 failwith "this shouldn't be called!!"
-                getUserById (UserId(Guid.NewGuid())))
+                getUserById (UserId(Guid.NewGuid()))
+            )
             |> Expect.hasTaskOkValueSync None
 
         testCase "bind with Task(Error x) Task(Ok (Some y))"
@@ -79,7 +86,8 @@ let bindTests =
             getPostById (PostId Guid.Empty)
             |> TaskResultOption.bind (fun _ ->
                 failwith "this shouldn't be called!!"
-                getUserById (UserId(Guid.NewGuid())))
+                getUserById (UserId(Guid.NewGuid()))
+            )
             |> Expect.hasTaskErrorValueSync "invalid post id"
     ]
 
@@ -225,7 +233,9 @@ let operatorTests =
             let getPostResult = getPostById samplePostId
             let getUserResult = getUserById sampleUserId
 
-            userTweet <!> getPostResult <*> getUserResult
+            userTweet
+            <!> getPostResult
+            <*> getUserResult
             |> Expect.hasTaskOkValueSync (
                 Some
                     {
@@ -237,7 +247,10 @@ let operatorTests =
         testCase "bind & map operator"
         <| fun _ ->
             getPostById samplePostId
-            >>= (fun post -> (fun user -> userTweet post user) <!> getUserById post.UserId)
+            >>= (fun post ->
+                (fun user -> userTweet post user)
+                <!> getUserById post.UserId
+            )
             |> Expect.hasTaskOkValueSync (
                 Some
                     {

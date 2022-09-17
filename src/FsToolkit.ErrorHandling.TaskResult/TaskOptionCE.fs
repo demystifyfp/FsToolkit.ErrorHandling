@@ -14,13 +14,15 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| option.Return value
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+            <| option.Return value
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| option.Zero()
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+            <| option.Zero()
 
         member inline _.Bind
             (
@@ -77,7 +79,8 @@ module TaskOptionCE =
             FSharp.Control.Tasks.Affine.Unsafe.uply {
                 let mutable fin, result = false, None
 
-                while not fin && guard () do
+                while not fin
+                      && guard () do
                     match! computation () with
                     | Some _ as o -> result <- o
                     | None ->
@@ -92,7 +95,8 @@ module TaskOptionCE =
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, None
 
-                while not fin && enumerator.MoveNext() do
+                while not fin
+                      && enumerator.MoveNext() do
                     match! binder enumerator.Current with
                     | Some _ as o -> result <- o
                     | None ->
@@ -105,8 +109,11 @@ module TaskOptionCE =
         member inline this.BindReturn(x: Task<'T option>, [<InlineIfLambda>] f) =
             this.Bind(x, (fun x -> this.Return(f x)))
 
-        member inline _.MergeSources(t1: Task<'T option>, t2: Task<'T1 option>) = TaskOption.zip t1 t2
-        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = FSharp.Control.Tasks.Affine.task.Run f
+        member inline _.MergeSources(t1: Task<'T option>, t2: Task<'T1 option>) =
+            TaskOption.zip t1 t2
+
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) =
+            FSharp.Control.Tasks.Affine.task.Run f
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
@@ -123,7 +130,9 @@ module TaskOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(async: Async<_ option>) : Task<_ option> = async |> Async.StartAsTask
+        member inline _.Source(async: Async<_ option>) : Task<_ option> =
+            async
+            |> Async.StartAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -137,13 +146,15 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| option.Return value
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+            <| option.Return value
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| option.Zero()
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+            <| option.Zero()
 
         member inline _.Bind
             (
@@ -200,7 +211,8 @@ module TaskOptionCE =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply {
                 let mutable fin, result = false, None
 
-                while not fin && guard () do
+                while not fin
+                      && guard () do
                     match! computation () with
                     | Some _ as o -> result <- o
                     | None ->
@@ -215,7 +227,8 @@ module TaskOptionCE =
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, None
 
-                while not fin && enumerator.MoveNext() do
+                while not fin
+                      && enumerator.MoveNext() do
                     match! binder enumerator.Current with
                     | Some _ as o -> result <- o
                     | None ->
@@ -253,7 +266,9 @@ module TaskOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(async: Async<_ option>) : Task<_ option> = async |> Async.StartAsTask
+        member inline _.Source(async: Async<_ option>) : Task<_ option> =
+            async
+            |> Async.StartAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -343,7 +358,10 @@ module TaskOptionCEExtensions =
         /// </summary>
         member inline _.Source(a: Async<'t>) =
             FSharp.Control.Tasks.Affine.task {
-                let! o = a |> Async.StartAsTask
+                let! o =
+                    a
+                    |> Async.StartAsTask
+
                 return Some o
             }
 
@@ -401,7 +419,10 @@ module TaskOptionCEExtensions =
         /// </summary>
         member inline _.Source(a: Async<'t>) =
             FSharp.Control.Tasks.NonAffine.task {
-                let! o = a |> Async.StartAsTask
+                let! o =
+                    a
+                    |> Async.StartAsTask
+
                 return Some o
             }
 
@@ -449,7 +470,10 @@ type TaskOptionStateMachineData<'T> =
 and AsyncTaskOptionMethodBuilder<'TOverall> = AsyncTaskMethodBuilder<'TOverall option>
 and TaskOptionStateMachine<'TOverall> = ResumableStateMachine<TaskOptionStateMachineData<'TOverall>>
 and TaskOptionResumptionFunc<'TOverall> = ResumptionFunc<TaskOptionStateMachineData<'TOverall>>
-and TaskOptionResumptionDynamicInfo<'TOverall> = ResumptionDynamicInfo<TaskOptionStateMachineData<'TOverall>>
+
+and TaskOptionResumptionDynamicInfo<'TOverall> =
+    ResumptionDynamicInfo<TaskOptionStateMachineData<'TOverall>>
+
 and TaskOptionCode<'TOverall, 'T> = ResumableCode<TaskOptionStateMachineData<'TOverall>, 'T>
 
 
@@ -475,7 +499,9 @@ module TaskOptionBuilderBase =
                 let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
                 sm.ResumptionDynamicInfo.ResumptionFunc <-
-                    (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+                    (TaskOptionResumptionFunc<_>(fun sm ->
+                        WhileBodyDynamicAux(&sm, condition, body, rf)
+                    ))
 
                 false
         else
@@ -501,14 +527,17 @@ module TaskOptionBuilderBase =
             let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
             sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+                (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)
+                ))
 
             false
 
 
 type TaskOptionBuilderBase() =
 
-    member inline _.Delay(generator: unit -> TaskOptionCode<'TOverall, 'T>) : TaskOptionCode<'TOverall, 'T> =
+    member inline _.Delay
+        (generator: unit -> TaskOptionCode<'TOverall, 'T>)
+        : TaskOptionCode<'TOverall, 'T> =
         TaskOptionCode<'TOverall, 'T>(fun sm -> (generator ()).Invoke(&sm))
 
     /// Used to represent no-ops like the implicit empty "else" branch of an "if" expression.
@@ -516,12 +545,14 @@ type TaskOptionBuilderBase() =
     member inline _.Zero<'TOverall>() : TaskOptionCode<'TOverall, unit> =
         TaskOptionCode<_, _>(fun sm ->
             sm.Data.Result <- ValueSome(Some Unchecked.defaultof<'TOverall>)
-            true)
+            true
+        )
 
     member inline _.Return(value: 'T) : TaskOptionCode<'T, 'T> =
         TaskOptionCode<'T, _>(fun sm ->
             sm.Data.Result <- ValueSome(Some value)
-            true)
+            true
+        )
 
     static member inline CombineDynamic
         (
@@ -545,11 +576,15 @@ type TaskOptionBuilderBase() =
                     elif shouldContinue then
                         task2.Invoke(&sm)
                     else
-                        sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+                        sm.ResumptionDynamicInfo.ResumptionFunc <-
+                            (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
 
-                        false)
+                        false
+                )
 
-            sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+            sm.ResumptionDynamicInfo.ResumptionFunc <-
+                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+
             false
 
     /// Chains together a step with its following step.
@@ -574,7 +609,8 @@ type TaskOptionBuilderBase() =
                 elif __stack_fin then task2.Invoke(&sm)
                 else false
             else
-                TaskOptionBuilderBase.CombineDynamic(&sm, task1, task2))
+                TaskOptionBuilderBase.CombineDynamic(&sm, task1, task2)
+        )
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
@@ -587,7 +623,9 @@ type TaskOptionBuilderBase() =
                 //-- RESUMABLE CODE START
                 let mutable __stack_go = true
 
-                while __stack_go && not sm.Data.IsResultNone && condition () do
+                while __stack_go
+                      && not sm.Data.IsResultNone
+                      && condition () do
                     // printfn "While -> %A" sm.Data.Result
                     // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                     // the code will branch directly into the expanded 'body', branching directly into the while loop
@@ -606,7 +644,8 @@ type TaskOptionBuilderBase() =
                 __stack_go
             //-- RESUMABLE CODE END
             else
-                TaskOptionBuilderBase.WhileDynamic(&sm, condition, body))
+                TaskOptionBuilderBase.WhileDynamic(&sm, condition, body)
+        )
 
 
     /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
@@ -629,7 +668,8 @@ type TaskOptionBuilderBase() =
             body,
             ResumableCode<_, _>(fun _sm ->
                 compensation ()
-                true)
+                true
+            )
         )
 
     member inline this.For
@@ -644,7 +684,8 @@ type TaskOptionBuilderBase() =
                 this.While(
                     (fun () -> e.MoveNext()),
                     TaskOptionCode<'TOverall, unit>(fun sm -> (body e.Current).Invoke(&sm))
-                ))
+                )
+            )
         )
 
     member inline internal this.TryFinallyAsync
@@ -674,16 +715,22 @@ type TaskOptionBuilderBase() =
 
                     let cont =
                         TaskOptionResumptionFunc<'TOverall>(fun sm ->
-                            awaiter.GetResult() |> ignore
-                            true)
+                            awaiter.GetResult()
+                            |> ignore
+
+                            true
+                        )
 
                     // shortcut to continue immediately
                     if awaiter.IsCompleted then
                         true
                     else
-                        sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                        sm.ResumptionDynamicInfo.ResumptionData <-
+                            (awaiter :> ICriticalNotifyCompletion)
+
                         sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                        false)
+                        false
+            )
         )
 
     member inline this.Using<'Resource, 'TOverall, 'T when 'Resource :> IAsyncDisposable>
@@ -697,12 +744,19 @@ type TaskOptionBuilderBase() =
                 if not (isNull (box resource)) then
                     resource.DisposeAsync()
                 else
-                    ValueTask())
+                    ValueTask()
+            )
         )
 
-    member inline this.Source(computation: Async<'T option>) : TaskOption<'T> = computation |> Async.StartAsTask
+    member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
+        computation
+        |> Async.StartAsTask
+
     member inline this.Source(taskOption: TaskOption<'T>) : TaskOption<'T> = taskOption
-    member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> = task { return! taskOption }
+
+    member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> = task {
+        return! taskOption
+    }
 
 
 type TaskOptionBuilder() =
@@ -737,7 +791,8 @@ type TaskOptionBuilder() =
                             sm.Data.SetResult()
                         else
                             let mutable awaiter =
-                                sm.ResumptionDynamicInfo.ResumptionData :?> ICriticalNotifyCompletion
+                                sm.ResumptionDynamicInfo.ResumptionData
+                                :?> ICriticalNotifyCompletion
 
                             assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
@@ -769,7 +824,10 @@ type TaskOptionBuilder() =
                     try
                         let __stack_code_fin = code.Invoke(&sm)
 
-                        if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                        if
+                            __stack_code_fin
+                            && not sm.Data.IsTaskCompleted
+                        then
                             sm.Data.SetResult()
                     with exn ->
                         __stack_exn <- exn
@@ -779,11 +837,14 @@ type TaskOptionBuilder() =
                     | exn -> sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
-                (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
+                (SetStateMachineMethodImpl<_>(fun sm state ->
+                    sm.Data.MethodBuilder.SetStateMachine(state)
+                ))
                 (AfterCode<_, _>(fun sm ->
                     sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
                     sm.Data.MethodBuilder.Start(&sm)
-                    sm.Data.MethodBuilder.Task))
+                    sm.Data.MethodBuilder.Task
+                ))
         else
             TaskOptionBuilder.RunDynamic(code)
 
@@ -814,13 +875,18 @@ type BackgroundTaskOptionBuilder() =
                     try
                         let __stack_code_fin = code.Invoke(&sm)
 
-                        if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                        if
+                            __stack_code_fin
+                            && not sm.Data.IsTaskCompleted
+                        then
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
                     with exn ->
                         sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
-                (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
+                (SetStateMachineMethodImpl<_>(fun sm state ->
+                    sm.Data.MethodBuilder.SetStateMachine(state)
+                ))
                 (AfterCode<_, TaskOption<'T>>(fun sm ->
                     // backgroundTask { .. } escapes to a background thread where necessary
                     // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
@@ -838,7 +904,9 @@ type BackgroundTaskOptionBuilder() =
                             let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
                             sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
                             sm.Data.MethodBuilder.Start(&sm)
-                            sm.Data.MethodBuilder.Task)))
+                            sm.Data.MethodBuilder.Task
+                        )
+                ))
         else
             BackgroundTaskOptionBuilder.RunDynamic(code)
 
@@ -885,7 +953,8 @@ module TaskOptionCEExtensionsLowPriority =
                     | Some result -> (continuation result).Invoke(&sm)
                     | None ->
                         sm.Data.Result <- ValueSome None
-                        true))
+                        true
+                ))
 
             // shortcut to continue immediately
             if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
@@ -921,7 +990,8 @@ module TaskOptionCEExtensionsLowPriority =
                         __stack_fin <- __stack_yield_fin
 
                     if __stack_fin then
-                        let result = (^Awaiter: (member GetResult: unit -> 'TResult1 option) (awaiter))
+                        let result =
+                            (^Awaiter: (member GetResult: unit -> 'TResult1 option) (awaiter))
 
                         match result with
                         | Some result -> (continuation result).Invoke(&sm)
@@ -993,7 +1063,8 @@ module TaskOptionCEExtensionsHighPriority =
                     | Some result -> (continuation result).Invoke(&sm)
                     | None ->
                         sm.Data.Result <- ValueSome None
-                        true))
+                        true
+                ))
 
             // shortcut to continue immediately
             if awaiter.IsCompleted then
@@ -1057,14 +1128,18 @@ module TaskOptionCEExtensionsMediumPriority =
     // Medium priority extensions
     type TaskOptionBuilderBase with
 
-        member inline this.Source(t: Task<'T>) : TaskOption<'T> = t |> Task.map Some
+        member inline this.Source(t: Task<'T>) : TaskOption<'T> =
+            t
+            |> Task.map Some
 
         member inline this.Source(t: Task) : TaskOption<unit> = task {
             do! t
             return Some()
         }
 
-        member inline this.Source(t: ValueTask<'T>) : TaskOption<'T> = t |> Task.mapV Some
+        member inline this.Source(t: ValueTask<'T>) : TaskOption<'T> =
+            t
+            |> Task.mapV Some
 
         member inline this.Source(t: ValueTask) : TaskOption<unit> = task {
             do! t
@@ -1074,6 +1149,8 @@ module TaskOptionCEExtensionsMediumPriority =
         member inline this.Source(opt: Option<'T>) : TaskOption<'T> = Task.FromResult opt
 
         member inline this.Source(computation: Async<'T>) : TaskOption<'T> =
-            computation |> Async.map Some |> Async.StartAsTask
+            computation
+            |> Async.map Some
+            |> Async.StartAsTask
 
 #endif

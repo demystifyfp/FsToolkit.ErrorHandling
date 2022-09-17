@@ -16,11 +16,14 @@ module TaskResultCE =
         member inline _.Return(value: 'T) : Ply<Result<'T, 'TError>> =
             FSharp.Control.Tasks.Affine.Unsafe.uply.Return(result.Return value)
 
-        member inline _.ReturnFrom(taskResult: Task<Result<'T, 'TError>>) : Ply<Result<'T, 'TError>> =
+        member inline _.ReturnFrom
+            (taskResult: Task<Result<'T, 'TError>>)
+            : Ply<Result<'T, 'TError>> =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| result.Zero()
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+            <| result.Zero()
 
         member inline _.Bind
             (
@@ -30,7 +33,9 @@ module TaskResultCE =
             let binder' r =
                 match r with
                 | Ok x -> binder x
-                | Error x -> FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| Error x
+                | Error x ->
+                    FSharp.Control.Tasks.Affine.Unsafe.uply.Return
+                    <| Error x
 
             FSharp.Control.Tasks.Affine.Unsafe.uply.Bind(taskResult, binder')
 
@@ -77,7 +82,8 @@ module TaskResultCE =
             FSharp.Control.Tasks.Affine.Unsafe.uply {
                 let mutable fin, result = false, Ok()
 
-                while not fin && guard () do
+                while not fin
+                      && guard () do
                     match! computation () with
                     | Ok x -> x
                     | Error _ as e ->
@@ -96,7 +102,8 @@ module TaskResultCE =
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, Ok()
 
-                while not fin && enumerator.MoveNext() do
+                while not fin
+                      && enumerator.MoveNext() do
                     match! binder enumerator.Current with
                     | Ok x -> x
                     | Error _ as e ->
@@ -109,8 +116,11 @@ module TaskResultCE =
         member inline this.BindReturn(x: Task<Result<'T, 'U>>, [<InlineIfLambda>] f) =
             this.Bind(x, (fun x -> this.Return(f x)))
 
-        member inline _.MergeSources(t1: Task<Result<'T, 'U>>, t2: Task<Result<'T1, 'U>>) = TaskResult.zip t1 t2
-        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) = FSharp.Control.Tasks.Affine.task.Run f
+        member inline _.MergeSources(t1: Task<Result<'T, 'U>>, t2: Task<Result<'T1, 'U>>) =
+            TaskResult.zip t1 t2
+
+        member inline _.Run([<InlineIfLambda>] f: unit -> Ply<'m>) =
+            FSharp.Control.Tasks.Affine.task.Run f
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
@@ -128,7 +138,9 @@ module TaskResultCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> = result |> Async.StartAsTask
+        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
+            result
+            |> Async.StartAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -144,11 +156,14 @@ module TaskResultCE =
         member inline _.Return(value: 'T) : Ply<Result<'T, 'TError>> =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return(result.Return value)
 
-        member inline _.ReturnFrom(taskResult: Task<Result<'T, 'TError>>) : Ply<Result<'T, 'TError>> =
+        member inline _.ReturnFrom
+            (taskResult: Task<Result<'T, 'TError>>)
+            : Ply<Result<'T, 'TError>> =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| result.Zero()
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+            <| result.Zero()
 
         member inline _.Bind
             (
@@ -158,7 +173,9 @@ module TaskResultCE =
             let binder' r =
                 match r with
                 | Ok x -> binder x
-                | Error x -> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| Error x
+                | Error x ->
+                    FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+                    <| Error x
 
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.Bind(taskResult, binder')
 
@@ -205,7 +222,8 @@ module TaskResultCE =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply {
                 let mutable fin, result = false, Ok()
 
-                while not fin && guard () do
+                while not fin
+                      && guard () do
                     match! computation () with
                     | Ok x -> x
                     | Error _ as e ->
@@ -224,7 +242,8 @@ module TaskResultCE =
                 use enumerator = sequence.GetEnumerator()
                 let mutable fin, result = false, Ok()
 
-                while not fin && enumerator.MoveNext() do
+                while not fin
+                      && enumerator.MoveNext() do
                     match! binder enumerator.Current with
                     | Ok x -> x
                     | Error _ as e ->
@@ -263,7 +282,9 @@ module TaskResultCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> = result |> Async.StartAsTask
+        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
+            result
+            |> Async.StartAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -315,14 +336,19 @@ module TaskResultCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(choice: Choice<_, _>) : Task<Result<_, _>> =
-            choice |> Result.ofChoice |> Task.singleton
+            choice
+            |> Result.ofChoice
+            |> Task.singleton
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(asyncComputation: Async<_>) : Task<Result<_, _>> =
             FSharp.Control.Tasks.Affine.task {
-                let! r = asyncComputation |> Async.StartAsTask
+                let! r =
+                    asyncComputation
+                    |> Async.StartAsTask
+
                 return Ok r
             }
 
@@ -387,14 +413,19 @@ module TaskResultCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(choice: Choice<_, _>) : Task<Result<_, _>> =
-            choice |> Result.ofChoice |> Task.singleton
+            choice
+            |> Result.ofChoice
+            |> Task.singleton
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(asyncComputation: Async<_>) : Task<Result<_, _>> =
             FSharp.Control.Tasks.NonAffine.task {
-                let! r = asyncComputation |> Async.StartAsTask
+                let! r =
+                    asyncComputation
+                    |> Async.StartAsTask
+
                 return Ok r
             }
 
@@ -473,14 +504,20 @@ type TaskResultStateMachineData<'T, 'Error> =
     member this.IsResultError = Result.isError this.Result
     member this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
 
-and AsyncTaskResultMethodBuilder<'TOverall, 'Error> = AsyncTaskMethodBuilder<Result<'TOverall, 'Error>>
-and TaskResultStateMachine<'TOverall, 'Error> = ResumableStateMachine<TaskResultStateMachineData<'TOverall, 'Error>>
-and TaskResultResumptionFunc<'TOverall, 'Error> = ResumptionFunc<TaskResultStateMachineData<'TOverall, 'Error>>
+and AsyncTaskResultMethodBuilder<'TOverall, 'Error> =
+    AsyncTaskMethodBuilder<Result<'TOverall, 'Error>>
+
+and TaskResultStateMachine<'TOverall, 'Error> =
+    ResumableStateMachine<TaskResultStateMachineData<'TOverall, 'Error>>
+
+and TaskResultResumptionFunc<'TOverall, 'Error> =
+    ResumptionFunc<TaskResultStateMachineData<'TOverall, 'Error>>
 
 and TaskResultResumptionDynamicInfo<'TOverall, 'Error> =
     ResumptionDynamicInfo<TaskResultStateMachineData<'TOverall, 'Error>>
 
-and TaskResultCode<'TOverall, 'Error, 'T> = ResumableCode<TaskResultStateMachineData<'TOverall, 'Error>, 'T>
+and TaskResultCode<'TOverall, 'Error, 'T> =
+    ResumableCode<TaskResultStateMachineData<'TOverall, 'Error>, 'T>
 
 module TaskResultBuilderBase =
 
@@ -504,7 +541,9 @@ module TaskResultBuilderBase =
                 let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
                 sm.ResumptionDynamicInfo.ResumptionFunc <-
-                    (TaskResultResumptionFunc<_, _>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+                    (TaskResultResumptionFunc<_, _>(fun sm ->
+                        WhileBodyDynamicAux(&sm, condition, body, rf)
+                    ))
 
                 false
         else
@@ -530,7 +569,9 @@ module TaskResultBuilderBase =
             let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
             sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (TaskResultResumptionFunc<_, _>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)))
+                (TaskResultResumptionFunc<_, _>(fun sm ->
+                    WhileBodyDynamicAux(&sm, condition, body, rf)
+                ))
 
             false
 
@@ -542,14 +583,16 @@ type TaskResultBuilderBase() =
 
     /// Used to represent no-ops like the implicit empty "else" branch of an "if" expression.
     [<DefaultValue>]
-    member inline _.Zero<'TOverall, 'Error>() : TaskResultCode<'TOverall, 'Error, unit> = ResumableCode.Zero()
+    member inline _.Zero<'TOverall, 'Error>() : TaskResultCode<'TOverall, 'Error, unit> =
+        ResumableCode.Zero()
 
     member inline _.Return(value: 'T) : TaskResultCode<'T, 'Error, 'T> =
         TaskResultCode<'T, 'Error, _>(fun sm ->
             // printfn "Return Called --> "
             sm.Data.Result <- Ok value
 
-            true)
+            true
+        )
 
     static member inline CombineDynamic
         (
@@ -573,11 +616,15 @@ type TaskResultBuilderBase() =
                     elif shouldContinue then
                         task2.Invoke(&sm)
                     else
-                        sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+                        sm.ResumptionDynamicInfo.ResumptionFunc <-
+                            (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
 
-                        false)
+                        false
+                )
 
-            sm.ResumptionDynamicInfo.ResumptionFunc <- (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+            sm.ResumptionDynamicInfo.ResumptionFunc <-
+                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
+
             false
 
     /// Chains together a step with its following step.
@@ -602,7 +649,8 @@ type TaskResultBuilderBase() =
                 elif __stack_fin then task2.Invoke(&sm)
                 else false
             else
-                TaskResultBuilderBase.CombineDynamic(&sm, task1, task2))
+                TaskResultBuilderBase.CombineDynamic(&sm, task1, task2)
+        )
 
 
     /// Builds a step that executes the body while the condition predicate is true.
@@ -616,7 +664,9 @@ type TaskResultBuilderBase() =
                 //-- RESUMABLE CODE START
                 let mutable __stack_go = true
 
-                while __stack_go && not sm.Data.IsResultError && condition () do
+                while __stack_go
+                      && not sm.Data.IsResultError
+                      && condition () do
                     // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                     // the code will branch directly into the expanded 'body', branching directly into the while loop
                     let __stack_body_fin = body.Invoke(&sm)
@@ -634,7 +684,8 @@ type TaskResultBuilderBase() =
                 __stack_go
             //-- RESUMABLE CODE END
             else
-                TaskResultBuilderBase.WhileDynamic(&sm, condition, body))
+                TaskResultBuilderBase.WhileDynamic(&sm, condition, body)
+        )
 
     /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
@@ -661,7 +712,8 @@ type TaskResultBuilderBase() =
             body,
             ResumableCode<_, _>(fun _sm ->
                 compensation ()
-                true)
+                true
+            )
         )
 
     member inline this.For
@@ -677,7 +729,8 @@ type TaskResultBuilderBase() =
                 this.While(
                     (fun () -> e.MoveNext()),
                     TaskResultCode<'TOverall, 'Error, unit>(fun sm -> (body e.Current).Invoke(&sm))
-                ))
+                )
+            )
         )
 
     member inline internal this.TryFinallyAsync
@@ -709,16 +762,22 @@ type TaskResultBuilderBase() =
 
                     let cont =
                         TaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
-                            awaiter.GetResult() |> ignore
-                            true)
+                            awaiter.GetResult()
+                            |> ignore
+
+                            true
+                        )
 
                     // shortcut to continue immediately
                     if awaiter.IsCompleted then
                         true
                     else
-                        sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                        sm.ResumptionDynamicInfo.ResumptionData <-
+                            (awaiter :> ICriticalNotifyCompletion)
+
                         sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                        false)
+                        false
+            )
         )
 
     member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposable>
@@ -732,17 +791,25 @@ type TaskResultBuilderBase() =
                 if not (isNull (box resource)) then
                     resource.DisposeAsync()
                 else
-                    ValueTask())
+                    ValueTask()
+            )
         )
 
 
-    member inline this.Source(taskResult: TaskResult<'T, 'Error>) : TaskResult<'T, 'Error> = taskResult
-    member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> = result |> Async.StartAsTask
+    member inline this.Source(taskResult: TaskResult<'T, 'Error>) : TaskResult<'T, 'Error> =
+        taskResult
+
+    member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
+        result
+        |> Async.StartAsTask
+
     member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
     member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
 
     member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
-        result |> Result.ofChoice |> Task.singleton
+        result
+        |> Result.ofChoice
+        |> Task.singleton
 
 
 type TaskResultBuilder() =
@@ -780,7 +847,8 @@ type TaskResultBuilder() =
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
                         else
                             let mutable awaiter =
-                                sm.ResumptionDynamicInfo.ResumptionData :?> ICriticalNotifyCompletion
+                                sm.ResumptionDynamicInfo.ResumptionData
+                                :?> ICriticalNotifyCompletion
 
                             assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
@@ -815,7 +883,10 @@ type TaskResultBuilder() =
                         let __stack_code_fin = code.Invoke(&sm)
                         // printfn "Run Task.Status --> %A" sm.Data.MethodBuilder.Task.Status
                         // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
-                        if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                        if
+                            __stack_code_fin
+                            && not sm.Data.IsTaskCompleted
+                        then
 
                             // printfn "Run __stack_code_fin Data  --> %A" sm.Data.Result
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
@@ -827,11 +898,14 @@ type TaskResultBuilder() =
                     | exn -> sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
-                (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
+                (SetStateMachineMethodImpl<_>(fun sm state ->
+                    sm.Data.MethodBuilder.SetStateMachine(state)
+                ))
                 (AfterCode<_, _>(fun sm ->
                     sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
                     sm.Data.MethodBuilder.Start(&sm)
-                    sm.Data.MethodBuilder.Task))
+                    sm.Data.MethodBuilder.Task
+                ))
         else
             TaskResultBuilder.RunDynamic(code)
 
@@ -862,13 +936,18 @@ type BackgroundTaskResultBuilder() =
                     try
                         let __stack_code_fin = code.Invoke(&sm)
 
-                        if __stack_code_fin && not sm.Data.IsTaskCompleted then
+                        if
+                            __stack_code_fin
+                            && not sm.Data.IsTaskCompleted
+                        then
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
                     with exn ->
                         sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
-                (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
+                (SetStateMachineMethodImpl<_>(fun sm state ->
+                    sm.Data.MethodBuilder.SetStateMachine(state)
+                ))
                 (AfterCode<_, TaskResult<'T, 'Error>>(fun sm ->
                     // backgroundTask { .. } escapes to a background thread where necessary
                     // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
@@ -884,9 +963,14 @@ type BackgroundTaskResultBuilder() =
 
                         Task.Run<Result<'T, 'Error>>(fun () ->
                             let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-                            sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+
+                            sm.Data.MethodBuilder <-
+                                AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+
                             sm.Data.MethodBuilder.Start(&sm)
-                            sm.Data.MethodBuilder.Task)))
+                            sm.Data.MethodBuilder.Task
+                        )
+                ))
         else
             BackgroundTaskResultBuilder.RunDynamic(code)
 
@@ -1052,7 +1136,8 @@ module TaskResultCEExtensionsHighPriority =
                     | Ok result -> (continuation result).Invoke(&sm)
                     | Error e ->
                         sm.Data.Result <- Error e
-                        true))
+                        true
+                ))
 
             // shortcut to continue immediately
             if awaiter.IsCompleted then
@@ -1106,9 +1191,12 @@ module TaskResultCEExtensionsHighPriority =
         member inline this.BindReturn(x: TaskResult<'T, 'Error>, [<InlineIfLambda>] f) =
             this.Bind(x, (fun x -> this.Return(f x)))
 
-        member inline _.MergeSources(t1: TaskResult<'T, 'Error>, t2: TaskResult<'T1, 'Error>) = TaskResult.zip t1 t2
+        member inline _.MergeSources(t1: TaskResult<'T, 'Error>, t2: TaskResult<'T1, 'Error>) =
+            TaskResult.zip t1 t2
 
-        member inline this.ReturnFrom(task: TaskResult<'T, 'Error>) : TaskResultCode<'T, 'Error, 'T> =
+        member inline this.ReturnFrom
+            (task: TaskResult<'T, 'Error>)
+            : TaskResultCode<'T, 'Error, 'T> =
             this.Bind(task, (fun v -> this.Return v))
 
         member inline _.Source(s: #seq<_>) = s
@@ -1119,14 +1207,18 @@ module TaskResultCEExtensionsMediumPriority =
     // Medium priority extensions
     type TaskResultBuilderBase with
 
-        member inline this.Source(t: Task<'T>) : TaskResult<'T, 'Error> = t |> Task.map Ok
+        member inline this.Source(t: Task<'T>) : TaskResult<'T, 'Error> =
+            t
+            |> Task.map Ok
 
         member inline this.Source(t: Task) : TaskResult<unit, 'Error> = task {
             do! t
             return Ok()
         }
 
-        member inline this.Source(t: ValueTask<'T>) : TaskResult<'T, 'Error> = t |> Task.mapV Ok
+        member inline this.Source(t: ValueTask<'T>) : TaskResult<'T, 'Error> =
+            t
+            |> Task.mapV Ok
 
         member inline this.Source(t: ValueTask) : TaskResult<unit, 'Error> = task {
             do! t
@@ -1134,6 +1226,8 @@ module TaskResultCEExtensionsMediumPriority =
         }
 
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
-            computation |> Async.map Ok |> Async.StartAsTask
+            computation
+            |> Async.map Ok
+            |> Async.StartAsTask
 
 #endif

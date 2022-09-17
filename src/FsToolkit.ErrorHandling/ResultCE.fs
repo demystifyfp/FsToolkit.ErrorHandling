@@ -19,10 +19,14 @@ module ResultCE =
             ) : Result<'okOutput, 'error> =
             Result.bind binder input
 
-        member inline _.Delay([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>) : unit -> Result<'ok, 'error> =
+        member inline _.Delay
+            ([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>)
+            : unit -> Result<'ok, 'error> =
             generator
 
-        member inline _.Run([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>) : Result<'ok, 'error> =
+        member inline _.Run
+            ([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>)
+            : Result<'ok, 'error> =
             generator ()
 
         member inline this.Combine
@@ -60,8 +64,12 @@ module ResultCE =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
-                    if not <| obj.ReferenceEquals(resource, null) then
-                        resource.Dispose())
+                    if
+                        not
+                        <| obj.ReferenceEquals(resource, null)
+                    then
+                        resource.Dispose()
+                )
             )
 
         member inline this.While
@@ -139,4 +147,5 @@ module ResultCEChoiceExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
-        member inline _.Source(choice: Choice<'ok, 'error>) : Result<'ok, 'error> = Result.ofChoice choice
+        member inline _.Source(choice: Choice<'ok, 'error>) : Result<'ok, 'error> =
+            Result.ofChoice choice

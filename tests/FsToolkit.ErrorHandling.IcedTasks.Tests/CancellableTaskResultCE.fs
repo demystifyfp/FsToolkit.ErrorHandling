@@ -76,7 +76,9 @@ module CancellableTaskResultCE =
                 <| fun () -> task {
                     let data = 42
 
-                    let ctr = cancellableTaskResult { return! cancellableTaskResult { return data } }
+                    let ctr = cancellableTaskResult {
+                        return! cancellableTaskResult { return data }
+                    }
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! cancellableTaskResult"
@@ -214,7 +216,9 @@ module CancellableTaskResultCE =
                 testCaseTask "return! CancellableTask"
                 <| fun () -> task {
 
-                    let ctr = cancellableTaskResult { return! fun (ct: CancellationToken) -> Task.CompletedTask }
+                    let ctr = cancellableTaskResult {
+                        return! fun (ct: CancellationToken) -> Task.CompletedTask
+                    }
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
@@ -460,7 +464,9 @@ module CancellableTaskResultCE =
                 <| fun () -> task {
                     let data = ()
 
-                    let ctr = cancellableTaskResult { do! fun (ct: CancellationToken) -> Task.CompletedTask }
+                    let ctr = cancellableTaskResult {
+                        do! fun (ct: CancellationToken) -> Task.CompletedTask
+                    }
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
@@ -555,7 +561,10 @@ module CancellableTaskResultCE =
                     let data = 42
 
                     let! actual = cancellableTaskResult {
-                        use! d = makeDisposable () |> async.Return
+                        use! d =
+                            makeDisposable ()
+                            |> async.Return
+
                         return data
                     }
 
@@ -601,12 +610,22 @@ module CancellableTaskResultCE =
 
                     let expected = Error "error"
 
-                    let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
+                    let data = [
+                        Ok "42"
+                        Ok "1024"
+                        expected
+                        Ok "1M"
+                        Ok "1M"
+                        Ok "1M"
+                    ]
 
                     let ctr = cancellableTaskResult {
                         while loopCount < data.Length do
                             let! x = data.[loopCount]
-                            loopCount <- loopCount + 1
+
+                            loopCount <-
+                                loopCount
+                                + 1
 
                         return sideEffect ()
                     }
@@ -657,12 +676,23 @@ module CancellableTaskResultCE =
                     let mutable loopCount = 0
                     let expected = Error "error"
 
-                    let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
+                    let data = [
+                        Ok "42"
+                        Ok "1024"
+                        expected
+                        Ok "1M"
+                        Ok "1M"
+                        Ok "1M"
+                    ]
 
                     let ctr = cancellableTaskResult {
                         for i in data do
                             let! x = i
-                            loopCount <- loopCount + 1
+
+                            loopCount <-
+                                loopCount
+                                + 1
+
                             ()
 
                         return "ok"
@@ -715,9 +745,15 @@ module CancellableTaskResultCE =
                 testCase
                     "CancellationToken flows from Async<T> to CancellableTaskResult<T> via Async.AwaitCancellableTask"
                 <| fun () ->
-                    let innerTask = cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
+                    let innerTask = cancellableTaskResult {
+                        return! CancellableTaskResult.getCancellationToken ()
+                    }
 
-                    let outerAsync = async { return! innerTask |> Async.AwaitCancellableTaskResult }
+                    let outerAsync = async {
+                        return!
+                            innerTask
+                            |> Async.AwaitCancellableTaskResult
+                    }
 
                     use cts = new CancellationTokenSource()
 
@@ -728,7 +764,9 @@ module CancellableTaskResultCE =
 
                 testCase "CancellationToken flows from AsyncResult<T> to CancellableTaskResult<T>"
                 <| fun () ->
-                    let innerTask = cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
+                    let innerTask = cancellableTaskResult {
+                        return! CancellableTaskResult.getCancellationToken ()
+                    }
 
                     let outerAsync = asyncResult { return! innerTask }
 
@@ -750,7 +788,8 @@ module CancellableTaskResultCE =
 
                     Expect.equal actual (Ok cts.Token) ""
 
-                testCase "CancellationToken flows from CancellableTaskResult<T> to AsyncResult<unit>"
+                testCase
+                    "CancellationToken flows from CancellableTaskResult<T> to AsyncResult<unit>"
                 <| fun () ->
                     let innerAsync = asyncResult { return! Async.CancellationToken }
 
@@ -761,9 +800,12 @@ module CancellableTaskResultCE =
                     let actual = (outerTask cts.Token).GetAwaiter().GetResult()
 
                     Expect.equal actual (Ok cts.Token) ""
-                testCase "CancellationToken flows from CancellableTaskResult<T> to CancellableTask<T>"
+                testCase
+                    "CancellationToken flows from CancellableTaskResult<T> to CancellableTask<T>"
                 <| fun () ->
-                    let innerAsync = cancellableTask { return! CancellableTask.getCancellationToken }
+                    let innerAsync = cancellableTask {
+                        return! CancellableTask.getCancellationToken
+                    }
 
                     let outerTask = cancellableTaskResult { return! innerAsync }
 
@@ -773,9 +815,12 @@ module CancellableTaskResultCE =
 
                     Expect.equal actual (Ok cts.Token) ""
 
-                testCase "CancellationToken flows from CancellableTaskResult<T> to CancellableTaskResult<T>"
+                testCase
+                    "CancellationToken flows from CancellableTaskResult<T> to CancellableTaskResult<T>"
                 <| fun () ->
-                    let innerAsync = cancellableTaskResult { return! CancellableTaskResult.getCancellationToken () }
+                    let innerAsync = cancellableTaskResult {
+                        return! CancellableTaskResult.getCancellationToken ()
+                    }
 
                     let outerTask = cancellableTaskResult { return! innerAsync }
 

@@ -4,9 +4,13 @@ namespace FsToolkit.ErrorHandling
 module AsyncResultOptionCE =
 
     type AsyncResultOptionBuilder() =
-        member inline _.Return(value: 'ok) : Async<Result<'ok option, 'error>> = AsyncResultOption.retn value
+        member inline _.Return(value: 'ok) : Async<Result<'ok option, 'error>> =
+            AsyncResultOption.retn value
 
-        member inline _.ReturnFrom(value: Async<Result<'ok option, 'error>>) : Async<Result<'ok option, 'error>> = value
+        member inline _.ReturnFrom
+            (value: Async<Result<'ok option, 'error>>)
+            : Async<Result<'ok option, 'error>> =
+            value
 
         member inline _.Bind
             (
@@ -16,7 +20,8 @@ module AsyncResultOptionCE =
             AsyncResultOption.bind binder input
 
         member inline _.Combine(aro1, aro2) =
-            aro1 |> AsyncResultOption.bind (fun _ -> aro2)
+            aro1
+            |> AsyncResultOption.bind (fun _ -> aro2)
 
         member inline _.Delay([<InlineIfLambda>] f: unit -> Async<'a>) : Async<'a> = async.Delay f
 

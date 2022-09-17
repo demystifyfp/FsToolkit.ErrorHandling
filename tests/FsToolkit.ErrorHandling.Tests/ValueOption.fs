@@ -67,7 +67,9 @@ let tryGetValueTests =
             let expectedKey = "someId"
             let dictToWorkOn = dict [ (expectedKey, expectedValue) ]
 
-            let actual = dictToWorkOn |> ValueOption.tryGetValue expectedKey
+            let actual =
+                dictToWorkOn
+                |> ValueOption.tryGetValue expectedKey
 
             Expect.equal actual (ValueSome expectedValue) "Should be some value"
     ]

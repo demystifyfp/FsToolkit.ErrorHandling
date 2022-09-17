@@ -9,7 +9,9 @@ module ResultOptionCE =
 
         member _.Bind(resultOpt, binder) = ResultOption.bind binder resultOpt
 
-        member _.Combine(r1, r2) = r1 |> ResultOption.bind (fun _ -> r2)
+        member _.Combine(r1, r2) =
+            r1
+            |> ResultOption.bind (fun _ -> r2)
 
         member _.Delay f = f ()
 

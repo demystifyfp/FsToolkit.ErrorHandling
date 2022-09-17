@@ -6,7 +6,9 @@ module List =
 
     let rec private traverseJobResultM' (state: Job<Result<_, _>>) (f: _ -> Job<Result<_, _>>) xs =
         match xs with
-        | [] -> state |> JobResult.map List.rev
+        | [] ->
+            state
+            |> JobResult.map List.rev
         | x :: xs -> job {
             let! r = jobResult {
                 let! ys = state
@@ -27,14 +29,20 @@ module List =
 
     let rec private traverseJobResultA' state f xs =
         match xs with
-        | [] -> state |> JobResult.map List.rev
+        | [] ->
+            state
+            |> JobResult.map List.rev
         | x :: xs -> job {
             let! s = state
-            let! fR = f x |> JobResult.mapError List.singleton
+
+            let! fR =
+                f x
+                |> JobResult.mapError List.singleton
 
             match s, fR with
             | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.retn (y :: ys)) f xs
-            | Error errs, Error e -> return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
+            | Error errs, Error e ->
+                return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
             | Ok _, Error e
             | Error e, Ok _ -> return! traverseJobResultA' (JobResult.returnError e) f xs
           }

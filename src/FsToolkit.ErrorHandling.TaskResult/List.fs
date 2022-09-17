@@ -11,11 +11,20 @@ module List =
     let private traverseTaskResultM' (f: 'c -> Task<Result<'a, 'b>>) (xs: 'c list) =
         let mutable state = Ok []
         let mutable index = 0
-        let xs = xs |> List.toArray
+
+        let xs =
+            xs
+            |> List.toArray
 
         task {
-            while state |> Result.isOk && index < xs.Length do
-                let! r = xs |> Array.item index |> f
+            while state
+                  |> Result.isOk
+                  && index < xs.Length do
+                let! r =
+                    xs
+                    |> Array.item index
+                    |> f
+
                 index <- index + 1
 
                 match (r, state) with
@@ -23,7 +32,9 @@ module List =
                 | Error e, _ -> state <- Error e
                 | _, _ -> ()
 
-            return state |> Result.map List.rev
+            return
+                state
+                |> Result.map List.rev
         }
 
     let traverseTaskResultM f xs = traverseTaskResultM' f xs
@@ -43,7 +54,9 @@ module List =
                 | Ok _, Error e -> state <- Error e
                 | Error e, Ok _ -> state <- Error [ e ]
 
-            return state |> Result.eitherMap List.rev List.rev
+            return
+                state
+                |> Result.eitherMap List.rev List.rev
         }
 
     let traverseTaskResultA f xs = traverseTaskResultA' f xs

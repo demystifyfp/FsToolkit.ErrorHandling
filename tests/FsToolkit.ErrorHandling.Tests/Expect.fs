@@ -82,7 +82,10 @@ module Expect =
 #if !FABLE_COMPILER
 
     let hasTaskValue v taskX =
-        let x = taskX |> Async.AwaitTask |> Async.RunSynchronously
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
 
         if v = x then
             ()
@@ -95,12 +98,18 @@ module Expect =
     }
 
     let hasTaskOkValueSync v taskX =
-        let x = taskX |> Async.AwaitTask |> Async.RunSynchronously
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
 
         hasOkValue v x
 
     let hasTaskNoneValue taskX =
-        let x = taskX |> Async.AwaitTask |> Async.RunSynchronously
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
 
         hasNoneValue x
 
@@ -110,12 +119,18 @@ module Expect =
     }
 
     let hasTaskErrorValueSync v taskX =
-        let x = taskX |> Async.AwaitTask |> Async.RunSynchronously
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
 
         hasErrorValue v x
 
     let hasTaskSomeValue v taskX =
-        let x = taskX |> Async.AwaitTask |> Async.RunSynchronously
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
 
         hasSomeValue v x
 

@@ -20,10 +20,18 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.TaskOption
 
 let runTaskSync (task: Task<_>) = task.Result
-let createPostSome = createPostSome >> Async.StartAsTask
-let getFollowersSome = getFollowersSome >> Async.StartAsTask
 
-let allowedToPostOptional = allowedToPostOptional >> Async.StartAsTask
+let createPostSome =
+    createPostSome
+    >> Async.StartAsTask
+
+let getFollowersSome =
+    getFollowersSome
+    >> Async.StartAsTask
+
+let allowedToPostOptional =
+    allowedToPostOptional
+    >> Async.StartAsTask
 
 
 let mapTests =
@@ -51,7 +59,8 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            })
+            }
+            )
             |> Expect.hasTaskSomeValue (PostId newPostId)
 
         testCase "bind with Task(None)"
@@ -85,7 +94,9 @@ let applyTests =
 let retnTests =
     testList "TaskOption.retn Tests" [
         testCase "retn with x"
-        <| fun _ -> TaskOption.retn 267 |> Expect.hasTaskSomeValue (267)
+        <| fun _ ->
+            TaskOption.retn 267
+            |> Expect.hasTaskSomeValue (267)
     ]
 
 let taskOptionOperatorTests =
@@ -95,7 +106,9 @@ let taskOptionOperatorTests =
             let getFollowersResult = getFollowersSome sampleUserId
             let createPostResult = createPostSome validCreatePostRequest
 
-            newPostRequest <!> getFollowersResult <*> createPostResult
+            newPostRequest
+            <!> getFollowersResult
+            <*> createPostResult
             |> Expect.hasTaskSomeValue
                 {
                     NewPostId = PostId newPostId
@@ -109,9 +122,16 @@ let taskOptionOperatorTests =
                 if isAllowed then
                     createPostSome validCreatePostRequest
                 else
-                    Task.singleton None)
+                    Task.singleton None
+            )
             |> Expect.hasTaskSomeValue (PostId newPostId)
     ]
 
 let allTests =
-    testList "Task Option Tests" [ mapTests; bindTests; applyTests; retnTests; taskOptionOperatorTests ]
+    testList "Task Option Tests" [
+        mapTests
+        bindTests
+        applyTests
+        retnTests
+        taskOptionOperatorTests
+    ]

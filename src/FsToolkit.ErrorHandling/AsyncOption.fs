@@ -17,7 +17,8 @@ module AsyncOption =
             (fun x ->
                 match x with
                 | Some x -> binder x
-                | None -> Async.singleton None)
+                | None -> Async.singleton None
+            )
             input
 
     let inline lol (value: 'value) : Async<'value option> = Async.singleton (Some value)

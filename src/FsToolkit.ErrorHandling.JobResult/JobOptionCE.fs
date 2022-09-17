@@ -9,19 +9,28 @@ module JobOptionCE =
 
     type JobOptionBuilder() =
 
-        member inline _.Return(value: 'T) : Job<_ option> = job.Return <| option.Return value
+        member inline _.Return(value: 'T) : Job<_ option> =
+            job.Return
+            <| option.Return value
 
         member inline _.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
 
-        member inline _.Zero() : Job<_ option> = job.Return <| option.Zero()
+        member inline _.Zero() : Job<_ option> =
+            job.Return
+            <| option.Zero()
 
-        member inline _.Bind(jobResult: Job<_ option>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> = job {
-            let! result = jobResult
+        member inline _.Bind
+            (
+                jobResult: Job<_ option>,
+                [<InlineIfLambda>] binder: 'T -> Job<_ option>
+            ) : Job<_ option> =
+            job {
+                let! result = jobResult
 
-            match result with
-            | Some x -> return! binder x
-            | None -> return None
-        }
+                match result with
+                | Some x -> return! binder x
+                | None -> return None
+            }
 
         member inline this.Bind
             (
@@ -30,9 +39,14 @@ module JobOptionCE =
             ) : Job<_ option> =
             this.Bind(Job.fromTask taskResult, binder)
 
-        member inline _.Delay([<InlineIfLambda>] generator: unit -> Job<_ option>) : Job<_ option> = Job.delay generator
+        member inline _.Delay([<InlineIfLambda>] generator: unit -> Job<_ option>) : Job<_ option> =
+            Job.delay generator
 
-        member inline this.Combine(computation1: Job<_ option>, computation2: Job<_ option>) : Job<_ option> =
+        member inline this.Combine
+            (
+                computation1: Job<_ option>,
+                computation2: Job<_ option>
+            ) : Job<_ option> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -71,12 +85,19 @@ module JobOptionCE =
             job.Using(resource, binder)
 
         member this.While(guard: unit -> bool, computation: Job<_ option>) : Job<_ option> =
-            if not <| guard () then
+            if
+                not
+                <| guard ()
+            then
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
 
-        member inline this.For(sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Job<_ option>) : Job<_ option> =
+        member inline this.For
+            (
+                sequence: #seq<'T>,
+                [<InlineIfLambda>] binder: 'T -> Job<_ option>
+            ) : Job<_ option> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
@@ -92,12 +113,16 @@ module JobOptionCE =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(async: Async<_ option>) : Job<_ option> = async |> Job.fromAsync
+        member inline _.Source(async: Async<_ option>) : Job<_ option> =
+            async
+            |> Job.fromAsync
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<_ option>) : Job<_ option> = task |> Job.awaitTask
+        member inline _.Source(task: Task<_ option>) : Job<_ option> =
+            task
+            |> Job.awaitTask
 
     let jobOption = JobOptionBuilder()
 
@@ -121,14 +146,22 @@ module JobOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Job<'t>) = a |> Job.map Some
+        member inline _.Source(a: Job<'t>) =
+            a
+            |> Job.map Some
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Async<'t>) = a |> Job.fromAsync |> Job.map Some
+        member inline _.Source(a: Async<'t>) =
+            a
+            |> Job.fromAsync
+            |> Job.map Some
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(a: Task<'t>) = a |> Job.awaitTask |> Job.map Some
+        member inline _.Source(a: Task<'t>) =
+            a
+            |> Job.awaitTask
+            |> Job.map Some

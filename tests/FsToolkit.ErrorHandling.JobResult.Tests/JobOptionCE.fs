@@ -217,7 +217,10 @@ let ceTests =
             let data = 42
 
             let! actual = jobOption {
-                use! d = (makeDisposable () |> Some)
+                use! d =
+                    (makeDisposable ()
+                     |> Some)
+
                 return data
             }
 

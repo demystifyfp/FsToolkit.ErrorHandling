@@ -12,9 +12,18 @@ open System
 open Hopac
 
 let runJobSync = run
-let createPostSome = createPostSome >> Job.fromAsync
-let getFollowersSome = getFollowersSome >> Job.fromAsync
-let allowedToPostOptional = allowedToPostOptional >> Job.fromAsync
+
+let createPostSome =
+    createPostSome
+    >> Job.fromAsync
+
+let getFollowersSome =
+    getFollowersSome
+    >> Job.fromAsync
+
+let allowedToPostOptional =
+    allowedToPostOptional
+    >> Job.fromAsync
 
 let mapTests =
     testList "JobOption.map Tests" [
@@ -41,7 +50,8 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            })
+            }
+            )
             |> Expect.hasJobSomeValue (PostId newPostId)
 
         testCase "bind with Job(None)"
@@ -75,7 +85,9 @@ let applyTests =
 let retnTests =
     testList "JobOption.retn Tests" [
         testCase "retn with x"
-        <| fun _ -> JobOption.retn 267 |> Expect.hasJobSomeValue (267)
+        <| fun _ ->
+            JobOption.retn 267
+            |> Expect.hasJobSomeValue (267)
     ]
 
 let jobOptionOperatorTests =
@@ -85,7 +97,9 @@ let jobOptionOperatorTests =
             let getFollowersResult = getFollowersSome sampleUserId
             let createPostResult = createPostSome validCreatePostRequest
 
-            newPostRequest <!> getFollowersResult <*> createPostResult
+            newPostRequest
+            <!> getFollowersResult
+            <*> createPostResult
             |> Expect.hasJobSomeValue
                 {
                     NewPostId = PostId newPostId
@@ -99,9 +113,16 @@ let jobOptionOperatorTests =
                 if isAllowed then
                     createPostSome validCreatePostRequest
                 else
-                    Job.singleton None)
+                    Job.singleton None
+            )
             |> Expect.hasJobSomeValue (PostId newPostId)
     ]
 
 let allTests =
-    testList "Job Option Tests" [ mapTests; bindTests; applyTests; retnTests; jobOptionOperatorTests ]
+    testList "Job Option Tests" [
+        mapTests
+        bindTests
+        applyTests
+        retnTests
+        jobOptionOperatorTests
+    ]

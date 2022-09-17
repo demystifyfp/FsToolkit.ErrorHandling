@@ -254,7 +254,10 @@ let ``ValidationCE using Tests`` =
             let data = 42
 
             let actual = validation {
-                use! d = makeDisposable () |> Result.Ok
+                use! d =
+                    makeDisposable ()
+                    |> Result.Ok
+
                 return data
             }
 
@@ -372,14 +375,22 @@ let ``ValidationCE applicative tests`` =
 
         testCase "Fail Path Result"
         <| fun () ->
-            let expected = Error [ "Error 1"; "Error 2" ]
+            let expected =
+                Error [
+                    "Error 1"
+                    "Error 2"
+                ]
 
             let actual = validation {
                 let! a = Ok 3
                 and! b = Ok 2
                 and! c = Error "Error 1"
                 and! d = Error "Error 2"
-                return a + b - c - d
+
+                return
+                    a + b
+                    - c
+                    - d
             }
 
             Expect.equal actual expected "Should be Error"

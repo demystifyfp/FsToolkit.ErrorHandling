@@ -33,9 +33,13 @@ module OptionCE =
             ) : 'output option =
             Option.bind binder m
 
-        member inline this.Combine(m1: unit option, m2: 'output option) : 'output option = this.Bind(m1, (fun () -> m2))
+        member inline this.Combine(m1: unit option, m2: 'output option) : 'output option =
+            this.Bind(m1, (fun () -> m2))
 
-        member inline _.Delay([<InlineIfLambda>] delayer: unit -> 'value option) : (unit -> 'value option) = delayer
+        member inline _.Delay
+            ([<InlineIfLambda>] delayer: unit -> 'value option)
+            : (unit -> 'value option) =
+            delayer
 
         member inline _.Run([<InlineIfLambda>] delayed) = delayed ()
 
@@ -59,8 +63,12 @@ module OptionCE =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
-                    if not <| obj.ReferenceEquals(resource, null) then
-                        resource.Dispose())
+                    if
+                        not
+                        <| obj.ReferenceEquals(resource, null)
+                    then
+                        resource.Dispose()
+                )
             )
 
         member inline this.While
@@ -82,7 +90,11 @@ module OptionCE =
             else
                 this.Zero()
 
-        member inline this.For(sequence: #seq<'value>, [<InlineIfLambda>] binder: 'value -> unit option) : unit option =
+        member inline this.For
+            (
+                sequence: #seq<'value>,
+                [<InlineIfLambda>] binder: 'value -> unit option
+            ) : unit option =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
@@ -95,10 +107,18 @@ module OptionCE =
             ) : 'output option =
             Option.map mapper input
 
-        member inline _.BindReturn(x: 'input, [<InlineIfLambda>] f: 'input -> 'output) : 'output option =
+        member inline _.BindReturn
+            (
+                x: 'input,
+                [<InlineIfLambda>] f: 'input -> 'output
+            ) : 'output option =
             Option.map f (Option.ofObj x)
 
-        member inline _.MergeSources(option1: 'left option, option2: 'right option) : ('left * 'right) option =
+        member inline _.MergeSources
+            (
+                option1: 'left option,
+                option2: 'right option
+            ) : ('left * 'right) option =
             Option.zip option1 option2
 
         /// <summary>
@@ -120,18 +140,32 @@ module OptionCE =
 module OptionExtensionsLower =
     type OptionBuilder with
 
-        member inline _.Source(nullableObj: 'value when 'value: null) : 'value option = Option.ofObj nullableObj
+        member inline _.Source(nullableObj: 'value when 'value: null) : 'value option =
+            Option.ofObj nullableObj
+
         member inline _.Source(m: string) : string option = Option.ofObj m
 
-        member inline _.MergeSources(nullableObj1: 'left, option2: 'right option) : ('left * 'right) option =
+        member inline _.MergeSources
+            (
+                nullableObj1: 'left,
+                option2: 'right option
+            ) : ('left * 'right) option =
             Option.zip (Option.ofObj nullableObj1) option2
 
 
-        member inline _.MergeSources(option1: 'left option, nullableObj2: 'right) : ('left * 'right) option =
+        member inline _.MergeSources
+            (
+                option1: 'left option,
+                nullableObj2: 'right
+            ) : ('left * 'right) option =
             Option.zip (option1) (Option.ofObj nullableObj2)
 
 
-        member inline _.MergeSources(nullableObj1: 'left, nullableObj2: 'right) : ('left * 'right) option =
+        member inline _.MergeSources
+            (
+                nullableObj1: 'left,
+                nullableObj2: 'right
+            ) : ('left * 'right) option =
             Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
 
 [<AutoOpen>]
@@ -148,4 +182,5 @@ module OptionExtensions =
         // /// <summary>
         // /// Method lets us transform data types into our internal representation.
         // /// </summary>
-        member inline _.Source(nullable: Nullable<'value>) : 'value option = Option.ofNullable nullable
+        member inline _.Source(nullable: Nullable<'value>) : 'value option =
+            Option.ofNullable nullable

@@ -117,7 +117,10 @@ let ``AsyncResultCE bind Tests`` =
         testCaseAsync "Bind Ok AsyncResult"
         <| async {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Async.singleton
+
+            let data =
+                Result.Ok innerData
+                |> Async.singleton
 
             let! actual = asyncResult {
                 let! data = data
@@ -146,7 +149,10 @@ let ``AsyncResultCE bind Tests`` =
         testCaseAsync "Bind Ok TaskResult"
         <| async {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Task.FromResult
+
+            let data =
+                Result.Ok innerData
+                |> Task.FromResult
 
             let! actual = asyncResult {
                 let! data = data
@@ -258,7 +264,10 @@ let ``AsyncResultCE using Tests`` =
             let data = 42
 
             let! actual = asyncResult {
-                use! d = makeDisposable () |> Result.Ok
+                use! d =
+                    makeDisposable ()
+                    |> Result.Ok
+
                 return data
             }
 
@@ -329,12 +338,21 @@ let ``AsyncResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M" ]
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+            ]
 
             let! actual = asyncResult {
                 for i in data do
                     let! x = i
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
+
                     ()
 
                 return "ok"
@@ -347,7 +365,10 @@ let ``AsyncResultCE loop Tests`` =
 
 
 #if !FABLE_COMPILER
-let toTaskResult v = v |> Ok |> Task.FromResult
+let toTaskResult v =
+    v
+    |> Ok
+    |> Task.FromResult
 #endif
 
 let ``AsyncResultCE applicative tests`` =
@@ -448,7 +469,11 @@ let ``AsyncResultCE applicative tests`` =
             let! actual = asyncResult {
                 let! a = Ok 3
                 and! b = Choice1Of2 2
-                and! c = Ok 1 |> Async.singleton
+
+                and! c =
+                    Ok 1
+                    |> Async.singleton
+
                 return a + b - c
             }
 
@@ -489,7 +514,11 @@ let ``AsyncResultCE applicative tests`` =
 
             let! actual = asyncResult {
                 let! a = Choice1Of2 3
-                and! b = Ok 2 |> Async.singleton
+
+                and! b =
+                    Ok 2
+                    |> Async.singleton
+
                 and! c = Error errorMsg
                 return a + b - c
             }

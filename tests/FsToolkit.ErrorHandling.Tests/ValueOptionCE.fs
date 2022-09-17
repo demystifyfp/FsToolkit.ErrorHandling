@@ -121,7 +121,10 @@ let ceTests =
             let data = 42
 
             let actual = voption {
-                use! d = (makeDisposable () |> Some)
+                use! d =
+                    (makeDisposable ()
+                     |> Some)
+
                 return data
             }
 
@@ -280,7 +283,11 @@ let ``ValueOptionCE applicative tests`` =
                 let! a = CustomClass 3
                 and! b = CustomClass 2
                 and! c = CustomClass 1
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (ValueSome 4) "Should be ValueSome 4"
@@ -336,7 +343,10 @@ let ``ValueOptionCE applicative tests`` =
                 let! a = ValueSome 3
                 and! b = Nullable 2
                 and! c = CustomClass 1
-                return a + b - c.getX
+
+                return
+                    a + b
+                    - c.getX
             }
 
             Expect.equal actual (ValueSome 4) "Should be ValueSome 4"
@@ -387,7 +397,11 @@ let ``ValueOptionCE applicative tests`` =
                 let! a = c1
                 and! b = c2
                 and! c = c3
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (ValueNone) "Should be None"
@@ -403,7 +417,11 @@ let ``ValueOptionCE applicative tests`` =
                 let! a = c1
                 and! b = c2
                 and! c = c3
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (ValueNone) "Should be None"
@@ -440,7 +458,10 @@ let ``ValueOptionCE applicative tests`` =
 
 
 let allTests =
-    testList "ValueOption CE tests" [ ceTests; ``ValueOptionCE applicative tests`` ]
+    testList "ValueOption CE tests" [
+        ceTests
+        ``ValueOptionCE applicative tests``
+    ]
 #else
 let allTests = testList "ValueOption CE tests" []
 #endif

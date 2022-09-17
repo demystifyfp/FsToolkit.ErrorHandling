@@ -137,19 +137,29 @@ let ``TaskResultCE bind Tests`` =
         testCaseTask "Bind Ok AsyncResult"
         <| fun () -> task {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Async.singleton
+
+            let data =
+                Result.Ok innerData
+                |> Async.singleton
 
             let! actual = taskResult {
                 let! data = data
                 return data
             }
 
-            Expect.equal actual (data |> Async.RunSynchronously) "Should be ok"
+            Expect.equal
+                actual
+                (data
+                 |> Async.RunSynchronously)
+                "Should be ok"
            }
         testCaseTask "Bind Ok TaskResult"
         <| fun () -> task {
             let innerData = "Foo"
-            let data = Result.Ok innerData |> Task.singleton
+
+            let data =
+                Result.Ok innerData
+                |> Task.singleton
 
             let! actual = taskResult {
                 let! data = data
@@ -327,7 +337,10 @@ let ``TaskResultCE using Tests`` =
             let data = 42
 
             let! actual = taskResult {
-                use! d = makeDisposable () |> Result.Ok
+                use! d =
+                    makeDisposable ()
+                    |> Result.Ok
+
                 return data
             }
 
@@ -385,12 +398,22 @@ let ``TaskResultCE loop Tests`` =
 
             let expected = Error "error"
 
-            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+                Ok "1M"
+                Ok "1M"
+            ]
 
             let! actual = taskResult {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }
@@ -431,12 +454,23 @@ let ``TaskResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+                Ok "1M"
+                Ok "1M"
+            ]
 
             let! actual = taskResult {
                 for i in data do
                     let! x = i
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
+
                     ()
 
                 return "ok"
@@ -545,10 +579,19 @@ let ``TaskResultCE applicative tests`` =
             let! actual = taskResult {
                 let! a = Ok 3
                 and! b = Choice1Of2 2
-                and! c = Ok 1 |> Async.singleton
+
+                and! c =
+                    Ok 1
+                    |> Async.singleton
+
                 and! d = specialCaseTask (Ok 3)
                 and! e = ValueTask.FromResult(Ok 5)
-                return a + b - c - d + e
+
+                return
+                    a + b
+                    - c
+                    - d
+                    + e
             }
 
             Expect.equal actual (Ok 6) "Should be ok"
@@ -588,7 +631,11 @@ let ``TaskResultCE applicative tests`` =
 
             let! actual = taskResult {
                 let! a = Choice1Of2 3
-                and! b = Ok 2 |> Async.singleton
+
+                and! b =
+                    Ok 2
+                    |> Async.singleton
+
                 and! c = Error errorMsg
                 return a + b - c
             }

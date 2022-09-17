@@ -252,7 +252,10 @@ let ceTests =
             let data = 42
 
             let! actual = backgroundTaskOption {
-                use! d = (makeDisposable () |> Some)
+                use! d =
+                    (makeDisposable ()
+                     |> Some)
+
                 return data
             }
 
@@ -293,12 +296,22 @@ let ceTests =
 
             let expected = None
 
-            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
+            let data = [
+                Some "42"
+                Some "1024"
+                expected
+                Some "1M"
+                Some "1M"
+                Some "1M"
+            ]
 
             let! actual = backgroundTaskOption {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }
@@ -345,12 +358,23 @@ let ceTests =
 
             let expected = None
 
-            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
+            let data = [
+                Some "42"
+                Some "1024"
+                expected
+                Some "1M"
+                Some "1M"
+                Some "1M"
+            ]
 
             let! actual = backgroundTaskOption {
                 for i in data do
                     let! x = i
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
+
                     ()
 
                 return sideEffect ()
@@ -376,10 +400,18 @@ let ceTestsApplicative =
         <| fun () -> backgroundTask {
             let! actual = backgroundTaskOption {
                 let! a = Some 3
-                let! b = Some 1 |> Async.singleton
+
+                let! b =
+                    Some 1
+                    |> Async.singleton
+
                 let! c = specialCaseTask (Some 3)
                 let! d = ValueTask.FromResult(Some 5)
-                return a + b - c - d
+
+                return
+                    a + b
+                    - c
+                    - d
             }
 
             Expect.equal actual (Some -4) "Should be ok"
@@ -388,10 +420,18 @@ let ceTestsApplicative =
         <| fun () -> backgroundTask {
             let! actual = backgroundTaskOption {
                 let! a = Some 3
-                and! b = Some 1 |> Async.singleton
+
+                and! b =
+                    Some 1
+                    |> Async.singleton
+
                 and! c = specialCaseTask (None)
                 and! d = ValueTask.FromResult(Some 5)
-                return a + b - c - d
+
+                return
+                    a + b
+                    - c
+                    - d
             }
 
             Expect.equal actual None "Should be ok"

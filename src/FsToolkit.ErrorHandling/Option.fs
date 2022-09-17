@@ -19,12 +19,16 @@ module Option =
         : Result<'okOutput option, 'error> =
         match input with
         | None -> Ok None
-        | Some v -> binder v |> Result.map Some
+        | Some v ->
+            binder v
+            |> Result.map Some
 
-    let inline sequenceResult (opt: Result<'ok, 'error> option) : Result<'ok option, 'error> = traverseResult id opt
+    let inline sequenceResult (opt: Result<'ok, 'error> option) : Result<'ok option, 'error> =
+        traverseResult id opt
 
 #if !FABLE_COMPILER
-    let inline tryParse< ^T when ^T: (static member TryParse: string * byref< ^T > -> bool) and ^T: (new: unit -> ^T)>
+    let inline tryParse< ^T
+        when ^T: (static member TryParse: string * byref< ^T > -> bool) and ^T: (new: unit -> ^T)>
         (valueToParse: string)
         : ^T option =
         let mutable output = new ^T()
@@ -40,7 +44,9 @@ module Option =
         let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary, key, &output))
+            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary,
+                                                                                  key,
+                                                                                  &output))
 
         match parsed with
         | true -> Some output
@@ -99,5 +105,7 @@ module Option =
         (option: Option<'value>)
         : 'nullableValue option =
         match option with
-        | Some x -> binder x |> ofNull
+        | Some x ->
+            binder x
+            |> ofNull
         | None -> None

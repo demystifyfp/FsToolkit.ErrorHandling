@@ -118,7 +118,10 @@ let ceTests =
             let data = 42
 
             let actual = option {
-                use! d = (makeDisposable () |> Some)
+                use! d =
+                    (makeDisposable ()
+                     |> Some)
+
                 return data
             }
 
@@ -277,7 +280,11 @@ let ``OptionCE applicative tests`` =
                 let! a = CustomClass 3
                 and! b = CustomClass 2
                 and! c = CustomClass 1
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (Some 4) "Should be Some 4"
@@ -333,7 +340,10 @@ let ``OptionCE applicative tests`` =
                 let! a = Some 3
                 and! b = Nullable 2
                 and! c = CustomClass 1
-                return a + b - c.getX
+
+                return
+                    a + b
+                    - c.getX
             }
 
             Expect.equal actual (Some 4) "Should be Some 4"
@@ -384,7 +394,11 @@ let ``OptionCE applicative tests`` =
                 let! a = c1
                 and! b = c2
                 and! c = c3
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (None) "Should be None"
@@ -400,7 +414,11 @@ let ``OptionCE applicative tests`` =
                 let! a = c1
                 and! b = c2
                 and! c = c3
-                return a.getX + b.getX - c.getX
+
+                return
+                    a.getX
+                    + b.getX
+                    - c.getX
             }
 
             Expect.equal actual (None) "Should be None"
@@ -437,4 +455,7 @@ let ``OptionCE applicative tests`` =
 
 
 let allTests =
-    testList "Option CE tests" [ ceTests; ``OptionCE applicative tests`` ]
+    testList "Option CE tests" [
+        ceTests
+        ``OptionCE applicative tests``
+    ]
