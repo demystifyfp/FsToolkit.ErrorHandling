@@ -25,8 +25,8 @@ module ValueOption =
     let inline sequenceResult (opt: Result<'okOutput, 'error> voption) : Result<'okOutput voption, 'error> =
         traverseResult id opt
 
-    let inline tryParse< ^value when ^value: (static member TryParse: string * byref< ^value > -> bool) and ^value: (new:
-        unit -> ^value)>
+    let inline tryParse< ^value
+        when ^value: (static member TryParse: string * byref< ^value > -> bool) and ^value: (new: unit -> ^value)>
         (valueToParse: string)
         : ^value voption =
         let mutable output = new ^value ()

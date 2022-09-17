@@ -20,8 +20,7 @@ module TaskResultCE =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| result.Zero()
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| result.Zero()
 
         member inline _.Bind
             (
@@ -31,9 +30,7 @@ module TaskResultCE =
             let binder' r =
                 match r with
                 | Ok x -> binder x
-                | Error x ->
-                    FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-                    <| Error x
+                | Error x -> FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| Error x
 
             FSharp.Control.Tasks.Affine.Unsafe.uply.Bind(taskResult, binder')
 
@@ -151,8 +148,7 @@ module TaskResultCE =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| result.Zero()
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| result.Zero()
 
         member inline _.Bind
             (
@@ -162,9 +158,7 @@ module TaskResultCE =
             let binder' r =
                 match r with
                 | Ok x -> binder x
-                | Error x ->
-                    FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-                    <| Error x
+                | Error x -> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| Error x
 
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.Bind(taskResult, binder')
 
@@ -286,6 +280,7 @@ module TaskResultCE =
 module TaskResultCEExtensionsLower =
 
     type TaskResultBuilder with
+
         member inline this.Source(t: ^TaskLike) : Task<Result<'T, 'Error>> =
             FSharp.Control.Tasks.Affine.task {
                 let! r = t
@@ -293,6 +288,7 @@ module TaskResultCEExtensionsLower =
             }
 
     type BackgroundTaskResultBuilder with
+
         member inline this.Source(t: ^TaskLike) : Task<Result<'T, 'Error>> =
             FSharp.Control.Tasks.NonAffine.task {
                 let! r = t
@@ -304,6 +300,7 @@ module TaskResultCEExtensionsLower =
 [<AutoOpen>]
 module TaskResultCEExtensions =
     type TaskResultBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
@@ -375,6 +372,7 @@ module TaskResultCEExtensions =
             }
 
     type BackgroundTaskResultBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
@@ -446,7 +444,6 @@ module TaskResultCEExtensions =
             }
 
 #else
-
 
 
 open System
@@ -608,7 +605,6 @@ type TaskResultBuilderBase() =
                 TaskResultBuilderBase.CombineDynamic(&sm, task1, task2))
 
 
-
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
         (
@@ -620,9 +616,7 @@ type TaskResultBuilderBase() =
                 //-- RESUMABLE CODE START
                 let mutable __stack_go = true
 
-                while __stack_go
-                      && not sm.Data.IsResultError
-                      && condition () do
+                while __stack_go && not sm.Data.IsResultError && condition () do
                     // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                     // the code will branch directly into the expanded 'body', branching directly into the while loop
                     let __stack_body_fin = body.Invoke(&sm)
@@ -751,8 +745,6 @@ type TaskResultBuilderBase() =
         result |> Result.ofChoice |> Task.singleton
 
 
-
-
 type TaskResultBuilder() =
 
     inherit TaskResultBuilderBase()
@@ -793,8 +785,8 @@ type TaskResultBuilder() =
                             assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
-                    with
-                    | exn -> savedExn <- exn
+                    with exn ->
+                        savedExn <- exn
                     // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                     match savedExn with
                     | null -> ()
@@ -827,8 +819,8 @@ type TaskResultBuilder() =
 
                             // printfn "Run __stack_code_fin Data  --> %A" sm.Data.Result
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                    with
-                    | exn -> __stack_exn <- exn
+                    with exn ->
+                        __stack_exn <- exn
                     // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                     match __stack_exn with
                     | null -> ()
@@ -872,8 +864,8 @@ type BackgroundTaskResultBuilder() =
 
                         if __stack_code_fin && not sm.Data.IsTaskCompleted then
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                    with
-                    | exn -> sm.Data.MethodBuilder.SetException exn
+                    with exn ->
+                        sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
                 (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
@@ -921,9 +913,11 @@ module TaskResultCEExtensionsLowPriority =
 
 
         [<NoEagerConstraintApplication>]
-        static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-            unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
+        static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
             (
                 sm: byref<_>,
                 task: ^TaskLike,
@@ -956,9 +950,11 @@ module TaskResultCEExtensionsLowPriority =
                 false
 
         [<NoEagerConstraintApplication>]
-        member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-            unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
+        member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
             (
                 task: ^TaskLike,
                 continuation: ('TResult1 -> TaskResultCode<'TOverall, 'Error, 'TResult2>)
@@ -1003,17 +999,22 @@ module TaskResultCEExtensionsLowPriority =
             )
 
         [<NoEagerConstraintApplication>]
-        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter:
-            unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
             (task: ^TaskLike)
             : TaskResultCode<'T, 'Error, 'T> =
 
             this.Bind(task, (fun v -> this.Return v))
 
         [<NoEagerConstraintApplication>]
-        member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
             : TaskResult<'T, 'Error> =
 
@@ -1033,6 +1034,7 @@ module TaskResultCEExtensionsLowPriority =
 module TaskResultCEExtensionsHighPriority =
     // High priority extensions
     type TaskResultBuilderBase with
+
         static member BindDynamic
             (
                 sm: byref<_>,
@@ -1116,6 +1118,7 @@ module TaskResultCEExtensionsMediumPriority =
 
     // Medium priority extensions
     type TaskResultBuilderBase with
+
         member inline this.Source(t: Task<'T>) : TaskResult<'T, 'Error> = t |> Task.map Ok
 
         member inline this.Source(t: Task) : TaskResult<unit, 'Error> = task {

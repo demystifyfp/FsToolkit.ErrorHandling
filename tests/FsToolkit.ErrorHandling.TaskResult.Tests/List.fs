@@ -31,9 +31,7 @@ let traverseTaskResultMTests =
     testList "List.traverseTaskResultM Tests" [
         testCase "traverseTaskResultM with a list of valid data"
         <| fun _ ->
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.traverseTaskResultM (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -65,9 +63,7 @@ let traverseTaskResultATests =
     testList "List.traverseTaskResultA Tests" [
         testCase "traverseTaskResultA with a list of valid data"
         <| fun _ ->
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.traverseTaskResultA (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -93,9 +89,7 @@ let sequenceTaskResultMTests =
     testList "List.sequenceTaskResultM Tests" [
         testCase "sequenceTaskResultM with a list of valid data"
         <| fun _ ->
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.map (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -108,8 +102,7 @@ let sequenceTaskResultMTests =
             let expected = sprintf "error: %s" (userId1.ToString())
 
             let actual =
-                List.map (notifyFailure (PostId newPostId)) userIds
-                |> List.sequenceTaskResultM
+                List.map (notifyFailure (PostId newPostId)) userIds |> List.sequenceTaskResultM
 
             Expect.hasTaskErrorValueSync expected actual
     ]
@@ -121,9 +114,7 @@ let sequenceTaskResultATests =
     testList "List.sequenceTaskResultA Tests" [
         testCase "sequenceTaskResultA with a list of valid data"
         <| fun _ ->
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.map (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -139,8 +130,7 @@ let sequenceTaskResultATests =
             ]
 
             let actual =
-                List.map (notifyFailure (PostId newPostId)) userIds
-                |> List.sequenceTaskResultA
+                List.map (notifyFailure (PostId newPostId)) userIds |> List.sequenceTaskResultA
 
             Expect.hasTaskErrorValueSync expected actual
     ]

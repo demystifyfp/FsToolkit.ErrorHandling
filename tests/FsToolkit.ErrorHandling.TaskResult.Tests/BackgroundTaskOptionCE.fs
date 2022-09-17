@@ -190,7 +190,10 @@ let ceTests =
 
             let! actual = backgroundTaskOption {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -203,8 +206,8 @@ let ceTests =
             let! actual = backgroundTaskOption {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (Some data) "Try with failed"
@@ -290,14 +293,7 @@ let ceTests =
 
             let expected = None
 
-            let data = [
-                Some "42"
-                Some "1024"
-                expected
-                Some "1M"
-                Some "1M"
-                Some "1M"
-            ]
+            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
 
             let! actual = backgroundTaskOption {
                 while loopCount < data.Length do
@@ -349,14 +345,7 @@ let ceTests =
 
             let expected = None
 
-            let data = [
-                Some "42"
-                Some "1024"
-                expected
-                Some "1M"
-                Some "1M"
-                Some "1M"
-            ]
+            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
 
             let! actual = backgroundTaskOption {
                 for i in data do

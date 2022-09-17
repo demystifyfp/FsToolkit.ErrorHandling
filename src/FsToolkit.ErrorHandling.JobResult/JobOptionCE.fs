@@ -107,6 +107,7 @@ module JobOptionCE =
 module JobOptionCEExtensions =
 
     type JobOptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

@@ -12,6 +12,7 @@ let okOrFail =
 type Latitude =
     private
     | Latitude of double
+
     member this.Value =
         let (Latitude lat) = this
         lat
@@ -20,12 +21,12 @@ type Latitude =
         if lat > -180. && lat < 180. then
             Ok(Latitude lat)
         else
-            sprintf "%A is a invalid latitude value" lat
-            |> Error
+            sprintf "%A is a invalid latitude value" lat |> Error
 
 type Longitude =
     private
     | Longitude of double
+
     member this.Value =
         let (Longitude lng) = this
         lng
@@ -34,8 +35,7 @@ type Longitude =
         if lng > -90. && lng < 90. then
             Ok(Longitude lng)
         else
-            sprintf "%A is a invalid longitude value" lng
-            |> Error
+            sprintf "%A is a invalid longitude value" lng |> Error
 
 
 type Location = {
@@ -59,6 +59,7 @@ let isWellFormedUrl (url: string) =
 type Url =
     private
     | Url of string
+
     member this.Value =
         let (Url url) = this
         url
@@ -70,10 +71,10 @@ type Url =
             sprintf "%s is a invalid URL" url |> Error
 
 
-
 type Tweet =
     private
     | Tweet of string
+
     member this.Value =
         let (Tweet tweet) = this
         tweet
@@ -96,6 +97,7 @@ type UserId = UserId of Guid
 type PersonName =
     private
     | PersonName of string
+
     member this.Value =
         let (PersonName name) = this
         name
@@ -110,6 +112,7 @@ type PersonName =
 type DateOfBirth =
     private
     | DateOfBirth of DateTime
+
     static member TryCreate(dateTime: DateTime) =
         match dateTime with
         | x when x > DateTime.Now -> Error "Date Of Birth Should not be in Future"
@@ -138,6 +141,7 @@ type UserDto =
         Id: Guid
         Name: string
     }
+
     static member ToUser(dto: UserDto) = result {
         let! name = PersonName.TryCreate dto.Name
         return { User.Id = UserId dto.Id; Name = name }
@@ -177,7 +181,6 @@ type CreatePostRequest = {
 }
 
 
-
 let createPostRequest lat long tweet = {
     Tweet = tweet
     Location = Some(location lat long)
@@ -214,16 +217,11 @@ type Post = {
 }
 
 
-
-
 let createPostSuccess (_: CreatePostRequest) = async { return Ok samplePostId }
 
 let createPostSome (_: CreatePostRequest) = async { return Some samplePostId }
 
-let followerIds = [
-    UserId(Guid.NewGuid())
-    UserId(Guid.NewGuid())
-]
+let followerIds = [ UserId(Guid.NewGuid()); UserId(Guid.NewGuid()) ]
 
 let getFollowersSuccess (UserId _) = async { return Ok followerIds }
 
@@ -253,6 +251,7 @@ type LocationDto =
         Latitude: double
         Longitude: double
     }
+
     static member ToLocation(dto: LocationDto) = result {
         let! lat = Latitude.TryCreate dto.Latitude
         let! lng = Longitude.TryCreate dto.Longitude
@@ -275,10 +274,9 @@ type PostDto =
         Tweet: string
         Location: LocationDto option
     }
+
     static member ToPost(dto: PostDto) = result {
-        let! location =
-            dto.Location
-            |> Option.traverseResult LocationDto.ToLocation
+        let! location = dto.Location |> Option.traverseResult LocationDto.ToLocation
 
         let! tweet = Tweet.TryCreate dto.Tweet
 

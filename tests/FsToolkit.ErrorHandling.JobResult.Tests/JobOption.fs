@@ -85,8 +85,7 @@ let jobOptionOperatorTests =
             let getFollowersResult = getFollowersSome sampleUserId
             let createPostResult = createPostSome validCreatePostRequest
 
-            newPostRequest <!> getFollowersResult
-            <*> createPostResult
+            newPostRequest <!> getFollowersResult <*> createPostResult
             |> Expect.hasJobSomeValue
                 {
                     NewPostId = PostId newPostId
@@ -105,10 +104,4 @@ let jobOptionOperatorTests =
     ]
 
 let allTests =
-    testList "Job Option Tests" [
-        mapTests
-        bindTests
-        applyTests
-        retnTests
-        jobOptionOperatorTests
-    ]
+    testList "Job Option Tests" [ mapTests; bindTests; applyTests; retnTests; jobOptionOperatorTests ]

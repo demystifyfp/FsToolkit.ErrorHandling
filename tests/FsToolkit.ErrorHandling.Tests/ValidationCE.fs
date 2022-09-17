@@ -184,7 +184,10 @@ let ``ValidationCE combine/zero/delay/run Tests`` =
 
             let actual = validation {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -203,8 +206,8 @@ let ``ValidationCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -267,7 +270,6 @@ let ``ValidationCE using Tests`` =
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
-
 
 
 let ``ValidationCE loop Tests`` =

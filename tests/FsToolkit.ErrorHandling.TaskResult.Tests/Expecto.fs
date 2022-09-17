@@ -25,8 +25,8 @@ module Expect =
             try
                 let! r = f
                 return Choice2Of2 r
-            with
-            | e -> return Choice1Of2 e
+            with e ->
+                return Choice1Of2 e
         }
 
         match thrown with
@@ -47,5 +47,4 @@ type Expect =
 
 
     static member CancellationRequested(operation: Task<_>) =
-        Expect.CancellationRequested(Async.AwaitTask operation)
-        |> Async.StartAsTask
+        Expect.CancellationRequested(Async.AwaitTask operation) |> Async.StartAsTask

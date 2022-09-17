@@ -136,13 +136,15 @@ let ``ResultCE combine/zero/delay/run Tests`` =
 
             let actual = result {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
-
 
 
 let ``ResultCE try Tests`` =
@@ -156,8 +158,8 @@ let ``ResultCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -220,7 +222,6 @@ let ``ResultCE using Tests`` =
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
-
 
 
 let ``ResultCE loop Tests`` =

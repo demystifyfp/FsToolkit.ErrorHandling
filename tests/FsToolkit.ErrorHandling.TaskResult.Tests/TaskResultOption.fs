@@ -237,9 +237,7 @@ let operatorTests =
         testCase "bind & map operator"
         <| fun _ ->
             getPostById samplePostId
-            >>= (fun post ->
-                (fun user -> userTweet post user)
-                <!> getUserById post.UserId)
+            >>= (fun post -> (fun user -> userTweet post user) <!> getUserById post.UserId)
             |> Expect.hasTaskOkValueSync (
                 Some
                     {

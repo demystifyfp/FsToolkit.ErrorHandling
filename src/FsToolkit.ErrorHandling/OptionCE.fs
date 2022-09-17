@@ -42,8 +42,8 @@ module OptionCE =
         member inline this.TryWith([<InlineIfLambda>] computation, handler) : 'value =
             try
                 this.Run computation
-            with
-            | e -> handler e
+            with e ->
+                handler e
 
         member inline this.TryFinally([<InlineIfLambda>] computation, compensation) =
             try
@@ -75,11 +75,7 @@ module OptionCE =
                     fun () ->
                         this.Bind(
                             this.Run computation,
-                            (fun () ->
-                                if guard () then
-                                    this.Run whileBuilder
-                                else
-                                    this.Zero())
+                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
                         )
 
                 this.Run whileBuilder
@@ -123,6 +119,7 @@ module OptionCE =
 [<AutoOpen>]
 module OptionExtensionsLower =
     type OptionBuilder with
+
         member inline _.Source(nullableObj: 'value when 'value: null) : 'value option = Option.ofObj nullableObj
         member inline _.Source(m: string) : string option = Option.ofObj m
 
@@ -142,6 +139,7 @@ module OptionExtensions =
     open System
 
     type OptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

@@ -194,10 +194,7 @@ module Result =
     /// Same as requireEqual, but with a signature that fits piping better than
     /// normal function application.
     let inline requireEqualTo (other: 'value) (error: 'error) (this: 'value) : Result<unit, 'error> =
-        if this = other then
-            Ok()
-        else
-            Error error
+        if this = other then Ok() else Error error
 
     /// Returns Ok if the two values are equal, or the specified error if not.
     /// Same as requireEqualTo, but with a signature that fits normal function
@@ -207,17 +204,11 @@ module Result =
 
     /// Returns Ok if the sequence is empty, or the specified error if not.
     let inline requireEmpty (error: 'error) (xs: #seq<'value>) : Result<unit, 'error> =
-        if Seq.isEmpty xs then
-            Ok()
-        else
-            Error error
+        if Seq.isEmpty xs then Ok() else Error error
 
     /// Returns the specified error if the sequence is empty, or Ok if not.
     let inline requireNotEmpty (error: 'error) (xs: #seq<'value>) : Result<unit, 'error> =
-        if Seq.isEmpty xs then
-            Error error
-        else
-            Ok()
+        if Seq.isEmpty xs then Error error else Ok()
 
     /// Returns the first item of the sequence if it exists, or the specified
     /// error if the sequence is empty
@@ -266,7 +257,9 @@ module Result =
         (result: Result<'ok, 'error>)
         : Result<'ok, 'error> =
         match result with
-        | Ok x -> if predicate x then inspector x
+        | Ok x ->
+            if predicate x then
+                inspector x
         | Error _ -> ()
 
         result
@@ -280,7 +273,9 @@ module Result =
         : Result<'ok, 'error> =
         match result with
         | Ok _ -> ()
-        | Error x -> if predicate x then inspector x
+        | Error x ->
+            if predicate x then
+                inspector x
 
         result
 

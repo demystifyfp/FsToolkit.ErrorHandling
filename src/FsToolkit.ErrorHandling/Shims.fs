@@ -1,7 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
 
-
 #if NETSTANDARD2_0
 open System
 

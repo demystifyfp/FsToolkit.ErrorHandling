@@ -1,7 +1,6 @@
 ﻿namespace FsToolkit.ErrorHandling
 
 
-
 [<AutoOpen>]
 module CancellableTaskResultCE =
 
@@ -51,7 +50,6 @@ module CancellableTaskResultCE =
 
     and CancellableTaskResultCode<'TOverall, 'Error, 'T> =
         ResumableCode<CancellableTaskResultStateMachineData<'TOverall, 'Error>, 'T>
-
 
 
     module CancellableTaskResultBuilderBase =
@@ -126,7 +124,6 @@ module CancellableTaskResultCE =
                 true)
 
 
-
         static member inline CombineDynamic
             (
                 sm: byref<CancellableTaskResultStateMachine<_, _>>,
@@ -182,7 +179,6 @@ module CancellableTaskResultCE =
                     CancellableTaskResultBuilderBase.CombineDynamic(&sm, task1, task2))
 
 
-
         /// Builds a step that executes the body while the condition predicate is true.
         member inline _.While
             (
@@ -194,9 +190,7 @@ module CancellableTaskResultCE =
                     //-- RESUMABLE CODE START
                     let mutable __stack_go = true
 
-                    while __stack_go
-                          && not sm.Data.IsResultError
-                          && condition () do
+                    while __stack_go && not sm.Data.IsResultError && condition () do
                         // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                         // the code will branch directly into the expanded 'body', branching directly into the while loop
                         let __stack_body_fin = body.Invoke(&sm)
@@ -369,8 +363,8 @@ module CancellableTaskResultCE =
                                 assert not (isNull awaiter)
                                 sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
-                        with
-                        | exn -> savedExn <- exn
+                        with exn ->
+                            savedExn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                         match savedExn with
                         | null -> ()
@@ -405,8 +399,8 @@ module CancellableTaskResultCE =
 
                             if __stack_code_fin && not sm.Data.IsTaskCompleted then
                                 sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                        with
-                        | exn -> __stack_exn <- exn
+                        with exn ->
+                            __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                         match __stack_exn with
                         | null -> ()
@@ -462,8 +456,7 @@ module CancellableTaskResultCE =
 
                             if __stack_code_fin && not sm.Data.IsTaskCompleted then
                                 sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                        with
-                        | exn ->
+                        with exn ->
 
                             // printfn "%A" exn
                             sm.Data.MethodBuilder.SetException exn
@@ -524,9 +517,11 @@ module CancellableTaskResultCE =
         type CancellableTaskResultBuilderBase with
 
             [<NoEagerConstraintApplication>]
-            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
+            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
                     sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
                     task: CancellationToken -> ^TaskLike,
@@ -557,9 +552,11 @@ module CancellableTaskResultCE =
                     false
 
             [<NoEagerConstraintApplication>]
-            member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
+            member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
                     task: CancellationToken -> ^TaskLike,
                     continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
@@ -603,9 +600,11 @@ module CancellableTaskResultCE =
                 )
 
             [<NoEagerConstraintApplication>]
-            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
                     sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
                     task: ^TaskLike,
@@ -630,9 +629,11 @@ module CancellableTaskResultCE =
                     false
 
             [<NoEagerConstraintApplication>]
-            member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error when ^TaskLike: (member GetAwaiter:
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            member inline this.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
                     task: ^TaskLike,
                     continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
@@ -674,9 +675,11 @@ module CancellableTaskResultCE =
                 )
 
             [<NoEagerConstraintApplication>]
-            member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error when ^TaskLike: (member GetAwaiter:
-                unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
+            member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'T)>
                 (task: ^TaskLike)
                 : CancellableTaskResultCode<'T, 'Error, 'T> =
 
@@ -690,11 +693,10 @@ module CancellableTaskResultCE =
                 ResumableCode.Using(resource, body)
 
 
-
-
     [<AutoOpen>]
     module HighPriority =
         type Microsoft.FSharp.Control.Async with
+
             static member inline AwaitCancellableTaskResult([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>) = async {
                 let! ct = Async.CancellationToken
                 return! t ct |> Async.AwaitTask
@@ -704,13 +706,14 @@ module CancellableTaskResultCE =
                 fun ct -> Async.StartAsTask(computation, cancellationToken = ct)
 
 
-
-
         type CancellableTaskResultBuilder with
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-                unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'T)>
                 (t: ^TaskLike)
                 : CancellableTaskResult<_, _> =
                 // : CancellableTaskResultCode<_,_,_> =
@@ -807,7 +810,6 @@ module CancellableTaskResultCE =
                 this.Bind((task), (fun v -> this.Return v))
 
 
-
     [<AutoOpen>]
     module MediumPriority =
         open HighPriority
@@ -853,6 +855,7 @@ module CancellableTaskResultCE =
 
         // Medium priority extensions
         type CancellableTaskResultBuilderBase with
+
             member inline this.Source(t: Async<'T>) : CancellableTaskResult<'T, 'Error> =
                 fun ct ->
                     let t = t |> Async.map Ok
@@ -862,6 +865,7 @@ module CancellableTaskResultCE =
     [<AutoOpen>]
     module AsyncExtenions =
         type Microsoft.FSharp.Control.AsyncBuilder with
+
             member inline this.Bind
                 (
                     [<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>,
@@ -874,6 +878,7 @@ module CancellableTaskResultCE =
 
 
         type FsToolkit.ErrorHandling.AsyncResultCE.AsyncResultBuilder with
+
             member inline this.Source([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>) : Async<_> =
                 Async.AwaitCancellableTaskResult t
 

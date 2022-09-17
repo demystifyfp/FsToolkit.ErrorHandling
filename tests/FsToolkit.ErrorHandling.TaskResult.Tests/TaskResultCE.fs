@@ -1,7 +1,6 @@
 module TaskResultCETests
 
 
-
 open Expecto
 open SampleDomain
 open TestData
@@ -238,7 +237,10 @@ let ``TaskResultCE combine/zero/delay/run Tests`` =
 
             let! actual = taskResult {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -249,7 +251,8 @@ let ``TaskResultCE combine/zero/delay/run Tests`` =
             let data = 42
 
             let taskRes (call: unit -> Task) maybeCall : Task<Result<int, unit>> = taskResult {
-                if true then do! call ()
+                if true then
+                    do! call ()
 
                 let! (res: string) = maybeCall (): Task<Result<string, unit>>
                 return data
@@ -259,7 +262,6 @@ let ``TaskResultCE combine/zero/delay/run Tests`` =
            }
 
     ]
-
 
 
 [<Tests>]
@@ -274,8 +276,8 @@ let ``TaskResultCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -383,14 +385,7 @@ let ``TaskResultCE loop Tests`` =
 
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-                Ok "1M"
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
             let! actual = taskResult {
                 while loopCount < data.Length do
@@ -436,14 +431,7 @@ let ``TaskResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-                Ok "1M"
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
             let! actual = taskResult {
                 for i in data do

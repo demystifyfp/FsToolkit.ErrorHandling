@@ -1,7 +1,6 @@
 module JobResultCETests
 
 
-
 open Expecto
 open SampleDomain
 open TestData
@@ -179,14 +178,16 @@ let ``JobResultCE combine/zero/delay/run Tests`` =
 
             let! actual = jobResult {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
     ]
-
 
 
 [<Tests>]
@@ -201,8 +202,8 @@ let ``JobResultCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -321,12 +322,7 @@ let ``JobResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M" ]
 
             let! actual = jobResult {
                 for i in data do

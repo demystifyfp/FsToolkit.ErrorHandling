@@ -213,7 +213,6 @@ let orElseWithTests =
     ]
 
 
-
 [<Tests>]
 let ignoreTests =
     testList "JobResult.ignore tests" [
@@ -243,174 +242,110 @@ let toJob = Job.singleton
 let requireTrueTests =
     testList "JobResult.requireTrue Tests" [
         testCase "requireTrue happy path"
-        <| fun _ ->
-            toJob true
-            |> JobResult.requireTrue err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob true |> JobResult.requireTrue err |> Expect.hasJobOkValueSync ()
 
         testCase "requireTrue error path"
-        <| fun _ ->
-            toJob false
-            |> JobResult.requireTrue err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob false |> JobResult.requireTrue err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireFalseTests =
     testList "JobResult.requireFalse Tests" [
         testCase "requireFalse happy path"
-        <| fun _ ->
-            toJob false
-            |> JobResult.requireFalse err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob false |> JobResult.requireFalse err |> Expect.hasJobOkValueSync ()
 
         testCase "requireFalse error path"
-        <| fun _ ->
-            toJob true
-            |> JobResult.requireFalse err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob true |> JobResult.requireFalse err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireSomeTests =
     testList "JobResult.requireSome Tests" [
         testCase "requireSome happy path"
-        <| fun _ ->
-            toJob (Some 42)
-            |> JobResult.requireSome err
-            |> Expect.hasJobOkValueSync 42
+        <| fun _ -> toJob (Some 42) |> JobResult.requireSome err |> Expect.hasJobOkValueSync 42
 
         testCase "requireSome error path"
-        <| fun _ ->
-            toJob None
-            |> JobResult.requireSome err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob None |> JobResult.requireSome err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireNoneTests =
     testList "JobResult.requireNone Tests" [
         testCase "requireNone happy path"
-        <| fun _ ->
-            toJob None
-            |> JobResult.requireNone err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob None |> JobResult.requireNone err |> Expect.hasJobOkValueSync ()
 
         testCase "requireNone error path"
-        <| fun _ ->
-            toJob (Some 42)
-            |> JobResult.requireNone err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob (Some 42) |> JobResult.requireNone err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireEqualToTests =
     testList "JobResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
-        <| fun _ ->
-            toJob 42
-            |> JobResult.requireEqualTo 42 err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob 42 |> JobResult.requireEqualTo 42 err |> Expect.hasJobOkValueSync ()
 
         testCase "requireEqualTo error path"
-        <| fun _ ->
-            toJob 43
-            |> JobResult.requireEqualTo 42 err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob 43 |> JobResult.requireEqualTo 42 err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireEqualTests =
     testList "JobResult.requireEqual Tests" [
         testCase "requireEqual happy path"
-        <| fun _ ->
-            JobResult.requireEqual 42 (toJob 42) err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> JobResult.requireEqual 42 (toJob 42) err |> Expect.hasJobOkValueSync ()
 
         testCase "requireEqual error path"
-        <| fun _ ->
-            JobResult.requireEqual 42 (toJob 43) err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> JobResult.requireEqual 42 (toJob 43) err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireEmptyTests =
     testList "JobResult.requireEmpty Tests" [
         testCase "requireEmpty happy path"
-        <| fun _ ->
-            toJob []
-            |> JobResult.requireEmpty err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob [] |> JobResult.requireEmpty err |> Expect.hasJobOkValueSync ()
 
         testCase "requireEmpty error path"
-        <| fun _ ->
-            toJob [ 42 ]
-            |> JobResult.requireEmpty err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob [ 42 ] |> JobResult.requireEmpty err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireNotEmptyTests =
     testList "JobResult.requireNotEmpty Tests" [
         testCase "requireNotEmpty happy path"
-        <| fun _ ->
-            toJob [ 42 ]
-            |> JobResult.requireNotEmpty err
-            |> Expect.hasJobOkValueSync ()
+        <| fun _ -> toJob [ 42 ] |> JobResult.requireNotEmpty err |> Expect.hasJobOkValueSync ()
 
         testCase "requireNotEmpty error path"
-        <| fun _ ->
-            toJob []
-            |> JobResult.requireNotEmpty err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob [] |> JobResult.requireNotEmpty err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let requireHeadTests =
     testList "JobResult.requireHead Tests" [
         testCase "requireHead happy path"
-        <| fun _ ->
-            toJob [ 42 ]
-            |> JobResult.requireHead err
-            |> Expect.hasJobOkValueSync 42
+        <| fun _ -> toJob [ 42 ] |> JobResult.requireHead err |> Expect.hasJobOkValueSync 42
 
         testCase "requireHead error path"
-        <| fun _ ->
-            toJob []
-            |> JobResult.requireHead err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob [] |> JobResult.requireHead err |> Expect.hasJobErrorValueSync err
     ]
 
 [<Tests>]
 let setErrorTests =
     testList "JobResult.setError Tests" [
         testCase "setError replaces a any error value with a custom error value"
-        <| fun _ ->
-            toJob (Error "foo")
-            |> JobResult.setError err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob (Error "foo") |> JobResult.setError err |> Expect.hasJobErrorValueSync err
 
         testCase "setError does not change an ok value"
-        <| fun _ ->
-            toJob (Ok 42)
-            |> JobResult.setError err
-            |> Expect.hasJobOkValueSync 42
+        <| fun _ -> toJob (Ok 42) |> JobResult.setError err |> Expect.hasJobOkValueSync 42
     ]
 
 [<Tests>]
 let withErrorTests =
     testList "JobResult.withError Tests" [
         testCase "withError replaces a any error value with a custom error value"
-        <| fun _ ->
-            toJob (Error())
-            |> JobResult.withError err
-            |> Expect.hasJobErrorValueSync err
+        <| fun _ -> toJob (Error()) |> JobResult.withError err |> Expect.hasJobErrorValueSync err
 
         testCase "withError does not change an ok value"
-        <| fun _ ->
-            toJob (Ok 42)
-            |> JobResult.withError err
-            |> Expect.hasJobOkValueSync 42
+        <| fun _ -> toJob (Ok 42) |> JobResult.withError err |> Expect.hasJobOkValueSync 42
     ]
 
 [<Tests>]

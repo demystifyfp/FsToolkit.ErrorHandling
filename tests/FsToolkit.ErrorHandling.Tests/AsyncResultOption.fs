@@ -38,7 +38,6 @@ let userTweet (p: Post) (u: User) = {
 }
 
 
-
 let bindTests =
     testList "AsyncResultOption.bind tests" [
         testCaseAsync "bind with Async(Ok Some(x)) Async(Ok Some(x))"
@@ -93,22 +92,19 @@ let map2Tests =
         <| (let postARO = getPostById samplePostId
             let userARO = getUserById (UserId(Guid.NewGuid()))
 
-            AsyncResultOption.map2 userTweet postARO userARO
-            |> Expect.hasAsyncOkValue None)
+            AsyncResultOption.map2 userTweet postARO userARO |> Expect.hasAsyncOkValue None)
 
         testCaseAsync "map2 with Async(Ok Some(x)) Async(Ok None)"
         <| (let postARO = getPostById (PostId(Guid.NewGuid()))
             let userARO = getUserById sampleUserId
 
-            AsyncResultOption.map2 userTweet postARO userARO
-            |> Expect.hasAsyncOkValue None)
+            AsyncResultOption.map2 userTweet postARO userARO |> Expect.hasAsyncOkValue None)
 
         testCaseAsync "map2 with Async(Ok None) Async(Ok None)"
         <| (let postARO = getPostById (PostId(Guid.NewGuid()))
             let userARO = getUserById (UserId(Guid.NewGuid()))
 
-            AsyncResultOption.map2 userTweet postARO userARO
-            |> Expect.hasAsyncOkValue None)
+            AsyncResultOption.map2 userTweet postARO userARO |> Expect.hasAsyncOkValue None)
 
         testCaseAsync "map2 with Async(Error x) Async(Ok None)"
         <| (let postARO = getPostById (PostId Guid.Empty)
@@ -210,9 +206,7 @@ let operatorTests =
 
         testCaseAsync "bind & map operator"
         <| (getPostById samplePostId
-            >>= (fun post ->
-                (fun user -> userTweet post user)
-                <!> getUserById post.UserId)
+            >>= (fun post -> (fun user -> userTweet post user) <!> getUserById post.UserId)
             |> Expect.hasAsyncOkValue (
                 Some
                     {

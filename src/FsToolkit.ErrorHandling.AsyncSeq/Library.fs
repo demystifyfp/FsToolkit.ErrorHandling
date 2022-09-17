@@ -9,6 +9,7 @@ module AsyncSeqCE =
     type private AsyncSeq<'t> = FSharp.Control.AsyncSeq<'t>
 
     type AsyncResultBuilder with
+
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> Async<option<Result<'T, 'TError>>>,

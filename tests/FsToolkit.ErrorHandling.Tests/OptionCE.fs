@@ -61,7 +61,10 @@ let ceTests =
 
             let actual = option {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -73,8 +76,8 @@ let ceTests =
             let actual = option {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (Some data) "Try with failed"
@@ -433,9 +436,5 @@ let ``OptionCE applicative tests`` =
     ]
 
 
-
 let allTests =
-    testList "Option CE tests" [
-        ceTests
-        ``OptionCE applicative tests``
-    ]
+    testList "Option CE tests" [ ceTests; ``OptionCE applicative tests`` ]

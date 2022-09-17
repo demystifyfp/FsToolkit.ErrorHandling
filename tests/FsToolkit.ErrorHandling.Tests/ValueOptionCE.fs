@@ -1,7 +1,6 @@
 module ValueOptionCETests
 
 
-
 open System
 #if FABLE_COMPILER
 open Fable.Mocha
@@ -17,7 +16,6 @@ let makeDisposable () =
     { new System.IDisposable with
         member this.Dispose() = ()
     }
-
 
 
 #if !FABLE_COMPILER
@@ -66,7 +64,10 @@ let ceTests =
 
             let actual = voption {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -78,8 +79,8 @@ let ceTests =
             let actual = voption {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (ValueSome data) "Try with failed"
@@ -438,12 +439,8 @@ let ``ValueOptionCE applicative tests`` =
     ]
 
 
-
 let allTests =
-    testList "ValueOption CE tests" [
-        ceTests
-        ``ValueOptionCE applicative tests``
-    ]
+    testList "ValueOption CE tests" [ ceTests; ``ValueOptionCE applicative tests`` ]
 #else
 let allTests = testList "ValueOption CE tests" []
 #endif

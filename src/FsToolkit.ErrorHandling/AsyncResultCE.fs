@@ -62,15 +62,7 @@ module AsyncResultCE =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
-                whileAsync <-
-                    this.Bind(
-                        computation,
-                        (fun () ->
-                            if guard () then
-                                whileAsync
-                            else
-                                this.Zero())
-                    )
+                whileAsync <- this.Bind(computation, (fun () -> if guard () then whileAsync else this.Zero()))
 
                 whileAsync
             else
@@ -122,6 +114,7 @@ module AsyncResultCE =
 module AsyncResultCEExtensions =
 
     type AsyncResultBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

@@ -65,11 +65,7 @@ let map3Tests =
         testCase "map3 with (Error, Error, Error)"
         <| fun _ ->
             Validation.map3 createPostRequest (lift invalidLatR) (lift invalidLngR) (lift emptyInvalidTweetR)
-            |> Expect.hasErrorValue [
-                invalidLatMsg
-                invalidLngMsg
-                emptyTweetErrMsg
-            ]
+            |> Expect.hasErrorValue [ invalidLatMsg; invalidLngMsg; emptyTweetErrMsg ]
     ]
 
 
@@ -102,9 +98,7 @@ let operatorsTests =
 
         testCase "map^ & apply^ operators"
         <| fun _ ->
-            createPostRequest <!^> validLatR
-            <*^> validLngR
-            <*^> validTweetR
+            createPostRequest <!^> validLatR <*^> validLngR <*^> validTweetR
             |> Expect.hasOkValue validCreatePostRequest
     ]
 
@@ -135,10 +129,7 @@ let zipTests =
 let orElseTests =
     testList "Validation.orElseWith Tests" [
         testCase "Ok Ok takes first Ok"
-        <| fun _ ->
-            (Ok "First")
-            |> Validation.orElse (Ok "Second")
-            |> Expect.hasOkValue "First"
+        <| fun _ -> (Ok "First") |> Validation.orElse (Ok "Second") |> Expect.hasOkValue "First"
         testCase "Ok Error takes first Ok"
         <| fun _ ->
             (Ok "First")

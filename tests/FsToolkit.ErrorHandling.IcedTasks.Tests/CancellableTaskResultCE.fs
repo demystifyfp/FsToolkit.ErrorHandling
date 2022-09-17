@@ -487,7 +487,10 @@ module CancellableTaskResultCE =
 
                     let! actual = cancellableTaskResult {
                         let result = data
-                        if true then ()
+
+                        if true then
+                            ()
+
                         return result
                     }
 
@@ -504,8 +507,8 @@ module CancellableTaskResultCE =
 
                         try
                             ()
-                        with
-                        | _ -> ()
+                        with _ ->
+                            ()
 
                         return data
                     }
@@ -598,14 +601,7 @@ module CancellableTaskResultCE =
 
                     let expected = Error "error"
 
-                    let data = [
-                        Ok "42"
-                        Ok "1024"
-                        expected
-                        Ok "1M"
-                        Ok "1M"
-                        Ok "1M"
-                    ]
+                    let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
                     let ctr = cancellableTaskResult {
                         while loopCount < data.Length do
@@ -661,14 +657,7 @@ module CancellableTaskResultCE =
                     let mutable loopCount = 0
                     let expected = Error "error"
 
-                    let data = [
-                        Ok "42"
-                        Ok "1024"
-                        expected
-                        Ok "1M"
-                        Ok "1M"
-                        Ok "1M"
-                    ]
+                    let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
                     let ctr = cancellableTaskResult {
                         for i in data do

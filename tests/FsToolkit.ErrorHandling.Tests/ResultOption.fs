@@ -14,7 +14,6 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.ResultOption
 
 
-
 let map2Tests =
     testList "ResultOption.map2 Tests" [
 
@@ -29,9 +28,7 @@ let map2Tests =
             |> Expect.hasOkValue None
 
         testCase "map2 with Ok(None) Ok(None)"
-        <| fun _ ->
-            ResultOption.map2 location (Ok None) (Ok None)
-            |> Expect.hasOkValue None
+        <| fun _ -> ResultOption.map2 location (Ok None) (Ok None) |> Expect.hasOkValue None
 
         testCase "map2 with Error(Some x) Error(Some x)"
         <| fun _ ->
@@ -75,7 +72,6 @@ let map3Tests =
     ]
 
 
-
 let applyTests =
     testList "ResultOption.apply Tests" [
         testCase "apply with Ok(Some x)"
@@ -101,10 +97,7 @@ let mapTests =
             |> Expect.hasOkValue (Some 267)
 
         testCase "map with Ok(None)"
-        <| fun _ ->
-            Ok None
-            |> ResultOption.map remainingCharacters
-            |> Expect.hasOkValue None
+        <| fun _ -> Ok None |> ResultOption.map remainingCharacters |> Expect.hasOkValue None
     ]
 
 
@@ -121,16 +114,10 @@ let bindTests =
 let ignoreTests =
     testList "ResultOption.ignore Tests" [
         testCase "ignore with Ok(Some x)"
-        <| fun _ ->
-            Ok(Some validTweet)
-            |> ResultOption.ignore
-            |> Expect.hasOkValue (Some())
+        <| fun _ -> Ok(Some validTweet) |> ResultOption.ignore |> Expect.hasOkValue (Some())
 
         testCase "ignore with Ok(None)"
-        <| fun _ ->
-            Ok None
-            |> ResultOption.ignore
-            |> Expect.hasOkValue None
+        <| fun _ -> Ok None |> ResultOption.ignore |> Expect.hasOkValue None
 
         testCase "can call ignore without type parameters"
         <| fun _ -> ignore ResultOption.ignore
@@ -172,16 +159,11 @@ let resultOptionOperatorsTests =
     testList "ResultOption Operators Tests" [
         testCase "map & apply operators"
         <| fun _ ->
-            createPostRequest <!> Ok(Some validLat)
-            <*> Ok(Some validLng)
-            <*^> Ok validTweet
+            createPostRequest <!> Ok(Some validLat) <*> Ok(Some validLng) <*^> Ok validTweet
             |> Expect.hasOkValue (Some validCreatePostRequest)
 
         testCase "bind operator"
-        <| fun _ ->
-            Ok(Some validTweet2)
-            >>= firstURLInTweet
-            |> Expect.hasOkValue (Some validURL)
+        <| fun _ -> Ok(Some validTweet2) >>= firstURLInTweet |> Expect.hasOkValue (Some validURL)
     ]
 
 let allTests =

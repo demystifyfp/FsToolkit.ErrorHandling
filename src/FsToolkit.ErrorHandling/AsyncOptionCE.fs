@@ -86,6 +86,7 @@ module AsyncOptionCE =
 module AsyncOptionCEExtensions =
 
     type AsyncOptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

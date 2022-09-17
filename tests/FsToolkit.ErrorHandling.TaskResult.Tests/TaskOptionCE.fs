@@ -196,7 +196,10 @@ let ceTests =
 
             let! actual = taskOption {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -207,7 +210,8 @@ let ceTests =
             let data = 42
 
             let taskRes (call: unit -> Task) maybeCall : Task<Option<int>> = taskOption {
-                if true then do! call ()
+                if true then
+                    do! call ()
 
                 let! (res: string) = maybeCall (): Task<Option<string>>
                 return data
@@ -222,8 +226,8 @@ let ceTests =
             let! actual = taskOption {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (Some data) "Try with failed"
@@ -309,14 +313,7 @@ let ceTests =
 
             let expected = None
 
-            let data = [
-                Some "42"
-                Some "1024"
-                expected
-                Some "1M"
-                Some "1M"
-                Some "1M"
-            ]
+            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
 
             let! actual = taskOption {
                 while loopCount < data.Length do
@@ -368,14 +365,7 @@ let ceTests =
 
             let expected = None
 
-            let data = [
-                Some "42"
-                Some "1024"
-                expected
-                Some "1M"
-                Some "1M"
-                Some "1M"
-            ]
+            let data = [ Some "42"; Some "1024"; expected; Some "1M"; Some "1M"; Some "1M" ]
 
             let! actual = taskOption {
                 for i in data do

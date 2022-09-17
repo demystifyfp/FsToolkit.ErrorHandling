@@ -8,7 +8,6 @@ let lat2 = 14.067439
 let lng = 80.237617
 
 
-
 let validLatR = Latitude.TryCreate lat
 let validLatR2 = Latitude.TryCreate lat2
 let validLat = okOrFail validLatR

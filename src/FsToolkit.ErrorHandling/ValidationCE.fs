@@ -40,8 +40,8 @@ module ValidationCE =
             ) : Validation<'ok, 'error> =
             try
                 this.Run generator
-            with
-            | e -> handler e
+            with e ->
+                handler e
 
         member inline this.TryFinally
             (
@@ -77,11 +77,7 @@ module ValidationCE =
                     fun () ->
                         this.Bind(
                             this.Run generator,
-                            (fun () ->
-                                if guard () then
-                                    this.Run whileBuilder
-                                else
-                                    this.Zero())
+                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
                         )
 
                 this.Run whileBuilder
@@ -129,6 +125,7 @@ module ValidationCEExtensions =
     // Having members as extensions gives them lower priority in
     // overload resolution and allows skipping more type annotations.
     type ValidationBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

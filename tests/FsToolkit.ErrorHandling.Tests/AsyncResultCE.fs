@@ -24,7 +24,6 @@ let ``AsyncResultCE return Tests`` =
     ]
 
 
-
 let ``AsyncResultCE return! Tests`` =
     testList "AsyncResultCE return! Tests" [
         testCaseAsync "Return Ok Result"
@@ -85,7 +84,6 @@ let ``AsyncResultCE return! Tests`` =
 
 
     ]
-
 
 
 let ``AsyncResultCE bind Tests`` =
@@ -179,7 +177,6 @@ let ``AsyncResultCE bind Tests`` =
     ]
 
 
-
 let ``AsyncResultCE combine/zero/delay/run Tests`` =
     testList "AsyncResultCE combine/zero/delay/run Tests" [
         testCaseAsync "Zero/Combine/Delay/Run"
@@ -188,7 +185,10 @@ let ``AsyncResultCE combine/zero/delay/run Tests`` =
 
             let! actual = asyncResult {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -207,8 +207,8 @@ let ``AsyncResultCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -282,7 +282,6 @@ let ``AsyncResultCE using Tests`` =
     ]
 
 
-
 let ``AsyncResultCE loop Tests`` =
     testList "AsyncResultCE loop Tests" [
         testCaseAsync "while"
@@ -330,12 +329,7 @@ let ``AsyncResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M" ]
 
             let! actual = asyncResult {
                 for i in data do
@@ -506,7 +500,6 @@ let ``AsyncResultCE applicative tests`` =
 
 
 let ``AsyncResultCE Stack Trace Tests`` =
-
 
 
     let failureAsync = async {

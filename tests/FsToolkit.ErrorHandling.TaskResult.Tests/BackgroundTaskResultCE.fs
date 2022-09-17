@@ -1,7 +1,6 @@
 module BackgroundTaskResultCETests
 
 
-
 open Expecto
 open SampleDomain
 open TestData
@@ -238,14 +237,16 @@ let ``BackgroundTaskResultCE combine/zero/delay/run Tests`` =
 
             let! actual = backgroundTaskResult {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
            }
     ]
-
 
 
 [<Tests>]
@@ -260,8 +261,8 @@ let ``BackgroundTaskResultCE try Tests`` =
 
                 try
                     ()
-                with
-                | _ -> ()
+                with _ ->
+                    ()
 
                 return data
             }
@@ -369,14 +370,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
 
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-                Ok "1M"
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
             let! actual = backgroundTaskResult {
                 while loopCount < data.Length do
@@ -422,14 +416,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
             let mutable loopCount = 0
             let expected = Error "error"
 
-            let data = [
-                Ok "42"
-                Ok "1024"
-                expected
-                Ok "1M"
-                Ok "1M"
-                Ok "1M"
-            ]
+            let data = [ Ok "42"; Ok "1024"; expected; Ok "1M"; Ok "1M"; Ok "1M" ]
 
             let! actual = backgroundTaskResult {
                 for i in data do

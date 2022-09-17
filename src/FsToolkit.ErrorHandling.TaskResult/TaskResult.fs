@@ -13,17 +13,13 @@ module TaskResult =
     let inline mapError ([<InlineIfLambda>] f) tr = Task.map (Result.mapError f) tr
 
     let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
-        tr
-        |> Task.bind (Result.either f (Error >> Task.singleton))
+        tr |> Task.bind (Result.either f (Error >> Task.singleton))
 
     let inline foldResult ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) tr =
         Task.map (Result.fold onSuccess onError) tr
 
     let inline ofAsync aAsync =
-        aAsync
-        |> Async.Catch
-        |> Async.StartAsTask
-        |> Task.map Result.ofChoice
+        aAsync |> Async.Catch |> Async.StartAsTask |> Task.map Result.ofChoice
 
     let inline retn x = Ok x |> Task.singleton
 
@@ -59,8 +55,7 @@ module TaskResult =
     /// The result if the result is Ok, else returns <paramref name="ifError"/>.
     /// </returns>
     let inline orElse (ifError: Task<Result<'ok, 'error2>>) (result: Task<Result<'ok, 'error>>) =
-        result
-        |> Task.bind (Result.either ok (fun _ -> ifError))
+        result |> Task.bind (Result.either ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -108,13 +103,11 @@ module TaskResult =
 
     /// Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not.
     let inline requireEqual x1 x2 error =
-        x2
-        |> Task.map (fun x2' -> Result.requireEqual x1 x2' error)
+        x2 |> Task.map (fun x2' -> Result.requireEqual x1 x2' error)
 
     /// Returns Ok if the two values are equal, or the specified error if not.
     let inline requireEqualTo other error this =
-        this
-        |> Task.map (Result.requireEqualTo other error)
+        this |> Task.map (Result.requireEqualTo other error)
 
     /// Returns Ok if the task-wrapped sequence is empty, or the specified error if not.
     let inline requireEmpty error xs =
@@ -142,8 +135,7 @@ module TaskResult =
     /// Extracts the contained value of an task-wrapped result if Ok, otherwise
     /// uses ifError.
     let inline defaultValue ifError taskResult =
-        taskResult
-        |> Task.map (Result.defaultValue ifError)
+        taskResult |> Task.map (Result.defaultValue ifError)
 
     /// Extracts the contained value of an task-wrapped result if Error, otherwise
     /// uses ifOk.
@@ -153,8 +145,7 @@ module TaskResult =
     /// Extracts the contained value of an task-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
     let inline defaultWith ifErrorThunk taskResult =
-        taskResult
-        |> Task.map (Result.defaultWith ifErrorThunk)
+        taskResult |> Task.map (Result.defaultWith ifErrorThunk)
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
@@ -177,18 +168,15 @@ module TaskResult =
     /// If the task-wrapped result is Error and the predicate returns true,
     /// executes the function on the Error value. Passes through the input value.
     let inline teeErrorIf predicate ([<InlineIfLambda>] f) taskResult =
-        taskResult
-        |> Task.map (Result.teeErrorIf predicate f)
+        taskResult |> Task.map (Result.teeErrorIf predicate f)
 
     /// Takes two results and returns a tuple of the pair
     let inline zip x1 x2 =
-        Task.zip x1 x2
-        |> Task.map (fun (r1, r2) -> Result.zip r1 r2)
+        Task.zip x1 x2 |> Task.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
     let inline zipError x1 x2 =
-        Task.zip x1 x2
-        |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
+        Task.zip x1 x2 |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
     let inline catch ([<InlineIfLambda>] f) x =

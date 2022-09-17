@@ -39,8 +39,8 @@ module ResultCE =
             ) : Result<'T, 'TError> =
             try
                 this.Run generator
-            with
-            | e -> handler e
+            with e ->
+                handler e
 
         member inline this.TryFinally
             (
@@ -76,11 +76,7 @@ module ResultCE =
                     fun () ->
                         this.Bind(
                             this.Run generator,
-                            (fun () ->
-                                if guard () then
-                                    this.Run whileBuilder
-                                else
-                                    this.Zero())
+                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
                         )
 
                 this.Run whileBuilder
@@ -126,6 +122,7 @@ module ResultCE =
 module ResultCEExtensions =
 
     type ResultBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
@@ -137,6 +134,7 @@ module ResultCEExtensions =
 [<AutoOpen>]
 module ResultCEChoiceExtensions =
     type ResultBuilder with
+
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>

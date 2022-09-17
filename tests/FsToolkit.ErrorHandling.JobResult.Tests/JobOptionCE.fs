@@ -155,7 +155,10 @@ let ceTests =
 
             let! actual = jobOption {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -168,8 +171,8 @@ let ceTests =
             let! actual = jobOption {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (Some data) "Try with failed"

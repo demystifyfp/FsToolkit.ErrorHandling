@@ -12,6 +12,7 @@ open FsToolkit.ErrorHandling.CE.Result
 type Tweet =
     private
     | Tweet of string
+
     member this.Value =
         let (Tweet tweet) = this
         tweet
@@ -26,6 +27,7 @@ type Tweet =
 type Latitude =
     private
     | Latitude of double
+
     member this.Value =
         let (Latitude lat) = this
         lat
@@ -34,12 +36,12 @@ type Latitude =
         if lat > -180. && lat < 180. then
             Ok(Latitude lat)
         else
-            sprintf "%A is a invalid latitude value" lat
-            |> Error
+            sprintf "%A is a invalid latitude value" lat |> Error
 
 type Longitude =
     private
     | Longitude of double
+
     member this.Value =
         let (Longitude lng) = this
         lng
@@ -48,8 +50,7 @@ type Longitude =
         if lng > -90. && lng < 90. then
             Ok(Longitude lng)
         else
-            sprintf "%A is a invalid longitude value" lng
-            |> Error
+            sprintf "%A is a invalid longitude value" lng |> Error
 
 type Location = {
     Latitude: Latitude
@@ -74,11 +75,9 @@ type CreatePostRequestDto = {
 }
 
 let validateLocation (dto: LocationDto) =
-    location
-    <!^> Result.tryCreate "latitude" dto.Latitude
+    location <!^> Result.tryCreate "latitude" dto.Latitude
     <*^> Result.tryCreate "longitude" dto.Longitude
 
 let validateCreatePostRequest (dto: CreatePostRequestDto) =
-    createPostRequest
-    <!> Option.traverseResult validateLocation dto.Location
+    createPostRequest <!> Option.traverseResult validateLocation dto.Location
     <*^> Result.tryCreate "tweet" dto.Tweet

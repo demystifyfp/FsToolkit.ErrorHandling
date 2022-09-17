@@ -138,7 +138,10 @@ let ceTests =
 
             let! actual = asyncOption {
                 let result = data
-                if true then ()
+
+                if true then
+                    ()
+
                 return result
             }
 
@@ -151,8 +154,8 @@ let ceTests =
             let! actual = asyncOption {
                 try
                     return data
-                with
-                | e -> return raise e
+                with e ->
+                    return raise e
             }
 
             Expect.equal actual (Some data) "Try with failed"

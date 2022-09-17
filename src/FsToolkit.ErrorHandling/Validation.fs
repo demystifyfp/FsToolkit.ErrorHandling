@@ -56,7 +56,6 @@ module Validation =
         result |> Result.either ok (fun _ -> ifError)
 
 
-
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
     /// </summary>

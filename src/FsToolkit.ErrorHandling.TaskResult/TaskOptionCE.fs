@@ -14,15 +14,13 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| option.Return value
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| option.Return value
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| option.Zero()
+            FSharp.Control.Tasks.Affine.Unsafe.uply.Return <| option.Zero()
 
         member inline _.Bind
             (
@@ -139,15 +137,13 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| option.Return value
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| option.Return value
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| option.Zero()
+            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return <| option.Zero()
 
         member inline _.Bind
             (
@@ -268,13 +264,13 @@ module TaskOptionCE =
     let backgroundTaskOption = BackgroundTaskOptionBuilder()
 
 
-
 [<AutoOpen>]
 // Having members as extensions gives them lower priority in
 // overload resolution and allows skipping more type annotations.
 module TaskOptionCEExtensionsLower =
 
     type TaskOptionBuilder with
+
         member inline this.Source(t: ^TaskLike) : Task<'T option> =
             FSharp.Control.Tasks.Affine.task {
                 let! r = t
@@ -282,6 +278,7 @@ module TaskOptionCEExtensionsLower =
             }
 
     type BackgroundTaskOptionBuilder with
+
         member inline this.Source(t: ^TaskLike) : Task<'T option> =
             FSharp.Control.Tasks.NonAffine.task {
                 let! r = t
@@ -294,6 +291,7 @@ module TaskOptionCEExtensionsLower =
 module TaskOptionCEExtensions =
 
     type TaskOptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
@@ -351,6 +349,7 @@ module TaskOptionCEExtensions =
 
 
     type BackgroundTaskOptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
@@ -405,7 +404,6 @@ module TaskOptionCEExtensions =
                 let! o = a |> Async.StartAsTask
                 return Some o
             }
-
 
 
 #else
@@ -589,9 +587,7 @@ type TaskOptionBuilderBase() =
                 //-- RESUMABLE CODE START
                 let mutable __stack_go = true
 
-                while __stack_go
-                      && not sm.Data.IsResultNone
-                      && condition () do
+                while __stack_go && not sm.Data.IsResultNone && condition () do
                     // printfn "While -> %A" sm.Data.Result
                     // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
                     // the code will branch directly into the expanded 'body', branching directly into the while loop
@@ -734,7 +730,8 @@ type TaskOptionBuilder() =
                         let step = info.ResumptionFunc.Invoke(&sm)
 
                         // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
-                        if sm.Data.IsTaskCompleted then ()
+                        if sm.Data.IsTaskCompleted then
+                            ()
 
                         if step then
                             sm.Data.SetResult()
@@ -745,8 +742,8 @@ type TaskOptionBuilder() =
                             assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
-                    with
-                    | exn -> savedExn <- exn
+                    with exn ->
+                        savedExn <- exn
                     // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                     match savedExn with
                     | null -> ()
@@ -774,8 +771,8 @@ type TaskOptionBuilder() =
 
                         if __stack_code_fin && not sm.Data.IsTaskCompleted then
                             sm.Data.SetResult()
-                    with
-                    | exn -> __stack_exn <- exn
+                    with exn ->
+                        __stack_exn <- exn
                     // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                     match __stack_exn with
                     | null -> ()
@@ -819,8 +816,8 @@ type BackgroundTaskOptionBuilder() =
 
                         if __stack_code_fin && not sm.Data.IsTaskCompleted then
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
-                    with
-                    | exn -> sm.Data.MethodBuilder.SetException exn
+                    with exn ->
+                        sm.Data.MethodBuilder.SetException exn
                 //-- RESUMABLE CODE END
                 ))
                 (SetStateMachineMethodImpl<_>(fun sm state -> sm.Data.MethodBuilder.SetStateMachine(state)))
@@ -867,9 +864,11 @@ module TaskOptionCEExtensionsLowPriority =
     type TaskOptionBuilderBase with
 
         [<NoEagerConstraintApplication>]
-        static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall when ^TaskLike: (member GetAwaiter:
-            unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1 option)>
+        static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1 option)>
             (
                 sm: byref<_>,
                 task: ^TaskLike,
@@ -897,9 +896,11 @@ module TaskOptionCEExtensionsLowPriority =
                 false
 
         [<NoEagerConstraintApplication>]
-        member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall when ^TaskLike: (member GetAwaiter:
-            unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> 'TResult1 option)>
+        member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1 option)>
             (
                 task: ^TaskLike,
                 continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>)
@@ -940,16 +941,22 @@ module TaskOptionCEExtensionsLowPriority =
             )
 
         [<NoEagerConstraintApplication>]
-        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T option)>
+        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T option)>
             (task: ^TaskLike)
             : TaskOptionCode<'T, 'T> =
 
             this.Bind(task, (fun v -> this.Return v))
 
         [<NoEagerConstraintApplication>]
-        member inline this.Source< ^TaskLike, ^Awaiter, 'T when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter) and ^Awaiter :> ICriticalNotifyCompletion and ^Awaiter: (member get_IsCompleted:
-            unit -> bool) and ^Awaiter: (member GetResult: unit -> 'T)>
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
             : TaskOption<'T> =
 
@@ -969,6 +976,7 @@ module TaskOptionCEExtensionsLowPriority =
 module TaskOptionCEExtensionsHighPriority =
     // High priority extensions
     type TaskOptionBuilderBase with
+
         static member BindDynamic
             (
                 sm: byref<_>,
@@ -1048,6 +1056,7 @@ module TaskOptionCEExtensionsMediumPriority =
 
     // Medium priority extensions
     type TaskOptionBuilderBase with
+
         member inline this.Source(t: Task<'T>) : TaskOption<'T> = t |> Task.map Some
 
         member inline this.Source(t: Task) : TaskOption<unit> = task {

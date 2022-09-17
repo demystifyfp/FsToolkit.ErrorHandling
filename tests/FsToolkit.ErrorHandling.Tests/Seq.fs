@@ -13,7 +13,6 @@ open System
 open FsToolkit.ErrorHandling
 
 
-
 let sequenceResultMTests =
     testList "Seq.sequenceResultM Tests" [
         testCase "traverseResult with an empty sequence"
@@ -22,8 +21,7 @@ let sequenceResultMTests =
             let expected = Ok []
 
             let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-                |> Result.map Seq.toList
+                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets) |> Result.map Seq.toList
 
             Expect.equal actual expected "Should have an empty list of valid tweets"
 
@@ -33,8 +31,7 @@ let sequenceResultMTests =
             let expected = List.map tweet tweets |> Ok
 
             let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-                |> Result.map Seq.toList
+                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets) |> Result.map Seq.toList
 
             Expect.equal actual expected "Should have a list of valid tweets"
 

@@ -45,8 +45,8 @@ module ValueOptionCE =
         member inline this.TryWith([<InlineIfLambda>] m, [<InlineIfLambda>] handler) =
             try
                 this.Run m
-            with
-            | e -> handler e
+            with e ->
+                handler e
 
         member inline this.TryFinally([<InlineIfLambda>] m, [<InlineIfLambda>] compensation) =
             try
@@ -74,11 +74,7 @@ module ValueOptionCE =
                     fun () ->
                         this.Bind(
                             this.Run generator,
-                            (fun () ->
-                                if guard () then
-                                    this.Run whileBuilder
-                                else
-                                    this.Zero())
+                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
                         )
 
                 this.Run whileBuilder
@@ -116,6 +112,7 @@ module ValueOptionCE =
 [<AutoOpen>]
 module ValueOptionExtensionsLower =
     type ValueOptionBuilder with
+
         member inline _.Source(nullableObj: 'a when 'a: null) = nullableObj |> ValueOption.ofObj
         member inline _.Source(m: string) = m |> ValueOption.ofObj
 
@@ -135,6 +132,7 @@ module ValueOptionExtensions =
     open System
 
     type ValueOptionBuilder with
+
         /// <summary>
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>

@@ -17,22 +17,13 @@ module JobResult =
         Job.map (Result.fold onSuccess onError) jr
 
     let inline ofAsync aAsync =
-        aAsync
-        |> Job.fromAsync
-        |> Job.catch
-        |> Job.map Result.ofChoice
+        aAsync |> Job.fromAsync |> Job.catch |> Job.map Result.ofChoice
 
     let inline fromTask aTask =
-        aTask
-        |> Job.fromTask
-        |> Job.catch
-        |> Job.map Result.ofChoice
+        aTask |> Job.fromTask |> Job.catch |> Job.map Result.ofChoice
 
     let inline fromUnitTask aTask =
-        aTask
-        |> Job.fromUnitTask
-        |> Job.catch
-        |> Job.map Result.ofChoice
+        aTask |> Job.fromUnitTask |> Job.catch |> Job.map Result.ofChoice
 
     let inline retn x = Ok x |> Job.result
 
@@ -68,8 +59,7 @@ module JobResult =
     /// The result if the result is Ok, else returns <paramref name="ifError"/>.
     /// </returns>
     let inline orElse (ifError: Job<Result<'ok, 'error2>>) (result: Job<Result<'ok, 'error>>) =
-        result
-        |> Job.bind (Result.either ok (fun _ -> ifError))
+        result |> Job.bind (Result.either ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -117,13 +107,11 @@ module JobResult =
 
     /// Returns Ok if the job-wrapped value and the provided value are equal, or the specified error if not.
     let inline requireEqual x1 x2 error =
-        x2
-        |> Job.map (fun x2' -> Result.requireEqual x1 x2' error)
+        x2 |> Job.map (fun x2' -> Result.requireEqual x1 x2' error)
 
     /// Returns Ok if the two values are equal, or the specified error if not.
     let inline requireEqualTo other error this =
-        this
-        |> Job.map (Result.requireEqualTo other error)
+        this |> Job.map (Result.requireEqualTo other error)
 
     /// Returns Ok if the job-wrapped sequence is empty, or the specified error if not.
     let inline requireEmpty error xs =
@@ -161,8 +149,7 @@ module JobResult =
     /// Extracts the contained value of an job-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
     let inline defaultWith ifErrorThunk jobResult =
-        jobResult
-        |> Job.map (Result.defaultWith ifErrorThunk)
+        jobResult |> Job.map (Result.defaultWith ifErrorThunk)
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
@@ -185,18 +172,15 @@ module JobResult =
     /// If the job-wrapped result is Error and the predicate returns true,
     /// executes the function on the Error value. Passes through the input value.
     let inline teeErrorIf ([<InlineIfLambda>] predicate) ([<InlineIfLambda>] f) jobResult =
-        jobResult
-        |> Job.map (Result.teeErrorIf predicate f)
+        jobResult |> Job.map (Result.teeErrorIf predicate f)
 
     /// Takes two results and returns a tuple of the pair
     let inline zip j1 j2 =
-        Job.zip j1 j2
-        |> Job.map (fun (r1, r2) -> Result.zip r1 r2)
+        Job.zip j1 j2 |> Job.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
     let inline zipError j1 j2 =
-        Job.zip j1 j2
-        |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
+        Job.zip j1 j2 |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
     let inline catch f x =

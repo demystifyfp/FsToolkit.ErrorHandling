@@ -26,7 +26,6 @@ let getFollowersSome = getFollowersSome >> Async.StartAsTask
 let allowedToPostOptional = allowedToPostOptional >> Async.StartAsTask
 
 
-
 let mapTests =
     testList "TaskOption.map Tests" [
         testCase "map with Task(Some x)"
@@ -86,9 +85,7 @@ let applyTests =
 let retnTests =
     testList "TaskOption.retn Tests" [
         testCase "retn with x"
-        <| fun _ ->
-            TaskOption.retn 267
-            |> Expect.hasTaskSomeValue (267)
+        <| fun _ -> TaskOption.retn 267 |> Expect.hasTaskSomeValue (267)
     ]
 
 let taskOptionOperatorTests =
@@ -98,8 +95,7 @@ let taskOptionOperatorTests =
             let getFollowersResult = getFollowersSome sampleUserId
             let createPostResult = createPostSome validCreatePostRequest
 
-            newPostRequest <!> getFollowersResult
-            <*> createPostResult
+            newPostRequest <!> getFollowersResult <*> createPostResult
             |> Expect.hasTaskSomeValue
                 {
                     NewPostId = PostId newPostId
@@ -118,10 +114,4 @@ let taskOptionOperatorTests =
     ]
 
 let allTests =
-    testList "Task Option Tests" [
-        mapTests
-        bindTests
-        applyTests
-        retnTests
-        taskOptionOperatorTests
-    ]
+    testList "Task Option Tests" [ mapTests; bindTests; applyTests; retnTests; taskOptionOperatorTests ]

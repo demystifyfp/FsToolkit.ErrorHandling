@@ -13,7 +13,6 @@ open System
 open FsToolkit.ErrorHandling
 
 
-
 let traverseResultMTests =
     testList "List.traverseResultM Tests" [
         testCase "traverseResult with a list of valid data"
@@ -35,7 +34,6 @@ let traverseResultMTests =
     ]
 
 
-
 let sequenceResultMTests =
     testList "List.sequenceResultM Tests" [
         testCase "traverseResult with a list of valid data"
@@ -55,7 +53,6 @@ let sequenceResultMTests =
 
             Expect.equal actual (Error emptyTweetErrMsg) "traverse the list and return the first error"
     ]
-
 
 
 let traverseResultATests =
@@ -114,10 +111,7 @@ let traverseValidationATests =
             let expected = List.map tweet tweets |> Ok
 
             let actual =
-                List.traverseValidationA
-                    (Tweet.TryCreate
-                     >> (Result.mapError List.singleton))
-                    tweets
+                List.traverseValidationA (Tweet.TryCreate >> (Result.mapError List.singleton)) tweets
 
             Expect.equal actual expected "Should have a list of valid tweets"
 
@@ -126,10 +120,7 @@ let traverseValidationATests =
             let tweets = [ ""; "Hello"; aLongerInvalidTweet ]
 
             let actual =
-                List.traverseValidationA
-                    (Tweet.TryCreate
-                     >> (Result.mapError List.singleton))
-                    tweets
+                List.traverseValidationA (Tweet.TryCreate >> (Result.mapError List.singleton)) tweets
 
             Expect.equal
                 actual
@@ -139,9 +130,7 @@ let traverseValidationATests =
 
 
 let sequenceValidationATests =
-    let tryCreateTweet =
-        Tweet.TryCreate
-        >> (Result.mapError List.singleton)
+    let tryCreateTweet = Tweet.TryCreate >> (Result.mapError List.singleton)
 
     testList "List.sequenceValidationA Tests" [
         testCase "traverseValidation with a list of valid data"
@@ -178,9 +167,7 @@ let traverseAsyncResultMTests =
     testList "List.traverseAsyncResultM Tests" [
         testCaseAsync "traverseAsyncResultM with a list of valid data"
         <| async {
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.traverseAsyncResultM (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -213,9 +200,7 @@ let traverseAsyncResultATests =
     testList "List.traverseAsyncResultA Tests" [
         testCaseAsync "traverseAsyncResultA with a list of valid data"
         <| async {
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -243,9 +228,7 @@ let sequenceAsyncResultMTests =
     testList "List.sequenceAsyncResultM Tests" [
         testCaseAsync "sequenceAsyncResultM with a list of valid data"
         <| async {
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.map (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -259,8 +242,7 @@ let sequenceAsyncResultMTests =
             let expected = sprintf "error: %s" (userId1.ToString())
 
             let actual =
-                List.map (notifyFailure (PostId newPostId)) userIds
-                |> List.sequenceAsyncResultM
+                List.map (notifyFailure (PostId newPostId)) userIds |> List.sequenceAsyncResultM
 
             do! Expect.hasAsyncErrorValue expected actual
         }
@@ -273,9 +255,7 @@ let sequenceAsyncResultATests =
     testList "List.sequenceAsyncResultA Tests" [
         testCaseAsync "sequenceAsyncResultA with a list of valid data"
         <| async {
-            let expected =
-                userIds
-                |> List.map (fun (UserId user) -> (newPostId, user))
+            let expected = userIds |> List.map (fun (UserId user) -> (newPostId, user))
 
             let actual =
                 List.map (notifyNewPostSuccess (PostId newPostId)) userIds
@@ -292,8 +272,7 @@ let sequenceAsyncResultATests =
             ]
 
             let actual =
-                List.map (notifyFailure (PostId newPostId)) userIds
-                |> List.sequenceAsyncResultA
+                List.map (notifyFailure (PostId newPostId)) userIds |> List.sequenceAsyncResultA
 
             do! Expect.hasAsyncErrorValue expected actual
         }

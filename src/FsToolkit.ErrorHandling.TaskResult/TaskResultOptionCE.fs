@@ -32,9 +32,7 @@ module TaskResultOptionCE =
             uply.Bind(taskResult, binder')
 
         member inline _.Combine(tro1, tro2) =
-            tro1
-            |> TaskResultOption.bind (fun _ -> tro2)
-            |> uply.ReturnFrom
+            tro1 |> TaskResultOption.bind (fun _ -> tro2) |> uply.ReturnFrom
 
         member inline _.Delay([<InlineIfLambda>] f) = uply.Delay f
 
@@ -216,8 +214,8 @@ module TaskResultOptionCE =
                                 assert not (isNull awaiter)
                                 sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
-                        with
-                        | exn -> savedExn <- exn
+                        with exn ->
+                            savedExn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                         match savedExn with
                         | null -> ()
@@ -250,8 +248,8 @@ module TaskResultOptionCE =
 
                                 // printfn "Run __stack_code_fin Data  --> %A" sm.Data.Result
                                 sm.Data.MethodBuilder.SetResult(sm.Data.Result)
-                        with
-                        | exn -> __stack_exn <- exn
+                        with exn ->
+                            __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
                         match __stack_exn with
                         | null -> ()

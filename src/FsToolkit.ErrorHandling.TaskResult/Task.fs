@@ -49,6 +49,6 @@ module Task =
         try
             let! r = x
             return Choice1Of2 r
-        with
-        | e -> return Choice2Of2 e
+        with e ->
+            return Choice2Of2 e
     }
