@@ -10,15 +10,15 @@ module JobResultCE =
     type JobResultBuilder() =
 
         member inline_.Return(value: 'T) : Job<Result<'T, 'TError>> =
-            job.Return
-            <| result.Return value
+            result.Return value
+            |> job.Return
 
         member inline _.ReturnFrom(jobResult: Job<Result<'T, 'TError>>) : Job<Result<'T, 'TError>> =
             jobResult
 
         member inline_.Zero() : Job<Result<unit, 'TError>> =
-            job.Return
-            <| result.Zero()
+            result.Zero()
+            |> job.Return
 
         member inline _.Bind
             (
@@ -85,10 +85,7 @@ module JobResultCE =
                 guard: unit -> bool,
                 computation: Job<Result<unit, 'TError>>
             ) : Job<Result<unit, 'TError>> =
-            if
-                not
-                <| guard ()
-            then
+            if not (guard ()) then
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))

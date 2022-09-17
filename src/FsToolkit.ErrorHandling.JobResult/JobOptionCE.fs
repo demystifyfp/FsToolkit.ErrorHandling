@@ -10,14 +10,14 @@ module JobOptionCE =
     type JobOptionBuilder() =
 
         member inline _.Return(value: 'T) : Job<_ option> =
-            job.Return
-            <| option.Return value
+            option.Return value
+            |> job.Return
 
         member inline _.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
 
         member inline _.Zero() : Job<_ option> =
-            job.Return
-            <| option.Zero()
+            option.Zero()
+            |> job.Return
 
         member inline _.Bind
             (
@@ -85,10 +85,7 @@ module JobOptionCE =
             job.Using(resource, binder)
 
         member this.While(guard: unit -> bool, computation: Job<_ option>) : Job<_ option> =
-            if
-                not
-                <| guard ()
-            then
+            if not (guard ()) then
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))

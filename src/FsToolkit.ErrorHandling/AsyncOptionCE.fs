@@ -12,8 +12,8 @@ module AsyncOptionCE =
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
         member inline _.Zero() : Async<unit option> =
-            async.Return
-            <| option.Zero()
+            option.Zero()
+            |> async.Return
 
         member inline _.Bind
             (
@@ -54,10 +54,7 @@ module AsyncOptionCE =
             this.TryFinally(
                 (binder resource),
                 (fun () ->
-                    if
-                        not
-                        <| obj.ReferenceEquals(resource, null)
-                    then
+                    if not (obj.ReferenceEquals(resource, null)) then
                         resource.Dispose()
                 )
             )
@@ -67,10 +64,7 @@ module AsyncOptionCE =
                 guard: unit -> bool,
                 computation: Async<unit option>
             ) : Async<unit option> =
-            if
-                not
-                <| guard ()
-            then
+            if not (guard ()) then
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))

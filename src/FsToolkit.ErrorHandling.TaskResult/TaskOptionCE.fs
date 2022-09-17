@@ -14,15 +14,15 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| option.Return value
+            option.Return value
+            |> FSharp.Control.Tasks.Affine.Unsafe.uply.Return
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| option.Zero()
+            option.Zero()
+            |> FSharp.Control.Tasks.Affine.Unsafe.uply.Return
 
         member inline _.Bind
             (
@@ -146,15 +146,15 @@ module TaskOptionCE =
         member val SomeUnit = Some()
 
         member inline _.Return(value: 'T) : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| option.Return value
+            option.Return value
+            |> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
 
         member inline _.ReturnFrom(taskResult: Task<_ option>) : Ply<_ option> =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<_ option> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| option.Zero()
+            option.Zero()
+            |> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
 
         member inline _.Bind
             (

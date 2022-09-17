@@ -13,8 +13,8 @@ module TaskResultOptionCE =
 #if NETSTANDARD2_0
     type TaskResultOptionBuilder() =
         member inline _.Return(value: 'T) : Ply<Result<'T option, 'TError>> =
-            uply.Return
-            <| result.Return(Some value)
+            result.Return(Some value)
+            |> uply.Return
 
         member inline _.ReturnFrom
             (taskResult: Task<Result<'T option, 'TError>>)
@@ -30,11 +30,11 @@ module TaskResultOptionCE =
                 match r with
                 | Ok (Some x) -> binder x
                 | Ok None ->
-                    uply.Return
-                    <| Ok None
+                    Ok None
+                    |> uply.Return
                 | Error x ->
-                    uply.Return
-                    <| Error x
+                    Error x
+                    |> uply.Return
 
             uply.Bind(taskResult, binder')
 

@@ -9,8 +9,8 @@ module AsyncResultCE =
     type AsyncResultBuilder() =
 
         member inline _.Return(value: 'ok) : Async<Result<'ok, 'error>> =
-            async.Return
-            <| result.Return value
+            result.Return value
+            |> async.Return
 
         member inline _.ReturnFrom
             (asyncResult: Async<Result<'ok, 'error>>)
@@ -18,8 +18,8 @@ module AsyncResultCE =
             asyncResult
 
         member inline _.Zero() : Async<Result<unit, 'error>> =
-            async.Return
-            <| result.Zero()
+            result.Zero()
+            |> async.Return
 
         member inline _.Bind
             (

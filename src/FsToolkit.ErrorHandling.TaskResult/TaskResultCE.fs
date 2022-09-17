@@ -22,8 +22,8 @@ module TaskResultCE =
             FSharp.Control.Tasks.Affine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-            <| result.Zero()
+            result.Zero()
+            |> FSharp.Control.Tasks.Affine.Unsafe.uply.Return
 
         member inline _.Bind
             (
@@ -34,8 +34,8 @@ module TaskResultCE =
                 match r with
                 | Ok x -> binder x
                 | Error x ->
-                    FSharp.Control.Tasks.Affine.Unsafe.uply.Return
-                    <| Error x
+                    Error x
+                    |> FSharp.Control.Tasks.Affine.Unsafe.uply.Return
 
             FSharp.Control.Tasks.Affine.Unsafe.uply.Bind(taskResult, binder')
 
@@ -162,8 +162,9 @@ module TaskResultCE =
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.ReturnFrom taskResult
 
         member inline _.Zero() : Ply<Result<unit, 'TError>> =
-            FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-            <| result.Zero()
+            result.Zero()
+            |> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+
 
         member inline _.Bind
             (
@@ -174,8 +175,9 @@ module TaskResultCE =
                 match r with
                 | Ok x -> binder x
                 | Error x ->
-                    FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
-                    <| Error x
+                    Error x
+                    |> FSharp.Control.Tasks.NonAffine.Unsafe.uply.Return
+
 
             FSharp.Control.Tasks.NonAffine.Unsafe.uply.Bind(taskResult, binder')
 

@@ -62,10 +62,7 @@ module ValueOptionCE =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
-                    if
-                        not
-                        <| obj.ReferenceEquals(resource, null)
-                    then
+                    if not (obj.ReferenceEquals(resource, null)) then
                         resource.Dispose()
                 )
             )
