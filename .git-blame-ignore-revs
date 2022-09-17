@@ -1,4 +1,11 @@
-# Formatting commits
+# This file contains a list of git hashes of revisions to be ignored by git
+# These revisions are considered "unimportant" in
+# that they are unlikely to be what you are interested in when blaming.
+# Like formatting with Fantomas
+# https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+
+# Add formatting commits here
+
 b49d1e213eb4c0bd4019205e4364cb5681b5286b
 b056b98c6e588f0cfdbe872d55aa660cefbb1ef9
 0c7b80a4f45e241225fd7c73b5611b0054726d69
