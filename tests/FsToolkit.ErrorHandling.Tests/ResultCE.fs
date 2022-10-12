@@ -236,7 +236,8 @@ let ``ResultCE loop Tests`` =
         testCase "while"
         <| fun () ->
             let data = 42
-            let mutable index = 0
+            let maxLoop = 10
+            let mutable index = maxLoop
 
             let actual = result {
                 while index < 10 do
@@ -244,7 +245,21 @@ let ``ResultCE loop Tests`` =
 
                 return data
             }
+            Expect.equal index maxLoop "index should match maxLoop"
+            Expect.equal actual (Result.Ok data) "Should be ok"
+        testCase "while long"
+        <| fun () ->
+            let data = 42
+            let mutable index = 0
+            let maxLoop = 1000000
+            let actual = result {
+                while index < maxLoop do
+                    index <- index + 1
 
+                return data
+            }
+
+            Expect.equal index (maxLoop ) "index should match maxLoop"
             Expect.equal actual (Result.Ok data) "Should be ok"
         testCase "for in"
         <| fun () ->
