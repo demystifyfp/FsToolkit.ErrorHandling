@@ -17,12 +17,12 @@ module OptionCE =
             Option.bind binder input
 
         // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
-        member inline this.Bind
-            (
-                m: 'input when 'input: null,
-                [<InlineIfLambda>] binder: 'input -> 'output option
-            ) : 'output option =
-            this.Bind(Option.ofObj m, binder)
+        // member inline this.Bind
+        //     (
+        //         m: 'input when 'input: null,
+        //         [<InlineIfLambda>] binder: 'input -> 'output option
+        //     ) : 'output option =
+        //     this.Bind(Option.ofObj m, binder)
 
         member inline this.Zero() : unit option = this.Return()
 
@@ -71,21 +71,16 @@ module OptionCE =
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,
-                [<InlineIfLambda>] computation: unit -> unit option
+                [<InlineIfLambda>] generator: unit -> unit option
             ) : unit option =
-            if guard () then
-                let mutable whileBuilder = Unchecked.defaultof<_>
 
-                whileBuilder <-
-                    fun () ->
-                        this.Bind(
-                            this.Run computation,
-                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
-                        )
+            let rec whileBuilder () =
+                if guard () then
+                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
+                else
+                    this.Zero()
 
-                this.Run whileBuilder
-            else
-                this.Zero()
+            this.Run(fun () -> whileBuilder ())
 
         member inline this.For
             (

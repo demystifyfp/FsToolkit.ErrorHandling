@@ -75,12 +75,11 @@ module ResultCE =
                 [<InlineIfLambda>] generator: unit -> Result<unit, 'error>
             ) : Result<unit, 'error> =
 
-            let rec whileBuilder =
-                fun () ->
-                    if guard () then
-                        this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
-                    else
-                        this.Zero()
+            let rec whileBuilder () =
+                if guard () then
+                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
+                else
+                    this.Zero()
 
             this.Run(fun () -> whileBuilder ())
 
@@ -92,7 +91,7 @@ module ResultCE =
             ) : Result<unit, 'TError> =
             this.Using(
                 sequence.GetEnumerator(),
-                fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
+                fun enum -> this.While((fun () -> enum.MoveNext()), this.Delay(fun () -> binder enum.Current))
             )
 
         member inline _.BindReturn

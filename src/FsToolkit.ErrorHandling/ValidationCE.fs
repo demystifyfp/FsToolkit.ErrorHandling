@@ -74,19 +74,13 @@ module ValidationCE =
                 [<InlineIfLambda>] guard: unit -> bool,
                 [<InlineIfLambda>] generator: unit -> Validation<unit, 'error>
             ) : Validation<unit, 'error> =
-            if guard () then
-                let mutable whileBuilder = Unchecked.defaultof<_>
+            let rec whileBuilder () =
+                if guard () then
+                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
+                else
+                    this.Zero()
 
-                whileBuilder <-
-                    fun () ->
-                        this.Bind(
-                            this.Run generator,
-                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
-                        )
-
-                this.Run whileBuilder
-            else
-                this.Zero()
+            this.Run(fun () -> whileBuilder ())
 
         member inline this.For
             (

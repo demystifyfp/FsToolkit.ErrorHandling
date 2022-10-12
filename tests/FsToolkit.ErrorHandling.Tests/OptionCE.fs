@@ -126,19 +126,26 @@ let ceTests =
             }
 
             Expect.equal actual (Some data) "Should be ok"
-        testCase "While"
-        <| fun () ->
-            let data = 42
-            let mutable index = 0
+        yield! [
+            let maxIndices = [10; 1000000]
+            for maxIndex in maxIndices do
+                testCase <| sprintf "While - %i" maxIndex
+                <| fun () ->
+                    let data = 42
+                    let mutable index = 0
 
-            let actual = option {
-                while index < 10 do
-                    index <- index + 1
+                    let actual = option {
+                        while index < maxIndex do
+                            index <- index + 1
 
-                return data
-            }
+                        return data
+                    }
 
-            Expect.equal actual (Some data) "Should be ok"
+                    Expect.equal index maxIndex "Index should reach maxIndex"
+                    Expect.equal actual (Some data) "Should be ok"
+        ]
+        
+            
         testCase "For in"
         <| fun () ->
             let data = 42

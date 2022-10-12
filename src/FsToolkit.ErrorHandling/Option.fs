@@ -3,6 +3,16 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
+    let inline bind ([<InlineIfLambdaAttribute>] f) x =
+        match x with
+        | Some v -> f v
+        | None -> None
+
+    let inline map ([<InlineIfLambdaAttribute>] f) x =
+        match x with
+        | Some v -> Some(f v)
+        | None -> None
+
     let inline ofValueOption (vopt: 'value voption) : 'value option =
         match vopt with
         | ValueSome v -> Some v
