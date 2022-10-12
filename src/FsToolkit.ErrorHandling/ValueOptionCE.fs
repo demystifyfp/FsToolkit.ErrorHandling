@@ -72,19 +72,14 @@ module ValueOptionCE =
                 [<InlineIfLambda>] guard: unit -> bool,
                 [<InlineIfLambda>] generator: unit -> _ voption
             ) : _ voption =
-            if guard () then
-                let mutable whileBuilder = Unchecked.defaultof<_>
 
-                whileBuilder <-
-                    fun () ->
-                        this.Bind(
-                            this.Run generator,
-                            (fun () -> if guard () then this.Run whileBuilder else this.Zero())
-                        )
+            let rec whileBuilder () =
+                if guard () then
+                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
+                else
+                    this.Zero()
 
-                this.Run whileBuilder
-            else
-                this.Zero()
+            this.Run(fun () -> whileBuilder ())
 
         member inline this.For
             (

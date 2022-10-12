@@ -233,34 +233,23 @@ let ``ResultCE using Tests`` =
 
 let ``ResultCE loop Tests`` =
     testList "ResultCE loop Tests" [
-        testCase "while"
-        <| fun () ->
-            let data = 42
-            let maxLoop = 10
-            let mutable index = maxLoop
+        yield! [
+            let maxIndices = [10; 10000; 1000000]
+            for maxIndex in maxIndices do
+                testCase <| sprintf "While - %i" maxIndex
+                <| fun () ->
+                    let data = 42
+                    let mutable index = 0
 
-            let actual = result {
-                while index < 10 do
-                    index <- index + 1
+                    let actual = result {
+                        while index < maxIndex do
+                            index <- index + 1
 
-                return data
-            }
-            Expect.equal index maxLoop "index should match maxLoop"
-            Expect.equal actual (Result.Ok data) "Should be ok"
-        testCase "while long"
-        <| fun () ->
-            let data = 42
-            let mutable index = 0
-            let maxLoop = 1000000
-            let actual = result {
-                while index < maxLoop do
-                    index <- index + 1
-
-                return data
-            }
-
-            Expect.equal index (maxLoop ) "index should match maxLoop"
-            Expect.equal actual (Result.Ok data) "Should be ok"
+                        return data
+                    }
+                    Expect.equal index (maxIndex) "Index should reach maxIndex"
+                    Expect.equal actual (Ok data) "Should be ok"
+        ]
         testCase "for in"
         <| fun () ->
             let data = 42
