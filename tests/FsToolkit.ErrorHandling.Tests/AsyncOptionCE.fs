@@ -209,20 +209,63 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
         }
-        testCaseAsync "While"
+        yield! [
+            let maxIndices = [10; 1000000]
+            for maxIndex in maxIndices do
+                testCaseAsync <| sprintf "While - %i" maxIndex
+                <| async {
+                    let data = 42
+                    let mutable index = 0
+
+                    let! actual = asyncOption {
+                        while index < maxIndex do
+                            index <- index + 1
+
+                        return data
+                    }
+
+                    Expect.equal index maxIndex "Index should reach maxIndex"
+                    Expect.equal actual (Some data) "Should be ok"
+                }
+        ]
+
+        testCaseAsync "while fail"
         <| async {
             let data = 42
             let mutable index = 0
 
-            let! actual = asyncOption {
-                while index < 10 do
-                    index <- index + 1
 
-                return data
+
+            let mutable loopCount = 0
+            let mutable wasCalled = false
+
+            let sideEffect () =
+                wasCalled <- true
+                "ok"
+
+            let expected = None
+
+            let data = [
+                Some "42"
+                Some "1024"
+                expected
+                Some "1M"
+                Some "1M"
+                Some "1M"
+            ]
+
+            let! actual = asyncOption {
+                while loopCount < data.Length do
+                    let! x = data.[loopCount]
+                    loopCount <- loopCount + 1
+
+                return sideEffect ()
             }
 
-            Expect.equal actual (Some data) "Should be ok"
-        }
+            Expect.equal loopCount 2 "Should only loop twice"
+            Expect.equal actual expected "Should be an error"
+            Expect.isFalse wasCalled "No additional side effects should occur"
+           }
         testCaseAsync "For in"
         <| async {
             let data = 42

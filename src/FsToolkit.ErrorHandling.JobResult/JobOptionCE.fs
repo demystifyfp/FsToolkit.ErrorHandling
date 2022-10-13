@@ -85,10 +85,18 @@ module JobOptionCE =
             job.Using(resource, binder)
 
         member this.While(guard: unit -> bool, computation: Job<_ option>) : Job<_ option> =
-            if not (guard ()) then
-                this.Zero()
-            else
-                this.Bind(computation, (fun () -> this.While(guard, computation)))
+            job {
+                let mutable doContinue = true
+                let mutable result = Some ()
+                while doContinue && guard () do
+                    match! computation with
+                    | Some () -> ()
+                    | None ->
+                        doContinue <- false
+                        result <- None
+                return result
+
+            }
 
         member inline this.For
             (

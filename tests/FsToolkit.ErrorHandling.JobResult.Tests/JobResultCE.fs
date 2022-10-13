@@ -289,19 +289,58 @@ let ``JobResultCE using Tests`` =
 [<Tests>]
 let ``JobResultCE loop Tests`` =
     testList "JobResultCE loop Tests" [
-        testCaseJob "while"
+        yield! [
+            let maxIndices = [10; 1000000]
+            for maxIndex in maxIndices do
+                testCaseJob <| sprintf "While - %i" maxIndex
+                <| job {
+                    let data = 42
+                    let mutable index = 0
+
+                    let! actual = jobResult {
+                        while index < maxIndex do
+                            index <- index + 1
+
+                        return data
+                    }
+
+                    Expect.equal index maxIndex "Index should reach maxIndex"
+                    Expect.equal actual (Ok data) "Should be ok"
+                }
+        ]
+
+        testCaseJob "while fail"
         <| job {
-            let data = 42
-            let mutable index = 0
+
+            let mutable loopCount = 0
+            let mutable wasCalled = false
+
+            let sideEffect () =
+                wasCalled <- true
+                "ok"
+
+            let expected = Error "NOPE"
+
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+                Ok "1M"
+                Ok "1M"
+            ]
 
             let! actual = jobResult {
-                while index < 10 do
-                    index <- index + 1
+                while loopCount < data.Length do
+                    let! x = data.[loopCount]
+                    loopCount <- loopCount + 1
 
-                return data
+                return sideEffect ()
             }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal loopCount 2 "Should only loop twice"
+            Expect.equal actual expected "Should be an error"
+            Expect.isFalse wasCalled "No additional side effects should occur"
         }
         testCaseJob "for in"
         <| job {

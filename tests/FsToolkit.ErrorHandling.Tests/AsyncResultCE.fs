@@ -307,6 +307,60 @@ let ``AsyncResultCE loop Tests`` =
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
+        yield! [
+            let maxIndices = [10; 1000000]
+            for maxIndex in maxIndices do
+                testCaseAsync <| sprintf "While - %i" maxIndex
+                <| async {
+                    let data = 42
+                    let mutable index = 0
+
+                    let! actual = asyncResult {
+                        while index < maxIndex do
+                            index <- index + 1
+
+                        return data
+                    }
+
+                    Expect.equal index maxIndex "Index should reach maxIndex"
+                    Expect.equal actual (Ok data) "Should be ok"
+                }
+        ]
+
+        testCaseAsync "while fail"
+        <| async {
+
+            let mutable loopCount = 0
+            let mutable wasCalled = false
+
+            let sideEffect () =
+                wasCalled <- true
+                "ok"
+
+            let expected = Error "NOPE"
+
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+                Ok "1M"
+                Ok "1M"
+            ]
+
+            let! actual = asyncResult {
+                while loopCount < data.Length do
+                    let! x = data.[loopCount]
+                    loopCount <- loopCount + 1
+
+                return sideEffect ()
+            }
+
+            Expect.equal loopCount 2 "Should only loop twice"
+            Expect.equal actual expected "Should be an error"
+            Expect.isFalse wasCalled "No additional side effects should occur"
+        }
+
         testCaseAsync "for in"
         <| async {
             let data = 42

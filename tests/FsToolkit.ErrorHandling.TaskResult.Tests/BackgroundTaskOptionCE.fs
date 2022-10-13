@@ -277,15 +277,6 @@ let ceTests =
            }
         testCaseTask "while fail"
         <| fun () -> backgroundTask {
-            let data = 42
-            let mutable index = 0
-
-            let! actual = taskResult {
-                while index < 10 do
-                    index <- index + 1
-
-                return data
-            }
 
             let mutable loopCount = 0
             let mutable wasCalled = false

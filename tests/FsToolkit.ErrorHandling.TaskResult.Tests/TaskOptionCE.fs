@@ -281,31 +281,43 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
            }
-        testCaseTask "While"
-        <| fun () -> task {
-            let data = 42
+        yield! [
+            let maxIndices = [10; 1000000]
+            for maxIndex in maxIndices do
+                testCaseTask <| sprintf "While - %i" maxIndex
+                <|  fun () -> task {
+                    let data = 42
+                    let mutable index = 0
+
+                    let! actual = taskOption {
+                        while index < maxIndex do
+                            index <- index + 1
+
+                        return data
+                    }
+
+                    Expect.equal index maxIndex "Index should reach maxIndex"
+                    Expect.equal actual (Some data) "Should be ok"
+                }
+        ]
+
+        testCaseTask "while bind error" <| fun () -> task {
+            let items = [TaskOption.some 3 ; TaskOption.some 4; Task.singleton (None)]
+
             let mutable index = 0
 
             let! actual = taskOption {
-                while index < 10 do
+                while index < items.Length do
+                    let! _ = items[index]
                     index <- index + 1
 
-                return data
+                return index
             }
-
-            Expect.equal actual (Some data) "Should be ok"
-           }
+            Expect.equal index (items.Length - 1) "Index should reach maxIndex"
+            Expect.equal actual (None) "Should be NOPE"
+        }
         testCaseTask "while fail"
         <| fun () -> task {
-            let data = 42
-            let mutable index = 0
-
-            let! actual = taskResult {
-                while index < 10 do
-                    index <- index + 1
-
-                return data
-            }
 
             let mutable loopCount = 0
             let mutable wasCalled = false
