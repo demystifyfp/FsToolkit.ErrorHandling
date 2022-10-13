@@ -11,10 +11,10 @@
   "scripts": {
     "pretest:FsToolkit.ErrorHandling.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.Tests -o js-dist/tests/FsToolkit.ErrorHandling.Tests",
     "pretest:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests",
-    "test:FsToolkit.ErrorHandling.Tests": "mocha js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js",
+    "test:FsToolkit.ErrorHandling.Tests": "mocha js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js --timeout 60000",
     "test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "mocha js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.js",
     "test": "npm-run-all test:*",
-    "watch-test:FsToolkit.ErrorHandling.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o js-dist/tests/FsToolkit.ErrorHandling.Tests --runWatch mocha js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js",
+    "watch-test:FsToolkit.ErrorHandling.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o js-dist/tests/FsToolkit.ErrorHandling.Tests --runWatch mocha js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js --timeout 10000",
     "watch-test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests --runWatch mocha js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.js",
     "watch-test": "npm-run-all -p  watch-test:*"
   }
