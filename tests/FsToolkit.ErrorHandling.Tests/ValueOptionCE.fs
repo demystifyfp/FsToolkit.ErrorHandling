@@ -130,9 +130,11 @@ let ceTests =
 
             Expect.equal actual (ValueSome data) "Should be ok"
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCase <| sprintf "While - %i" maxIndex
+                testCase
+                <| sprintf "While - %i" maxIndex
                 <| fun () ->
                     let data = 42
                     let mutable index = 0

@@ -74,13 +74,15 @@ module ValueOptionCE =
             ) : _ voption =
 
             let mutable doContinue = true
-            let mutable result = ValueSome ()
+            let mutable result = ValueSome()
+
             while doContinue && guard () do
                 match generator () with
                 | ValueSome () -> ()
                 | ValueNone ->
                     doContinue <- false
                     result <- ValueNone
+
             result
 
         member inline this.For

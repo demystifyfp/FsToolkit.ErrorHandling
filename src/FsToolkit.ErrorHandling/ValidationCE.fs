@@ -75,13 +75,15 @@ module ValidationCE =
                 [<InlineIfLambda>] generator: unit -> Validation<unit, 'error>
             ) : Validation<unit, 'error> =
             let mutable doContinue = true
-            let mutable result = Ok ()
+            let mutable result = Ok()
+
             while doContinue && guard () do
                 match generator () with
                 | Ok () -> ()
                 | Error e ->
                     doContinue <- false
                     result <- Error e
+
             result
 
         member inline this.For

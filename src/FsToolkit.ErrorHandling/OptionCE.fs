@@ -75,13 +75,15 @@ module OptionCE =
             ) : unit option =
 
             let mutable doContinue = true
-            let mutable result = Some ()
+            let mutable result = Some()
+
             while doContinue && guard () do
                 match generator () with
                 | Some () -> ()
                 | None ->
                     doContinue <- false
                     result <- None
+
             result
 
         member inline this.For

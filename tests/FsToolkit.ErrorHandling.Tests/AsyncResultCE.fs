@@ -308,9 +308,11 @@ let ``AsyncResultCE loop Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCaseAsync <| sprintf "While - %i" maxIndex
+                testCaseAsync
+                <| sprintf "While - %i" maxIndex
                 <| async {
                     let data = 42
                     let mutable index = 0
