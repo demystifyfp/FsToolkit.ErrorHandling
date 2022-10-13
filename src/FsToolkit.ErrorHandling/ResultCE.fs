@@ -75,13 +75,36 @@ module ResultCE =
                 [<InlineIfLambda>] generator: unit -> Result<unit, 'error>
             ) : Result<unit, 'error> =
 
-            let rec whileBuilder () =
-                if guard () then
-                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
-                else
-                    this.Zero()
+            let mutable doContinue = true
+            let mutable result = Ok ()
+            while doContinue && guard () do
+                match generator () with
+                | Ok () -> ()
+                | Error e ->
+                    doContinue <- false
+                    result <- Error e
+            result
+            // let rec whileBuilder () =
+            //     if guard () then
+            //         this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
+            //     else
+            //         this.Zero()
 
-            this.Run(fun () -> whileBuilder ())
+            // this.Run(fun () -> whileBuilder ())
+
+            // if guard () then
+            //     let mutable whileBuilder = Unchecked.defaultof<_>
+
+            //     whileBuilder <-
+            //         fun () ->
+            //             this.Bind(
+            //                 this.Run generator,
+            //                 (fun () -> if guard () then this.Run whileBuilder else this.Zero())
+            //             )
+
+            //     this.Run whileBuilder
+            // else
+            //     this.Zero()
 
 
         member inline this.For

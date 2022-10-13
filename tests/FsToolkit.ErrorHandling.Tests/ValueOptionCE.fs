@@ -147,6 +147,22 @@ let ceTests =
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (ValueSome data) "Should be ok"
         ]
+
+        testCase "while bind error" <| fun () ->
+            let items = [ValueSome 3; ValueSome 4; ValueNone]
+
+            let mutable index = 0
+
+            let actual = voption {
+                while index < items.Length do
+                    let! _ = items[index]
+                    index <- index + 1
+
+                return index
+            }
+            Expect.equal index (items.Length - 1) "Index should reach maxIndex"
+            Expect.equal actual (ValueNone) "Should be NOPE"
+
         testCase "For in"
         <| fun () ->
             let data = 42
