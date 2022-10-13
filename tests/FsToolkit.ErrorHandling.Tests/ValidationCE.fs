@@ -278,9 +278,11 @@ let ``ValidationCE using Tests`` =
 let ``ValidationCE loop Tests`` =
     testList "ValidationCE loop Tests" [
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCase <| sprintf "While - %i" maxIndex
+                testCase
+                <| sprintf "While - %i" maxIndex
                 <| fun () ->
                     let data = 42
                     let mutable index = 0
@@ -326,7 +328,7 @@ let ``ValidationCE loop Tests`` =
             }
 
             Expect.equal loopCount 2 "Should only loop twice"
-            Expect.equal actual (Error ["NOPE"]) "Should be an error"
+            Expect.equal actual (Error [ "NOPE" ]) "Should be an error"
             Expect.isFalse wasCalled "No additional side effects should occur"
 
         testCase "for in"

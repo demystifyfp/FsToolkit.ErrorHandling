@@ -349,10 +349,12 @@ let ``BackgroundTaskResultCE using Tests`` =
 let ``BackgroundTaskResultCE loop Tests`` =
     testList "BackgroundTaskResultCE loop Tests" [
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCaseTask <| sprintf "While - %i" maxIndex
-                <|  fun () -> backgroundTask {
+                testCaseTask
+                <| sprintf "While - %i" maxIndex
+                <| fun () -> backgroundTask {
                     let data = 42
                     let mutable index = 0
 
@@ -365,7 +367,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
-                }
+                   }
         ]
         testCaseTask "while fail"
         <| fun () -> backgroundTask {

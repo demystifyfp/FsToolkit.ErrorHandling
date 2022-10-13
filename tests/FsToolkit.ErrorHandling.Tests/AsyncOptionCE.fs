@@ -210,9 +210,11 @@ let ceTests =
             Expect.equal actual (Some data) "Should be ok"
         }
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCaseAsync <| sprintf "While - %i" maxIndex
+                testCaseAsync
+                <| sprintf "While - %i" maxIndex
                 <| async {
                     let data = 42
                     let mutable index = 0
@@ -265,7 +267,7 @@ let ceTests =
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
             Expect.isFalse wasCalled "No additional side effects should occur"
-           }
+        }
         testCaseAsync "For in"
         <| async {
             let data = 42

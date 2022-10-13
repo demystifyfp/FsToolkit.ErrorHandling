@@ -364,10 +364,12 @@ let ``TaskResultCE using Tests`` =
 let ``TaskResultCE loop Tests`` =
     testList "TaskResultCE loop Tests" [
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCaseTask <| sprintf "While - %i" maxIndex
-                <|  fun () -> task {
+                testCaseTask
+                <| sprintf "While - %i" maxIndex
+                <| fun () -> task {
                     let data = 42
                     let mutable index = 0
 
@@ -380,7 +382,7 @@ let ``TaskResultCE loop Tests`` =
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
-                }
+                   }
         ]
 
 

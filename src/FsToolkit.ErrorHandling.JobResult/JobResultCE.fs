@@ -80,19 +80,20 @@ module JobResultCE =
             ) : Job<Result<'U, 'TError>> =
             job.Using(resource, binder)
 
-        member this.While(guard: unit -> bool, computation: Job<Result<unit, 'TError>>) : Job<Result<unit, 'TError>> =
-             job {
-                let mutable doContinue = true
-                let mutable result = Ok ()
-                while doContinue && guard () do
-                    match! computation with
-                    | Ok () -> ()
-                    | Error e ->
-                        doContinue <- false
-                        result <- Error e
-                return result
+        member this.While(guard: unit -> bool, computation: Job<Result<unit, 'TError>>) : Job<Result<unit, 'TError>> = job {
+            let mutable doContinue = true
+            let mutable result = Ok()
 
-            }
+            while doContinue && guard () do
+                match! computation with
+                | Ok () -> ()
+                | Error e ->
+                    doContinue <- false
+                    result <- Error e
+
+            return result
+
+        }
 
         member inline this.For
             (

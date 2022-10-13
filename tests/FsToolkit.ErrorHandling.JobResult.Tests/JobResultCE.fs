@@ -290,9 +290,11 @@ let ``JobResultCE using Tests`` =
 let ``JobResultCE loop Tests`` =
     testList "JobResultCE loop Tests" [
         yield! [
-            let maxIndices = [10; 1000000]
+            let maxIndices = [ 10; 1000000 ]
+
             for maxIndex in maxIndices do
-                testCaseJob <| sprintf "While - %i" maxIndex
+                testCaseJob
+                <| sprintf "While - %i" maxIndex
                 <| job {
                     let data = 42
                     let mutable index = 0
