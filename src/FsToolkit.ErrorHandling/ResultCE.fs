@@ -19,6 +19,7 @@ module ResultCE =
             ) : Result<'okOutput, 'error> =
             Result.bind binder input
 
+
         member inline _.Delay
             ([<InlineIfLambda>] generator: unit -> Result<'ok, 'error>)
             : unit -> Result<'ok, 'error> =
@@ -105,12 +106,52 @@ module ResultCE =
             ) : Result<'okOutput, 'error> =
             Result.map f x
 
+
         member inline _.MergeSources
             (
                 left: Result<'left, 'error>,
                 right: Result<'right, 'error>
             ) : Result<'left * 'right, 'error> =
             Result.zip left right
+
+        member inline _.MergeSources3
+            (
+                one: Result<'one, 'error>,
+                two: Result<'two, 'error>,
+                three: Result<'three, 'error>
+            ) : Result<'one * 'two * 'three, 'error> =
+            Result.map3(fun x y z -> x, y, z) one two three
+
+
+
+        member inline _.Bind2
+            (
+                input1: Result<'okInput1, 'error>,
+                input2: Result<'okInput2, 'error>,
+                [<InlineIfLambda>] binder: 'okInput1 -> 'okInput2 -> Result<'okOutput, 'error>
+            ) : Result<'okOutput, 'error> =
+            Result.bind2 binder input1 input2
+
+
+
+        member inline _.Bind2Return
+            (
+                x: Result<'okInput, 'error>,
+                y: Result<'okInput2, 'error>,
+                [<InlineIfLambda>] f: 'okInput -> 'okInput2 -> 'okOutput
+            ) : Result<'okOutput, 'error> =
+            Result.map2 f x y
+
+
+        member inline _.Bind3Return
+            (
+                x: Result<_, _>,
+                y: Result<_, _>,
+                z: Result<_, _>,
+                [<InlineIfLambda>] f: _ -> _ -> _ -> _
+            ) : Result<_, _> =
+            Result.map3 f x y z
+
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.

@@ -11,6 +11,7 @@ module Result =
         | Ok x -> Ok(mapper x)
         | Error e -> Error e
 
+
     let inline mapError
         ([<InlineIfLambda>] errorMapper: 'errorInput -> 'errorOutput)
         (input: Result<'ok, 'errorInput>)
@@ -26,6 +27,32 @@ module Result =
         match input with
         | Ok x -> binder x
         | Error e -> Error e
+
+
+    let inline bind2
+        ([<InlineIfLambda>] binder: 'okInput1 -> 'okInput2 -> Result<'okOutput, 'error>)
+        (input1: Result<'okInput1, 'error>)
+        (input2: Result<'okInput2, 'error>)
+        : Result<'okOutput, 'error> =
+        match input1, input2 with
+        | Ok x, Ok y -> binder x y
+        | Ok _, Error e -> Error e
+        | Error e, _ -> Error e
+
+
+
+    let inline bind3
+        ([<InlineIfLambda>] binder: 'okInput1 -> 'okInput2 -> 'okInput3 -> Result<'okOutput, 'error>)
+        (input1: Result<'okInput1, 'error>)
+        (input2: Result<'okInput2, 'error>)
+        (input3: Result<'okInput3, 'error>)
+        : Result<'okOutput, 'error> =
+        match (input1, input2, input3) with
+        | Ok x, Ok y, Ok z -> binder x y z
+        | Error e, _, _
+        | _, Error e, _
+        | _, _, Error e -> Error e
+
 
     let inline isOk (value: Result<'ok, 'error>) : bool =
         match value with
