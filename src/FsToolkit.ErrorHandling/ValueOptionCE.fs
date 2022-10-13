@@ -73,13 +73,15 @@ module ValueOptionCE =
                 [<InlineIfLambda>] generator: unit -> _ voption
             ) : _ voption =
 
-            let rec whileBuilder () =
-                if guard () then
-                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
-                else
-                    this.Zero()
-
-            this.Run(fun () -> whileBuilder ())
+            let mutable doContinue = true
+            let mutable result = ValueSome ()
+            while doContinue && guard () do
+                match generator () with
+                | ValueSome () -> ()
+                | ValueNone ->
+                    doContinue <- false
+                    result <- ValueNone
+            result
 
         member inline this.For
             (

@@ -74,13 +74,15 @@ module OptionCE =
                 [<InlineIfLambda>] generator: unit -> unit option
             ) : unit option =
 
-            let rec whileBuilder () =
-                if guard () then
-                    this.Bind(this.Run(fun () -> generator ()), (fun () -> this.Run(fun () -> whileBuilder ())))
-                else
-                    this.Zero()
-
-            this.Run(fun () -> whileBuilder ())
+            let mutable doContinue = true
+            let mutable result = Some ()
+            while doContinue && guard () do
+                match generator () with
+                | Some () -> ()
+                | None ->
+                    doContinue <- false
+                    result <- None
+            result
 
         member inline this.For
             (
