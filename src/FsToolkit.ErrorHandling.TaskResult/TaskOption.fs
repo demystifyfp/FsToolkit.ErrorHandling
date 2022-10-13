@@ -22,6 +22,7 @@ module TaskOption =
     }
 
     let inline retn x = task { return Some x }
+    let inline some x = task { return Some x }
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> retn (f' x')) x) f

@@ -21,9 +21,10 @@ module AsyncOption =
             )
             input
 
-    let inline lol (value: 'value) : Async<'value option> = Async.singleton (Some value)
-
     let inline retn (value: 'value) : Async<'value option> = Async.singleton (Some value)
+
+
+    let inline some (value: 'value) : Async<'value option> = Async.singleton (Some value)
 
     let inline apply
         (applier: Async<('input -> 'output) option>)

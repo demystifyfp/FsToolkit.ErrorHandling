@@ -250,20 +250,39 @@ let ``ResultCE loop Tests`` =
                     Expect.equal index (maxIndex) "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
         ]
-        testCase "while bind error" <| fun () ->
-            let items = [Ok 3; Ok 4; Error "NOPE"]
 
-            let mutable index = 0
+        testCase "while fail"
+        <| fun () ->
+
+            let mutable loopCount = 0
+            let mutable wasCalled = false
+
+            let sideEffect () =
+                wasCalled <- true
+                "ok"
+
+            let expected = Error "NOPE"
+
+            let data = [
+                Ok "42"
+                Ok "1024"
+                expected
+                Ok "1M"
+                Ok "1M"
+                Ok "1M"
+            ]
 
             let actual = result {
-                while index < items.Length do
-                    let! _ = items[index]
-                    index <- index + 1
+                while loopCount < data.Length do
+                    let! x = data.[loopCount]
+                    loopCount <- loopCount + 1
 
-                return index
+                return sideEffect ()
             }
-            Expect.equal index (items.Length - 1) "Index should reach maxIndex"
-            Expect.equal actual (Error "NOPE") "Should be NOPE"
+
+            Expect.equal loopCount 2 "Should only loop twice"
+            Expect.equal actual (expected) "Should be an error"
+            Expect.isFalse wasCalled "No additional side effects should occur"
 
         testCase "for in"
         <| fun () ->

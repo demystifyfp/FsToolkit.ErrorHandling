@@ -145,20 +145,39 @@ let ceTests =
                     Expect.equal actual (Some data) "Should be ok"
         ]
 
-        testCase "while bind error" <| fun () ->
-            let items = [Some 3; Some 4; None]
+        testCase "while fail"
+        <| fun () ->
 
-            let mutable index = 0
+            let mutable loopCount = 0
+            let mutable wasCalled = false
+
+            let sideEffect () =
+                wasCalled <- true
+                "ok"
+
+            let expected = None
+
+            let data = [
+                Some "42"
+                Some "1024"
+                expected
+                Some "1M"
+                Some "1M"
+                Some "1M"
+            ]
 
             let actual = option {
-                while index < items.Length do
-                    let! _ = items[index]
-                    index <- index + 1
+                while loopCount < data.Length do
+                    let! x = data.[loopCount]
+                    loopCount <- loopCount + 1
 
-                return index
+                return sideEffect ()
             }
-            Expect.equal index (items.Length - 1) "Index should reach maxIndex"
-            Expect.equal actual (None) "Should be NOPE"
+
+            Expect.equal loopCount 2 "Should only loop twice"
+            Expect.equal actual expected "Should be an error"
+            Expect.isFalse wasCalled "No additional side effects should occur"
+
 
 
         testCase "For in"
