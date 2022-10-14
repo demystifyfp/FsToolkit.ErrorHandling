@@ -1,3 +1,5 @@
+### 3.0.0-beta008 - October 13, 2022
+- [Fixing stackoverflows in large while loops](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/182) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
 ### 3.0.0-beta007. - April 15, 2022
 
 - [Moves many functions to inline with InlineIfLambda for performance](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/166) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
