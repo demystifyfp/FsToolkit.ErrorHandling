@@ -77,7 +77,8 @@ module ValidationCE =
             let mutable doContinue = true
             let mutable result = Ok()
 
-            while doContinue && guard () do
+            while doContinue
+                  && guard () do
                 match generator () with
                 | Ok () -> ()
                 | Error e ->

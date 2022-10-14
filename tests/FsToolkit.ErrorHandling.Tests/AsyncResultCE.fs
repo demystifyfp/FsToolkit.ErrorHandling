@@ -308,7 +308,10 @@ let ``AsyncResultCE loop Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
         yield! [
-            let maxIndices = [ 10; 1000000 ]
+            let maxIndices = [
+                10
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCaseAsync
@@ -353,7 +356,10 @@ let ``AsyncResultCE loop Tests`` =
             let! actual = asyncResult {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }

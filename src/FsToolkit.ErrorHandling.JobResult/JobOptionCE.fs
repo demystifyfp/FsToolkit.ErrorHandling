@@ -88,7 +88,8 @@ module JobOptionCE =
             let mutable doContinue = true
             let mutable result = Some()
 
-            while doContinue && guard () do
+            while doContinue
+                  && guard () do
                 match! computation with
                 | Some () -> ()
                 | None ->
