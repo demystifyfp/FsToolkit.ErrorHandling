@@ -431,7 +431,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultCode<'T, 'Error, 'T>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<
+                    'T,
+                    'Error
+                >>
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -503,7 +506,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultCode<'T, 'Error, 'T>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<CancellableTaskResultStateMachineData<'T, 'Error>, CancellableTaskResult<
+                    'T,
+                    'Error
+                >>
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -589,9 +595,15 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member get_IsCompleted: unit -> bool)
                 and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
-                    sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
+                    sm:
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultStateMachineData<'TOverall, 'Error>
+                            >
+                        >,
                     task: CancellationToken -> ^TaskLike,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : bool =
                 sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
@@ -629,7 +641,8 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
                     task: CancellationToken -> ^TaskLike,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
                 CancellableTaskResultCode<'TOverall, _, _>(fun sm ->
@@ -677,9 +690,15 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member get_IsCompleted: unit -> bool)
                 and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
-                    sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
+                    sm:
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultStateMachineData<'TOverall, 'Error>
+                            >
+                        >,
                     task: ^TaskLike,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : bool =
                 sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
@@ -710,7 +729,8 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member GetResult: unit -> 'TResult1)>
                 (
                     task: ^TaskLike,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
 
@@ -811,9 +831,15 @@ module CancellableTaskResultCE =
 
             static member inline BindDynamic
                 (
-                    sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
+                    sm:
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultStateMachineData<'TOverall, 'Error>
+                            >
+                        >,
                     task: CancellableTaskResult<'TResult1, 'Error>,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : bool =
                 let mutable awaiter =
                     let ct = sm.Data.CancellationToken
@@ -848,7 +874,8 @@ module CancellableTaskResultCE =
             member inline _.Bind
                 (
                     task: CancellableTaskResult<'TResult1, 'Error>,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
                 CancellableTaskResultCode<'TOverall, 'Error, _>(fun sm ->
@@ -926,19 +953,19 @@ module CancellableTaskResultCE =
 
             member inline _.Source(result: ColdTask<_>) : CancellableTaskResult<_, _> =
                 fun _ ->
-                // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
-                task {
-                    let! r = result ()
-                    return Ok r
-                }
+                    // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
+                    task {
+                        let! r = result ()
+                        return Ok r
+                    }
 
             member inline _.Source(result: ColdTask) : CancellableTaskResult<_, _> =
                 fun _ ->
-                // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
-                task {
-                    let! r = result ()
-                    return Ok r
-                }
+                    // TODO: using `coldTask` results in "internal error: The local field ResumptionDynamicInfo was referenced but not declare" compliation error
+                    task {
+                        let! r = result ()
+                        return Ok r
+                    }
 
         // Medium priority extensions
         type CancellableTaskResultBuilderBase with
