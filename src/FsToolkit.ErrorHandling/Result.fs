@@ -40,7 +40,6 @@ module Result =
         | Error e, _ -> Error e
 
 
-
     let inline bind3
         ([<InlineIfLambda>] binder: 'okInput1 -> 'okInput2 -> 'okInput3 -> Result<'okOutput, 'error>)
         (input1: Result<'okInput1, 'error>)

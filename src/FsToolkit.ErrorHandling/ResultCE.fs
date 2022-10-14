@@ -120,27 +120,25 @@ module ResultCE =
                 two: Result<'two, 'error>,
                 three: Result<'three, 'error>
             ) : Result<'one * 'two * 'three, 'error> =
-            Result.map3(fun x y z -> x, y, z) one two three
-
+            Result.map3 (fun x y z -> x, y, z) one two three
 
 
         member inline _.Bind2
             (
                 input1: Result<'okInput1, 'error>,
                 input2: Result<'okInput2, 'error>,
-                [<InlineIfLambda>] binder: 'okInput1 -> 'okInput2 -> Result<'okOutput, 'error>
+                [<InlineIfLambda>] binder: 'okInput1 * 'okInput2 -> Result<'okOutput, 'error>
             ) : Result<'okOutput, 'error> =
-            Result.bind2 binder input1 input2
-
+            Result.bind2 (fun x y -> binder (x, y)) input1 input2
 
 
         member inline _.Bind2Return
             (
                 x: Result<'okInput, 'error>,
                 y: Result<'okInput2, 'error>,
-                [<InlineIfLambda>] f: 'okInput -> 'okInput2 -> 'okOutput
+                [<InlineIfLambda>] f: 'okInput * 'okInput2 -> 'okOutput
             ) : Result<'okOutput, 'error> =
-            Result.map2 f x y
+            Result.map2 (fun x y -> f (x, y)) x y
 
 
         member inline _.Bind3Return
@@ -148,9 +146,9 @@ module ResultCE =
                 x: Result<_, _>,
                 y: Result<_, _>,
                 z: Result<_, _>,
-                [<InlineIfLambda>] f: _ -> _ -> _ -> _
+                [<InlineIfLambda>] f: ('a * 'b * 'c) -> _
             ) : Result<_, _> =
-            Result.map3 f x y z
+            Result.map3 (fun x y z -> f (x, y, z)) x y z
 
 
         /// <summary>
