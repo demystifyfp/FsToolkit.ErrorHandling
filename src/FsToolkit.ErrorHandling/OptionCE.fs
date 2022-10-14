@@ -77,7 +77,8 @@ module OptionCE =
             let mutable doContinue = true
             let mutable result = Some()
 
-            while doContinue && guard () do
+            while doContinue
+                  && guard () do
                 match generator () with
                 | Some () -> ()
                 | None ->

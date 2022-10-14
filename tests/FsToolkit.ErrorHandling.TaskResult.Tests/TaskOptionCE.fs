@@ -282,7 +282,10 @@ let ceTests =
             Expect.equal actual (Some data) "Should be ok"
            }
         yield! [
-            let maxIndices = [ 10; 1000000 ]
+            let maxIndices = [
+                10
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCaseTask
@@ -321,7 +324,12 @@ let ceTests =
                 return index
             }
 
-            Expect.equal index (items.Length - 1) "Index should reach maxIndex"
+            Expect.equal
+                index
+                (items.Length
+                 - 1)
+                "Index should reach maxIndex"
+
             Expect.equal actual (None) "Should be NOPE"
            }
         testCaseTask "while fail"

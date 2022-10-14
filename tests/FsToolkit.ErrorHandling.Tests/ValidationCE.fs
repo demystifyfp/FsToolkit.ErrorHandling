@@ -278,7 +278,10 @@ let ``ValidationCE using Tests`` =
 let ``ValidationCE loop Tests`` =
     testList "ValidationCE loop Tests" [
         yield! [
-            let maxIndices = [ 10; 1000000 ]
+            let maxIndices = [
+                10
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCase
@@ -322,7 +325,10 @@ let ``ValidationCE loop Tests`` =
             let actual = validation {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }

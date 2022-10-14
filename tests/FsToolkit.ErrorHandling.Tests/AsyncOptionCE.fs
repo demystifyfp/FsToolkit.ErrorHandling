@@ -210,7 +210,10 @@ let ceTests =
             Expect.equal actual (Some data) "Should be ok"
         }
         yield! [
-            let maxIndices = [ 10; 1000000 ]
+            let maxIndices = [
+                10
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCaseAsync
@@ -237,7 +240,6 @@ let ceTests =
             let mutable index = 0
 
 
-
             let mutable loopCount = 0
             let mutable wasCalled = false
 
@@ -259,7 +261,10 @@ let ceTests =
             let! actual = asyncOption {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }

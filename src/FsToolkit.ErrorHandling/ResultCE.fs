@@ -78,7 +78,8 @@ module ResultCE =
             let mutable doContinue = true
             let mutable result = Ok()
 
-            while doContinue && guard () do
+            while doContinue
+                  && guard () do
                 match generator () with
                 | Ok () -> ()
                 | Error e ->
@@ -94,7 +95,11 @@ module ResultCE =
             ) : Result<unit, 'TError> =
             this.Using(
                 sequence.GetEnumerator(),
-                fun enum -> this.While((fun () -> enum.MoveNext()), this.Delay(fun () -> binder enum.Current))
+                fun enum ->
+                    this.While(
+                        (fun () -> enum.MoveNext()),
+                        this.Delay(fun () -> binder enum.Current)
+                    )
             )
 
         member inline _.BindReturn

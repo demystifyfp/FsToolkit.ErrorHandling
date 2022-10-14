@@ -349,7 +349,10 @@ let ``BackgroundTaskResultCE using Tests`` =
 let ``BackgroundTaskResultCE loop Tests`` =
     testList "BackgroundTaskResultCE loop Tests" [
         yield! [
-            let maxIndices = [ 10; 1000000 ]
+            let maxIndices = [
+                10
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCaseTask

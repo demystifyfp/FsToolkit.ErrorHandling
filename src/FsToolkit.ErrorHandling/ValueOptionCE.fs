@@ -76,7 +76,8 @@ module ValueOptionCE =
             let mutable doContinue = true
             let mutable result = ValueSome()
 
-            while doContinue && guard () do
+            while doContinue
+                  && guard () do
                 match generator () with
                 | ValueSome () -> ()
                 | ValueNone ->

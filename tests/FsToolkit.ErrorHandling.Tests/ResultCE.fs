@@ -234,7 +234,11 @@ let ``ResultCE using Tests`` =
 let ``ResultCE loop Tests`` =
     testList "ResultCE loop Tests" [
         yield! [
-            let maxIndices = [ 10; 10000; 1000000 ]
+            let maxIndices = [
+                10
+                10000
+                1000000
+            ]
 
             for maxIndex in maxIndices do
                 testCase
@@ -278,7 +282,10 @@ let ``ResultCE loop Tests`` =
             let actual = result {
                 while loopCount < data.Length do
                     let! x = data.[loopCount]
-                    loopCount <- loopCount + 1
+
+                    loopCount <-
+                        loopCount
+                        + 1
 
                 return sideEffect ()
             }
