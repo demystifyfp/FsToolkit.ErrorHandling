@@ -1,0 +1,4 @@
+{
+    "editor.inlayHints.enabled": "off",
+    "FSharp.enableAdaptiveLspServer": true
+}

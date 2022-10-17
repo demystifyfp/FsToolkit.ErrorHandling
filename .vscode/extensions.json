@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "ionide.ionide-paket",
+        "ionide.ionide-fsharp",
+        "ionide.ionide-fake",
+        "ms-dotnettools.csharp",
+        "editorConfig.editorConfig",
+        "ms-vscode-remote.remote-containers",
+        "usernamehw.errorlens",
+        "oderwat.indent-rainbow",
+        "tintoy.msbuild-project-tools",
+        "2gua.rainbow-brackets"
+
+    ]
+}
