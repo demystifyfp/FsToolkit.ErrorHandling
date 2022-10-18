@@ -12,6 +12,7 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+end_of_line = lf
 
 [*.{fs,fsi,fsx,config}]
 # https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html

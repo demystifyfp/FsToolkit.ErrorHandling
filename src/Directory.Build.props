@@ -6,16 +6,17 @@
         <PackageLicenseFile>License</PackageLicenseFile>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/"/>    
+        <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/"/>
         <None Include="$(MSBuildThisFileDirectory)..\License" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <PropertyGroup>
+        <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsPackable>true</IsPackable>
         <IsTestProject>false</IsTestProject>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
-        
+        <NoWarn>$(NoWarn);NU1504;NU1505;NU1701</NoWarn>
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
