@@ -1,5 +1,5 @@
 <Project>
-    <!-- <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" /> -->
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
         <Description>FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.</Description>
@@ -11,12 +11,11 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
+
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsPackable>true</IsPackable>
         <IsTestProject>false</IsTestProject>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
-        <NoWarn>$(NoWarn);NU1504;NU1505;NU1701</NoWarn>
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
