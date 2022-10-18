@@ -1,3 +1,6 @@
+### 3.0.1 - October 18, 2022
+- [Fixes List.traverseA memory issues](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/185)
+
 ### 3.0.0 - October 13, 2022
 
 - [Fixing stackoverflows in large while loops](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/182) Credits [@TheAngryByrd](https://github.com/TheAngryByrd)
