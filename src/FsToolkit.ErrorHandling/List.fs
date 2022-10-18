@@ -82,7 +82,7 @@ module List =
 
     let sequenceResultA xs = traverseResultA id xs
 
-    let rec traverseValidationA' state f xs =
+    let rec private traverseValidationA' state f xs =
         match xs with
         | [] ->
             state
