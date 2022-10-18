@@ -12,11 +12,10 @@ module Task =
         value
         |> Task.FromResult
 
-    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
-        task {
-            let! x = x
-            return! f x
-        }
+    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) = task {
+        let! x = x
+        return! f x
+    }
 
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) = task {
         let! x = x

@@ -51,15 +51,17 @@ module List =
 
 
     let rec private traverseResultA' state f xs =
-      match xs with
-      | [] -> state |> Result.eitherMap List.rev List.rev
-      | x :: xs ->
+        match xs with
+        | [] ->
+            state
+            |> Result.eitherMap List.rev List.rev
+        | x :: xs ->
 
-          match state, f x with
-          | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
-          | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
-          | Ok _, Error e -> traverseResultA' (Error [e]) f xs
-          | Error e, Ok _ -> traverseResultA' (Error e) f xs
+            match state, f x with
+            | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
+            | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
+            | Ok _, Error e -> traverseResultA' (Error [ e ]) f xs
+            | Error e, Ok _ -> traverseResultA' (Error e) f xs
 
     let rec private traverseAsyncResultA' state f xs =
         match xs with
@@ -70,11 +72,12 @@ module List =
         | x :: xs -> async {
             let! s = state
             let! fR = f x
+
             match s, fR with
             | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.retn (y :: ys)) f xs
             | Error errs, Error e ->
                 return! traverseAsyncResultA' (AsyncResult.returnError (e :: errs)) f xs
-            | Ok _, Error e  -> return! traverseAsyncResultA' (AsyncResult.returnError [e]) f xs
+            | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.returnError [ e ]) f xs
             | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
           }
 
