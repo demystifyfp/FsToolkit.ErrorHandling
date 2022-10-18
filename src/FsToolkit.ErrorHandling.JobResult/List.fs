@@ -27,23 +27,22 @@ module List =
     let sequenceJobResultM xs = traverseJobResultM id xs
 
 
-    let rec private traverseJobResultA' state f xs =
+    let rec private traverseJobResultA' state (f : _ -> Job<Result<_,_>>) xs =
         match xs with
         | [] ->
             state
-            |> JobResult.map List.rev
+            |> JobResult.eitherMap List.rev List.rev
         | x :: xs -> job {
             let! s = state
 
-            let! fR =
-                f x
-                |> JobResult.mapError List.singleton
+            let! fR = f x
+
 
             match s, fR with
             | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.retn (y :: ys)) f xs
             | Error errs, Error e ->
-                return! traverseJobResultA' (JobResult.returnError (errs @ e)) f xs
-            | Ok _, Error e
+                return! traverseJobResultA' (JobResult.returnError (e :: errs)) f xs
+            | Ok _, Error e -> return! traverseJobResultA' (JobResult.returnError [e]) f xs
             | Error e, Ok _ -> return! traverseJobResultA' (JobResult.returnError e) f xs
           }
 
