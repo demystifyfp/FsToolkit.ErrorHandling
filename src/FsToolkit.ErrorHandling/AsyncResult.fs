@@ -43,6 +43,9 @@ module AsyncResult =
         : Async<'output> =
         Async.map (Result.either onSuccess onError) input
 
+    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) input =
+        Async.map (Result.eitherMap onSuccess onError) input
+
 #if !FABLE_COMPILER
 
     let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =

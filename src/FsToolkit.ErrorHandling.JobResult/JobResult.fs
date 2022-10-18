@@ -21,6 +21,9 @@ module JobResult =
     let inline foldResult ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
         Job.map (Result.fold onSuccess onError) jr
 
+    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
+        Job.map (Result.eitherMap onSuccess onError) jr
+
     let inline ofAsync aAsync =
         aAsync
         |> Job.fromAsync
