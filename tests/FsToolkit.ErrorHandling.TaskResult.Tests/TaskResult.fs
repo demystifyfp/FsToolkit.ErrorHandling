@@ -826,7 +826,7 @@ let TaskResultOperatorTests =
 
 [<Tests>]
 let TaskResultBindRequireTests =
-    testList "TeskResult Bind + Require Tests" [
+    testList "TaskResult Bind + Require Tests" [
         testCaseTask "bindRequireNone"
         <| fun _ -> task {
             do!
