@@ -237,3 +237,13 @@ module TaskResult =
     let inline ofResult (x: Result<_, _>) =
         x
         |> Task.singleton
+
+    /// Bind the TaskResult and requireSome on the inner option value.
+    let inline bindRequireSome error x =
+        x
+        |> bind (Result.requireSome error >> Task.singleton)
+
+    /// Bind the TaskResult and requireNone on the inner option value.
+    let inline bindRequireNone error x =
+        x
+        |> bind (Result.requireNone error >> Task.singleton)
