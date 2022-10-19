@@ -333,3 +333,19 @@ module AsyncResult =
     let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
         x
         |> Async.singleton
+
+    /// Bind the AsyncResult and requireSome on the inner option value.
+    let inline bindRequireSome error x =
+        x
+        |> bind (
+            Result.requireSome error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireNone on the inner option value.
+    let inline bindRequireNone error x =
+        x
+        |> bind (
+            Result.requireNone error
+            >> Async.singleton
+        )

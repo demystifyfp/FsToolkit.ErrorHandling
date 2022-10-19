@@ -795,6 +795,27 @@ let zipErrorTests =
     ]
 
 
+let asyncResultBindRequireTests =
+    testList "AsyncResult Bind + Require Tests" [
+        testCaseAsync "bindRequireNone"
+        <| async {
+            do!
+                Some "john_doe"
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireNone "User exists"
+                |> Expect.hasAsyncErrorValue "User exists"
+        }
+
+        testCaseAsync "bindRequireSome"
+        <| async {
+            do!
+                Some "john_doe"
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireSome "User doesn't exist"
+                |> Expect.hasAsyncOkValue "john_doe"
+        }
+    ]
+
 let allTests =
     testList "Async Result tests" [
         mapTests
@@ -828,4 +849,5 @@ let allTests =
         asyncResultOperatorTests
         zipTests
         zipErrorTests
+        asyncResultBindRequireTests
     ]
