@@ -753,6 +753,27 @@ let zipErrorTests =
             Expect.hasJobValue (Error("Bad1", "Bad2")) v
     ]
 
+[<Tests>]
+let bindRequireTests =
+    testList "JobResult Bind + Require tests" [
+        testCaseJob "bindRequireNone"
+        <| job {
+            return!
+                Some "john_doe"
+                |> JobResult.ok
+                |> JobResult.bindRequireNone "user exists"
+                |> Expect.hasJobErrorValue "user exists"
+        }
+
+        testCaseJob "bindRequireSome"
+        <| job {
+            return!
+                Some "john_doe"
+                |> JobResult.ok
+                |> JobResult.bindRequireSome "user doesn't exists"
+                |> Expect.hasJobOkValue "john_doe"
+        }
+    ]
 
 type CreatePostResult =
     | PostSuccess of NotifyNewPostRequest
