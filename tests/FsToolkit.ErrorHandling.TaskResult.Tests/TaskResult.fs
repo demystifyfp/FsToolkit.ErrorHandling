@@ -827,15 +827,21 @@ let TaskResultOperatorTests =
 [<Tests>]
 let TaskResultBindRequireTests =
     testList "TeskResult Bind + Require Tests" [
-        testCase "bindRequireNone"
-        <| fun _ ->
-            let user = Some "john_doe" |> Ok |> Task.singleton
-            let error = user |> TaskResult.bindRequireNone "User exists"
-            error |> Expect.hasTaskErrorValueSync "User exists"
+        testCaseTask "bindRequireNone"
+        <| fun _ -> task {
+            do!
+                Some "john_doe"
+                |> TaskResult.ok
+                |> TaskResult.bindRequireNone "User exists"
+                |> Expect.hasTaskErrorValue "User exists"
+           }
 
-        testCase "bindRequireSome"
-        <| fun _ ->
-            let user = Some "john_doe" |> Ok |> Task.singleton
-            let error = user |> TaskResult.bindRequireSome "User doesn't exist"
-            error |> Expect.hasTaskOkValueSync "john_doe"
+        testCaseTask "bindRequireSome"
+        <| fun _ -> task {
+            do!
+                Some "john_doe"
+                |> TaskResult.ok
+                |> TaskResult.bindRequireSome "User doesn't exist"
+                |> Expect.hasTaskOkValue "john_doe"
+           }
     ]
