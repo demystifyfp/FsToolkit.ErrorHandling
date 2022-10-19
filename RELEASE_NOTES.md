@@ -1,3 +1,6 @@
+### 3.1.0 - October 19, 2022
+- [Add helper functions for options wrapped in a TaskResult, AsyncResult, and JobResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/186) Credits [@sheridanchris](https://github.com/sheridanchris)
+
 ### 3.0.1 - October 18, 2022
 - [Fixes List.traverseA memory issues](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/185)
 
