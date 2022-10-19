@@ -246,3 +246,19 @@ module JobResult =
     let inline ofResult (x: Result<_, _>) =
         x
         |> Job.singleton
+
+    /// Bind the JobResult and requireSome on the inner option value.
+    let inline bindRequireSome error x =
+        x
+        |> bind (
+            Result.requireSome error
+            >> Job.singleton
+        )
+
+    /// Bind the JobResult and requireNone on the inner option value.
+    let inline bindRequireNone error x =
+        x
+        |> bind (
+            Result.requireNone error
+            >> Job.singleton
+        )
