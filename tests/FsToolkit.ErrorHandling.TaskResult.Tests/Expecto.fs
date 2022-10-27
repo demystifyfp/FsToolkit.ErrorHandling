@@ -36,8 +36,8 @@ let ftestCaseTask name test =
 module Expect =
     open Expecto
 
-    [<RequiresExplicitTypeArguments>]
     /// Expects the passed function to throw `'texn`.
+    [<RequiresExplicitTypeArguments>]
     let throwsTAsync<'a, 'texn when 'texn :> exn> (f: Async<'a>) message = async {
         let! thrown = async {
             try

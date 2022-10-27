@@ -537,31 +537,28 @@ let teeTests =
     testList "tee Tests" [
         testCase "tee executes the function for ok"
         <| fun _ ->
-            let foo = ref "foo"
-            let input = ref 0
+            let mutable foo = "foo"
+            let mutable input = 0
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = Result.tee bar (Ok 42)
             Expect.hasOkValue 42 result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input 42 ""
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
 
         testCase "tee ignores the function for Error"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.tee bar (Error err)
             Expect.hasErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
     ]
 
 let returnTrue _ = true
@@ -572,51 +569,45 @@ let teeIfTests =
     testList "teeIf Tests" [
         testCase "teeIf executes the function for ok and true predicate "
         <| fun _ ->
-            let foo = ref "foo"
-            let input = ref 0
-            let pInput = ref 0
+            let mutable foo = "foo"
+            let mutable input = 0
+            let mutable pInput = 0
 
             let returnTrue x =
-                pInput
-                := x
+                pInput <- x
 
                 true
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = Result.teeIf returnTrue bar (Ok 42)
             Expect.hasOkValue 42 result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input 42 ""
-            Expect.equal !pInput 42 ""
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
+            Expect.equal pInput 42 ""
 
         testCase "teeIf ignores the function for Ok and false predicate"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.teeIf returnFalse bar (Ok 42)
             Expect.hasOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
 
         testCase "teeIf ignores the function for Error"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.teeIf returnTrue bar (Error err)
             Expect.hasErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
     ]
 
 
@@ -625,31 +616,28 @@ let teeErrorTests =
     testList "teeError Tests" [
         testCase "teeError executes the function for Error"
         <| fun _ ->
-            let foo = ref "foo"
-            let input = ref ""
+            let mutable foo = "foo"
+            let mutable input = ""
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = Result.teeError bar (Error err)
             Expect.hasErrorValue err result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input err ""
+            Expect.equal foo "bar" ""
+            Expect.equal input err ""
 
         testCase "teeError ignores the function for Ok"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.teeError bar (Ok 42)
             Expect.hasOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
     ]
 
 
@@ -657,53 +645,47 @@ let teeErrorIfTests =
     testList "teeErrorIf Tests" [
         testCase "teeErrorIf executes the function for Error and true predicate "
         <| fun _ ->
-            let foo = ref "foo"
-            let input = ref ""
-            let pInput = ref ""
+            let mutable foo = "foo"
+            let mutable input = ""
+            let mutable pInput = ""
 
             let returnTrue x =
-                pInput
-                := x
+                pInput <- x
 
                 true
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = Result.teeErrorIf returnTrue bar (Error err)
 
             Expect.hasErrorValue err result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input err ""
-            Expect.equal !pInput err ""
+            Expect.equal foo "bar" ""
+            Expect.equal input err ""
+            Expect.equal pInput err ""
 
         testCase "teeErrorIf ignores the function for Error and false predicate"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.teeErrorIf returnFalse bar (Error err)
 
             Expect.hasErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
 
         testCase "teeErrorIf ignores the function for Ok"
         <| fun _ ->
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = Result.teeErrorIf returnTrue bar (Ok 42)
             Expect.hasOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
     ]
 
 let sequenceAsyncTests =

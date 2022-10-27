@@ -468,33 +468,30 @@ let teeTests =
     testList "AsyncResult.tee Tests" [
         testCaseAsync "tee executes the function for ok"
         <| async {
-            let foo = ref "foo"
-            let input = ref 0
+            let mutable foo = "foo"
+            let mutable input = 0
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = AsyncResult.tee bar (toAsync (Ok 42))
             do! Expect.hasAsyncOkValue 42 result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input 42 ""
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
         }
 
         testCaseAsync "tee ignores the function for Error"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.tee bar (toAsync (Error err))
 
             do! Expect.hasAsyncErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
     ]
 
@@ -506,56 +503,50 @@ let teeIfTests =
     testList "AsyncResult.teeIf Tests" [
         testCaseAsync "teeIf executes the function for ok and true predicate "
         <| async {
-            let foo = ref "foo"
-            let input = ref 0
-            let pInput = ref 0
+            let mutable foo = "foo"
+            let mutable input = 0
+            let mutable pInput = 0
 
             let returnTrue x =
-                pInput
-                := x
+                pInput <- x
 
                 true
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = AsyncResult.teeIf returnTrue bar (toAsync (Ok 42))
 
             do! Expect.hasAsyncOkValue 42 result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input 42 ""
-            Expect.equal !pInput 42 ""
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
+            Expect.equal pInput 42 ""
         }
 
         testCaseAsync "teeIf ignores the function for Ok and false predicate"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.teeIf returnFalse bar (toAsync (Ok 42))
 
             do! Expect.hasAsyncOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
 
         testCaseAsync "teeIf ignores the function for Error"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.teeIf returnTrue bar (toAsync (Error err))
 
             do! Expect.hasAsyncErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
     ]
 
@@ -564,34 +555,31 @@ let teeErrorTests =
     testList "AsyncResult.teeError Tests" [
         testCaseAsync "teeError executes the function for Error"
         <| async {
-            let foo = ref "foo"
-            let input = ref ""
+            let mutable foo = "foo"
+            let mutable input = ""
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = AsyncResult.teeError bar (toAsync (Error err))
 
             do! Expect.hasAsyncErrorValue err result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input err ""
+            Expect.equal foo "bar" ""
+            Expect.equal input err ""
         }
 
         testCaseAsync "teeError ignores the function for Ok"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.teeError bar (toAsync (Ok 42))
 
             do! Expect.hasAsyncOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
     ]
 
@@ -600,56 +588,50 @@ let teeErrorIfTests =
     testList "AsyncResult.teeErrorIf Tests" [
         testCaseAsync "teeErrorIf executes the function for Error and true predicate "
         <| async {
-            let foo = ref "foo"
-            let input = ref ""
-            let pInput = ref ""
+            let mutable foo = "foo"
+            let mutable input = ""
+            let mutable pInput = ""
 
             let returnTrue x =
-                pInput
-                := x
+                pInput <- x
 
                 true
 
             let bar x =
-                input := x
+                input <- x
 
-                foo
-                := "bar"
+                foo <- "bar"
 
             let result = AsyncResult.teeErrorIf returnTrue bar (toAsync (Error err))
 
             do! Expect.hasAsyncErrorValue err result
-            Expect.equal !foo "bar" ""
-            Expect.equal !input err ""
-            Expect.equal !pInput err ""
+            Expect.equal foo "bar" ""
+            Expect.equal input err ""
+            Expect.equal pInput err ""
         }
 
         testCaseAsync "teeErrorIf ignores the function for Error and false predicate"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.teeErrorIf returnFalse bar (toAsync (Error err))
 
             do! Expect.hasAsyncErrorValue err result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
 
         testCaseAsync "teeErrorIf ignores the function for Ok"
         <| async {
-            let foo = ref "foo"
+            let mutable foo = "foo"
 
-            let bar _ =
-                foo
-                := "bar"
+            let bar _ = foo <- "bar"
 
             let result = AsyncResult.teeErrorIf returnTrue bar (toAsync (Ok 42))
 
             do! Expect.hasAsyncOkValue 42 result
-            Expect.equal !foo "foo" ""
+            Expect.equal foo "foo" ""
         }
     ]
 
