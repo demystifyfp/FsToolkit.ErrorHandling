@@ -1,6 +1,17 @@
 name: Build master
 
-on: [push, pull_request]
+env:
+  DOTNET_NOLOGO: true
+  CI: true
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,36 +21,16 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use .NET Core 2.1 SDK
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v3
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '2.1.x'
-    - name: Use .NET Core 3.1 SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-    - name: Use .NET Core 5.x SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '5.0.x'
-    # Not specifying a version will attempt to install via global.json
+        dotnet-version: |
+          2.1.x
+          3.1.x
+          5.0.x
     - name: Use .NET Core global.json
-      uses: actions/setup-dotnet@v1
-        
+      uses: actions/setup-dotnet@v3
     - name: Build
-      if: runner.os != 'Windows'
-      run: |
-        chmod +x ./build.sh 
-        ./build.sh RunFableTests
-      env:
-        # Work around https://github.com/actions/setup-dotnet/issues/29
-        DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
-        CI: true
-    - name: Build
-      if: runner.os == 'Windows'
-      run: ./build.cmd RunFableTests
-      env:
-        # Work around https://github.com/actions/setup-dotnet/issues/29
-        DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
-        CI: true
+      run: ./build.sh RunFableTests
+      shell: bash
