@@ -111,6 +111,22 @@ let bindNullTests =
             Expect.equal (Option.bindNull someBinder value1) (None) ""
     ]
 
+let maybeTests =
+    testList "Option.maybe Tests" [
+        testCase "Some"
+        <| fun _ ->
+            let value1 = Some 5
+            let f () = 42
+            let add2 = (+) 2
+            Expect.equal (Option.maybe f add2 value1) 7 ""
+        testCase "None"
+        <| fun _ ->
+            let value1 = None
+            let f () = 42
+            let add2 = (+) 2
+            Expect.equal (Option.maybe f add2 value1) 42 ""
+    ]
+
 let allTests =
     testList "Option Tests" [
         traverseResultTests
@@ -119,4 +135,5 @@ let allTests =
         ofResultTests
         ofNullTests
         bindNullTests
+        maybeTests
     ]
