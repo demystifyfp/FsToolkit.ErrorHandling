@@ -119,3 +119,12 @@ module Option =
             binder x
             |> ofNull
         | None -> None
+
+    let inline maybe
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        ([<InlineIfLambda>] onSome: 'a -> 'output)
+        (input: 'a option)
+        : 'output =
+        match input with
+        | Some x -> onSome x
+        | None -> onNone ()
