@@ -1,3 +1,6 @@
+### 3.2.0-beta001 - October 31, 2022
+- [Add Option.maybe](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/189) Credits [@gdziadkiewicz](https://github.com/gdziadkiewicz)
+
 ### 3.1.0 - October 19, 2022
 - [Add helper functions for options wrapped in a TaskResult, AsyncResult, and JobResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/186) Credits [@sheridanchris](https://github.com/sheridanchris)
 
