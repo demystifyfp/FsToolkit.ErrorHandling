@@ -106,7 +106,12 @@ module List =
             | Ok _, Error errs
             | Error errs, Ok _ -> traverseValidationA' (Error errs) f xs
 
-    let traverseValidationA f xs = traverseValidationA' (Ok []) f xs
+    let traverseValidationA f xs =
+        traverseValidationA' (Ok []) f xs
+        |> fun r ->
+            match r with
+            | Ok _ -> r
+            | Error e -> e |> List.rev |> Result.Error
 
     let sequenceValidationA xs = traverseValidationA id xs
 

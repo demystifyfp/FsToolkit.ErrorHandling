@@ -198,8 +198,8 @@ let traverseValidationATests =
             Expect.equal
                 actual
                 (Error [
-                    longerTweetErrMsg
                     emptyTweetErrMsg
+                    longerTweetErrMsg
                 ])
                 "traverse the list and return all the errors"
     ]
@@ -240,8 +240,8 @@ let sequenceValidationATests =
             Expect.equal
                 actual
                 (Error [
-                    longerTweetErrMsg
                     emptyTweetErrMsg
+                    longerTweetErrMsg
                 ])
                 "traverse the list and return all the errors"
     ]
