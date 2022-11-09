@@ -89,7 +89,7 @@ module List =
         match xs with
         | [] ->
             state
-            |> Result.map List.rev
+            |> Result.eitherMap List.rev List.rev
         | x :: xs ->
             let fR = f x
 
@@ -106,12 +106,7 @@ module List =
             | Ok _, Error errs
             | Error errs, Ok _ -> traverseValidationA' (Error errs) f xs
 
-    let traverseValidationA f xs =
-        traverseValidationA' (Ok []) f xs
-        |> fun r ->
-            match r with
-            | Ok _ -> r
-            | Error e -> e |> List.rev |> Result.Error
+    let traverseValidationA f xs = traverseValidationA' (Ok []) f xs
 
     let sequenceValidationA xs = traverseValidationA id xs
 
