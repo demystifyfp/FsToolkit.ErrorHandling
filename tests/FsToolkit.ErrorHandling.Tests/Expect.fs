@@ -14,8 +14,7 @@ module Expect =
 
 #endif
 
-#if NETSTANDARD2_0 || NET5_0 || NET5
-    //     failwith "LOL"
+#if NETSTANDARD2_0 || NET6_0
     open FSharp.Control.Tasks
 #endif
 

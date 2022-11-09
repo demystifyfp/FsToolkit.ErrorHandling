@@ -7,7 +7,7 @@ open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET5_0
+#if NETSTANDARD2_0 || NET6_0
 let backgroundTask = FSharp.Control.Tasks.NonAffine.task
 #endif
 

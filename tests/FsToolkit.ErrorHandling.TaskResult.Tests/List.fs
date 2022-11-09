@@ -7,7 +7,7 @@ open TestHelpers
 open System
 open FsToolkit.ErrorHandling
 
-#if NETSTANDARD2_0 || NET5_0
+#if NETSTANDARD2_0 || NET6_0
 open FSharp.Control.Tasks
 #endif
 

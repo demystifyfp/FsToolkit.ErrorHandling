@@ -16,7 +16,6 @@ jobs:
       with:
         global-json-file: global.json
         dotnet-version: |
-          5.x
           6.x
 
     - name: Build via Bash
