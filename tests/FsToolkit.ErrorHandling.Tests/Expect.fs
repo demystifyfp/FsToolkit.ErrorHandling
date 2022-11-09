@@ -21,36 +21,36 @@ module Expect =
 
 
 #if FABLE_COMPILER
-    let isOk x message =
+    let inline isOk x message =
         match x with
         | Ok _ -> ()
         | Result.Error x -> Tests.failtestf "%s. Expected Ok, was Error(%A)." message x
 #endif
 
-    let hasErrorValue v x =
+    let inline hasErrorValue v x =
         match x with
         | Ok x -> Tests.failtestf "Expected Error, was Ok(%A)." x
         | Error x when x = v -> ()
         | Error x -> Tests.failtestf "Expected Error(%A), was Error(%A)." v x
 
-    let hasOkValue v x =
+    let inline hasOkValue v x =
         match x with
         | Ok x when x = v -> ()
         | Ok x -> Tests.failtestf "Expected Ok(%A), was Ok(%A)." v x
         | Error x -> Tests.failtestf "Expected Ok, was Error(%A)." x
 
-    let hasSomeValue v x =
+    let inline hasSomeValue v x =
         match x with
         | Some x when x = v -> ()
         | Some x -> Tests.failtestf "Expected Some(%A), was Some(%A)." v x
         | None -> Tests.failtestf "Expected Some, was None."
 
-    let hasNoneValue x =
+    let inline hasNoneValue x =
         match x with
         | None -> ()
         | Some _ -> Tests.failtestf "Expected None, was Some."
 
-    let hasAsyncValue v asyncX = async {
+    let inline hasAsyncValue v asyncX = async {
         let! x = asyncX
 
         if v = x then
@@ -59,22 +59,22 @@ module Expect =
             Tests.failtestf "Expected %A, was %A." v x
     }
 
-    let hasAsyncOkValue v asyncX = async {
+    let inline hasAsyncOkValue v asyncX = async {
         let! x = asyncX
         hasOkValue v x
     }
 
-    let hasAsyncErrorValue v asyncX = async {
+    let inline hasAsyncErrorValue v asyncX = async {
         let! x = asyncX
         hasErrorValue v x
     }
 
-    let hasAsyncSomeValue v asyncX = async {
+    let inline hasAsyncSomeValue v asyncX = async {
         let! x = asyncX
         hasSomeValue v x
     }
 
-    let hasAsyncNoneValue asyncX = async {
+    let inline hasAsyncNoneValue asyncX = async {
         let! x = asyncX
         hasNoneValue x
     }
@@ -136,5 +136,5 @@ module Expect =
 
 #endif
 
-    let same expected actual =
+    let inline same expected actual =
         Expect.equal actual expected "expected and actual should be same"
