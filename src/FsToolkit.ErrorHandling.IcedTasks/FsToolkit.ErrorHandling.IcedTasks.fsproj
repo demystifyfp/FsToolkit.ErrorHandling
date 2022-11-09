@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <DebugType>portable</DebugType>
     <NoWarn>FS3511;FS3513</NoWarn>
@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Compile Include="CancellableTaskResultCE.fs" />
-    
+
     <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
