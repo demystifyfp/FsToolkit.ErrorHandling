@@ -1,3 +1,5 @@
+### 3.3.0-beta001 - November 08, 2022
+- [Updates for .NET 7](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/193). Credits @TheAngryByrd
 ### 3.2.0 - October 31, 2022
 - [Add Option.maybe](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/189) Credits [@gdziadkiewicz](https://github.com/gdziadkiewicz)
 
