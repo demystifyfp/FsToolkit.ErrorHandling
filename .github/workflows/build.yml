@@ -10,36 +10,23 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use .NET Core 2.1 SDK
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v3
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '2.1.x'
-    - name: Use .NET Core 3.1 SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-    - name: Use .NET Core 5.x SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '5.0.x'
-    # Not specifying a version will attempt to install via global.json
-    - name: Use .NET Core global.json
-      uses: actions/setup-dotnet@v1
-        
-    - name: Build
+        global-json-file: global.json
+        dotnet-version: |
+          6.x
+
+    - name: Build via Bash
       if: runner.os != 'Windows'
       run: |
-        chmod +x ./build.sh 
-        ./build.sh RunFableTests
+        chmod +x ./build.sh
+        ./build.sh
       env:
-        # Work around https://github.com/actions/setup-dotnet/issues/29
-        DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
         CI: true
-    - name: Build
+    - name: Build via Windows
       if: runner.os == 'Windows'
-      run: ./build.cmd RunFableTests
+      run: ./build.cmd
       env:
-        # Work around https://github.com/actions/setup-dotnet/issues/29
-        DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
         CI: true

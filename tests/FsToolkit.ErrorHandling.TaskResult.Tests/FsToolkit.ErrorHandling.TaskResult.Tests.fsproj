@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <!-- <TargetFrameworks>net5.0</TargetFrameworks> -->
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
@@ -12,7 +11,7 @@
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
     </ProjectReference>
   </ItemGroup>
@@ -35,6 +34,6 @@
     <None Include="paket.references"/>
     <Watch Include="@(None)" />
   </ItemGroup>
-  
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

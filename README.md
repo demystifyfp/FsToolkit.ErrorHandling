@@ -39,8 +39,8 @@ GitHub Actions |
 #### Requirements
 
 * [.NET Core SDK](https://www.microsoft.com/net/download/)
-  * [v5.x](https://dotnet.microsoft.com/en-us/download/dotnet/5.0)
   * [v6.x](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+  * [v7.x](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 * [Node](https://nodejs.org/en/)
   * v16.0.0 or LTS
   * Not required but recommend that you use [NVM](https://github.com/nvm-sh/nvm) to easily manage multiple versions of Node

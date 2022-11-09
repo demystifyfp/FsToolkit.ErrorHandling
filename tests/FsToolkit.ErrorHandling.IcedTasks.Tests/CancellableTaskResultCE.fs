@@ -6,53 +6,50 @@ open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 open IcedTasks
 
-// module Affected =
-// let testFunctionCTR<'Dto>() =
-//         cancellableTaskResult {
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
-// let testFunctionCTR<'Dto>() =
-//         backgroundCancellableTaskResult {
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
+module CompileTests =
+    // Just having these compile is a test in itself
+    // Ensuring we don't see https://github.com/dotnet/fsharp/issues/12761#issuecomment-1241892425 again
+    let testFunctionCTR<'Dto> () = cancellableTaskResult {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
 
-// let testFunctionCanT<'Dto>() =
-//         cancellableTask {
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
+    let testFunctionBCTR<'Dto> () = backgroundCancellableTaskResult {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
 
-// let testFunctionCoT<'Dto>() =
-//         coldTask {
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
+    let testFunctionCanT<'Dto> () = cancellableTask {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
 
-// let testFunctionBTR<'Dto>() =
-//         backgroundTaskResult{
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
-// let testFunctionBTO<'Dto>() =
-//         backgroundTaskOption{
-//             let dto = Unchecked.defaultof<'Dto>
-//             System.Console.WriteLine(dto)
-//         }
-// module NotAffected =
-//     let testFunctionTR<'Dto>() =
-//             taskResult {
-//                 let dto = Unchecked.defaultof<'Dto>
-//                 System.Console.WriteLine(dto)
-//             }
-//     let testFunctionTO<'Dto>() =
-//             taskOption {
-//                 let dto = Unchecked.defaultof<'Dto>
-//                 System.Console.WriteLine(dto)
-//             }
+    let testFunctionCoT<'Dto> () = coldTask {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
+
+    let testFunctionBTR<'Dto> () = backgroundTaskResult {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
+
+    let testFunctionBTO<'Dto> () = backgroundTaskOption {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
+
+    let testFunctionTR<'Dto> () = taskResult {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
+
+    let testFunctionTO<'Dto> () = taskOption {
+        let dto = Unchecked.defaultof<'Dto>
+        System.Console.WriteLine(dto)
+    }
+
 module CancellableTaskResultCE =
-
 
     let makeDisposable () =
         { new System.IDisposable with
