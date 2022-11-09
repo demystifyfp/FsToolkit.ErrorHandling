@@ -14,6 +14,9 @@ indent_size = 4
 trim_trailing_whitespace = true
 end_of_line = lf
 
+[*.yml]
+indent_size = 2
+
 [*.{fs,fsi,fsx,config}]
 # https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html
 charset = utf-8
