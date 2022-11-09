@@ -58,8 +58,8 @@ module List =
         | x :: xs ->
 
             match state, f x with
-            | Ok ys, Ok y -> traverseResultA' (Ok (y :: ys)) f xs
-            | Error errs, Error e -> traverseResultA' (Error (e :: errs)) f xs
+            | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
+            | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
             | Ok _, Error e -> traverseResultA' (Error [ e ]) f xs
             | Error e, Ok _ -> traverseResultA' (Error e) f xs
 
@@ -94,10 +94,10 @@ module List =
             let fR = f x
 
             match state, fR with
-            | Ok ys, Ok y -> traverseValidationA' (Ok (y :: ys)) f xs
+            | Ok ys, Ok y -> traverseValidationA' (Ok(y :: ys)) f xs
             | Error errs1, Error errs2 ->
                 traverseValidationA'
-                    (Error (
+                    (Error(
                         errs2
                         @ errs1
                     ))
