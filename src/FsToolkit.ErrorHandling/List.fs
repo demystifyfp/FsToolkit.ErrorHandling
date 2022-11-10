@@ -89,7 +89,7 @@ module List =
         match xs with
         | [] ->
             state
-            |> Result.map List.rev
+            |> Result.eitherMap List.rev List.rev
         | x :: xs ->
             let fR = f x
 
