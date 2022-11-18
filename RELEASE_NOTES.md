@@ -1,3 +1,6 @@
+### 3.3.1-beta001
+- [FSharp.Core version warning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/194)
+
 ### 3.3.0 - November 08, 2022
 - [Updates for .NET 7](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/193). Credits @TheAngryByrd
 
