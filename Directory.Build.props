@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
-        <NoWarn>$(NoWarn);NU1504;NU1505;NU1701;FS2003</NoWarn>
+        <NoWarn>$(NoWarn);FS2003</NoWarn>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <WarningsAsErrors />
     </PropertyGroup>
