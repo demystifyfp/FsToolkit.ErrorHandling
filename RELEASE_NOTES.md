@@ -1,4 +1,4 @@
-### 3.3.1-beta004 - November 18, 2022
+### 3.3.1 - November 19, 2022
 - [FSharp.Core version warning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/194). Credits @TheAngryByrd
 - [List.traverseValidationA and List.sequenceValidationA now preserve the order of errors](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/192). Credits @ursenzler
 - [Fixing Fable Build](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/196) Credits @alfonsogarciacaro
