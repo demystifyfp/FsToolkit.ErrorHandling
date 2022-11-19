@@ -41,11 +41,10 @@ module ValueOption =
         traverseResult id opt
 
     let inline tryParse< ^value
-        when ^value: (static member TryParse: string * byref< ^value > -> bool)
-        and ^value: (new: unit -> ^value)>
+        when ^value: (static member TryParse: string * byref< ^value > -> bool)>
         (valueToParse: string)
         : ^value voption =
-        let mutable output = new ^value ()
+        let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
             (^value: (static member TryParse: string * byref< ^value > -> bool) (valueToParse,
@@ -55,13 +54,13 @@ module ValueOption =
         | true -> ValueSome output
         | _ -> ValueNone
 
-    let inline tryGetValue (key: string) (dictionary: ^Dictionary) : ^value voption =
+    let inline tryGetValue (key: 'key) (dictionary: ^Dictionary) : ^value voption =
         let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary,
-                                                                                  key,
-                                                                                  &output))
+            (^Dictionary: (member TryGetValue: 'key * byref< ^value > -> bool) (dictionary,
+                                                                                key,
+                                                                                &output))
 
         match parsed with
         | true -> ValueSome output

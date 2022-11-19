@@ -37,26 +37,27 @@ module Option =
         traverseResult id opt
 
 #if !FABLE_COMPILER
-    let inline tryParse< ^T
-        when ^T: (static member TryParse: string * byref< ^T > -> bool) and ^T: (new: unit -> ^T)>
+    let inline tryParse< ^value
+        when ^value: (static member TryParse: string * byref< ^value > -> bool)>
         (valueToParse: string)
-        : ^T option =
-        let mutable output = new ^T()
+        : ^value option =
+        let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^T: (static member TryParse: string * byref< ^T > -> bool) (valueToParse, &output))
+            (^value: (static member TryParse: string * byref< ^value > -> bool) (valueToParse,
+                                                                                 &output))
 
         match parsed with
         | true -> Some output
         | _ -> None
 
-    let inline tryGetValue (key: string) (dictionary: ^Dictionary) : ^value option =
+    let inline tryGetValue (key: 'key) (dictionary: ^Dictionary) : ^value option =
         let mutable output = Unchecked.defaultof< ^value>
 
         let parsed =
-            (^Dictionary: (member TryGetValue: string * byref< ^value > -> bool) (dictionary,
-                                                                                  key,
-                                                                                  &output))
+            (^Dictionary: (member TryGetValue: 'key * byref< ^value > -> bool) (dictionary,
+                                                                                key,
+                                                                                &output))
 
         match parsed with
         | true -> Some output
