@@ -1,4 +1,4 @@
-### 4.0.0-beta001 - November 19, 2022
+### 4.0.0 - November 19, 2022
 - BREAKING: [Better alignment with FSharp.Core Result functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/199). Credits @TheAngryByrd
 - [Adding Option.either and friends](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/198). Credits @TheAngryByrd
 - [Fixes for Option.tryParse and tryGetValue](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/197). Credits @TheAngryByrd
