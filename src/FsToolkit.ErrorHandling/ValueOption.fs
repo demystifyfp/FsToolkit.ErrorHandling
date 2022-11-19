@@ -124,4 +124,23 @@ module ValueOption =
             |> ofNull
         | ValueNone -> ValueNone
 
+
+    /// <summary>
+    /// Returns result of running <paramref name="onSome"/> if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>
+    /// </summary>
+    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>ValueSome</c></param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c></param>
+    /// <param name="input">The input option.</param>
+    /// <returns>
+    /// The result of running <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.
+    /// </returns>
+    let inline either
+        ([<InlineIfLambda>] onSome: 'a -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: 'a voption)
+        : 'output =
+        match input with
+        | ValueSome x -> onSome x
+        | ValueNone -> onNone ()
+
 #endif

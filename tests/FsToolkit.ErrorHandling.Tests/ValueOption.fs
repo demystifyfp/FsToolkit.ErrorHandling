@@ -114,6 +114,23 @@ let bindNullTests =
             Expect.equal (ValueOption.bindNull someBinder value1) (ValueNone) ""
     ]
 
+
+let eitherTests =
+    testList "ValueOption.either Tests" [
+        testCase "Some"
+        <| fun _ ->
+            let value1 = ValueSome 5
+            let f () = 42
+            let add2 = (+) 2
+            Expect.equal (ValueOption.either add2 f value1) 7 ""
+        testCase "None"
+        <| fun _ ->
+            let value1 = ValueNone
+            let f () = 42
+            let add2 = (+) 2
+            Expect.equal (ValueOption.either add2 f value1) 42 ""
+    ]
+
 let allTests =
     testList "ValueOption Tests" [
         traverseResultTests
@@ -122,6 +139,7 @@ let allTests =
         ofResultTests
         ofNullTests
         bindNullTests
+        eitherTests
     ]
 #else
 

@@ -103,6 +103,26 @@ let asyncOptionOperatorTests =
         }
     ]
 
+let eitherTests =
+    testList "AsyncOption.either Tests" [
+        testCaseAsync "Some"
+        <| async {
+            let value1 = AsyncOption.retn 5
+            let f = async.Return 42
+            let add2 x = async { return x + 2 }
+            let! result = (AsyncOption.either add2 f value1)
+            Expect.equal result 7 ""
+        }
+        testCaseAsync "None"
+        <| async {
+            let value1 = async.Return None
+            let f = async.Return 42
+            let add2 x = async { return x + 2 }
+            let! result = (AsyncOption.either add2 f value1)
+            Expect.equal result 42 ""
+        }
+    ]
+
 let allTests =
     testList "Async Option Tests" [
         mapTests
@@ -110,4 +130,5 @@ let allTests =
         applyTests
         retnTests
         asyncOptionOperatorTests
+        eitherTests
     ]

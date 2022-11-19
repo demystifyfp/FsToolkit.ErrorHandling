@@ -118,6 +118,27 @@ let jobOptionOperatorTests =
             |> Expect.hasJobSomeValue (PostId newPostId)
     ]
 
+
+let eitherTests =
+    testList "JobOption.either Tests" [
+        testCaseJob "Some"
+        <| job {
+            let value1 = JobOption.retn 5
+            let f = job.Return 42
+            let add2 x = job { return x + 2 }
+            let! result = (JobOption.either add2 f value1)
+            Expect.equal result 7 ""
+        }
+        testCaseJob "None"
+        <| job {
+            let value1 = job.Return None
+            let f = job.Return 42
+            let add2 x = job { return x + 2 }
+            let! result = (JobOption.either add2 f value1)
+            Expect.equal result 42 ""
+        }
+    ]
+
 let allTests =
     testList "Job Option Tests" [
         mapTests
