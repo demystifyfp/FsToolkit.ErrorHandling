@@ -127,6 +127,27 @@ let taskOptionOperatorTests =
             |> Expect.hasTaskSomeValue (PostId newPostId)
     ]
 
+
+let eitherTests =
+    testList "TaskOption.either Tests" [
+        testCaseTask "Some"
+        <| fun () -> task {
+            let value1 = TaskOption.retn 5
+            let f () = Task.FromResult 42
+            let add2 x = task { return x + 2 }
+            let! result = (TaskOption.either add2 f value1)
+            Expect.equal result 7 ""
+           }
+        testCaseTask "None"
+        <| fun () -> task {
+            let value1 = Task.FromResult None
+            let f () = Task.FromResult 42
+            let add2 x = task { return x + 2 }
+            let! result = (TaskOption.either add2 f value1)
+            Expect.equal result 42 ""
+           }
+    ]
+
 let allTests =
     testList "Task Option Tests" [
         mapTests
@@ -134,4 +155,5 @@ let allTests =
         applyTests
         retnTests
         taskOptionOperatorTests
+        eitherTests
     ]

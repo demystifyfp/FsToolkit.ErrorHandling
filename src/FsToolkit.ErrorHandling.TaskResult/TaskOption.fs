@@ -30,3 +30,25 @@ module TaskOption =
     let inline zip x1 x2 =
         Task.zip x1 x2
         |> Task.map (fun (r1, r2) -> Option.zip r1 r2)
+
+
+    /// <summary>
+    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
+    /// </summary>
+    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
+    /// <param name="input">The input option.</param>
+    /// <returns>
+    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
+    /// </returns>
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> Task<'output>)
+        ([<InlineIfLambda>] onNone: unit -> Task<'output>)
+        (input: Task<'input option>)
+        : Task<'output> =
+        input
+        |> Task.bind (
+            function
+            | Some v -> onSome v
+            | None -> onNone ()
+        )
