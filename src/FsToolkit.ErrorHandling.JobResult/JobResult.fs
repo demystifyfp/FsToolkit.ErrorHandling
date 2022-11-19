@@ -183,7 +183,7 @@ module JobResult =
 
     /// Extracts the contained value of an job-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
-    let inline defaultWith ifErrorThunk jobResult =
+    let inline defaultWith ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok) jobResult =
         jobResult
         |> Job.map (Result.defaultWith ifErrorThunk)
 

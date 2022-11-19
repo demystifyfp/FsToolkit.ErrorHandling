@@ -94,9 +94,6 @@ let map2Tests =
     ]
 
 
-
-
-
 [<Tests>]
 let mapErrorTests =
     testList "JobResult.mapError tests" [
@@ -450,13 +447,13 @@ let defaultWithTests =
     testList "JobResult.defaultWith Tests" [
         testCase "defaultWith returns the ok value"
         <| fun _ ->
-            let v = JobResult.defaultWith (fun () -> 43) (toJob (Ok 42))
+            let v = JobResult.defaultWith (fun _ -> 43) (toJob (Ok 42))
 
             Expect.hasJobValue 42 v
 
         testCase "defaultValue invoks the given thunk for Error"
         <| fun _ ->
-            let v = JobResult.defaultWith (fun () -> 42) (toJob (Error err))
+            let v = JobResult.defaultWith (fun _ -> 42) (toJob (Error err))
 
             Expect.hasJobValue 42 v
     ]

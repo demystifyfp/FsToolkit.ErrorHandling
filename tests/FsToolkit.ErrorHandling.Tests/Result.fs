@@ -482,13 +482,13 @@ let defaultWithTests =
     testList "defaultWith Tests" [
         testCase "defaultWith returns the ok value"
         <| fun _ ->
-            let v = Result.defaultWith (fun () -> 43) (Ok 42)
+            let v = Result.defaultWith (fun _ -> 43) (Ok 42)
 
             Expect.equal v 42 ""
 
         testCase "defaultValue invoks the given thunk for Error"
         <| fun _ ->
-            let v = Result.defaultWith (fun () -> 42) (Error err)
+            let v = Result.defaultWith (fun _ -> 42) (Error err)
 
             Expect.equal v 42 ""
     ]

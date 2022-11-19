@@ -448,13 +448,13 @@ let defaultWithTests =
     testList "TaskResult.defaultWith Tests" [
         testCase "defaultWith returns the ok value"
         <| fun _ ->
-            let v = TaskResult.defaultWith (fun () -> 43) (toTask (Ok 42))
+            let v = TaskResult.defaultWith (fun _ -> 43) (toTask (Ok 42))
 
             Expect.hasTaskValue 42 v
 
         testCase "defaultValue invoks the given thunk for Error"
         <| fun _ ->
-            let v = TaskResult.defaultWith (fun () -> 42) (toTask (Error err))
+            let v = TaskResult.defaultWith (fun _ -> 42) (toTask (Error err))
 
             Expect.hasTaskValue 42 v
     ]
