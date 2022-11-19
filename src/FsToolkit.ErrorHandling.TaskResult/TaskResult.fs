@@ -21,9 +21,6 @@ module TaskResult =
                  >> Task.singleton)
         )
 
-    let inline foldResult ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) tr =
-        Task.map (Result.fold onSuccess onError) tr
-
     let inline ofAsync aAsync =
         aAsync
         |> Async.Catch

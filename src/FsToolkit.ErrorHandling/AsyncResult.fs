@@ -244,7 +244,7 @@ module AsyncResult =
     /// Extracts the contained value of an async-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
     let inline defaultWith
-        ([<InlineIfLambda>] ifErrorThunk: unit -> 'ok)
+        ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok)
         (asyncResult: Async<Result<'ok, 'error>>)
         : Async<'ok> =
         asyncResult

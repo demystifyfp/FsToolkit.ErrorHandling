@@ -18,9 +18,6 @@ module JobResult =
                  >> Job.result))
             jr
 
-    let inline foldResult ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
-        Job.map (Result.fold onSuccess onError) jr
-
     let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
         Job.map (Result.eitherMap onSuccess onError) jr
 
@@ -186,7 +183,7 @@ module JobResult =
 
     /// Extracts the contained value of an job-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
-    let inline defaultWith ifErrorThunk jobResult =
+    let inline defaultWith ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok) jobResult =
         jobResult
         |> Job.map (Result.defaultWith ifErrorThunk)
 

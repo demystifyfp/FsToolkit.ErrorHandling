@@ -87,15 +87,6 @@ module Result =
         | _, Error e, _
         | _, _, Error e -> Error e
 
-    let inline fold
-        ([<InlineIfLambda>] onOk: 'okInput -> 'output)
-        ([<InlineIfLambda>] onError: 'errorInput -> 'output)
-        (input: Result<'okInput, 'errorInput>)
-        : 'output =
-        match input with
-        | Ok x -> onOk x
-        | Error err -> onError err
-
     let inline ofChoice (input: Choice<'ok, 'error>) : Result<'ok, 'error> =
         match input with
         | Choice1Of2 x -> Ok x
@@ -252,12 +243,12 @@ module Result =
     /// Returns the contained value if Ok, otherwise evaluates ifErrorThunk and
     /// returns the result.
     let inline defaultWith
-        ([<InlineIfLambda>] ifErrorThunk: unit -> 'ok)
+        ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok)
         (result: Result<'ok, 'error>)
         : 'ok =
         match result with
         | Ok x -> x
-        | Error _ -> ifErrorThunk ()
+        | Error e -> ifErrorThunk e
 
     /// Same as defaultValue for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
