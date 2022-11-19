@@ -124,25 +124,6 @@ module Option =
     /// <summary>
     /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
     /// </summary>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
-    [<System.Obsolete("Call Option.either instead.", true)>]
-    let inline maybe
-        ([<InlineIfLambda>] onNone: unit -> 'output)
-        ([<InlineIfLambda>] onSome: 'a -> 'output)
-        (input: 'a option)
-        : 'output =
-        match input with
-        | Some x -> onSome x
-        | None -> onNone ()
-
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
     /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
     /// <param name="input">The input option.</param>
