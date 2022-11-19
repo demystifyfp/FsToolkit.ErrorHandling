@@ -96,27 +96,6 @@ let map2Tests =
             |> Expect.hasTaskErrorValueSync getFollowersEx
     ]
 
-
-[<Tests>]
-let foldResultTests =
-
-    testList "TaskResult.foldResult tests" [
-        testCase "foldResult with Task(Ok x)"
-        <| fun _ ->
-            createPostSuccess validCreatePostRequest
-            |> TaskResult.foldResult (fun (PostId id) -> id.ToString()) string
-            |> runTaskSync
-            |> Expect.same (newPostId.ToString())
-
-        testCase "foldResult with Task(Error x)"
-        <| fun _ ->
-            createPostFailure validCreatePostRequest
-            |> TaskResult.foldResult string (fun ex -> ex.Message)
-            |> runTaskSync
-            |> Expect.same (commonEx.Message)
-    ]
-
-
 [<Tests>]
 let mapErrorTests =
     testList "TaskResult.mapError tests" [

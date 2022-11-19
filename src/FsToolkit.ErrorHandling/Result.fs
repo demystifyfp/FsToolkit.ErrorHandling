@@ -87,15 +87,6 @@ module Result =
         | _, Error e, _
         | _, _, Error e -> Error e
 
-    let inline fold
-        ([<InlineIfLambda>] onOk: 'okInput -> 'output)
-        ([<InlineIfLambda>] onError: 'errorInput -> 'output)
-        (input: Result<'okInput, 'errorInput>)
-        : 'output =
-        match input with
-        | Ok x -> onOk x
-        | Error err -> onError err
-
     let inline ofChoice (input: Choice<'ok, 'error>) : Result<'ok, 'error> =
         match input with
         | Choice1Of2 x -> Ok x

@@ -94,24 +94,7 @@ let map2Tests =
     ]
 
 
-[<Tests>]
-let foldResultTests =
 
-    testList "JobResult.foldResult tests" [
-        testCase "foldResult with Task(Ok x)"
-        <| fun _ ->
-            createPostSuccess validCreatePostRequest
-            |> JobResult.foldResult (fun (PostId id) -> id.ToString()) string
-            |> runJobSync
-            |> Expect.same (newPostId.ToString())
-
-        testCase "foldResult with Task(Error x)"
-        <| fun _ ->
-            createPostFailure validCreatePostRequest
-            |> JobResult.foldResult string (fun ex -> ex.Message)
-            |> runJobSync
-            |> Expect.same (commonEx.Message)
-    ]
 
 
 [<Tests>]

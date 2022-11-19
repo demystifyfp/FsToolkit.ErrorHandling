@@ -132,28 +132,6 @@ let applyTests =
             |> Expect.hasErrorValue emptyTweetErrMsg
     ]
 
-
-let foldTests =
-
-    testList "Result.fold tests" [
-        testCase "fold with Ok"
-        <| fun _ ->
-            let actual =
-                Tweet.TryCreate "foobar"
-                |> Result.fold (fun t -> t.Value) id
-
-            Expect.equal actual "foobar" "fold to string should succeed"
-
-        testCase "fold with Error"
-        <| fun _ ->
-            let actual =
-                Tweet.TryCreate ""
-                |> Result.fold (fun t -> t.Value) id
-
-            Expect.equal actual emptyTweetErrMsg "fold to string should fail"
-    ]
-
-
 let ofChoiceTests =
 
     testList "Result.ofChoice tests" [
@@ -821,7 +799,6 @@ let allTests =
         map2Tests
         map3Tests
         applyTests
-        foldTests
         ofChoiceTests
         resultCETests
         resultOperatorsTests
