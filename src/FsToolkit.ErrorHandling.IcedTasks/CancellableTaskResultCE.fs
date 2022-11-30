@@ -19,7 +19,6 @@ module CancellableTaskResultCE =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
-
     /// The extra data stored in ResumableStateMachine for tasks
     [<Struct; NoComparison; NoEquality>]
     type CancellableTaskResultStateMachineData<'T, 'Error> =
@@ -32,9 +31,12 @@ module CancellableTaskResultCE =
         [<DefaultValue(false)>]
         val mutable MethodBuilder: CancellableTaskResultMethodBuilder<'T, 'Error>
 
+        member inline this.IsResultError = Result.isError this.Result
+        member inline this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
 
-        member this.IsResultError = Result.isError this.Result
-        member this.IsTaskCompleted = this.MethodBuilder.Task.IsCompleted
+        with
+            member inline this.ThrowIfCancellationRequested() =
+                this.CancellationToken.ThrowIfCancellationRequested()
 
 
     and CancellableTaskResultMethodBuilder<'TOverall, 'Error> =
@@ -53,61 +55,61 @@ module CancellableTaskResultCE =
         ResumableCode<CancellableTaskResultStateMachineData<'TOverall, 'Error>, 'T>
 
 
-    module CancellableTaskResultBuilderBase =
+    // module CancellableTaskResultBuilderBase =
 
-        let rec WhileDynamic
-            (
-                sm: byref<CancellableTaskResultStateMachine<_, _>>,
-                condition: unit -> bool,
-                body: CancellableTaskResultCode<_, _, _>
-            ) : bool =
-            if condition () then
-                if body.Invoke(&sm) then
-                    if sm.Data.IsResultError then
-                        // Set the result now to allow short-circuiting of the rest of the CE.
-                        // Run/RunDynamic will skip setting the result if it's already been set.
-                        // Combine/CombineDynamic will not continue if the result has been set.
-                        sm.Data.MethodBuilder.SetResult sm.Data.Result
-                        true
-                    else
-                        WhileDynamic(&sm, condition, body)
-                else
-                    let rf = sm.ResumptionDynamicInfo.ResumptionFunc
+    //     let rec WhileDynamic
+    //         (
+    //             sm: byref<CancellableTaskResultStateMachine<_, _>>,
+    //             condition: unit -> bool,
+    //             body: CancellableTaskResultCode<_, _, _>
+    //         ) : bool =
+    //         if condition () then
+    //             if body.Invoke(&sm) then
+    //                 if sm.Data.IsResultError then
+    //                     // Set the result now to allow short-circuiting of the rest of the CE.
+    //                     // Run/RunDynamic will skip setting the result if it's already been set.
+    //                     // Combine/CombineDynamic will not continue if the result has been set.
+    //                     sm.Data.MethodBuilder.SetResult sm.Data.Result
+    //                     true
+    //                 else
+    //                     WhileDynamic(&sm, condition, body)
+    //             else
+    //                 let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
-                    sm.ResumptionDynamicInfo.ResumptionFunc <-
-                        (CancellableTaskResultResumptionFunc<_, _>(fun sm ->
-                            WhileBodyDynamicAux(&sm, condition, body, rf)
-                        ))
+    //                 sm.ResumptionDynamicInfo.ResumptionFunc <-
+    //                     (CancellableTaskResultResumptionFunc<_, _>(fun sm ->
+    //                         WhileBodyDynamicAux(&sm, condition, body, rf)
+    //                     ))
 
-                    false
-            else
-                true
+    //                 false
+    //         else
+    //             true
 
-        and WhileBodyDynamicAux
-            (
-                sm: byref<CancellableTaskResultStateMachine<_, _>>,
-                condition: unit -> bool,
-                body: CancellableTaskResultCode<_, _, _>,
-                rf: CancellableTaskResultResumptionFunc<_, _>
-            ) : bool =
-            if rf.Invoke(&sm) then
-                if sm.Data.IsResultError then
-                    // Set the result now to allow short-circuiting of the rest of the CE.
-                    // Run/RunDynamic will skip setting the result if it's already been set.
-                    // Combine/CombineDynamic will not continue if the result has been set.
-                    sm.Data.MethodBuilder.SetResult sm.Data.Result
-                    true
-                else
-                    WhileDynamic(&sm, condition, body)
-            else
-                let rf = sm.ResumptionDynamicInfo.ResumptionFunc
+    //     and WhileBodyDynamicAux
+    //         (
+    //             sm: byref<CancellableTaskResultStateMachine<_, _>>,
+    //             condition: unit -> bool,
+    //             body: CancellableTaskResultCode<_, _, _>,
+    //             rf: CancellableTaskResultResumptionFunc<_, _>
+    //         ) : bool =
+    //         if rf.Invoke(&sm) then
+    //             if sm.Data.IsResultError then
+    //                 // Set the result now to allow short-circuiting of the rest of the CE.
+    //                 // Run/RunDynamic will skip setting the result if it's already been set.
+    //                 // Combine/CombineDynamic will not continue if the result has been set.
+    //                 sm.Data.MethodBuilder.SetResult sm.Data.Result
+    //                 true
+    //             else
+    //                 WhileDynamic(&sm, condition, body)
+    //         else
+    //             let rf = sm.ResumptionDynamicInfo.ResumptionFunc
 
-                sm.ResumptionDynamicInfo.ResumptionFunc <-
-                    (CancellableTaskResultResumptionFunc<_, _>(fun sm ->
-                        WhileBodyDynamicAux(&sm, condition, body, rf)
-                    ))
+    //             sm.ResumptionDynamicInfo.ResumptionFunc <-
+    //                 (CancellableTaskResultResumptionFunc<_, _>(fun sm ->
+    //                     WhileBodyDynamicAux(&sm, condition, body, rf)
+    //                 ))
 
-                false
+    //             false
 
     type CancellableTaskResultBuilderBase() =
 
@@ -115,7 +117,13 @@ module CancellableTaskResultCE =
         member inline _.Delay
             (generator: unit -> CancellableTaskResultCode<'TOverall, 'Error, 'T>)
             : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
-            CancellableTaskResultCode<'TOverall, 'Error, 'T>(fun sm -> (generator ()).Invoke(&sm))
+
+            ResumableCode.Delay(fun () ->
+                CancellableTaskResultCode(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    (generator ()).Invoke(&sm)
+                )
+            )
 
         /// Used to represent no-ops like the implicit empty "else" branch of an "if" expression.
         // [<DefaultValue>]
@@ -126,6 +134,7 @@ module CancellableTaskResultCE =
 
         member inline _.Return(value: 'T) : CancellableTaskResultCode<'T, 'Error, 'T> =
             CancellableTaskResultCode<'T, _, _>(fun sm ->
+                sm.Data.ThrowIfCancellationRequested()
                 sm.Data.Result <- Ok value
                 true
             )
@@ -172,23 +181,18 @@ module CancellableTaskResultCE =
                 task1: CancellableTaskResultCode<'TOverall, 'Error, unit>,
                 task2: CancellableTaskResultCode<'TOverall, 'Error, 'T>
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
+            ResumableCode.Combine(
+                CancellableTaskResultCode(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    task1.Invoke(&sm)
+                ),
 
-            CancellableTaskResultCode<'TOverall, 'Error, 'T>(fun sm ->
-                if __useResumableCode then
-                    //-- RESUMABLE CODE START
-                    // NOTE: The code for code1 may contain await points! Resuming may branch directly
-                    // into this code!
-                    // printfn "Combine Called Before Invoke --> "
-                    let __stack_fin = task1.Invoke(&sm)
-                    // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
-
-                    if sm.Data.IsTaskCompleted then true
-                    elif __stack_fin then task2.Invoke(&sm)
-                    else false
-                else
-                    CancellableTaskResultBuilderBase.CombineDynamic(&sm, task1, task2)
+                CancellableTaskResultCode(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    if sm.Data.IsResultError then true
+                    else task2.Invoke(&sm)
+                )
             )
-
 
         /// Builds a step that executes the body while the condition predicate is true.
         member inline _.While
@@ -196,34 +200,22 @@ module CancellableTaskResultCE =
                 [<InlineIfLambda>] condition: unit -> bool,
                 body: CancellableTaskResultCode<'TOverall, 'Error, unit>
             ) : CancellableTaskResultCode<'TOverall, 'Error, unit> =
-            CancellableTaskResultCode<'TOverall, 'Error, unit>(fun sm ->
-                if __useResumableCode then
-                    //-- RESUMABLE CODE START
-                    let mutable __stack_go = true
-
-                    while __stack_go
-                          && not sm.Data.IsResultError
-                          && condition () do
-                        // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
-                        // the code will branch directly into the expanded 'body', branching directly into the while loop
-                        let __stack_body_fin = body.Invoke(&sm)
-                        // printfn "While After Invoke --> %A" sm.Data.Result
-                        // If the body completed, we go back around the loop (__stack_go = true)
-                        // If the body yielded, we yield (__stack_go = false)
-                        __stack_go <- __stack_body_fin
-
-                    if sm.Data.IsResultError then
-                        // Set the result now to allow short-circuiting of the rest of the CE.
-                        // Run/RunDynamic will skip setting the result if it's already been set.
-                        // Combine/CombineDynamic will not continue if the result has been set.
-                        sm.Data.MethodBuilder.SetResult sm.Data.Result
-
-                    __stack_go
-                //-- RESUMABLE CODE END
+                    ResumableCode.While(
+            condition,
+            CancellableTaskResultCode<_, _, _>(fun sm ->
+                sm.Data.ThrowIfCancellationRequested()
+                if sm.Data.IsResultError then
+                    sm.Data.MethodBuilder.SetResult sm.Data.Result
+                    false
                 else
-                    // failwith "no dynamic yet"
-                    CancellableTaskResultBuilderBase.WhileDynamic(&sm, condition, body)
+                    let __stack_body_fin = body.Invoke(&sm)
+                    if sm.Data.IsResultError then
+                        sm.Data.MethodBuilder.SetResult sm.Data.Result
+                        false
+                    else
+                        __stack_body_fin
             )
+        )
 
         /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
         /// to retrieve the step, and in the continuation of the step (if any).
@@ -232,18 +224,27 @@ module CancellableTaskResultCE =
                 body: CancellableTaskResultCode<'TOverall, 'Error, 'T>,
                 catch: exn -> CancellableTaskResultCode<'TOverall, 'Error, 'T>
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
-            ResumableCode.TryWith(body, catch)
-
+            ResumableCode.TryWith(
+                CancellableTaskResultCode(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    body.Invoke(&sm)
+                ),
+                catch
+            )
         /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
         /// to retrieve the step, and in the continuation of the step (if any).
         member inline _.TryFinally
             (
-                body: CancellableTaskResultCode<'TOverall, 'Error, 'T>,
+                computation: CancellableTaskResultCode<'TOverall, 'Error, 'T>,
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
             ResumableCode.TryFinally(
-                body,
-                ResumableCode<_, _>(fun _sm ->
+
+                CancellableTaskResultCode(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    computation.Invoke(&sm)
+                ),
+                ResumableCode<_, _>(fun _ ->
                     compensation ()
                     true
                 )
@@ -261,8 +262,8 @@ module CancellableTaskResultCE =
                     this.While(
                         (fun () -> e.MoveNext()),
                         CancellableTaskResultCode<'TOverall, 'Error, unit>(fun sm ->
-                            (body e.Current).Invoke(&sm)
-                        )
+                            sm.Data.ThrowIfCancellationRequested()
+                            (body e.Current).Invoke(&sm))
                     )
                 )
             )
@@ -275,6 +276,7 @@ module CancellableTaskResultCE =
             ResumableCode.TryFinallyAsync(
                 body,
                 ResumableCode<_, _>(fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
                     if __useResumableCode then
                         let mutable __stack_condition_fin = true
                         let __stack_vtask = compensation ()
@@ -315,17 +317,21 @@ module CancellableTaskResultCE =
         member inline this.Using<'Resource, 'TOverall, 'Error, 'T when 'Resource :> IAsyncDisposable>
             (
                 resource: 'Resource,
-                body: 'Resource -> CancellableTaskResultCode<'TOverall, 'Error, 'T>
+                binder: 'Resource -> CancellableTaskResultCode<'TOverall, 'Error, 'T>
             ) : CancellableTaskResultCode<'TOverall, 'Error, 'T> =
             this.TryFinallyAsync(
-                (fun sm -> (body resource).Invoke(&sm)),
+                (fun sm ->
+                    sm.Data.ThrowIfCancellationRequested()
+                    (binder resource).Invoke(&sm)
+                ),
                 (fun () ->
                     if not (isNull (box resource)) then
                         resource.DisposeAsync()
                     else
-                        ValueTask()
+                        ValueTask.CompletedTask
                 )
             )
+
 
         member inline this.Source
             (ctr: CancellableTaskResult<'T, 'Error>)
@@ -498,7 +504,7 @@ module CancellableTaskResultCE =
                         ct
                     )
 
-        //// Same as CancellableTaskResultBuilder.Run except the start is inside Task.Run if necessary
+        /// Same as CancellableTaskResultBuilder.Run except the start is inside Task.Run if necessary
         member inline _.Run
             (code: CancellableTaskResultCode<'T, 'Error, 'T>)
             : CancellableTaskResult<'T, 'Error> =
@@ -797,10 +803,11 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member GetResult: unit -> 'T)>
                 (t: ^TaskLike)
                 : CancellableTaskResult<_, _> =
-                // : CancellableTaskResultCode<_,_,_> =
+                // : CancellableTaskResultCode<'T,'Error,'T> =
                 // TODO: Gets errors like "error FS0073: internal error: Undefined or unsolved type variable:  ^Awaiter"
                 // this.Run(this.ReturnFrom(t))
                 // this.ReturnFrom(t)
+
                 fun _ -> task {
                     let! r = t
                     return Ok r
