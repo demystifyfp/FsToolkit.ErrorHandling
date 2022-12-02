@@ -801,7 +801,7 @@ module CancellableTaskResultCE =
                     "CancellationToken flows from CancellableTaskResult<T> to CancellableTask<T>"
                 <| fun () ->
                     let innerAsync = cancellableTask {
-                        return! CancellableTask.getCancellationToken
+                        return! CancellableTask.getCancellationToken ()
                     }
 
                     let outerTask = cancellableTaskResult { return! innerAsync }
