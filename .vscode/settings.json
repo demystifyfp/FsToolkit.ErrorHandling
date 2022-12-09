@@ -1,5 +1,6 @@
 {
     "editor.inlayHints.enabled": "off",
     "FSharp.enableAdaptiveLspServer": true,
-    "FSharp.enableMSBuildProjectGraph": true
+    "FSharp.enableMSBuildProjectGraph": true,
+    "editor.formatOnSave": true
 }

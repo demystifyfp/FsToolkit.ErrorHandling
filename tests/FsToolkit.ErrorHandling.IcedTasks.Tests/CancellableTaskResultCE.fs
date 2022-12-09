@@ -210,6 +210,16 @@ module CancellableTaskResultCE =
                     Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
                    }
 
+                testCaseTask "return! CancellableValueTask<'T>"
+                <| fun () -> task {
+                    let data = 42
+
+                    let ctr = cancellableTaskResult { return! cancellableValueTask { return data } }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
+                   }
+
                 testCaseTask "return! CancellableTask"
                 <| fun () -> task {
 
@@ -221,9 +231,37 @@ module CancellableTaskResultCE =
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
                    }
 
+                testCaseTask "return! CancellableValueTask"
+                <| fun () -> task {
+
+                    let ctr = cancellableTaskResult {
+                        return! fun (ct: CancellationToken) -> ValueTask.CompletedTask
+                    }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok()) "Should be able to Return! CancellableTask<'T>"
+                   }
+
                 testCaseTask "return! TaskLike"
                 <| fun () -> task {
                     let ctr = cancellableTaskResult { return! Task.Yield() }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
+                   }
+                testCaseTask "return! Cold TaskLike"
+                <| fun () -> task {
+                    let ctr = cancellableTaskResult { return! fun () -> Task.Yield() }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
+                   }
+
+                testCaseTask "return! Cancellable TaskLike"
+                <| fun () -> task {
+                    let ctr = cancellableTaskResult {
+                        return! fun (ct: CancellationToken) -> Task.Yield()
+                    }
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
@@ -435,10 +473,22 @@ module CancellableTaskResultCE =
                    }
                 testCaseTask "let! CancellableTask<'T>"
                 <| fun () -> task {
-                    let data = ()
+                    let data = 42
 
                     let ctr = cancellableTaskResult {
                         let! someValue = cancellableTask { return data }
+                        return someValue
+                    }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok data) "Should be able to let! CancellableTask<'T>"
+                   }
+                testCaseTask "let! CancellableValueTask<'T>"
+                <| fun () -> task {
+                    let data = 42
+
+                    let ctr = cancellableTaskResult {
+                        let! someValue = cancellableValueTask { return data }
                         return someValue
                     }
 
@@ -457,12 +507,13 @@ module CancellableTaskResultCE =
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
                    }
-                testCaseTask "do! CancellableTask"
+
+                testCaseTask "do! CancellableValueTask"
                 <| fun () -> task {
                     let data = ()
 
                     let ctr = cancellableTaskResult {
-                        do! fun (ct: CancellationToken) -> Task.CompletedTask
+                        do! fun (ct: CancellationToken) -> ValueTask.CompletedTask
                     }
 
                     let! actual = ctr CancellationToken.None
@@ -475,6 +526,32 @@ module CancellableTaskResultCE =
 
                     let ctr = cancellableTaskResult {
                         let! someValue = Task.Yield()
+                        return someValue
+                    }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok data) "Should be able to let! TaskLike"
+                   }
+
+                testCaseTask "let! Cold TaskLike"
+                <| fun () -> task {
+                    let data = ()
+
+                    let ctr = cancellableTaskResult {
+                        let! someValue = fun () -> Task.Yield()
+                        return someValue
+                    }
+
+                    let! actual = ctr CancellationToken.None
+                    Expect.equal actual (Ok data) "Should be able to let! TaskLike"
+                   }
+
+                testCaseTask "let! Cancellable TaskLike"
+                <| fun () -> task {
+                    let data = ()
+
+                    let ctr = cancellableTaskResult {
+                        let! someValue = fun (ct: CancellationToken) -> Task.Yield()
                         return someValue
                     }
 
@@ -581,7 +658,7 @@ module CancellableTaskResultCE =
             ]
 
             testList "While" [
-                testCaseAsync "while"
+                testCaseAsync "while 10"
                 <| async {
                     let loops = 10
                     let mutable index = 0
@@ -595,6 +672,22 @@ module CancellableTaskResultCE =
 
                     Expect.equal actual (Ok loops) "Should be ok"
                 }
+
+                testCaseAsync "while 10000000"
+                <| async {
+                    let loops = 10000000
+                    let mutable index = 0
+
+                    let! actual = cancellableTaskResult {
+                        while index < loops do
+                            index <- index + 1
+
+                        return index
+                    }
+
+                    Expect.equal actual (Ok loops) "Should be ok"
+                }
+
                 testCaseTask "while fail"
                 <| fun () -> task {
 

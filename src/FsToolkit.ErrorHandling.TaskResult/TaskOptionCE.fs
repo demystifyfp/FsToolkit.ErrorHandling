@@ -476,63 +476,6 @@ and TaskOptionResumptionDynamicInfo<'TOverall> =
 
 and TaskOptionCode<'TOverall, 'T> = ResumableCode<TaskOptionStateMachineData<'TOverall>, 'T>
 
-
-module TaskOptionBuilderBase =
-
-    let rec WhileDynamic
-        (
-            sm: byref<TaskOptionStateMachine<_>>,
-            condition: unit -> bool,
-            body: TaskOptionCode<_, _>
-        ) : bool =
-        if condition () then
-            if body.Invoke(&sm) then
-                if sm.Data.IsResultNone then
-                    // Set the result now to allow short-circuiting of the rest of the CE.
-                    // Run/RunDynamic will skip setting the result if it's already been set.
-                    // Combine/CombineDynamic will not continue if the result has been set.
-                    sm.Data.SetResult()
-                    true
-                else
-                    WhileDynamic(&sm, condition, body)
-            else
-                let rf = sm.ResumptionDynamicInfo.ResumptionFunc
-
-                sm.ResumptionDynamicInfo.ResumptionFunc <-
-                    (TaskOptionResumptionFunc<_>(fun sm ->
-                        WhileBodyDynamicAux(&sm, condition, body, rf)
-                    ))
-
-                false
-        else
-            true
-
-    and WhileBodyDynamicAux
-        (
-            sm: byref<TaskOptionStateMachine<_>>,
-            condition: unit -> bool,
-            body: TaskOptionCode<_, _>,
-            rf: TaskOptionResumptionFunc<_>
-        ) : bool =
-        if rf.Invoke(&sm) then
-            if sm.Data.IsResultNone then
-                // Set the result now to allow short-circuiting of the rest of the CE.
-                // Run/RunDynamic will skip setting the result if it's already been set.
-                // Combine/CombineDynamic will not continue if the result has been set.
-                sm.Data.SetResult()
-                true
-            else
-                WhileDynamic(&sm, condition, body)
-        else
-            let rf = sm.ResumptionDynamicInfo.ResumptionFunc
-
-            sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (TaskOptionResumptionFunc<_>(fun sm -> WhileBodyDynamicAux(&sm, condition, body, rf)
-                ))
-
-            false
-
-
 type TaskOptionBuilderBase() =
 
     member inline _.Delay
@@ -554,39 +497,6 @@ type TaskOptionBuilderBase() =
             true
         )
 
-    static member inline CombineDynamic
-        (
-            sm: byref<TaskOptionStateMachine<_>>,
-            task1: TaskOptionCode<'TOverall, unit>,
-            task2: TaskOptionCode<'TOverall, 'T>
-        ) : bool =
-        let shouldContinue = task1.Invoke(&sm)
-
-        if sm.Data.IsTaskCompleted then
-            true
-        elif shouldContinue then
-            task2.Invoke(&sm)
-        else
-            let rec resume (mf: TaskOptionResumptionFunc<_>) =
-                TaskOptionResumptionFunc<_>(fun sm ->
-                    let shouldContinue = mf.Invoke(&sm)
-
-                    if sm.Data.IsTaskCompleted then
-                        true
-                    elif shouldContinue then
-                        task2.Invoke(&sm)
-                    else
-                        sm.ResumptionDynamicInfo.ResumptionFunc <-
-                            (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
-
-                        false
-                )
-
-            sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
-
-            false
-
     /// Chains together a step with its following step.
     /// Note that this requires that the first step has no result.
     /// This prevents constructs like `task { return 1; return 2; }`.
@@ -596,20 +506,11 @@ type TaskOptionBuilderBase() =
             task2: TaskOptionCode<'TOverall, 'T>
         ) : TaskOptionCode<'TOverall, 'T> =
 
-        TaskOptionCode<'TOverall, 'T>(fun sm ->
-            if __useResumableCode then
-                //-- RESUMABLE CODE START
-                // NOTE: The code for code1 may contain await points! Resuming may branch directly
-                // into this code!
-                // printfn "Combine Called Before Invoke --> "
-                let __stack_fin = task1.Invoke(&sm)
-                // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
-
-                if sm.Data.IsTaskCompleted then true
-                elif __stack_fin then task2.Invoke(&sm)
-                else false
-            else
-                TaskOptionBuilderBase.CombineDynamic(&sm, task1, task2)
+        ResumableCode.Combine(
+            task1,
+            TaskOptionCode<'TOverall, 'T>(fun sm ->
+                if sm.Data.IsResultNone then true else task2.Invoke(&sm)
+            )
         )
 
     /// Builds a step that executes the body while the condition predicate is true.
@@ -618,33 +519,17 @@ type TaskOptionBuilderBase() =
             [<InlineIfLambda>] condition: unit -> bool,
             body: TaskOptionCode<'TOverall, unit>
         ) : TaskOptionCode<'TOverall, unit> =
-        TaskOptionCode<'TOverall, unit>(fun sm ->
-            if __useResumableCode then
-                //-- RESUMABLE CODE START
-                let mutable __stack_go = true
-
-                while __stack_go
-                      && not sm.Data.IsResultNone
-                      && condition () do
-                    // printfn "While -> %A" sm.Data.Result
-                    // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
-                    // the code will branch directly into the expanded 'body', branching directly into the while loop
-                    let __stack_body_fin = body.Invoke(&sm)
-                    // printfn "While After Invoke --> %A" sm.Data.Result
-                    // If the body completed, we go back around the loop (__stack_go = true)
-                    // If the body yielded, we yield (__stack_go = false)
-                    __stack_go <- __stack_body_fin
+        ResumableCode.While(
+            condition,
+            TaskOptionCode<_, _>(fun sm ->
+                let __stack_body_fin = body.Invoke(&sm)
 
                 if sm.Data.IsResultNone then
-                    // Set the result now to allow short-circuiting of the rest of the CE.
-                    // Run/RunDynamic will skip setting the result if it's already been set.
-                    // Combine/CombineDynamic will not continue if the result has been set.
                     sm.Data.SetResult()
-
-                __stack_go
-            //-- RESUMABLE CODE END
-            else
-                TaskOptionBuilderBase.WhileDynamic(&sm, condition, body)
+                    false
+                else
+                    __stack_body_fin
+            )
         )
 
 
