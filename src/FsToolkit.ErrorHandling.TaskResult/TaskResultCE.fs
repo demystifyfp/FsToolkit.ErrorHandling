@@ -521,61 +521,6 @@ and TaskResultResumptionDynamicInfo<'TOverall, 'Error> =
 and TaskResultCode<'TOverall, 'Error, 'T> =
     ResumableCode<TaskResultStateMachineData<'TOverall, 'Error>, 'T>
 
-module TaskResultBuilderBase =
-
-    let rec WhileDynamic
-        (
-            sm: byref<TaskResultStateMachine<_, _>>,
-            condition: unit -> bool,
-            body: TaskResultCode<_, _, _>
-        ) : bool =
-        if condition () then
-            if body.Invoke(&sm) then
-                if sm.Data.IsResultError then
-                    // Set the result now to allow short-circuiting of the rest of the CE.
-                    // Run/RunDynamic will skip setting the result if it's already been set.
-                    // Combine/CombineDynamic will not continue if the result has been set.
-                    sm.Data.MethodBuilder.SetResult sm.Data.Result
-                    true
-                else
-                    WhileDynamic(&sm, condition, body)
-            else
-                let rf = sm.ResumptionDynamicInfo.ResumptionFunc
-
-                sm.ResumptionDynamicInfo.ResumptionFunc <-
-                    (TaskResultResumptionFunc<_, _>(fun sm ->
-                        WhileBodyDynamicAux(&sm, condition, body, rf)
-                    ))
-
-                false
-        else
-            true
-
-    and WhileBodyDynamicAux
-        (
-            sm: byref<TaskResultStateMachine<_, _>>,
-            condition: unit -> bool,
-            body: TaskResultCode<_, _, _>,
-            rf: TaskResultResumptionFunc<_, _>
-        ) : bool =
-        if rf.Invoke(&sm) then
-            if sm.Data.IsResultError then
-                // Set the result now to allow short-circuiting of the rest of the CE.
-                // Run/RunDynamic will skip setting the result if it's already been set.
-                // Combine/CombineDynamic will not continue if the result has been set.
-                sm.Data.MethodBuilder.SetResult sm.Data.Result
-                true
-            else
-                WhileDynamic(&sm, condition, body)
-        else
-            let rf = sm.ResumptionDynamicInfo.ResumptionFunc
-
-            sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (TaskResultResumptionFunc<_, _>(fun sm ->
-                    WhileBodyDynamicAux(&sm, condition, body, rf)
-                ))
-
-            false
 
 type TaskResultBuilderBase() =
     member inline _.Delay
@@ -592,42 +537,9 @@ type TaskResultBuilderBase() =
         TaskResultCode<'T, 'Error, _>(fun sm ->
             // printfn "Return Called --> "
             sm.Data.Result <- Ok value
-
             true
         )
 
-    static member inline CombineDynamic
-        (
-            sm: byref<TaskResultStateMachine<_, _>>,
-            task1: TaskResultCode<'TOverall, 'Error, unit>,
-            task2: TaskResultCode<'TOverall, 'Error, 'T>
-        ) : bool =
-        let shouldContinue = task1.Invoke(&sm)
-
-        if sm.Data.IsTaskCompleted then
-            true
-        elif shouldContinue then
-            task2.Invoke(&sm)
-        else
-            let rec resume (mf: TaskResultResumptionFunc<_, _>) =
-                TaskResultResumptionFunc<_, _>(fun sm ->
-                    let shouldContinue = mf.Invoke(&sm)
-
-                    if sm.Data.IsTaskCompleted then
-                        true
-                    elif shouldContinue then
-                        task2.Invoke(&sm)
-                    else
-                        sm.ResumptionDynamicInfo.ResumptionFunc <-
-                            (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
-
-                        false
-                )
-
-            sm.ResumptionDynamicInfo.ResumptionFunc <-
-                (resume (sm.ResumptionDynamicInfo.ResumptionFunc))
-
-            false
 
     /// Chains together a step with its following step.
     /// Note that this requires that the first step has no result.
@@ -638,20 +550,11 @@ type TaskResultBuilderBase() =
             task2: TaskResultCode<'TOverall, 'Error, 'T>
         ) : TaskResultCode<'TOverall, 'Error, 'T> =
 
-        TaskResultCode<'TOverall, 'Error, 'T>(fun sm ->
-            if __useResumableCode then
-                //-- RESUMABLE CODE START
-                // NOTE: The code for code1 may contain await points! Resuming may branch directly
-                // into this code!
-                // printfn "Combine Called Before Invoke --> "
-                let __stack_fin = task1.Invoke(&sm)
-                // printfn "Combine Called After Invoke --> %A " sm.Data.MethodBuilder.Task.Status
-
-                if sm.Data.IsTaskCompleted then true
-                elif __stack_fin then task2.Invoke(&sm)
-                else false
-            else
-                TaskResultBuilderBase.CombineDynamic(&sm, task1, task2)
+        ResumableCode.Combine(
+            task1,
+            TaskResultCode<'TOverall, 'Error, 'T>(fun sm ->
+                if sm.Data.IsResultError then true else task2.Invoke(&sm)
+            )
         )
 
 
@@ -661,32 +564,17 @@ type TaskResultBuilderBase() =
             [<InlineIfLambda>] condition: unit -> bool,
             body: TaskResultCode<'TOverall, 'Error, unit>
         ) : TaskResultCode<'TOverall, 'Error, unit> =
-        TaskResultCode<'TOverall, 'Error, unit>(fun sm ->
-            if __useResumableCode then
-                //-- RESUMABLE CODE START
-                let mutable __stack_go = true
-
-                while __stack_go
-                      && not sm.Data.IsResultError
-                      && condition () do
-                    // NOTE: The body of the state machine code for 'while' may contain await points, so resuming
-                    // the code will branch directly into the expanded 'body', branching directly into the while loop
-                    let __stack_body_fin = body.Invoke(&sm)
-                    // printfn "While After Invoke --> %A" sm.Data.Result
-                    // If the body completed, we go back around the loop (__stack_go = true)
-                    // If the body yielded, we yield (__stack_go = false)
-                    __stack_go <- __stack_body_fin
+        ResumableCode.While(
+            condition,
+            TaskResultCode<_, _, _>(fun sm ->
+                let __stack_body_fin = body.Invoke(&sm)
 
                 if sm.Data.IsResultError then
-                    // Set the result now to allow short-circuiting of the rest of the CE.
-                    // Run/RunDynamic will skip setting the result if it's already been set.
-                    // Combine/CombineDynamic will not continue if the result has been set.
                     sm.Data.MethodBuilder.SetResult sm.Data.Result
-
-                __stack_go
-            //-- RESUMABLE CODE END
-            else
-                TaskResultBuilderBase.WhileDynamic(&sm, condition, body)
+                    false
+                else
+                    __stack_body_fin
+            )
         )
 
     /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
@@ -927,7 +815,7 @@ type BackgroundTaskResultBuilder() =
             Task.Run<Result<'T, 'Error>>(fun () -> TaskResultBuilder.RunDynamic(code))
 
 
-    //// Same as TaskBuilder.Run except the start is inside Task.Run if necessary
+    /// Same as TaskBuilder.Run except the start is inside Task.Run if necessary
     member inline _.Run(code: TaskResultCode<'T, 'Error, 'T>) : TaskResult<'T, 'Error> =
         if __useResumableCode then
             __stateMachine<TaskResultStateMachineData<'T, 'Error>, TaskResult<'T, 'Error>>
@@ -999,18 +887,17 @@ module TaskResultCEExtensionsLowPriority =
 
 
         [<NoEagerConstraintApplication>]
-        static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
+        static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
             (
                 sm: byref<_>,
-                task: ^TaskLike,
+                awaiter: ^Awaiter,
                 continuation: ('TResult1 -> TaskResultCode<'TOverall, 'Error, 'TResult2>)
             ) : bool =
 
-            let mutable awaiter = (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
+            let mutable awaiter = awaiter
 
             let cont =
                 (TaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
@@ -1036,13 +923,12 @@ module TaskResultCEExtensionsLowPriority =
                 false
 
         [<NoEagerConstraintApplication>]
-        member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
+        member inline _.Bind<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
             (
-                task: ^TaskLike,
+                awaiter: ^Awaiter,
                 continuation: ('TResult1 -> TaskResultCode<'TOverall, 'Error, 'TResult2>)
             ) : TaskResultCode<'TOverall, 'Error, 'TResult2> =
 
@@ -1052,7 +938,7 @@ module TaskResultCEExtensionsLowPriority =
                     // Get an awaiter from the awaitable
                     // printfn "Bynd --> %A" sm.Data.Result
 
-                    let mutable awaiter = (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
+                    let mutable awaiter = awaiter
 
                     let mutable __stack_fin = true
 
@@ -1076,9 +962,9 @@ module TaskResultCEExtensionsLowPriority =
                         sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
                         false
                 else
-                    TaskResultBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                    TaskResultBuilderBase.BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
                         &sm,
-                        task,
+                        awaiter,
                         continuation
                     )
             //-- RESUMABLE CODE END
@@ -1086,14 +972,34 @@ module TaskResultCEExtensionsLowPriority =
 
         [<NoEagerConstraintApplication>]
         member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+            (awaiter: ^Awaiter)
+            : TaskResultCode<'T, 'Error, 'T> =
+
+            this.Bind(awaiter, (fun v -> this.Return v))
+
+
+        [<NoEagerConstraintApplication>]
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+            (t: ^Awaiter)
+            : ^Awaiter =
+            t
+
+
+        [<NoEagerConstraintApplication>]
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
             when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
             and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
-            (task: ^TaskLike)
-            : TaskResultCode<'T, 'Error, 'T> =
-
-            this.Bind(task, (fun v -> this.Return v))
+            (t: ^TaskLike)
+            : ^Awaiter =
+            (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (t))
 
         [<NoEagerConstraintApplication>]
         member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
@@ -1103,7 +1009,6 @@ module TaskResultCEExtensionsLowPriority =
             and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
             : TaskResult<'T, 'Error> =
-
             task {
                 let! r = t
                 return Ok r
@@ -1121,85 +1026,24 @@ module TaskResultCEExtensionsHighPriority =
     // High priority extensions
     type TaskResultBuilderBase with
 
-        static member BindDynamic
-            (
-                sm: byref<_>,
-                task: TaskResult<'TResult1, 'Error>,
-                continuation: ('TResult1 -> TaskResultCode<'TOverall, 'Error, 'TResult2>)
-            ) : bool =
-            let mutable awaiter = task.GetAwaiter()
 
-            let cont =
-                (TaskResultResumptionFunc<'TOverall, 'Error>(fun sm ->
-                    // printfn "ByndDynamic --> %A" sm.Data.Result
-                    let result = awaiter.GetResult()
-
-                    match result with
-                    | Ok result -> (continuation result).Invoke(&sm)
-                    | Error e ->
-                        sm.Data.Result <- Error e
-                        true
-                ))
-
-            // shortcut to continue immediately
-            if awaiter.IsCompleted then
-                cont.Invoke(&sm)
-            else
-                sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
-                sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                false
-
-        member inline _.Bind
+        member inline this.Bind
             (
                 task: TaskResult<'TResult1, 'Error>,
                 continuation: ('TResult1 -> TaskResultCode<'TOverall, 'Error, 'TResult2>)
             ) : TaskResultCode<'TOverall, 'Error, 'TResult2> =
-
-            TaskResultCode<'TOverall, 'Error, _>(fun sm ->
-                if __useResumableCode then
-                    //-- RESUMABLE CODE START
-                    // Get an awaiter from the task
-                    // printfn "Bynd--> %A" sm.Data.Result
-                    let mutable awaiter = task.GetAwaiter()
-
-                    let mutable __stack_fin = true
-
-                    if not awaiter.IsCompleted then
-                        // This will yield with __stack_yield_fin = false
-                        // This will resume with __stack_yield_fin = true
-                        let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                        __stack_fin <- __stack_yield_fin
-
-                    if __stack_fin then
-                        let result = awaiter.GetResult()
-
-                        match result with
-                        | Ok result -> (continuation result).Invoke(&sm)
-                        | Error e ->
-                            sm.Data.Result <- Error e
-                            true
-
-                    else if sm.Data.MethodBuilder.Task.IsCompleted then
-                        true
-                    else
-                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-                        false
-
-                else
-                    TaskResultBuilderBase.BindDynamic(&sm, task, continuation)
-            //-- RESUMABLE CODE END
-            )
-
-        member inline this.BindReturn(x: TaskResult<'T, 'Error>, [<InlineIfLambda>] f) =
-            this.Bind(x, (fun x -> this.Return(f x)))
-
-        member inline _.MergeSources(t1: TaskResult<'T, 'Error>, t2: TaskResult<'T1, 'Error>) =
-            TaskResult.zip t1 t2
+            this.Bind(task.GetAwaiter(), continuation)
 
         member inline this.ReturnFrom
             (task: TaskResult<'T, 'Error>)
             : TaskResultCode<'T, 'Error, 'T> =
-            this.Bind(task, (fun v -> this.Return v))
+            this.Bind(task.GetAwaiter(), (fun v -> this.Return v))
+
+        member inline this.BindReturn(x: TaskResult<'T, 'Error>, f) =
+            this.Bind(x.GetAwaiter(), (fun x -> this.Return(f x)))
+
+        member inline _.MergeSources(t1: TaskResult<'T, 'Error>, t2: TaskResult<'T1, 'Error>) =
+            TaskResult.zip t1 t2
 
         member inline _.Source(s: #seq<_>) = s
 
@@ -1212,20 +1056,6 @@ module TaskResultCEExtensionsMediumPriority =
         member inline this.Source(t: Task<'T>) : TaskResult<'T, 'Error> =
             t
             |> Task.map Ok
-
-        member inline this.Source(t: Task) : TaskResult<unit, 'Error> = task {
-            do! t
-            return Ok()
-        }
-
-        member inline this.Source(t: ValueTask<'T>) : TaskResult<'T, 'Error> =
-            t
-            |> Task.mapV Ok
-
-        member inline this.Source(t: ValueTask) : TaskResult<unit, 'Error> = task {
-            do! t
-            return Ok()
-        }
 
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
             computation
