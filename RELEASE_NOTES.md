@@ -1,4 +1,4 @@
-### 4.1.0-beta001 - December 13, 2022
+### 4.1.0 - December 13, 2022
 - [Updates IcedTask to 0.5.0 and refactoring of Tasklike CEs](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/200) Credits @TheAngryByrd
 
 ### 4.0.0 - November 19, 2022
