@@ -564,16 +564,20 @@ type TaskResultBuilderBase() =
             [<InlineIfLambda>] condition: unit -> bool,
             body: TaskResultCode<'TOverall, 'Error, unit>
         ) : TaskResultCode<'TOverall, 'Error, unit> =
-        ResumableCode.While(
-            condition,
-            TaskResultCode<_, _, _>(fun sm ->
-                let __stack_body_fin = body.Invoke(&sm)
+        let mutable keepGoing = true
 
+        ResumableCode.While(
+            (fun () ->
+                keepGoing
+                && condition ()
+            ),
+            TaskResultCode<_, _, _>(fun sm ->
                 if sm.Data.IsResultError then
+                    keepGoing <- false
                     sm.Data.MethodBuilder.SetResult sm.Data.Result
-                    false
+                    true
                 else
-                    __stack_body_fin
+                    body.Invoke(&sm)
             )
         )
 
