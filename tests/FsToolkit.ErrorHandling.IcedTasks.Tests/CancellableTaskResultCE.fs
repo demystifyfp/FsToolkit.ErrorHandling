@@ -56,7 +56,7 @@ module CancellableTaskResultCE =
             member this.Dispose() = ()
         }
 
-    [<Tests>]
+
     let cancellableTaskResultBuilderTests =
         testList "CancellableTaskResultBuilder" [
             testList "Return" [
@@ -922,4 +922,93 @@ module CancellableTaskResultCE =
 
 
             ]
+        ]
+
+    let functionTests =
+        testList "functions" [
+            testList "singleton" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = CancellableTaskResult.singleton "lol"
+
+                    let! someTask = innerCall
+
+                    Expect.equal (Ok "lol") someTask ""
+                }
+            ]
+            testList "bind" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = cancellableTaskResult { return "lol" }
+
+                    let! someTask =
+                        innerCall
+                        |> CancellableTaskResult.bind (fun x -> cancellableTaskResult {
+                            return x + "fooo"
+                        }
+                        )
+
+                    Expect.equal (Ok "lolfooo") someTask ""
+                }
+            ]
+            testList "map" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = cancellableTaskResult { return "lol" }
+
+                    let! someTask =
+                        innerCall
+                        |> CancellableTaskResult.map (fun x -> x + "fooo")
+
+                    Expect.equal (Ok "lolfooo") someTask ""
+                }
+            ]
+            testList "apply" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = cancellableTaskResult { return "lol" }
+                    let applier = cancellableTaskResult { return fun x -> x + "fooo" }
+
+                    let! someTask =
+                        innerCall
+                        |> CancellableTaskResult.apply applier
+
+                    Expect.equal (Ok "lolfooo") someTask ""
+                }
+            ]
+
+            testList "zip" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = cancellableTaskResult { return "fooo" }
+                    let innerCall2 = cancellableTaskResult { return "lol" }
+
+                    let! someTask =
+                        innerCall
+                        |> CancellableTaskResult.zip innerCall2
+
+                    Expect.equal (Ok("lol", "fooo")) someTask ""
+                }
+            ]
+
+            testList "parZip" [
+                testCaseAsync "Simple"
+                <| async {
+                    let innerCall = cancellableTaskResult { return "fooo" }
+                    let innerCall2 = cancellableTaskResult { return "lol" }
+
+                    let! someTask =
+                        innerCall
+                        |> CancellableTaskResult.parallelZip innerCall2
+
+                    Expect.equal (Ok("lol", "fooo")) someTask ""
+                }
+            ]
+        ]
+
+    [<Tests>]
+    let cancellableTaskResultTests =
+        testList "CancellableTaskResult" [
+            cancellableTaskResultBuilderTests
+            functionTests
         ]

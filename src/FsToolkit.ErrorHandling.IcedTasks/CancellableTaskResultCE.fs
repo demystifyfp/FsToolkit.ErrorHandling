@@ -770,3 +770,81 @@ module CancellableTaskResultCE =
                     true
                 )
             )
+
+        /// <summary>Lifts an item to a CancellableTaskResult.</summary>
+        /// <param name="item">The item to be the result of the CancellableTaskResult.</param>
+        /// <returns>A CancellableTaskResult with the item as the result.</returns>
+        let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
+            fun _ -> Task.FromResult(Ok item)
+
+
+        /// <summary>Allows chaining of CancellableTaskResult.</summary>
+        /// <param name="binder">The continuation.</param>
+        /// <param name="cTask">The value.</param>
+        /// <returns>The result of the binder.</returns>
+        let inline bind
+            ([<InlineIfLambda>] binder: 'input -> CancellableTaskResult<'output, 'error>)
+            ([<InlineIfLambda>] cTask: CancellableTaskResult<'input, 'error>)
+            =
+            cancellableTaskResult {
+                let! cResult = cTask
+                return! binder cResult
+            }
+
+        /// <summary>Allows chaining of CancellableTaskResult.</summary>
+        /// <param name="mapper">The continuation.</param>
+        /// <param name="cTask">The value.</param>
+        /// <returns>The result of the mapper wrapped in a CancellableTaskResult.</returns>
+        let inline map
+            ([<InlineIfLambda>] mapper: 'input -> 'output)
+            ([<InlineIfLambda>] cTask: CancellableTaskResult<'input, 'error>)
+            =
+            cancellableTaskResult {
+                let! cResult = cTask
+                return mapper cResult
+            }
+
+        /// <summary>Allows chaining of CancellableTaskResult.</summary>
+        /// <param name="applicable">A function wrapped in a CancellableTaskResult</param>
+        /// <param name="cTask">The value.</param>
+        /// <returns>The result of the applicable.</returns>
+        let inline apply
+            ([<InlineIfLambda>] applicable: CancellableTaskResult<'input -> 'output, 'error>)
+            ([<InlineIfLambda>] cTask: CancellableTaskResult<'input, 'error>)
+            =
+            cancellableTaskResult {
+                let! applier = applicable
+                let! cResult = cTask
+                return applier cResult
+            }
+
+        /// <summary>Takes two CancellableTaskResult, starts them serially in order of left to right, and returns a tuple of the pair.</summary>
+        /// <param name="left">The left value.</param>
+        /// <param name="right">The right value.</param>
+        /// <returns>A tuple of the parameters passed in</returns>
+        let inline zip
+            ([<InlineIfLambda>] left: CancellableTaskResult<'left, 'error>)
+            ([<InlineIfLambda>] right: CancellableTaskResult<'right, 'error>)
+            =
+            cancellableTaskResult {
+                let! r1 = left
+                let! r2 = right
+                return r1, r2
+            }
+
+        /// <summary>Takes two CancellableTaskResult, starts them concurrently, and returns a tuple of the pair.</summary>
+        /// <param name="left">The left value.</param>
+        /// <param name="right">The right value.</param>
+        /// <returns>A tuple of the parameters passed in.</returns>
+        let inline parallelZip
+            ([<InlineIfLambda>] left: CancellableTaskResult<'left, 'error>)
+            ([<InlineIfLambda>] right: CancellableTaskResult<'right, 'error>)
+            =
+            cancellableTaskResult {
+                let! ct = getCancellationToken ()
+                let r1 = left ct
+                let r2 = right ct
+                let! r1 = r1
+                let! r2 = r2
+                return r1, r2
+            }
