@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
     <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.AsyncSeq\FsToolkit.ErrorHandling.AsyncSeq.fsproj" />
+    <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
