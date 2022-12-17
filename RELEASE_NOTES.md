@@ -1,3 +1,7 @@
+### 4.2.0 - December 17, 2022
+- [Fixes while implementation in resumable codes](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/202) Credits @TheAngryByrd
+- [Adds CancellableResultTask functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/203) Credits @TheAngryByrd
+
 ### 4.1.0 - December 13, 2022
 - [Updates IcedTask to 0.5.0 and refactoring of Tasklike CEs](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/200) Credits @TheAngryByrd
 
