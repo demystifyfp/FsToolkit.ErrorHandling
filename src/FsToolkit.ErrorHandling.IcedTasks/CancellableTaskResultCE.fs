@@ -105,17 +105,22 @@ module CancellableTaskResultCE =
                 [<InlineIfLambda>] condition: unit -> bool,
                 body: CancellableTaskResultCode<'TOverall, 'Error, unit>
             ) : CancellableTaskResultCode<'TOverall, 'Error, unit> =
+            let mutable keepGoing = true
+
             ResumableCode.While(
-                condition,
+                (fun () ->
+                    keepGoing
+                    && condition ()
+                ),
                 CancellableTaskResultCode<_, _, _>(fun sm ->
                     sm.Data.ThrowIfCancellationRequested()
-                    let __stack_body_fin = body.Invoke(&sm)
 
                     if sm.Data.IsResultError then
+                        keepGoing <- false
                         sm.Data.MethodBuilder.SetResult sm.Data.Result
-                        false
+                        true
                     else
-                        __stack_body_fin
+                        body.Invoke(&sm)
                 )
             )
 

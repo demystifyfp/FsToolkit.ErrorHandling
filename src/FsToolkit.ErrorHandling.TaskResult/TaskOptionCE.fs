@@ -519,16 +519,20 @@ type TaskOptionBuilderBase() =
             [<InlineIfLambda>] condition: unit -> bool,
             body: TaskOptionCode<'TOverall, unit>
         ) : TaskOptionCode<'TOverall, unit> =
-        ResumableCode.While(
-            condition,
-            TaskOptionCode<_, _>(fun sm ->
-                let __stack_body_fin = body.Invoke(&sm)
+        let mutable keepGoing = true
 
+        ResumableCode.While(
+            (fun () ->
+                keepGoing
+                && condition ()
+            ),
+            TaskOptionCode<_, _>(fun sm ->
                 if sm.Data.IsResultNone then
+                    keepGoing <- false
                     sm.Data.SetResult()
-                    false
+                    true
                 else
-                    __stack_body_fin
+                    body.Invoke(&sm)
             )
         )
 
@@ -639,9 +643,8 @@ type TaskOptionBuilderBase() =
 
     member inline this.Source(taskOption: TaskOption<'T>) : TaskOption<'T> = taskOption
 
-    member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> = task {
-        return! taskOption
-    }
+    member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> =
+        taskOption.AsTask()
 
 
 type TaskOptionBuilder() =
