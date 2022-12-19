@@ -1,3 +1,6 @@
+### 4.2.1 - December 18, 2022
+- [StartAsTask -> StartImmediateAsTask](https://github.com/fsprojects/FSharp.Control.TaskSeq/issues/135) Credits @TheAngryByrd
+
 ### 4.2.0 - December 17, 2022
 - [Fixes while implementation in resumable codes](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/202) Credits @TheAngryByrd
 - [Adds CancellableResultTask functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/203) Credits @TheAngryByrd
