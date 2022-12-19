@@ -18,23 +18,23 @@ let runTaskSync (task: Task<_>) = task.Result
 
 let createPostSuccess =
     createPostSuccess
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let createPostFailure =
     createPostFailure
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let getFollowersSuccess =
     getFollowersSuccess
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let getFollowersFailure =
     getFollowersFailure
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let allowedToPost =
     allowedToPost
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 [<Tests>]
 let mapTests =

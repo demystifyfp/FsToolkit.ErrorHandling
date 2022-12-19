@@ -19,11 +19,11 @@ let userId4 = Guid.NewGuid()
 
 let notifyNewPostSuccess x =
     notifyNewPostSuccess x
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let notifyNewPostFailure x =
     notifyNewPostFailure x
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 [<Tests>]
 let traverseTaskResultMTests =

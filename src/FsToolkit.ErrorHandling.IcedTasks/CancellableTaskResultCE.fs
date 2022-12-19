@@ -681,7 +681,7 @@ module CancellableTaskResultCE =
                 }
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
-                fun ct -> Async.StartAsTask(computation, cancellationToken = ct)
+                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
 
         type CancellableTaskResultBuilderBase with
 

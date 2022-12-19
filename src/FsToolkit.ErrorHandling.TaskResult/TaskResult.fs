@@ -24,7 +24,7 @@ module TaskResult =
     let inline ofAsync aAsync =
         aAsync
         |> Async.Catch
-        |> Async.StartAsTask
+        |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
     let inline retn x =

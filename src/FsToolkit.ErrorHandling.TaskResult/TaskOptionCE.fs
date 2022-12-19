@@ -132,7 +132,7 @@ module TaskOptionCE =
         /// </summary>
         member inline _.Source(async: Async<_ option>) : Task<_ option> =
             async
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -268,7 +268,7 @@ module TaskOptionCE =
         /// </summary>
         member inline _.Source(async: Async<_ option>) : Task<_ option> =
             async
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -360,7 +360,7 @@ module TaskOptionCEExtensions =
             FSharp.Control.Tasks.Affine.task {
                 let! o =
                     a
-                    |> Async.StartAsTask
+                    |> Async.StartImmediateAsTask
 
                 return Some o
             }
@@ -421,7 +421,7 @@ module TaskOptionCEExtensions =
             FSharp.Control.Tasks.NonAffine.task {
                 let! o =
                     a
-                    |> Async.StartAsTask
+                    |> Async.StartImmediateAsTask
 
                 return Some o
             }
@@ -639,7 +639,7 @@ type TaskOptionBuilderBase() =
 
     member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
         computation
-        |> Async.StartAsTask
+        |> Async.StartImmediateAsTask
 
     member inline this.Source(taskOption: TaskOption<'T>) : TaskOption<'T> = taskOption
 
@@ -1039,6 +1039,6 @@ module TaskOptionCEExtensionsMediumPriority =
         member inline this.Source(computation: Async<'T>) : TaskOption<'T> =
             computation
             |> Async.map Some
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
 #endif

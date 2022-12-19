@@ -10,11 +10,11 @@ open TestHelpers
 
 let getUserById x =
     getUserById x
-    |> Async.StartAsTask
+    |> Async.StartImmediateAsTask
 
 let getPostById x =
     getPostById x
-    |> Async.StartAsTask
+    |> Async.StartImmediateAsTask
 
 
 [<Tests>]

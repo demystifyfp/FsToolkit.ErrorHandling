@@ -66,4 +66,4 @@ type Expect =
 
     static member CancellationRequested(operation: Task<_>) =
         Expect.CancellationRequested(Async.AwaitTask operation)
-        |> Async.StartAsTask
+        |> Async.StartImmediateAsTask
