@@ -140,7 +140,7 @@ module TaskResultCE =
         /// </summary>
         member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
             result
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -286,7 +286,7 @@ module TaskResultCE =
         /// </summary>
         member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
             result
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -349,7 +349,7 @@ module TaskResultCEExtensions =
             FSharp.Control.Tasks.Affine.task {
                 let! r =
                     asyncComputation
-                    |> Async.StartAsTask
+                    |> Async.StartImmediateAsTask
 
                 return Ok r
             }
@@ -426,7 +426,7 @@ module TaskResultCEExtensions =
             FSharp.Control.Tasks.NonAffine.task {
                 let! r =
                     asyncComputation
-                    |> Async.StartAsTask
+                    |> Async.StartImmediateAsTask
 
                 return Ok r
             }
@@ -695,7 +695,7 @@ type TaskResultBuilderBase() =
 
     member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
         result
-        |> Async.StartAsTask
+        |> Async.StartImmediateAsTask
 
     member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
     member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
@@ -1064,6 +1064,6 @@ module TaskResultCEExtensionsMediumPriority =
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
             computation
             |> Async.map Ok
-            |> Async.StartAsTask
+            |> Async.StartImmediateAsTask
 
 #endif

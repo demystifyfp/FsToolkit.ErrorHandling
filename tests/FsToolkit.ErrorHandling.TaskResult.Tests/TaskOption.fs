@@ -23,15 +23,15 @@ let runTaskSync (task: Task<_>) = task.Result
 
 let createPostSome =
     createPostSome
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let getFollowersSome =
     getFollowersSome
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 let allowedToPostOptional =
     allowedToPostOptional
-    >> Async.StartAsTask
+    >> Async.StartImmediateAsTask
 
 
 let mapTests =
