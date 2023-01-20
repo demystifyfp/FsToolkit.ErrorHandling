@@ -139,7 +139,7 @@ module Option =
         | Some x -> onSome x
         | None -> onNone ()
 
-    let ofPair (input: bool * 'a) =
+    let inline ofPair (input: bool * 'a) =
         match input with
         | true, x -> Some x
         | false, _ -> None
