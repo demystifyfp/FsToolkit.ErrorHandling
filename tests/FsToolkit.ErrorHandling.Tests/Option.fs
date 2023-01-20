@@ -127,6 +127,51 @@ let eitherTests =
             Expect.equal (Option.either add2 f value1) 42 ""
     ]
 
+let ofPairTests =
+    testList "Option.ofPair Tests" [
+        testCase "Int32.TryParse => Some Int32"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Int32.TryParse input
+            Expect.equal (Option.ofPair pair) (Some 1989) ""
+        testCase "Int32.TryParse => None"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Int32.TryParse input
+            Expect.equal (Option.ofPair pair) (None) ""
+        testCase "Int64.TryParse => Some Int64"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Int64.TryParse input
+            Expect.equal (Option.ofPair pair) (Some 1989L) ""
+        testCase "Int64.TryParse => None"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Int64.TryParse input
+            Expect.equal (Option.ofPair pair) (None) ""
+        testCase "Decimal.TryParse => Some Decimal"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Decimal.TryParse input
+            Expect.equal (Option.ofPair pair) (Some 1989M) ""
+        testCase "Decimal.TryParse => None"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Decimal.TryParse input
+            Expect.equal (Option.ofPair pair) (None) ""
+        testCase "Guid.TryParse => Some Guid"
+        <| fun _ ->
+            let guid = Guid.NewGuid()
+            let input = guid.ToString()
+            let pair = Guid.TryParse input
+            Expect.equal (Option.ofPair pair) (Some guid) ""
+        testCase "Guid.TryParse => None"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Guid.TryParse input
+            Expect.equal (Option.ofPair pair) (None) ""
+    ]
+
 let allTests =
     testList "Option Tests" [
         traverseResultTests
@@ -136,4 +181,5 @@ let allTests =
         ofNullTests
         bindNullTests
         eitherTests
+        ofPairTests
     ]

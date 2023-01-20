@@ -131,6 +131,51 @@ let eitherTests =
             Expect.equal (ValueOption.either add2 f value1) 42 ""
     ]
 
+let ofPairTests =
+    testList "ValueOption.ofPair Tests" [
+        testCase "Int32.TryParse => ValueSome Int32"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Int32.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueSome 1989) ""
+        testCase "Int32.TryParse => ValueNone"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Int32.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueNone) ""
+        testCase "Int64.TryParse => ValueSome Int64"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Int64.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueSome 1989L) ""
+        testCase "Int64.TryParse => ValueNone"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Int64.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueNone) ""
+        testCase "Decimal.TryParse => ValueSome Decimal"
+        <| fun _ ->
+            let input = "1989"
+            let pair = Decimal.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueSome 1989M) ""
+        testCase "Decimal.TryParse => ValueNone"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Decimal.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueNone) ""
+        testCase "Guid.TryParse => ValueSome Guid"
+        <| fun _ ->
+            let guid = Guid.NewGuid()
+            let input = guid.ToString()
+            let pair = Guid.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueSome guid) ""
+        testCase "Guid.TryParse => ValueNone"
+        <| fun _ ->
+            let input = "FsToolkit.ErrorHandling"
+            let pair = Guid.TryParse input
+            Expect.equal (ValueOption.ofPair pair) (ValueNone) ""
+    ]
+
 let allTests =
     testList "ValueOption Tests" [
         traverseResultTests
@@ -140,6 +185,7 @@ let allTests =
         ofNullTests
         bindNullTests
         eitherTests
+        ofPairTests
     ]
 #else
 
