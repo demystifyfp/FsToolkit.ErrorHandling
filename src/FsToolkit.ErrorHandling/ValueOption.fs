@@ -143,4 +143,9 @@ module ValueOption =
         | ValueSome x -> onSome x
         | ValueNone -> onNone ()
 
+    let inline ofPair (input: bool * 'a) =
+        match input with
+        | true, x -> ValueSome x
+        | false, _ -> ValueNone
+
 #endif
