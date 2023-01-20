@@ -1,3 +1,6 @@
+### 4.3.0 - January 20, 2023
+- [Added Option.ofPair and ValueOption.ofPair](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/208) Credits @AlbertoDePena
+
 ### 4.2.1 - December 18, 2022
 - [StartAsTask -> StartImmediateAsTask](https://github.com/fsprojects/FSharp.Control.TaskSeq/issues/135) Credits @TheAngryByrd
 
