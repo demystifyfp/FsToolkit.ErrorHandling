@@ -1,3 +1,6 @@
+### 4.4.0 - February 21, 2023
+- [Added bind operator for Option](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/210) Credits @ratsclub
+
 ### 4.3.0 - January 20, 2023
 - [Added Option.ofPair and ValueOption.ofPair](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/208) Credits @AlbertoDePena
 
