@@ -122,8 +122,7 @@ let bindTests =
                     return! createPostSuccess validCreatePostRequest
                 else
                     return (Error(Exception "not allowed to post"))
-            }
-            )
+            })
             |> Expect.hasJobOkValueSync (PostId newPostId)
 
         testCase "bind with Task(Error x)"

@@ -124,8 +124,7 @@ let bindTests =
                     return! createPostSuccess validCreatePostRequest
                 else
                     return (Error(Exception "not allowed to post"))
-            }
-            )
+            })
             |> Expect.hasTaskOkValueSync (PostId newPostId)
 
         testCase "bind with Task(Error x)"
@@ -153,28 +152,28 @@ let orElseTests =
                 TaskResult.ok "First"
                 |> TaskResult.orElse (TaskResult.ok "Second")
                 |> Expect.hasTaskOkValue "First"
-           }
+        }
         testCaseTask "Ok Error takes first Ok"
         <| fun () -> task {
             return!
                 TaskResult.ok "First"
                 |> TaskResult.orElse (TaskResult.error "Second")
                 |> Expect.hasTaskOkValue "First"
-           }
+        }
         testCaseTask "Error Ok takes second Ok"
         <| fun () -> task {
             return!
                 TaskResult.error "First"
                 |> TaskResult.orElse (TaskResult.ok "Second")
                 |> Expect.hasTaskOkValue "Second"
-           }
+        }
         testCaseTask "Error Error takes second error"
         <| fun () -> task {
             return!
                 TaskResult.error "First"
                 |> TaskResult.orElse (TaskResult.error "Second")
                 |> Expect.hasTaskErrorValue "Second"
-           }
+        }
     ]
 
 [<Tests>]
@@ -186,28 +185,28 @@ let orElseWithTests =
                 TaskResult.ok "First"
                 |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
                 |> Expect.hasTaskOkValue "First"
-           }
+        }
         testCaseTask "Ok Error takes first Ok"
         <| fun () -> task {
             return!
                 TaskResult.ok "First"
                 |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
                 |> Expect.hasTaskOkValue "First"
-           }
+        }
         testCaseTask "Error Ok takes second Ok"
         <| fun () -> task {
             return!
                 TaskResult.error "First"
                 |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
                 |> Expect.hasTaskOkValue "Second"
-           }
+        }
         testCaseTask "Error Error takes second error"
         <| fun () -> task {
             return!
                 TaskResult.error "First"
                 |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
                 |> Expect.hasTaskErrorValue "Second"
-           }
+        }
     ]
 
 [<Tests>]
@@ -795,7 +794,7 @@ let TaskResultBindRequireTests =
                 |> TaskResult.ok
                 |> TaskResult.bindRequireNone "User exists"
                 |> Expect.hasTaskErrorValue "User exists"
-           }
+        }
 
         testCaseTask "bindRequireSome"
         <| fun _ -> task {
@@ -804,5 +803,5 @@ let TaskResultBindRequireTests =
                 |> TaskResult.ok
                 |> TaskResult.bindRequireSome "User doesn't exist"
                 |> Expect.hasTaskOkValue "john_doe"
-           }
+        }
     ]

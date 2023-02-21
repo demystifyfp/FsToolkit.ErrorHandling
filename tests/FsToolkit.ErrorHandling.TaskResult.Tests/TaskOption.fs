@@ -59,8 +59,7 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            }
-            )
+            })
             |> Expect.hasTaskSomeValue (PostId newPostId)
 
         testCase "bind with Task(None)"
@@ -137,7 +136,7 @@ let eitherTests =
             let add2 x = task { return x + 2 }
             let! result = (TaskOption.either add2 f value1)
             Expect.equal result 7 ""
-           }
+        }
         testCaseTask "None"
         <| fun () -> task {
             let value1 = Task.FromResult None
@@ -145,7 +144,7 @@ let eitherTests =
             let add2 x = task { return x + 2 }
             let! result = (TaskOption.either add2 f value1)
             Expect.equal result 42 ""
-           }
+        }
     ]
 
 let allTests =

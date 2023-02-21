@@ -332,8 +332,7 @@ module CancellableTaskResultCE =
                     sm.Data.CancellationToken <- ct
                     sm.ResumptionDynamicInfo <- resumptionInfo
 
-                    sm.Data.MethodBuilder <-
-                        CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                    sm.Data.MethodBuilder <- CancellableTaskResultMethodBuilder<'T, 'Error>.Create()
 
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
@@ -380,7 +379,7 @@ module CancellableTaskResultCE =
                                 sm.Data.CancellationToken <- ct
 
                                 sm.Data.MethodBuilder <-
-                                    CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                    CancellableTaskResultMethodBuilder<'T, 'Error>.Create()
 
                                 sm.Data.MethodBuilder.Start(&sm)
                                 sm.Data.MethodBuilder.Task
@@ -452,7 +451,7 @@ module CancellableTaskResultCE =
                                     sm.Data.CancellationToken <- ct
 
                                     sm.Data.MethodBuilder <-
-                                        CancellableTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                        CancellableTaskResultMethodBuilder<'T, 'Error>.Create()
 
                                     sm.Data.MethodBuilder.Start(&sm)
                                     sm.Data.MethodBuilder.Task
@@ -469,8 +468,8 @@ module CancellableTaskResultCE =
                                             sm.Data.CancellationToken <- ct
 
                                             sm.Data.MethodBuilder <-
-                                                CancellableTaskResultMethodBuilder<'T, 'Error>.Create
-                                                    ()
+                                                CancellableTaskResultMethodBuilder<'T, 'Error>
+                                                    .Create()
 
                                             sm.Data.MethodBuilder.Start(&sm)
                                             sm.Data.MethodBuilder.Task
@@ -499,9 +498,11 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member get_IsCompleted: unit -> bool)
                 and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
-                    sm: byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
+                    sm:
+                        byref<ResumableStateMachine<CancellableTaskResultStateMachineData<'TOverall, 'Error>>>,
                     getAwaiter: CancellationToken -> ^Awaiter,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : bool =
                 sm.Data.CancellationToken.ThrowIfCancellationRequested()
 
@@ -536,7 +537,8 @@ module CancellableTaskResultCE =
                 and ^Awaiter: (member GetResult: unit -> Result<'TResult1, 'Error>)>
                 (
                     getAwaiter: CancellationToken -> ^Awaiter,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
 
                 CancellableTaskResultCode<'TOverall, _, _>(fun sm ->
@@ -688,7 +690,8 @@ module CancellableTaskResultCE =
             member inline this.Bind
                 (
                     task: CancellableTaskResult<'TResult1, 'Error>,
-                    continuation: ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
+                    continuation:
+                        ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
                 this.Bind((fun ct -> (task ct).GetAwaiter()), continuation)
 

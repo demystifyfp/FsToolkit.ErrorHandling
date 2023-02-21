@@ -28,7 +28,7 @@ module TaskResultOptionCE =
             ) : Ply<Result<'U option, 'TError>> =
             let binder' r =
                 match r with
-                | Ok (Some x) -> binder x
+                | Ok(Some x) -> binder x
                 | Ok None ->
                     Ok None
                     |> uply.Return
@@ -121,7 +121,7 @@ module TaskResultOptionCE =
                     let result = awaiter.GetResult()
 
                     match result with
-                    | Ok (Some result) -> (continuation result).Invoke(&sm)
+                    | Ok(Some result) -> (continuation result).Invoke(&sm)
                     | Ok None ->
                         sm.Data.Result <- Ok None
                         true
@@ -163,7 +163,7 @@ module TaskResultOptionCE =
                         let result = awaiter.GetResult()
 
                         match result with
-                        | Ok (Some result) -> (continuation result).Invoke(&sm)
+                        | Ok(Some result) -> (continuation result).Invoke(&sm)
                         | Ok None ->
                             sm.Data.Result <- Ok None
                             true
@@ -243,7 +243,7 @@ module TaskResultOptionCE =
                 }
 
             sm.ResumptionDynamicInfo <- resumptionInfo
-            sm.Data.MethodBuilder <- AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create ()
+            sm.Data.MethodBuilder <- AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create()
             sm.Data.MethodBuilder.Start(&sm)
             sm.Data.MethodBuilder.Task
 
@@ -283,7 +283,7 @@ module TaskResultOptionCE =
                     ))
                     (AfterCode<_, _>(fun sm ->
                         sm.Data.MethodBuilder <-
-                            AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create ()
+                            AsyncTaskResultOptionMethodBuilder<'T, 'Error>.Create()
 
                         sm.Data.MethodBuilder.Start(&sm)
                         sm.Data.MethodBuilder.Task

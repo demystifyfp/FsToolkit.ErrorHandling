@@ -79,7 +79,7 @@ module ValueOptionCE =
             while doContinue
                   && guard () do
                 match generator () with
-                | ValueSome () -> ()
+                | ValueSome() -> ()
                 | ValueNone ->
                     doContinue <- false
                     result <- ValueNone

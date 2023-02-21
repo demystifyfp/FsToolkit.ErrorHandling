@@ -17,7 +17,7 @@ module AsyncSeqCE =
             ) : Async<Result<unit, 'TError>> =
             async {
                 match! guard () with
-                | Some (Ok x) ->
+                | Some(Ok x) ->
                     let mutable whileAsync = Unchecked.defaultof<_>
 
                     whileAsync <-
@@ -26,15 +26,14 @@ module AsyncSeqCE =
                                 computation x,
                                 (fun () -> async {
                                     match! guard () with
-                                    | Some (Ok x) -> return! whileAsync x
-                                    | Some (Error e) -> return Error e
+                                    | Some(Ok x) -> return! whileAsync x
+                                    | Some(Error e) -> return Error e
                                     | None -> return! this.Zero()
-                                }
-                                )
+                                })
                             )
 
                     return! whileAsync x
-                | Some (Error e) -> return Error e
+                | Some(Error e) -> return Error e
                 | None -> return! this.Zero()
             }
 

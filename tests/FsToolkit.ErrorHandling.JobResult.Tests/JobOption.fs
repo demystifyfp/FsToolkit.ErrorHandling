@@ -50,8 +50,7 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            }
-            )
+            })
             |> Expect.hasJobSomeValue (PostId newPostId)
 
         testCase "bind with Job(None)"

@@ -138,8 +138,7 @@ let bindTests =
                      return! createPostSuccess validCreatePostRequest
                  else
                      return (Error(Exception "not allowed to post"))
-             }
-             )
+             })
              |> Expect.hasAsyncOkValue (PostId newPostId))
 
         testCaseAsync "bind with Async(Error x)"

@@ -759,7 +759,7 @@ type TaskResultBuilder() =
             }
 
         sm.ResumptionDynamicInfo <- resumptionInfo
-        sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+        sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create()
         sm.Data.MethodBuilder.Start(&sm)
         sm.Data.MethodBuilder.Task
 
@@ -796,7 +796,7 @@ type TaskResultBuilder() =
                     sm.Data.MethodBuilder.SetStateMachine(state)
                 ))
                 (AfterCode<_, _>(fun sm ->
-                    sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+                    sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create()
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
                 ))
@@ -849,7 +849,7 @@ type BackgroundTaskResultBuilder() =
                         isNull SynchronizationContext.Current
                         && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
                     then
-                        sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+                        sm.Data.MethodBuilder <- AsyncTaskResultMethodBuilder<'T, 'Error>.Create()
                         sm.Data.MethodBuilder.Start(&sm)
                         sm.Data.MethodBuilder.Task
                     else
@@ -859,7 +859,7 @@ type BackgroundTaskResultBuilder() =
                             let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
 
                             sm.Data.MethodBuilder <-
-                                AsyncTaskResultMethodBuilder<'T, 'Error>.Create ()
+                                AsyncTaskResultMethodBuilder<'T, 'Error>.Create()
 
                             sm.Data.MethodBuilder.Start(&sm)
                             sm.Data.MethodBuilder.Task

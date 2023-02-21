@@ -48,7 +48,7 @@ module Expect =
         }
 
         match thrown with
-        | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom (e.GetType())) ->
+        | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom(e.GetType())) ->
             failtestf
                 "%s. Expected f to throw an exn of type %s, but one of type %s was thrown."
                 message

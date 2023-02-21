@@ -80,7 +80,7 @@ module ValidationCE =
             while doContinue
                   && guard () do
                 match generator () with
-                | Ok () -> ()
+                | Ok() -> ()
                 | Error e ->
                     doContinue <- false
                     result <- Error e

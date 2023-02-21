@@ -36,8 +36,7 @@ let bindTests =
                     return! createPostSome validCreatePostRequest
                 else
                     return None
-            }
-            )
+            })
             |> Expect.hasAsyncSomeValue (PostId newPostId))
 
         testCaseAsync "bind with Async(None)"

@@ -80,7 +80,7 @@ module OptionCE =
             while doContinue
                   && guard () do
                 match generator () with
-                | Some () -> ()
+                | Some() -> ()
                 | None ->
                     doContinue <- false
                     result <- None

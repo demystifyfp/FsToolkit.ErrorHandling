@@ -140,7 +140,7 @@ module Validation =
             Error(
                 errs1
                 @ errs2
-                  @ errs3
+                @ errs3
             )
 
     let inline mapError

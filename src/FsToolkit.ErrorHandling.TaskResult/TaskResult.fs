@@ -220,8 +220,8 @@ module TaskResult =
         |> Task.catch
         |> Task.map (
             function
-            | Choice1Of2 (Ok v) -> Ok v
-            | Choice1Of2 (Error err) -> Error err
+            | Choice1Of2(Ok v) -> Ok v
+            | Choice1Of2(Error err) -> Error err
             | Choice2Of2 ex -> Error(f ex)
         )
 

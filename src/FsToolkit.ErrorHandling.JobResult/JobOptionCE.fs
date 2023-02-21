@@ -91,7 +91,7 @@ module JobOptionCE =
             while doContinue
                   && guard () do
                 match! computation with
-                | Some () -> ()
+                | Some() -> ()
                 | None ->
                     doContinue <- false
                     result <- None

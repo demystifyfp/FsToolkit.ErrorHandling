@@ -19,7 +19,7 @@ let ``BackgroundTaskResultCE return Tests`` =
             let data = "Foo"
             let! actual = backgroundTaskResult { return data }
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
     ]
 
 
@@ -33,14 +33,14 @@ let ``BackgroundTaskResultCE return! Tests`` =
             let! actual = backgroundTaskResult { return! data }
 
             Expect.equal actual (data) "Should be ok"
-           }
+        }
         testCaseTask "Return Ok Choice"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let data = Choice1Of2 innerData
             let! actual = backgroundTaskResult { return! data }
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
 
         testCaseTask "Return Ok AsyncResult"
         <| fun () -> backgroundTask {
@@ -49,7 +49,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
             let! actual = backgroundTaskResult { return! Async.singleton data }
 
             Expect.equal actual (data) "Should be ok"
-           }
+        }
         testCaseTask "Return Ok TaskResult"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -57,41 +57,41 @@ let ``BackgroundTaskResultCE return! Tests`` =
             let! actual = backgroundTaskResult { return! Task.FromResult data }
 
             Expect.equal actual (data) "Should be ok"
-           }
+        }
         testCaseTask "Return Async"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let! actual = backgroundTaskResult { return! Async.singleton innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Return Task Generic"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let! actual = backgroundTaskResult { return! Task.singleton innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Return Task"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let! actual = backgroundTaskResult { return! Task.FromResult innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
-           }
+        }
         testCaseTask "Return ValueTask Generic"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let! actual = backgroundTaskResult { return! ValueTask.FromResult innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Return ValueTask"
         <| fun () -> backgroundTask {
             let! actual = backgroundTaskResult { return! ValueTask.CompletedTask }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
-           }
+        }
 #if NETSTANDARD2_0
         testCaseTask "Return Ply"
         <| fun () -> backgroundTask {
@@ -99,7 +99,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
             let! actual = backgroundTaskResult { return! Unsafe.uply { return innerData } }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
 #endif
     ]
 
@@ -119,7 +119,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
             Expect.equal actual (data) "Should be ok"
 
-           }
+        }
         testCaseTask "Bind Ok Choice"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -131,7 +131,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
 
 
         testCaseTask "Bind Ok AsyncResult"
@@ -152,7 +152,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
                 (data
                  |> Async.RunSynchronously)
                 "Should be ok"
-           }
+        }
         testCaseTask "Bind Ok TaskResult"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -167,7 +167,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (data.Result) "Should be ok"
-           }
+        }
         testCaseTask "Bind Async"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -178,7 +178,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Bind Task Generic"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -189,14 +189,14 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Bind Task"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
             let! actual = backgroundTaskResult { do! Task.FromResult innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
-           }
+        }
         testCaseTask "Bind ValueTask Generic"
         <| fun () -> backgroundTask {
             let innerData = "Foo"
@@ -207,13 +207,13 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
         testCaseTask "Bind ValueTask"
         <| fun () -> backgroundTask {
             let! actual = backgroundTaskResult { do! ValueTask.CompletedTask }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
-           }
+        }
 
         testCaseTask "Task.Yield"
         <| fun () -> backgroundTask {
@@ -221,7 +221,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
             let! actual = backgroundTaskResult { do! Task.Yield() }
 
             Expect.equal actual (Ok()) "Should be ok"
-           }
+        }
 #if NETSTANDARD2_0
         testCaseTask "Bind Ply"
         <| fun () -> backgroundTask {
@@ -233,7 +233,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
             }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
-           }
+        }
 #endif
     ]
 
@@ -255,7 +255,7 @@ let ``BackgroundTaskResultCE combine/zero/delay/run Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
     ]
 
 
@@ -278,7 +278,7 @@ let ``BackgroundTaskResultCE try Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
         testCaseTask "Try Finally"
         <| fun () -> backgroundTask {
             let data = 42
@@ -295,7 +295,7 @@ let ``BackgroundTaskResultCE try Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
     ]
 
 let makeDisposable () =
@@ -316,7 +316,7 @@ let ``BackgroundTaskResultCE using Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
         testCaseTask "use! normal wrapped disposable"
         <| fun () -> backgroundTask {
             let data = 42
@@ -330,7 +330,7 @@ let ``BackgroundTaskResultCE using Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
         testCaseTask "use null disposable"
         <| fun () -> backgroundTask {
             let data = 42
@@ -341,7 +341,7 @@ let ``BackgroundTaskResultCE using Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
     ]
 
 
@@ -370,7 +370,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
-                   }
+                }
         ]
         testCaseTask "while fail"
         <| fun () -> backgroundTask {
@@ -408,7 +408,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
             Expect.isFalse wasCalled "No additional side effects should occur"
-           }
+        }
         testCaseTask "for in"
         <| fun () -> backgroundTask {
             let data = 42
@@ -421,7 +421,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
         testCaseTask "for to"
         <| fun () -> backgroundTask {
             let data = 42
@@ -434,7 +434,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-           }
+        }
         testCaseTask "for in fail"
         <| fun () -> backgroundTask {
 
@@ -465,7 +465,7 @@ let ``BackgroundTaskResultCE loop Tests`` =
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
-           }
+        }
     ]
 
 
@@ -482,7 +482,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 4) "Should be ok"
-           }
+        }
 
         testCaseTask "Happy Path AsyncResult"
         <| fun () -> backgroundTask {
@@ -494,7 +494,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 4) "Should be ok"
-           }
+        }
 
 
         testCaseTask "Happy Path Result"
@@ -507,7 +507,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 4) "Should be ok"
-           }
+        }
 
         testCaseTask "Happy Path Choice"
         <| fun () -> backgroundTask {
@@ -519,7 +519,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 4) "Should be ok"
-           }
+        }
 
         testCaseTask "Happy Path Async"
         <| fun () -> backgroundTask {
@@ -531,7 +531,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 4) "Should be ok"
-           }
+        }
 
         testCaseTask "Happy Path 2 Async"
         <| fun () -> backgroundTask {
@@ -542,7 +542,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 5) "Should be ok"
-           }
+        }
 
         testCaseTask "Happy Path 2 Task"
         <| fun () -> backgroundTask {
@@ -553,7 +553,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 5) "Should be ok"
-           }
+        }
         let specialCaseTask returnValue =
 #if NETSTANDARD2_0
             Unsafe.uply { return returnValue }
@@ -582,7 +582,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Ok 6) "Should be ok"
-           }
+        }
 
         testCaseTask "Fail Path Result"
         <| fun () -> backgroundTask {
@@ -596,7 +596,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual expected "Should be Error"
-           }
+        }
 
         testCaseTask "Fail Path Choice"
         <| fun () -> backgroundTask {
@@ -610,7 +610,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
-           }
+        }
 
         testCaseTask "Fail Path Result/Choice/AsyncResult"
         <| fun () -> backgroundTask {
@@ -628,5 +628,5 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
-           }
+        }
     ]

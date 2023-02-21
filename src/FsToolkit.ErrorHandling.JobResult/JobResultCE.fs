@@ -92,7 +92,7 @@ module JobResultCE =
                 while doContinue
                       && guard () do
                     match! computation with
-                    | Ok () -> ()
+                    | Ok() -> ()
                     | Error e ->
                         doContinue <- false
                         result <- Error e

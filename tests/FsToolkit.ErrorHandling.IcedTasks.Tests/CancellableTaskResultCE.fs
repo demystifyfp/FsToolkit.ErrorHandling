@@ -66,7 +66,7 @@ module CancellableTaskResultCE =
                     let ctr = cancellableTaskResult { return data }
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return value"
-                   }
+                }
             ]
             testList "ReturnFrom" [
                 testCaseTask "return! cancellableTaskResult"
@@ -79,7 +79,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! cancellableTaskResult"
-                   }
+                }
                 testCaseTask "return! taskResult"
                 <| fun () -> task {
                     let data = 42
@@ -88,7 +88,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! taskResult"
-                   }
+                }
                 testCaseTask "return! asyncResult"
                 <| fun () -> task {
                     let data = 42
@@ -97,7 +97,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! asyncResult"
-                   }
+                }
                 testCaseTask "return! asyncChoice"
                 <| fun () -> task {
                     let data = 42
@@ -106,7 +106,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! asyncChoice"
-                   }
+                }
 
                 testCaseTask "return! valueTaskResult"
                 <| fun () -> task {
@@ -116,7 +116,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
-                   }
+                }
                 testCaseTask "return! result"
                 <| fun () -> task {
                     let data = 42
@@ -125,7 +125,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! result"
-                   }
+                }
                 testCaseTask "return! choice"
                 <| fun () -> task {
                     let data = 42
@@ -134,7 +134,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! choice"
-                   }
+                }
 
                 testCaseTask "return! task<'T>"
                 <| fun () -> task {
@@ -144,7 +144,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! task<'T>"
-                   }
+                }
 
                 testCaseTask "return! task"
                 <| fun () -> task {
@@ -152,7 +152,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! task"
-                   }
+                }
 
                 testCaseTask "return! valuetask<'T>"
                 <| fun () -> task {
@@ -162,7 +162,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
-                   }
+                }
 
                 testCaseTask "return! valuetask"
                 <| fun () -> task {
@@ -170,7 +170,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! valuetask"
-                   }
+                }
 
                 testCaseTask "return! async<'T>"
                 <| fun () -> task {
@@ -180,7 +180,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! async<'T>"
-                   }
+                }
                 testCaseTask "return! ColdTask<'T>"
                 <| fun () -> task {
                     let data = 42
@@ -189,7 +189,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! ColdTask<'T>"
-                   }
+                }
 
                 testCaseTask "return! ColdTask"
                 <| fun () -> task {
@@ -198,7 +198,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! ColdTask"
-                   }
+                }
 
                 testCaseTask "return! CancellableTask<'T>"
                 <| fun () -> task {
@@ -208,7 +208,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
-                   }
+                }
 
                 testCaseTask "return! CancellableValueTask<'T>"
                 <| fun () -> task {
@@ -218,7 +218,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to Return! CancellableTask<'T>"
-                   }
+                }
 
                 testCaseTask "return! CancellableTask"
                 <| fun () -> task {
@@ -229,7 +229,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
-                   }
+                }
 
                 testCaseTask "return! CancellableValueTask"
                 <| fun () -> task {
@@ -240,7 +240,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask<'T>"
-                   }
+                }
 
                 testCaseTask "return! TaskLike"
                 <| fun () -> task {
@@ -248,14 +248,14 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
-                   }
+                }
                 testCaseTask "return! Cold TaskLike"
                 <| fun () -> task {
                     let ctr = cancellableTaskResult { return! fun () -> Task.Yield() }
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
-                   }
+                }
 
                 testCaseTask "return! Cancellable TaskLike"
                 <| fun () -> task {
@@ -265,7 +265,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok()) "Should be able to Return! CancellableTask"
-                   }
+                }
 
             ]
 
@@ -281,7 +281,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! cancellableTaskResult"
-                   }
+                }
 
                 testCaseTask "let! taskResult"
                 <| fun () -> task {
@@ -294,7 +294,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! taskResult"
-                   }
+                }
 
                 testCaseTask "let! asyncResult"
                 <| fun () -> task {
@@ -307,7 +307,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! asyncResult"
-                   }
+                }
 
                 testCaseTask "let! asyncChoice"
                 <| fun () -> task {
@@ -320,7 +320,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! asyncChoice"
-                   }
+                }
                 testCaseTask "let! valueTaskResult"
                 <| fun () -> task {
                     let data = 42
@@ -332,7 +332,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! valueTaskResult"
-                   }
+                }
                 testCaseTask "let! Result.Ok"
                 <| fun () -> task {
                     let data = 42
@@ -344,7 +344,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! Result.Ok"
-                   }
+                }
 
                 testCaseTask "let! Result.Error"
                 <| fun () -> task {
@@ -357,7 +357,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Error data) "Should be able to let! Result.Error"
-                   }
+                }
                 testCaseTask "let! Choice1Of2"
                 <| fun () -> task {
                     let data = 42
@@ -369,7 +369,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! choice"
-                   }
+                }
                 testCaseTask "let! Choice2Of2"
                 <| fun () -> task {
                     let data = 42
@@ -381,7 +381,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Error data) "Should be able to let! choice"
-                   }
+                }
                 testCaseTask "let! task<'T>"
                 <| fun () -> task {
                     let data = 42
@@ -393,7 +393,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! task<'T>"
-                   }
+                }
 
                 testCaseTask "let! task"
                 <| fun () -> task {
@@ -406,7 +406,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! task"
-                   }
+                }
 
                 testCaseTask "let! valuetask<'T>"
                 <| fun () -> task {
@@ -419,7 +419,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! valuetask<'T>"
-                   }
+                }
 
                 testCaseTask "let! valuetask"
                 <| fun () -> task {
@@ -432,7 +432,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! valuetask"
-                   }
+                }
 
                 testCaseTask "let! async<'t>"
                 <| fun () -> task {
@@ -445,7 +445,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! async<'t>"
-                   }
+                }
 
                 testCaseTask "let! ColdTask<'t>"
                 <| fun () -> task {
@@ -458,7 +458,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! ColdTask<'t>"
-                   }
+                }
                 testCaseTask "let! ColdTask"
                 <| fun () -> task {
                     let data = ()
@@ -470,7 +470,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! ColdTask"
-                   }
+                }
                 testCaseTask "let! CancellableTask<'T>"
                 <| fun () -> task {
                     let data = 42
@@ -482,7 +482,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask<'T>"
-                   }
+                }
                 testCaseTask "let! CancellableValueTask<'T>"
                 <| fun () -> task {
                     let data = 42
@@ -494,7 +494,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask<'T>"
-                   }
+                }
                 testCaseTask "let! CancellableTask"
                 <| fun () -> task {
                     let data = ()
@@ -506,7 +506,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
-                   }
+                }
 
                 testCaseTask "do! CancellableValueTask"
                 <| fun () -> task {
@@ -518,8 +518,8 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! CancellableTask"
-                   // return someValue
-                   }
+                // return someValue
+                }
                 testCaseTask "let! TaskLike"
                 <| fun () -> task {
                     let data = ()
@@ -531,7 +531,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! TaskLike"
-                   }
+                }
 
                 testCaseTask "let! Cold TaskLike"
                 <| fun () -> task {
@@ -544,7 +544,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! TaskLike"
-                   }
+                }
 
                 testCaseTask "let! Cancellable TaskLike"
                 <| fun () -> task {
@@ -557,7 +557,7 @@ module CancellableTaskResultCE =
 
                     let! actual = ctr CancellationToken.None
                     Expect.equal actual (Ok data) "Should be able to let! TaskLike"
-                   }
+                }
 
             ]
             testList "Zero/Combine/Delay" [
@@ -725,7 +725,7 @@ module CancellableTaskResultCE =
                     Expect.equal loopCount 2 "Should only loop twice"
                     Expect.equal actual expected "Should be an error"
                     Expect.isFalse wasCalled "No additional side effects should occur"
-                   }
+                }
 
             ]
 
@@ -792,7 +792,7 @@ module CancellableTaskResultCE =
 
                     Expect.equal loopCount 2 "Should only loop twice"
                     Expect.equal actual expected "Should be an error"
-                   }
+                }
             ]
             testList "Cancellations" [
                 testCaseTask "Simple Cancellation"
@@ -807,7 +807,7 @@ module CancellableTaskResultCE =
                                 failtestf "Should not get here"
                             }
                         )
-                   }
+                }
                 testCaseTask "CancellableTasks are lazily evaluated"
                 <| fun () -> task {
 
@@ -831,7 +831,7 @@ module CancellableTaskResultCE =
                                 failtestf "Should not get here"
                             }
                         )
-                   }
+                }
                 testCase
                     "CancellationToken flows from Async<T> to CancellableTaskResult<T> via Async.AwaitCancellableTask"
                 <| fun () ->
@@ -945,8 +945,7 @@ module CancellableTaskResultCE =
                         innerCall
                         |> CancellableTaskResult.bind (fun x -> cancellableTaskResult {
                             return x + "fooo"
-                        }
-                        )
+                        })
 
                     Expect.equal (Ok "lolfooo") someTask ""
                 }

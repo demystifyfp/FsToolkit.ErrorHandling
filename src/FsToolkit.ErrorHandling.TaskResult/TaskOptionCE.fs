@@ -456,7 +456,7 @@ type TaskOptionStateMachineData<'T> =
     member this.IsResultNone =
         match this.Result with
         | ValueNone -> false
-        | ValueSome (None) -> true
+        | ValueSome(None) -> true
         | ValueSome _ -> false
 
     member this.SetResult() =
@@ -697,7 +697,7 @@ type TaskOptionBuilder() =
             }
 
         sm.ResumptionDynamicInfo <- resumptionInfo
-        sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
+        sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
         sm.Data.MethodBuilder.Start(&sm)
         sm.Data.MethodBuilder.Task
 
@@ -729,7 +729,7 @@ type TaskOptionBuilder() =
                     sm.Data.MethodBuilder.SetStateMachine(state)
                 ))
                 (AfterCode<_, _>(fun sm ->
-                    sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
+                    sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
                 ))
@@ -782,7 +782,7 @@ type BackgroundTaskOptionBuilder() =
                         isNull SynchronizationContext.Current
                         && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
                     then
-                        sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
+                        sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
                         sm.Data.MethodBuilder.Start(&sm)
                         sm.Data.MethodBuilder.Task
                     else
@@ -790,7 +790,7 @@ type BackgroundTaskOptionBuilder() =
 
                         Task.Run<'T option>(fun () ->
                             let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-                            sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create ()
+                            sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
                             sm.Data.MethodBuilder.Start(&sm)
                             sm.Data.MethodBuilder.Task
                         )
