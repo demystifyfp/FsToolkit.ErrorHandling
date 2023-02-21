@@ -10,6 +10,7 @@ open SampleDomain
 open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.Operator.Option
 
 
 let traverseResultTests =
@@ -172,6 +173,26 @@ let ofPairTests =
             Expect.equal (Option.ofPair pair) (None) ""
     ]
 
+let optionOperatorsTests =
+    testList "Option Operators Tests" [
+        testCase "bind operator"
+        <| fun _ ->
+            let evenInt x = if x % 2 = 0 then Some x else None
+
+            let tryParseInt (x: string) =
+                match Int32.TryParse x with
+                | true, value -> Some value
+                | _ -> None
+
+            let tryParseEvenInt str =
+                tryParseInt str
+                >>= evenInt
+
+
+            tryParseEvenInt "2"
+            |> Expect.hasSomeValue 2
+    ]
+
 let allTests =
     testList "Option Tests" [
         traverseResultTests
@@ -182,4 +203,5 @@ let allTests =
         bindNullTests
         eitherTests
         ofPairTests
+        optionOperatorsTests
     ]
