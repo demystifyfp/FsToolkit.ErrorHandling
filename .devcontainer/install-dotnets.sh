@@ -12,10 +12,11 @@ fi
 
 # Add additional versions if required
 DOTNET_VERSIONS=(
-    # 'latest'
-    '5.0.408'
+    'latest'
+    'LTS'
+    'STS'
 )
 for version in ${DOTNET_VERSIONS[@]}; do
     echo "installing dotnet $version"
-    /bin/bash dotnet-install.sh --verbose --version $version
+    /bin/bash dotnet-install.sh --verbose --channel $version
 done

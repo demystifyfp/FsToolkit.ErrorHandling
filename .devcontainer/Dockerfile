@@ -17,8 +17,11 @@ RUN apt-get update \
         git \
         procps \
         wget \
+        nodejs \
+        npm \
     && rm -rf /var/lib/apt/lists/*
 
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
 ENV \
     # Enable detection of running in a container
