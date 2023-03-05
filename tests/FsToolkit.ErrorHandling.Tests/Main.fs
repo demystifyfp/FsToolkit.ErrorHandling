@@ -21,6 +21,7 @@ let allTests =
         AsyncResultTests.allTests
         AsyncResultCETests.allTests
         AsyncResultOptionTests.allTests
+        AsyncResultOptionCETests.allTests
         ValidationTests.allTests
         ValidationCETests.allTests
         ValueOptionTests.allTests

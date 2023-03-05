@@ -153,47 +153,6 @@ let ignoreTests =
                 AsyncResultOption.ignore<int, string>
     ]
 
-let computationExpressionTests =
-    testList "asyncResultOption CE tests" [
-        testCaseAsync "CE with Async(Ok Some(x)) Async(Ok Some(x))"
-        <| (asyncResultOption {
-                let! post = getPostById samplePostId
-                let! user = getUserById post.UserId
-                return userTweet post user
-            }
-            |> Expect.hasAsyncOkValue (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
-            ))
-
-        testCaseAsync "CE with Async(Ok None) Async(Ok Some(x))"
-        <| (asyncResultOption {
-                let! post = getPostById (PostId(Guid.NewGuid()))
-                let! user = getUserById post.UserId
-                return userTweet post user
-            }
-            |> Expect.hasAsyncOkValue None)
-
-        testCaseAsync "CE with Async(Ok Some(x)) Async(Ok None)"
-        <| (asyncResultOption {
-                let! post = getPostById samplePostId
-                let! user = getUserById (UserId(Guid.NewGuid()))
-                return userTweet post user
-            }
-            |> Expect.hasAsyncOkValue None)
-
-        testCaseAsync "CE with Async(Error x) Async(Ok None)"
-        <| (asyncResultOption {
-                let! post = getPostById (PostId Guid.Empty)
-                let! user = getUserById post.UserId
-                return userTweet post user
-            }
-            |> Expect.hasAsyncErrorValue "invalid post id")
-    ]
-
 
 let operatorTests =
     testList "AsyncResultOption Operators Tests" [
@@ -233,6 +192,5 @@ let allTests =
         bindTests
         map2Tests
         ignoreTests
-        computationExpressionTests
         operatorTests
     ]

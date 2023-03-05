@@ -9,7 +9,7 @@
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
     </ProjectReference>
   </ItemGroup>
@@ -31,12 +31,12 @@
     <Compile Include="AsyncResult.fs" />
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOption.fs" />
+    <Compile Include="AsyncResultOptionCE.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="ValidationCE.fs" />
     <Compile Include="Main.fs" />
-    <None Include="paket.references"/>
+    <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
