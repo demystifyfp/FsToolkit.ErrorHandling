@@ -2,5 +2,12 @@
     "editor.inlayHints.enabled": "off",
     "FSharp.enableAdaptiveLspServer": true,
     "FSharp.enableMSBuildProjectGraph": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "FSharp.notifications.trace": false,
+    "FSharp.notifications.traceNamespaces": [
+        "BoundModel.TypeCheck",
+        "BackgroundCompiler."
+    ],
+    "FSharp.fsac.conserveMemory": true,
+    "FSharp.fsac.parallelReferenceResolution": false
 }
