@@ -54,12 +54,43 @@ module AsyncResultCE =
             ) : Async<Result<'ok, 'error>> =
             async.TryFinally(computation, compensation)
 
-        member inline _.Using
+#if NETSTANDARD2_1
+
+        member inline _.TryFinallyAsync
             (
-                resource: 'ok :> IDisposable,
+                computation: Async<Result<'ok, 'error>>,
+                [<InlineIfLambda>] compensation: unit -> ValueTask
+            ) : Async<Result<'ok, 'error>> =
+            let compensation = async {
+                let vTask = compensation ()
+
+                if vTask.IsCompletedSuccessfully then
+                    return ()
+                else
+                    return!
+                        vTask.AsTask()
+                        |> Async.AwaitTask
+            }
+
+            Async.TryFinallyAsync(computation, compensation)
+
+
+        member inline this.Using
+            (
+                resource: 'ok :> IAsyncDisposable,
                 [<InlineIfLambda>] binder: 'ok -> Async<Result<'U, 'error>>
             ) : Async<Result<'U, 'error>> =
-            async.Using(resource, binder)
+            this.TryFinallyAsync(
+                binder resource,
+                (fun () ->
+                    if not (isNull (box resource)) then
+                        resource.DisposeAsync()
+                    else
+                        ValueTask()
+                )
+            )
+#endif
+
 
         member inline this.While
             (
@@ -76,20 +107,6 @@ module AsyncResultCE =
             else
                 this.Zero()
 
-
-        member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> Async<Result<unit, 'error>>
-            ) : Async<Result<unit, 'error>> =
-            this.Using(
-                sequence.GetEnumerator(),
-                fun enum ->
-                    this.While(
-                        (fun () -> enum.MoveNext()),
-                        this.Delay(fun () -> binder enum.Current)
-                    )
-            )
 
         member inline _.BindReturn
             (
@@ -155,6 +172,30 @@ module AsyncResultCEExtensions =
         member inline _.Source(asyncComputation: Async<'ok>) : Async<Result<'ok, 'error>> =
             asyncComputation
             |> Async.map Ok
+
+
+        member inline _.Using
+            (
+                resource: 'ok :> IDisposable,
+                [<InlineIfLambda>] binder: 'ok -> Async<Result<'U, 'error>>
+            ) : Async<Result<'U, 'error>> =
+            async.Using(resource, binder)
+
+
+        member inline this.For
+            (
+                sequence: #seq<'ok>,
+                [<InlineIfLambda>] binder: 'ok -> Async<Result<unit, 'error>>
+            ) : Async<Result<unit, 'error>> =
+            this.Using(
+                sequence.GetEnumerator(),
+                fun enum ->
+                    this.While(
+                        (fun () -> enum.MoveNext()),
+                        this.Delay(fun () -> binder enum.Current)
+                    )
+            )
+
 
 #if !FABLE_COMPILER
         /// <summary>

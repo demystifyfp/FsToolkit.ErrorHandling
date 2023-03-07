@@ -6,132 +6,166 @@ open Fable.Mocha
 #else
 open Expecto
 #endif
-open FsToolkit.ErrorHandling
+open SampleDomain
+open TestData
+open TestHelpers
 open System.Threading.Tasks
+open FsToolkit.ErrorHandling
 
-let makeDisposable () =
-    { new System.IDisposable with
-        member this.Dispose() = ()
-    }
 
-let ceTests =
-    testList "CE Tests" [
-        testCaseAsync "Return value"
+let ``AsyncOptionCE return Tests`` =
+    testList "AsyncOptionCE  Tests" [
+        testCaseAsync "Return string"
         <| async {
-            let expected = Some 42
-            let! actual = asyncOption { return 42 }
-            Expect.equal actual expected "Should return value wrapped in option"
+            let data = "Foo"
+            let! actual = asyncOption { return data }
+            Expect.equal actual (Some data) "Should be ok"
         }
-        testCaseAsync "ReturnFrom Some"
+    ]
+
+
+let ``AsyncOptionCE return! Tests`` =
+    testList "AsyncOptionCE return! Tests" [
+        testCaseAsync "Return Some Result"
         <| async {
-            let expected = Some 42
-            let! actual = asyncOption { return! (Some 42) }
-            Expect.equal actual expected "Should return value wrapped in option"
-        }
-        testCaseAsync "ReturnFrom None"
-        <| async {
-            let expected = None
-            let! actual = asyncOption { return! None }
-            Expect.equal actual expected "Should return value wrapped in option"
+            let innerData = "Foo"
+            let data = Some innerData
+            let! actual = asyncOption { return! data }
+
+            Expect.equal actual (data) "Should be ok"
         }
 
-        testCaseAsync "ReturnFrom Async None"
+        testCaseAsync "Return Some AsyncOption"
         <| async {
-            let expected = None
-            let! actual = asyncOption { return! (async.Return None) }
-            Expect.equal actual expected "Should return value wrapped in option"
-        }
-        testCaseAsync "ReturnFrom Async"
-        <| async {
-            let expected = Some 42
-            let! actual = asyncOption { return! async { return 42 } }
-            Expect.equal actual expected "Should return value wrapped in option"
-        }
+            let innerData = "Foo"
+            let data = Some innerData
+            let! actual = asyncOption { return! Async.singleton data }
 
+            Expect.equal actual (data) "Should be ok"
+        }
+        testCaseAsync "Return Async"
+        <| async {
+            let innerData = "Foo"
+            let! actual = asyncOption { return! Async.singleton innerData }
+
+            Expect.equal actual (Some innerData) "Should be ok"
+        }
 #if !FABLE_COMPILER
-        testCaseAsync "ReturnFrom Task None"
+        testCaseAsync "Return Some TaskResult"
         <| async {
-            let expected = None
-            let! actual = asyncOption { return! (Task.FromResult None) }
-            Expect.equal actual expected "Should return value wrapped in option"
+            let innerData = "Foo"
+            let data = Some innerData
+            let! actual = asyncOption { return! Task.FromResult data }
+
+            Expect.equal actual (data) "Should be ok"
         }
-        testCaseAsync "ReturnFrom Task"
+        testCaseAsync "Return Task Generic"
         <| async {
-            let expected = Some 42
-            let! actual = asyncOption { return! (Task.FromResult 42) }
-            Expect.equal actual expected "Should return value wrapped in option"
+            let innerData = "Foo"
+            let! actual = asyncOption { return! Task.FromResult innerData }
+
+            Expect.equal actual (Some innerData) "Should be ok"
+        }
+        testCaseAsync "Return Task"
+        <| async {
+            let innerData = "Foo"
+            let! actual = asyncOption { return! Task.FromResult innerData :> Task }
+
+            Expect.equal actual (Some()) "Should be ok"
         }
 #endif
-        testCaseAsync "Bind Some"
+
+
+    ]
+
+
+let ``AsyncOptionCE bind Tests`` =
+    testList "AsyncOptionCE bind Tests" [
+        testCaseAsync "Bind Some Result"
         <| async {
-            let expected = Some 42
+            let innerData = "Foo"
+            let data = Some innerData
 
             let! actual = asyncOption {
-                let! value = Some 42
-                return value
+                let! data = data
+                return data
             }
 
-            Expect.equal actual expected "Should bind value wrapped in option"
+            Expect.equal actual (data) "Should be ok"
+
         }
-        testCaseAsync "Bind None"
+
+        testCaseAsync "Bind Some AsyncOption"
         <| async {
-            let expected = None
+            let innerData = "Foo"
+
+            let data =
+                Some innerData
+                |> Async.singleton
 
             let! actual = asyncOption {
-                let! value = None
-                return value
+                let! data = data
+                return data
             }
 
-            Expect.equal actual expected "Should bind value wrapped in option"
+            let! data = data
+            Expect.equal actual (data) "Should be ok"
         }
-        testCaseAsync "Bind Async None"
-        <| async {
-            let expected = None
 
-            let! actual = asyncOption {
-                let! value = async.Return(None)
-                return value
-            }
-
-            Expect.equal actual expected "Should bind value wrapped in option"
-        }
         testCaseAsync "Bind Async"
         <| async {
-            let expected = Some 42
+            let innerData = "Foo"
+            let d = Async.singleton innerData
 
             let! actual = asyncOption {
-                let! value = async.Return(42)
-                return value
+                let! data = d
+                return data
             }
 
-            Expect.equal actual expected "Should bind value wrapped in option"
+            Expect.equal actual (Some innerData) "Should be ok"
         }
 
+
 #if !FABLE_COMPILER
-        testCaseAsync "Bind Task None"
+        testCaseAsync "Bind Some TaskResult"
         <| async {
-            let expected = None
+            let innerData = "Foo"
+
+            let data =
+                Some innerData
+                |> Task.FromResult
 
             let! actual = asyncOption {
-                let! value = Task.FromResult None
-                return value
+                let! data = data
+                return data
             }
 
-            Expect.equal actual expected "Should bind value wrapped in option"
+            Expect.equal actual (data.Result) "Should be ok"
+        }
+        testCaseAsync "Bind Task Generic"
+        <| async {
+            let innerData = "Foo"
+
+            let! actual = asyncOption {
+                let! data = Task.FromResult innerData
+                return data
+            }
+
+            Expect.equal actual (Some innerData) "Should be ok"
         }
         testCaseAsync "Bind Task"
         <| async {
-            let expected = Some 42
+            let innerData = "Foo"
+            let! actual = asyncOption { do! Task.FromResult innerData :> Task }
 
-            let! actual = asyncOption {
-                let! value = Task.FromResult 42
-                return value
-            }
-
-            Expect.equal actual expected "Should bind value wrapped in option"
+            Expect.equal actual (Some()) "Should be ok"
         }
 #endif
+    ]
 
+
+let ``AsyncOptionCE combine/zero/delay/run Tests`` =
+    testList "AsyncOptionCE combine/zero/delay/run Tests" [
         testCaseAsync "Zero/Combine/Delay/Run"
         <| async {
             let data = 42
@@ -147,33 +181,137 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
         }
+    ]
+
+let ``AsyncOptionCE try Tests`` =
+    testList "AsyncOptionCE try Tests" [
         testCaseAsync "Try With"
         <| async {
             let data = 42
 
             let! actual = asyncOption {
+                let data = data
+
                 try
-                    return data
-                with e ->
-                    return raise e
+                    ()
+                with _ ->
+                    ()
+
+                return data
             }
 
-            Expect.equal actual (Some data) "Try with failed"
+            Expect.equal actual (Some data) "Should be ok"
         }
         testCaseAsync "Try Finally"
         <| async {
             let data = 42
 
             let! actual = asyncOption {
+                let data = data
+
                 try
-                    return data
+                    ()
                 finally
                     ()
+
+                return data
             }
 
-            Expect.equal actual (Some data) "Try with failed"
+            Expect.equal actual (Some data) "Should be ok"
         }
-        testCaseAsync "Using null"
+    ]
+
+let makeDisposable (callback) =
+    { new System.IDisposable with
+        member this.Dispose() = callback ()
+    }
+
+
+let makeAsyncDisposable (callback) =
+    { new System.IAsyncDisposable with
+        member this.DisposeAsync() = callback ()
+    }
+
+
+let ``AsyncOptionCE using Tests`` =
+    testList "AsyncOptionCE using Tests" [
+        testCaseAsync "use normal disposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncOption {
+                use d = makeDisposable ((fun () -> isFinished <- true))
+                return data
+            }
+
+            Expect.equal actual (Some data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+#if NET7_0
+        testCaseAsync "use sync asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncOption {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            isFinished <- true
+                            ValueTask()
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (Some data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+        testCaseAsync "use async asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncOption {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            task {
+                                do! Task.Yield()
+                                isFinished <- true
+                            }
+                            :> Task
+                            |> ValueTask
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (Some data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+#endif
+        testCaseAsync "use! normal wrapped disposable"
+        <| async {
+            let data = 42
+
+            let! actual = asyncOption {
+                use! d =
+                    makeDisposable (id)
+                    |> Some
+
+                return data
+            }
+
+            Expect.equal actual (Some data) "Should be ok"
+        }
+#if !FABLE_COMPILER && NETSTANDARD2_1
+        // Fable can't handle null disposables you get
+        // TypeError: Cannot read property 'Dispose' of null
+        testCaseAsync "use null disposable"
         <| async {
             let data = 42
 
@@ -184,25 +322,20 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
         }
-        testCaseAsync "Using disposeable"
+#endif
+    ]
+
+
+let ``AsyncOptionCE loop Tests`` =
+    testList "AsyncOptionCE loop Tests" [
+        testCaseAsync "while"
         <| async {
             let data = 42
+            let mutable index = 0
 
             let! actual = asyncOption {
-                use d = makeDisposable ()
-                return data
-            }
-
-            Expect.equal actual (Some data) "Should be ok"
-        }
-        testCaseAsync "Using bind disposeable"
-        <| async {
-            let data = 42
-
-            let! actual = asyncOption {
-                use! d =
-                    (makeDisposable ()
-                     |> Some)
+                while index < 10 do
+                    index <- index + 1
 
                 return data
             }
@@ -236,9 +369,6 @@ let ceTests =
 
         testCaseAsync "while fail"
         <| async {
-            let data = 42
-            let mutable index = 0
-
 
             let mutable loopCount = 0
             let mutable wasCalled = false
@@ -273,7 +403,8 @@ let ceTests =
             Expect.equal actual expected "Should be an error"
             Expect.isFalse wasCalled "No additional side effects should occur"
         }
-        testCaseAsync "For in"
+
+        testCaseAsync "for in"
         <| async {
             let data = 42
 
@@ -286,7 +417,7 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
         }
-        testCaseAsync "For to"
+        testCaseAsync "for to"
         <| async {
             let data = 42
 
@@ -299,7 +430,102 @@ let ceTests =
 
             Expect.equal actual (Some data) "Should be ok"
         }
+        testCaseAsync "for in fail"
+        <| async {
+            let mutable loopCount = 0
+            let expected = None
+
+            let data = [
+                Some "42"
+                Some "1024"
+                expected
+                Some "1M"
+            ]
+
+            let! actual = asyncOption {
+                for i in data do
+                    let! x = i
+
+                    loopCount <-
+                        loopCount
+                        + 1
+
+                    ()
+
+                return "ok"
+            }
+
+            Expect.equal 2 loopCount "Should only loop twice"
+            Expect.equal actual expected "Should be and error"
+        }
     ]
 
 
-let allTests = testList "Async Option CE tests" [ ceTests ]
+#if !FABLE_COMPILER
+let toTaskResult v =
+    v
+    |> Some
+    |> Task.FromResult
+#endif
+
+
+let ``AsyncOptionCE Stack Trace Tests`` =
+
+
+    let failureAsync = async {
+        failwith "Intentional failure"
+        return ()
+    }
+
+    let mainExeuctorAsync () = asyncOption {
+        do! Some()
+        let! _ = failureAsync
+        return 42
+    }
+
+    let failureAsyncResult = asyncOption {
+        failwith "Intentional failure"
+        return ()
+    }
+
+    let mainExeuctorAsyncResult () = asyncOption {
+        do! Some()
+        let! _ = failureAsyncResult
+        return 42
+    }
+
+#if !FABLE_COMPILER
+    // These are intentionally marked as pending
+    // This is useful for reviewing stacktrack traces but asserting against them is very brittle
+    // I'm open to suggestions around Assertions
+    ptestList "AsyncOptionCE Stack Trace Tests" [
+        testCaseAsync "Async Failure"
+        <| async {
+            let! r = mainExeuctorAsync ()
+            ()
+        }
+        testCaseAsync "AsyncOption Failure"
+        <| async {
+            let! r = mainExeuctorAsyncResult ()
+            ()
+        }
+
+
+    ]
+
+#else
+    testList "AsyncOptionCE Stack Trace Tests" []
+
+#endif
+
+let allTests =
+    testList "AsyncResultCETests" [
+        ``AsyncOptionCE return Tests``
+        ``AsyncOptionCE return! Tests``
+        ``AsyncOptionCE bind Tests``
+        ``AsyncOptionCE combine/zero/delay/run Tests``
+        ``AsyncOptionCE try Tests``
+        ``AsyncOptionCE using Tests``
+        ``AsyncOptionCE loop Tests``
+        ``AsyncOptionCE Stack Trace Tests``
+    ]

@@ -45,12 +45,42 @@ module AsyncResultOptionCE =
             async.TryFinally(computation, compensation)
 
 
-        member inline _.Using
+#if NETSTANDARD2_1
+
+        member inline _.TryFinallyAsync
             (
-                resource: 'ok :> IDisposable,
-                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOutput, 'error>
-            ) : AsyncResultOption<'okOutput, 'error> =
-            async.Using(resource, binder)
+                computation: AsyncResultOption<'ok, 'error>,
+                [<InlineIfLambda>] compensation: unit -> ValueTask
+            ) : AsyncResultOption<'ok, 'error> =
+            let compensation = async {
+                let vTask = compensation ()
+
+                if vTask.IsCompletedSuccessfully then
+                    return ()
+                else
+                    return!
+                        vTask.AsTask()
+                        |> Async.AwaitTask
+            }
+
+            Async.TryFinallyAsync(computation, compensation)
+
+
+        member inline this.Using
+            (
+                resource: 'ok :> IAsyncDisposable,
+                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOut, 'error>
+            ) : AsyncResultOption<'okOut, 'error> =
+            this.TryFinallyAsync(
+                binder resource,
+                (fun () ->
+                    if not (isNull (box resource)) then
+                        resource.DisposeAsync()
+                    else
+                        ValueTask()
+                )
+            )
+#endif
 
 
         member inline this.While
@@ -67,21 +97,6 @@ module AsyncResultOptionCE =
                 whileAsync
             else
                 this.Zero()
-
-
-        member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>
-            ) : AsyncResultOption<unit, 'error> =
-            this.Using(
-                sequence.GetEnumerator(),
-                fun enum ->
-                    this.While(
-                        (fun () -> enum.MoveNext()),
-                        this.Delay(fun () -> binder enum.Current)
-                    )
-            )
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
@@ -141,6 +156,30 @@ module AsyncResultOptionCEExtensions =
         /// </summary>
         member inline this.Source(async: Async<'ok>) : AsyncResultOption<'ok, 'error> =
             Async.map (Some >> Ok) async
+
+
+        member inline _.Using
+            (
+                resource: 'ok :> IDisposable,
+                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOutput, 'error>
+            ) : AsyncResultOption<'okOutput, 'error> =
+            async.Using(resource, binder)
+
+
+        member inline this.For
+            (
+                sequence: #seq<'ok>,
+                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>
+            ) : AsyncResultOption<unit, 'error> =
+            this.Using(
+                sequence.GetEnumerator(),
+                fun enum ->
+                    this.While(
+                        (fun () -> enum.MoveNext()),
+                        this.Delay(fun () -> binder enum.Current)
+                    )
+            )
+
 
 #if !FABLE_COMPILER
         /// <summary>
