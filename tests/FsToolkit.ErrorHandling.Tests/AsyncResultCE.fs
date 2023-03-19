@@ -240,9 +240,15 @@ let ``AsyncResultCE try Tests`` =
         }
     ]
 
-let makeDisposable () =
+let makeDisposable (callback) =
     { new System.IDisposable with
-        member this.Dispose() = ()
+        member this.Dispose() = callback ()
+    }
+
+
+let makeAsyncDisposable (callback) =
+    { new System.IAsyncDisposable with
+        member this.DisposeAsync() = callback ()
     }
 
 
@@ -251,21 +257,69 @@ let ``AsyncResultCE using Tests`` =
         testCaseAsync "use normal disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual = asyncResult {
-                use d = makeDisposable ()
+                use d = makeDisposable ((fun () -> isFinished <- true))
                 return data
             }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.isTrue isFinished ""
         }
+#if NET7_0
+        testCaseAsync "use sync asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncResult {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            isFinished <- true
+                            ValueTask()
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+        testCaseAsync "use async asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncResult {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            task {
+                                do! Task.Yield()
+                                isFinished <- true
+                            }
+                            :> Task
+                            |> ValueTask
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+#endif
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
 
             let! actual = asyncResult {
                 use! d =
-                    makeDisposable ()
+                    makeDisposable (id)
                     |> Result.Ok
 
                 return data
@@ -273,7 +327,7 @@ let ``AsyncResultCE using Tests`` =
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
-#if !FABLE_COMPILER
+#if !FABLE_COMPILER && NETSTANDARD2_1
         // Fable can't handle null disposables you get
         // TypeError: Cannot read property 'Dispose' of null
         testCaseAsync "use null disposable"

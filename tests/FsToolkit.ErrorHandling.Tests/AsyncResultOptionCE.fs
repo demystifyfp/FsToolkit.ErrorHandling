@@ -418,6 +418,11 @@ let makeDisposable () =
         member this.Dispose() = ()
     }
 
+let makeAsyncDisposable (callback) =
+    { new System.IAsyncDisposable with
+        member this.DisposeAsync() = callback ()
+    }
+
 
 let ``AsyncResultOptionCE using Tests`` =
     testList "AsyncResultOptionCE using Tests" [
@@ -432,6 +437,54 @@ let ``AsyncResultOptionCE using Tests`` =
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
+
+#if NET7_0
+        testCaseAsync "use sync asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncResultOption {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            isFinished <- true
+                            ValueTask()
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+        testCaseAsync "use async asyncdisposable"
+        <| async {
+            let data = 42
+            let mutable isFinished = false
+
+            let! actual = asyncResultOption {
+                use d =
+                    makeAsyncDisposable (
+                        (fun () ->
+                            task {
+                                do! Task.Yield()
+                                isFinished <- true
+                            }
+                            :> Task
+                            |> ValueTask
+                        )
+                    )
+
+                return data
+            }
+
+            Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished ""
+        }
+#endif
+
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42

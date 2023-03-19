@@ -46,18 +46,43 @@ module AsyncOptionCE =
             ) : Async<'value option> =
             async.TryFinally(computation, compensation)
 
+
+#if NETSTANDARD2_1
+
+        member inline _.TryFinallyAsync
+            (
+                computation: Async<'value option>,
+                [<InlineIfLambda>] compensation: unit -> ValueTask
+            ) : Async<'value option> =
+            let compensation = async {
+                let vTask = compensation ()
+
+                if vTask.IsCompletedSuccessfully then
+                    return ()
+                else
+                    return!
+                        vTask.AsTask()
+                        |> Async.AwaitTask
+            }
+
+            Async.TryFinallyAsync(computation, compensation)
+
+
         member inline this.Using
             (
-                resource: 'disposable :> IDisposable,
-                [<InlineIfLambda>] binder: 'disposable -> Async<'output option>
-            ) : Async<'output option> =
-            this.TryFinally(
-                (binder resource),
+                resource: 'ok :> IAsyncDisposable,
+                [<InlineIfLambda>] binder: 'ok -> Async<'value option>
+            ) : Async<'value option> =
+            this.TryFinallyAsync(
+                binder resource,
                 (fun () ->
-                    if not (obj.ReferenceEquals(resource, null)) then
-                        resource.Dispose()
+                    if not (isNull (box resource)) then
+                        resource.DisposeAsync()
+                    else
+                        ValueTask()
                 )
             )
+#endif
 
         member this.While
             (
@@ -69,15 +94,6 @@ module AsyncOptionCE =
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
 
-        member inline this.For
-            (
-                sequence: #seq<'input>,
-                binder: 'input -> Async<unit option>
-            ) : Async<unit option> =
-            this.Using(
-                sequence.GetEnumerator(),
-                fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
-            )
 
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
@@ -93,6 +109,7 @@ module AsyncOptionCE =
         member inline _.Source(task: Task<'value option>) : Async<'value option> =
             task
             |> Async.AwaitTask
+
 #endif
 
     let asyncOption = AsyncOptionBuilder()
@@ -122,11 +139,43 @@ module AsyncOptionCEExtensions =
             a
             |> Async.map Some
 
+        member inline this.Using
+            (
+                resource: 'disposable :> IDisposable,
+                [<InlineIfLambda>] binder: 'disposable -> Async<'output option>
+            ) : Async<'output option> =
+            this.TryFinally(
+                (binder resource),
+                (fun () ->
+                    if not (obj.ReferenceEquals(resource, null)) then
+                        resource.Dispose()
+                )
+            )
+
+        member inline this.For
+            (
+                sequence: #seq<'input>,
+                binder: 'input -> Async<unit option>
+            ) : Async<unit option> =
+            this.Using(
+                sequence.GetEnumerator(),
+                fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
+            )
+
+
 #if !FABLE_COMPILER
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(a: Task<'value>) : Async<option<'value>> =
+            a
+            |> Async.AwaitTask
+            |> Async.map Some
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(a: Task) : Async<option<unit>> =
             a
             |> Async.AwaitTask
             |> Async.map Some
