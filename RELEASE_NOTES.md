@@ -1,5 +1,6 @@
-### 4.5.0-beta001 - March 05, 2023
-- [AsynCResultOption updated to be more useful](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/211) Credits @TheAngryByrd
+### 4.5.0-beta002 - March 19, 2023
+- [AsyncResultOption updated to be more useful](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/211) Credits @TheAngryByrd
+- [Adds use for IAsyncDisposable to async varieties](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/212) Credits @TheAngryByrd
 
 ### 4.4.0 - February 21, 2023
 - [Added bind operator for Option](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/210) Credits @ratsclub

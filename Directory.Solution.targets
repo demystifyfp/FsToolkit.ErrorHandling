@@ -1,0 +1,6 @@
+<Project>
+  <Target Name="ToolRestore" BeforeTargets="Restore;CollectPackageReferences">
+    <Exec Command="dotnet tool restore" StandardOutputImportance="High"
+      StandardErrorImportance="High" />
+  </Target>
+</Project>
