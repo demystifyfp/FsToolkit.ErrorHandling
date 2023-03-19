@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+    <ProjectReference
+      Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
   </ItemGroup>
 
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

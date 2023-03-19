@@ -8,15 +8,18 @@
     <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
+    <ProjectReference
+      Include="../../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
+    <ProjectReference
+      Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
+    <ProjectReference
+      Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
     </ProjectReference>
   </ItemGroup>
 
@@ -34,9 +37,9 @@
     <Compile Include="List.fs" />
     <Compile Include="JobResultOption.fs" />
     <Compile Include="Main.fs" />
-    <None Include="paket.references"/>
+    <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
 </Project>

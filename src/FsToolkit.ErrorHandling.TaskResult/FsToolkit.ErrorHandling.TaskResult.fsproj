@@ -24,7 +24,7 @@
     <Compile Include="TaskResultOption.fs" />
     <Compile Include="TaskResultOptionCE.fs" />
     <Compile Include="TaskResultOptionOp.fs" />
-    <None Include="paket.references"/>
+    <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
 
@@ -32,5 +32,5 @@
     <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
 </Project>

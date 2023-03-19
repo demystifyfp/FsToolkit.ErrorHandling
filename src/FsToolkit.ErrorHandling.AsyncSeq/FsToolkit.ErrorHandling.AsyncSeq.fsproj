@@ -12,11 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Library.fs" />
-    <None Include="paket.references"/>
+    <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
 </Project>

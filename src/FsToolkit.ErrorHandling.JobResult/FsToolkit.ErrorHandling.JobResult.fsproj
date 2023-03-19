@@ -20,13 +20,14 @@
     <Compile Include="JobResultOptionCE.fs" />
     <Compile Include="JobResultOptionOp.fs" />
 
-    <None Include="paket.references"/>
+    <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
+    <ProjectReference
+      Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
 </Project>
