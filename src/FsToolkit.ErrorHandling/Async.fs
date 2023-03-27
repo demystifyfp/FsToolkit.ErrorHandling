@@ -68,7 +68,6 @@ module Async =
             )
             input1
 
-
     /// Takes two asyncs and returns a tuple of the pair
     let inline zip (left: Async<'left>) (right: Async<'right>) : Async<'left * 'right> =
         bind (fun l -> bind (fun r -> singleton (l, r)) right) left

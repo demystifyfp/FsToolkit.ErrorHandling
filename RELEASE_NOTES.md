@@ -1,4 +1,4 @@
-### 4.5.0-beta002 - March 19, 2023
+### 4.5.0 - March 26, 2023
 - [AsyncResultOption updated to be more useful](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/211) Credits @TheAngryByrd
 - [Adds use for IAsyncDisposable to async varieties](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/212) Credits @TheAngryByrd
 
