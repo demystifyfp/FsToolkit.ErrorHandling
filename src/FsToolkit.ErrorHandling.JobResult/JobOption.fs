@@ -8,16 +8,17 @@ module JobOption =
 
     let inline map ([<InlineIfLambda>] f) ar = Job.map (Option.map f) ar
 
-    let inline bind ([<InlineIfLambda>] f) (ar: Job<_>) = job {
-        let! opt = ar
+    let inline bind ([<InlineIfLambda>] f) (ar: Job<_>) =
+        job {
+            let! opt = ar
 
-        let t =
-            match opt with
-            | Some x -> f x
-            | None -> job { return None }
+            let t =
+                match opt with
+                | Some x -> f x
+                | None -> job { return None }
 
-        return! t
-    }
+            return! t
+        }
 
     let inline retn x = job { return Some x }
 

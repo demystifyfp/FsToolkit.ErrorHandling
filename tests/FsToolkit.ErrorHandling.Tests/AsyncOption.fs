@@ -31,12 +31,14 @@ let bindTests =
     testList "AsyncOption.bind tests" [
         testCaseAsync "bind with Async(Some x)"
         <| (allowedToPostOptional sampleUserId
-            |> AsyncOption.bind (fun isAllowed -> async {
-                if isAllowed then
-                    return! createPostSome validCreatePostRequest
-                else
-                    return None
-            })
+            |> AsyncOption.bind (fun isAllowed ->
+                async {
+                    if isAllowed then
+                        return! createPostSome validCreatePostRequest
+                    else
+                        return None
+                }
+            )
             |> Expect.hasAsyncSomeValue (PostId newPostId))
 
         testCaseAsync "bind with Async(None)"
@@ -81,11 +83,10 @@ let asyncOptionOperatorTests =
                 newPostRequest
                 <!> getFollowersResult
                 <*> createPostResult
-                |> Expect.hasAsyncSomeValue
-                    {
-                        NewPostId = PostId newPostId
-                        UserIds = followerIds
-                    }
+                |> Expect.hasAsyncSomeValue {
+                    NewPostId = PostId newPostId
+                    UserIds = followerIds
+                }
         }
 
         testCaseAsync "bind operator"

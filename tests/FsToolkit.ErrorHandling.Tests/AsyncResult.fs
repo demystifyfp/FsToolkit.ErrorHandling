@@ -45,11 +45,10 @@ let map2Tests =
 
             do!
                 AsyncResult.map2 newPostRequest getFollowersResult createPostResult
-                |> Expect.hasAsyncOkValue
-                    {
-                        NewPostId = PostId newPostId
-                        UserIds = followerIds
-                    }
+                |> Expect.hasAsyncOkValue {
+                    NewPostId = PostId newPostId
+                    UserIds = followerIds
+                }
         }
 
         testCaseAsync "map2 with Async(Error x) Async(Ok y)"
@@ -133,12 +132,14 @@ let bindTests =
         testCaseAsync
             "bind with Async(Ok x)"
             (allowedToPost sampleUserId
-             |> AsyncResult.bind (fun isAllowed -> async {
-                 if isAllowed then
-                     return! createPostSuccess validCreatePostRequest
-                 else
-                     return (Error(Exception "not allowed to post"))
-             })
+             |> AsyncResult.bind (fun isAllowed ->
+                 async {
+                     if isAllowed then
+                         return! createPostSuccess validCreatePostRequest
+                     else
+                         return (Error(Exception "not allowed to post"))
+                 }
+             )
              |> Expect.hasAsyncOkValue (PostId newPostId))
 
         testCaseAsync "bind with Async(Error x)"
@@ -637,10 +638,11 @@ let teeErrorIfTests =
 let catchTests =
     let f (e: exn) = e.Message
 
-    let asyncThrow () = async {
-        failwith err
-        return Error ""
-    }
+    let asyncThrow () =
+        async {
+            failwith err
+            return Error ""
+        }
 
     testList "AsyncResult.catch tests" [
         testCaseAsync "catch returns success for Ok"
@@ -659,32 +661,31 @@ type CreatePostResult =
 
 
 let asyncResultCETests =
-    let createPost userId = asyncResult {
-        let! isAllowed = allowedToPost userId
+    let createPost userId =
+        asyncResult {
+            let! isAllowed = allowedToPost userId
 
-        if isAllowed then
-            let! postId = createPostSuccess validCreatePostRequest
-            let! followerIds = getFollowersSuccess sampleUserId
+            if isAllowed then
+                let! postId = createPostSuccess validCreatePostRequest
+                let! followerIds = getFollowersSuccess sampleUserId
 
-            return
-                PostSuccess
-                    {
+                return
+                    PostSuccess {
                         NewPostId = postId
                         UserIds = followerIds
                     }
-        else
-            return NotAllowedToPost
-    }
+            else
+                return NotAllowedToPost
+        }
 
     testList "asyncResult Computation Expression tests" [
         testCaseAsync "bind with all Ok"
         <| (createPost sampleUserId
             |> Expect.hasAsyncOkValue (
-                PostSuccess
-                    {
-                        NewPostId = PostId newPostId
-                        UserIds = followerIds
-                    }
+                PostSuccess {
+                    NewPostId = PostId newPostId
+                    UserIds = followerIds
+                }
             ))
 
         testCaseAsync "bind with an Error"
@@ -704,11 +705,10 @@ let asyncResultOperatorTests =
                 newPostRequest
                 <!> getFollowersResult
                 <*> createPostResult
-                |> Expect.hasAsyncOkValue
-                    {
-                        NewPostId = PostId newPostId
-                        UserIds = followerIds
-                    }
+                |> Expect.hasAsyncOkValue {
+                    NewPostId = PostId newPostId
+                    UserIds = followerIds
+                }
         }
 
         testCaseAsync "bind operator"

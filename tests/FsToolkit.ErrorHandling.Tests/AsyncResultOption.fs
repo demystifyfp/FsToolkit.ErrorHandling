@@ -84,11 +84,10 @@ let map2Tests =
 
             AsyncResultOption.map2 userTweet postARO userARO
             |> Expect.hasAsyncOkValue (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             ))
 
         testCaseAsync "map2 with Async(Ok Some(x)) Async(Ok None))"
@@ -164,11 +163,10 @@ let operatorTests =
             <!> getPostResult
             <*> getUserResult
             |> Expect.hasAsyncOkValue (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             ))
 
         testCaseAsync "bind & map operator"
@@ -178,11 +176,10 @@ let operatorTests =
                 <!> getUserById post.UserId
             )
             |> Expect.hasAsyncOkValue (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             ))
     ]
 

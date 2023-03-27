@@ -63,20 +63,22 @@ let ``ResultCE bind Tests`` =
         <| fun _ ->
             let data = Result.Ok "Foo"
 
-            let actual = result {
-                let! f = data
-                return f
-            }
+            let actual =
+                result {
+                    let! f = data
+                    return f
+                }
 
             Expect.equal actual (data) "Should be ok"
         testCase "let! Error result"
         <| fun _ ->
             let data = Result.Error "Foo"
 
-            let actual = result {
-                let! f = data
-                return f
-            }
+            let actual =
+                result {
+                    let! f = data
+                    return f
+                }
 
             Expect.equal actual (data) "Should be ok"
         testCase "let! Ok Choice"
@@ -84,10 +86,11 @@ let ``ResultCE bind Tests`` =
             let innerData = "Foo"
             let data = Choice1Of2 innerData
 
-            let actual = result {
-                let! f = data
-                return f
-            }
+            let actual =
+                result {
+                    let! f = data
+                    return f
+                }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         testCase "let! Error Choice"
@@ -95,10 +98,11 @@ let ``ResultCE bind Tests`` =
             let innerData = "Foo"
             let data = Choice2Of2 innerData
 
-            let actual = result {
-                let! f = data
-                return f
-            }
+            let actual =
+                result {
+                    let! f = data
+                    return f
+                }
 
             Expect.equal actual (Result.Error innerData) "Should be ok"
         testCase "do! Ok result"
@@ -138,14 +142,15 @@ let ``ResultCE combine/zero/delay/run Tests`` =
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                let result = data
+            let actual =
+                result {
+                    let result = data
 
-                if true then
-                    ()
+                    if true then
+                        ()
 
-                return result
-            }
+                    return result
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
@@ -157,32 +162,34 @@ let ``ResultCE try Tests`` =
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                let data = data
+            let actual =
+                result {
+                    let data = data
 
-                try
-                    ()
-                with _ ->
-                    ()
+                    try
+                        ()
+                    with _ ->
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         testCase "Try Finally"
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                let data = data
+            let actual =
+                result {
+                    let data = data
 
-                try
-                    ()
-                finally
-                    ()
+                    try
+                        ()
+                    finally
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
@@ -199,33 +206,36 @@ let ``ResultCE using Tests`` =
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                use d = makeDisposable ()
-                return data
-            }
+            let actual =
+                result {
+                    use d = makeDisposable ()
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         testCase "use! normal wrapped disposable"
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                use! d =
-                    makeDisposable ()
-                    |> Result.Ok
+            let actual =
+                result {
+                    use! d =
+                        makeDisposable ()
+                        |> Result.Ok
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         testCase "use null disposable"
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                use d = null
-                return data
-            }
+            let actual =
+                result {
+                    use d = null
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
@@ -247,12 +257,13 @@ let ``ResultCE loop Tests`` =
                     let data = 42
                     let mutable index = 0
 
-                    let actual = result {
-                        while index < maxIndex do
-                            index <- index + 1
+                    let actual =
+                        result {
+                            while index < maxIndex do
+                                index <- index + 1
 
-                        return data
-                    }
+                            return data
+                        }
 
                     Expect.equal index (maxIndex) "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
@@ -279,16 +290,17 @@ let ``ResultCE loop Tests`` =
                 Ok "1M"
             ]
 
-            let actual = result {
-                while loopCount < data.Length do
-                    let! x = data.[loopCount]
+            let actual =
+                result {
+                    while loopCount < data.Length do
+                        let! x = data.[loopCount]
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                return sideEffect ()
-            }
+                    return sideEffect ()
+                }
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual (expected) "Should be an error"
@@ -298,24 +310,26 @@ let ``ResultCE loop Tests`` =
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                for i in [ 1..10 ] do
-                    ()
+            let actual =
+                result {
+                    for i in [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         testCase "for to"
         <| fun () ->
             let data = 42
 
-            let actual = result {
-                for i = 1 to 10 do
-                    ()
+            let actual =
+                result {
+                    for i = 1 to 10 do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
@@ -324,34 +338,37 @@ let ``ResultCE applicative tests`` =
     testList "ResultCE applicative tests" [
         testCase "Happy Path Result"
         <| fun () ->
-            let actual = result {
-                let! a = Ok 3
-                and! b = Ok 2
-                and! c = Ok 1
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Ok 3
+                    and! b = Ok 2
+                    and! c = Ok 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
 
         testCase "Happy Path Choice"
         <| fun () ->
-            let actual = result {
-                let! a = Choice1Of2 3
-                and! b = Choice1Of2 2
-                and! c = Choice1Of2 1
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Choice1Of2 3
+                    and! b = Choice1Of2 2
+                    and! c = Choice1Of2 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
 
         testCase "Happy Path Result/Choice"
         <| fun () ->
-            let actual = result {
-                let! a = Ok 3
-                and! b = Choice1Of2 2
-                and! c = Choice1Of2 1
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Ok 3
+                    and! b = Choice1Of2 2
+                    and! c = Choice1Of2 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
 
@@ -359,12 +376,13 @@ let ``ResultCE applicative tests`` =
         <| fun () ->
             let expected = Error "TryParse failure"
 
-            let actual = result {
-                let! a = Ok 3
-                and! b = Ok 2
-                and! c = expected
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Ok 3
+                    and! b = Ok 2
+                    and! c = expected
+                    return a + b - c
+                }
 
             Expect.equal actual expected "Should be Error"
 
@@ -372,12 +390,13 @@ let ``ResultCE applicative tests`` =
         <| fun () ->
             let errorMsg = "TryParse failure"
 
-            let actual = result {
-                let! a = Choice1Of2 3
-                and! b = Choice1Of2 2
-                and! c = Choice2Of2 errorMsg
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Choice1Of2 3
+                    and! b = Choice1Of2 2
+                    and! c = Choice2Of2 errorMsg
+                    return a + b - c
+                }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
 
@@ -385,12 +404,13 @@ let ``ResultCE applicative tests`` =
         <| fun () ->
             let errorMsg = "TryParse failure"
 
-            let actual = result {
-                let! a = Choice1Of2 3
-                and! b = Ok 2
-                and! c = Error errorMsg
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Choice1Of2 3
+                    and! b = Ok 2
+                    and! c = Error errorMsg
+                    return a + b - c
+                }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
 
@@ -399,12 +419,13 @@ let ``ResultCE applicative tests`` =
             let errorMsg1 = "TryParse failure"
             let errorMsg2 = "IO failure"
 
-            let actual = result {
-                let! a = Choice1Of2 3
-                and! b = Error errorMsg1
-                and! c = Error errorMsg2
-                return a + b - c
-            }
+            let actual =
+                result {
+                    let! a = Choice1Of2 3
+                    and! b = Error errorMsg1
+                    and! c = Error errorMsg2
+                    return a + b - c
+                }
 
             Expect.equal actual (Error errorMsg1) "Should be Error"
     ]

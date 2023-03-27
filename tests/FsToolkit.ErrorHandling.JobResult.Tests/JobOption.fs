@@ -45,12 +45,14 @@ let bindTests =
         testCase "bind with Job(Some x)"
         <| fun _ ->
             allowedToPostOptional sampleUserId
-            |> JobOption.bind (fun isAllowed -> job {
-                if isAllowed then
-                    return! createPostSome validCreatePostRequest
-                else
-                    return None
-            })
+            |> JobOption.bind (fun isAllowed ->
+                job {
+                    if isAllowed then
+                        return! createPostSome validCreatePostRequest
+                    else
+                        return None
+                }
+            )
             |> Expect.hasJobSomeValue (PostId newPostId)
 
         testCase "bind with Job(None)"
@@ -99,11 +101,10 @@ let jobOptionOperatorTests =
             newPostRequest
             <!> getFollowersResult
             <*> createPostResult
-            |> Expect.hasJobSomeValue
-                {
-                    NewPostId = PostId newPostId
-                    UserIds = followerIds
-                }
+            |> Expect.hasJobSomeValue {
+                NewPostId = PostId newPostId
+                UserIds = followerIds
+            }
 
         testCase "bind operator"
         <| fun _ ->

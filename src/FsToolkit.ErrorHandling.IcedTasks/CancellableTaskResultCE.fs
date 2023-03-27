@@ -246,22 +246,19 @@ module CancellableTaskResultCE =
 
         member inline this.Source(xs: #seq<_>) = xs
 
-        member inline _.Source(result: TaskResult<_, _>) : CancellableTaskResult<_, _> = cancellableTask {
-            return! result
-        }
+        member inline _.Source(result: TaskResult<_, _>) : CancellableTaskResult<_, _> =
+            cancellableTask { return! result }
 
-        member inline _.Source(result: Async<Result<_, _>>) : CancellableTaskResult<_, _> = cancellableTask {
-            return! result
-        }
+        member inline _.Source(result: Async<Result<_, _>>) : CancellableTaskResult<_, _> =
+            cancellableTask { return! result }
 
         member inline this.Source(result: Async<Choice<_, _>>) : CancellableTaskResult<_, _> =
             result
             |> Async.map Result.ofChoice
             |> this.Source
 
-        member inline _.Source(t: ValueTask<Result<_, _>>) : CancellableTaskResult<'T, 'Error> = cancellableTask {
-            return! t
-        }
+        member inline _.Source(t: ValueTask<Result<_, _>>) : CancellableTaskResult<'T, 'Error> =
+            cancellableTask { return! t }
 
         member inline _.Source(result: Result<_, _>) : CancellableTaskResult<_, _> =
             CancellableTask.singleton result
@@ -707,35 +704,41 @@ module CancellableTaskResultCE =
 
         type CancellableTaskResultBuilder with
 
-            member inline _.Source(t: Task<'T>) = cancellableTask {
-                let! r = t
-                return Ok r
-            }
+            member inline _.Source(t: Task<'T>) =
+                cancellableTask {
+                    let! r = t
+                    return Ok r
+                }
 
-            member inline _.Source(result: CancellableTask<'T>) = cancellableTask {
-                let! r = result
-                return Ok r
-            }
+            member inline _.Source(result: CancellableTask<'T>) =
+                cancellableTask {
+                    let! r = result
+                    return Ok r
+                }
 
-            member inline _.Source(result: CancellableTask) : CancellableTaskResult<unit, 'Error> = cancellableTask {
-                let! r = result
-                return Ok r
-            }
+            member inline _.Source(result: CancellableTask) : CancellableTaskResult<unit, 'Error> =
+                cancellableTask {
+                    let! r = result
+                    return Ok r
+                }
 
-            member inline _.Source(result: ColdTask<_>) : CancellableTaskResult<_, _> = cancellableTask {
-                let! r = result
-                return Ok r
-            }
+            member inline _.Source(result: ColdTask<_>) : CancellableTaskResult<_, _> =
+                cancellableTask {
+                    let! r = result
+                    return Ok r
+                }
 
-            member inline _.Source(result: ColdTask) : CancellableTaskResult<_, _> = cancellableTask {
-                let! r = result
-                return Ok r
-            }
+            member inline _.Source(result: ColdTask) : CancellableTaskResult<_, _> =
+                cancellableTask {
+                    let! r = result
+                    return Ok r
+                }
 
-            member inline _.Source(t: Async<'T>) : CancellableTaskResult<'T, 'Error> = cancellableTask {
-                let! r = t
-                return Ok r
-            }
+            member inline _.Source(t: Async<'T>) : CancellableTaskResult<'T, 'Error> =
+                cancellableTask {
+                    let! r = t
+                    return Ok r
+                }
 
 
     [<AutoOpen>]
