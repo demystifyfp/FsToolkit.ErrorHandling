@@ -12,15 +12,17 @@ module Task =
         value
         |> Task.FromResult
 
-    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) = task {
-        let! x = x
-        return! f x
-    }
+    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
+        task {
+            let! x = x
+            return! f x
+        }
 
-    let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) = task {
-        let! x = x
-        return! f x
-    }
+    let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
+        task {
+            let! x = x
+            return! f x
+        }
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
@@ -45,11 +47,12 @@ module Task =
 
 
     /// Takes two tasks and returns a tuple of the pair
-    let zip (a1: Task<_>) (a2: Task<_>) = task {
-        let! r1 = a1
-        let! r2 = a2
-        return r1, r2
-    }
+    let zip (a1: Task<_>) (a2: Task<_>) =
+        task {
+            let! r1 = a1
+            let! r2 = a2
+            return r1, r2
+        }
 
     let ofUnit (t: Task) = task { return! t }
 
@@ -57,10 +60,11 @@ module Task =
     /// returning `Choice1Of2` with the result if the task completes
     /// without exceptions, or `Choice2Of2` with the exception if an
     /// exception is thrown.
-    let catch (x: Task<_>) = task {
-        try
-            let! r = x
-            return Choice1Of2 r
-        with e ->
-            return Choice2Of2 e
-    }
+    let catch (x: Task<_>) =
+        task {
+            try
+                let! r = x
+                return Choice1Of2 r
+            with e ->
+                return Choice2Of2 e
+        }

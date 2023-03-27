@@ -63,10 +63,11 @@ let ceTests =
         <| job {
             let expected = Some 42
 
-            let! actual = jobOption {
-                let! value = Some 42
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = Some 42
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -74,10 +75,11 @@ let ceTests =
         <| job {
             let expected = None
 
-            let! actual = jobOption {
-                let! value = None
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = None
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -85,10 +87,11 @@ let ceTests =
         <| job {
             let expected = None
 
-            let! actual = jobOption {
-                let! value = async.Return(None)
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = async.Return(None)
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -96,10 +99,11 @@ let ceTests =
         <| job {
             let expected = Some 42
 
-            let! actual = jobOption {
-                let! value = async.Return 42
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = async.Return 42
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -107,10 +111,11 @@ let ceTests =
         <| job {
             let expected = None
 
-            let! actual = jobOption {
-                let! value = Task.FromResult None
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = Task.FromResult None
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -118,10 +123,11 @@ let ceTests =
         <| job {
             let expected = Some 42
 
-            let! actual = jobOption {
-                let! value = Task.FromResult 42
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = Task.FromResult 42
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -130,10 +136,11 @@ let ceTests =
         <| job {
             let expected = None
 
-            let! actual = jobOption {
-                let! value = Job.result None
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = Job.result None
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -141,10 +148,11 @@ let ceTests =
         <| job {
             let expected = Some 42
 
-            let! actual = jobOption {
-                let! value = Job.result 42
-                return value
-            }
+            let! actual =
+                jobOption {
+                    let! value = Job.result 42
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         }
@@ -153,14 +161,15 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                let result = data
+            let! actual =
+                jobOption {
+                    let result = data
 
-                if true then
-                    ()
+                    if true then
+                        ()
 
-                return result
-            }
+                    return result
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }
@@ -168,12 +177,13 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                try
-                    return data
-                with e ->
-                    return raise e
-            }
+            let! actual =
+                jobOption {
+                    try
+                        return data
+                    with e ->
+                        return raise e
+                }
 
             Expect.equal actual (Some data) "Try with failed"
         }
@@ -181,12 +191,13 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                try
-                    return data
-                finally
-                    ()
-            }
+            let! actual =
+                jobOption {
+                    try
+                        return data
+                    finally
+                        ()
+                }
 
             Expect.equal actual (Some data) "Try with failed"
         }
@@ -194,10 +205,11 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                use d = null
-                return data
-            }
+            let! actual =
+                jobOption {
+                    use d = null
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }
@@ -205,10 +217,11 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                use d = makeDisposable ()
-                return data
-            }
+            let! actual =
+                jobOption {
+                    use d = makeDisposable ()
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }
@@ -216,13 +229,14 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                use! d =
-                    (makeDisposable ()
-                     |> Some)
+            let! actual =
+                jobOption {
+                    use! d =
+                        (makeDisposable ()
+                         |> Some)
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }
@@ -239,12 +253,13 @@ let ceTests =
                     let data = 42
                     let mutable index = 0
 
-                    let! actual = jobOption {
-                        while index < maxIndex do
-                            index <- index + 1
+                    let! actual =
+                        jobOption {
+                            while index < maxIndex do
+                                index <- index + 1
 
-                        return data
-                    }
+                            return data
+                        }
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Some data) "Should be ok"
@@ -272,16 +287,17 @@ let ceTests =
                 Some "1M"
             ]
 
-            let! actual = jobOption {
-                while loopCount < data.Length do
-                    let! x = data.[loopCount]
+            let! actual =
+                jobOption {
+                    while loopCount < data.Length do
+                        let! x = data.[loopCount]
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                return sideEffect ()
-            }
+                    return sideEffect ()
+                }
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
@@ -291,12 +307,13 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                for i in [ 1..10 ] do
-                    ()
+            let! actual =
+                jobOption {
+                    for i in [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }
@@ -304,12 +321,13 @@ let ceTests =
         <| job {
             let data = 42
 
-            let! actual = jobOption {
-                for i = 1 to 10 do
-                    ()
+            let! actual =
+                jobOption {
+                    for i = 1 to 10 do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         }

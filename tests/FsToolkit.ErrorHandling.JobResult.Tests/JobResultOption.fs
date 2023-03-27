@@ -101,11 +101,10 @@ let map2Tests =
 
             JobResultOption.map2 userTweet postARO userARO
             |> Expect.hasJobOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "map2 with Job(Ok Some(x)) Job(Ok None))"
@@ -190,11 +189,10 @@ let computationExpressionTests =
                 return userTweet post user
             }
             |> Expect.hasJobOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "CE with Job(Ok None) Job(Ok Some(x))"
@@ -237,11 +235,10 @@ let operatorTests =
             <!> getPostResult
             <*> getUserResult
             |> Expect.hasJobOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "bind & map operator"
@@ -252,10 +249,9 @@ let operatorTests =
                 <!> getUserById post.UserId
             )
             |> Expect.hasJobOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
     ]

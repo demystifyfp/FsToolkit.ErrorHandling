@@ -24,12 +24,14 @@ module AsyncSeqCE =
                         fun x ->
                             this.Bind(
                                 computation x,
-                                (fun () -> async {
-                                    match! guard () with
-                                    | Some(Ok x) -> return! whileAsync x
-                                    | Some(Error e) -> return Error e
-                                    | None -> return! this.Zero()
-                                })
+                                (fun () ->
+                                    async {
+                                        match! guard () with
+                                        | Some(Ok x) -> return! whileAsync x
+                                        | Some(Error e) -> return Error e
+                                        | None -> return! this.Zero()
+                                    }
+                                )
                             )
 
                     return! whileAsync x

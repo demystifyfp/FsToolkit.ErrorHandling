@@ -59,11 +59,10 @@ let map2Tests =
             let createPostResult = createPostSuccess validCreatePostRequest
 
             JobResult.map2 newPostRequest getFollowersResult createPostResult
-            |> Expect.hasJobOkValueSync
-                {
-                    NewPostId = PostId newPostId
-                    UserIds = followerIds
-                }
+            |> Expect.hasJobOkValueSync {
+                NewPostId = PostId newPostId
+                UserIds = followerIds
+            }
 
         testCase "map2 with Task(Error x) Task(Ok y)"
         <| fun _ ->
@@ -117,12 +116,14 @@ let bindTests =
         testCase "bind with Task(Ok x)"
         <| fun _ ->
             allowedToPost sampleUserId
-            |> JobResult.bind (fun isAllowed -> job {
-                if isAllowed then
-                    return! createPostSuccess validCreatePostRequest
-                else
-                    return (Error(Exception "not allowed to post"))
-            })
+            |> JobResult.bind (fun isAllowed ->
+                job {
+                    if isAllowed then
+                        return! createPostSuccess validCreatePostRequest
+                    else
+                        return (Error(Exception "not allowed to post"))
+                }
+            )
             |> Expect.hasJobOkValueSync (PostId newPostId)
 
         testCase "bind with Task(Error x)"
@@ -640,10 +641,11 @@ let teeErrorIfTests =
 let catchTests =
     let f (e: exn) = e.Message
 
-    let jobThrow () = job {
-        failwith err
-        return Error ""
-    }
+    let jobThrow () =
+        job {
+            failwith err
+            return Error ""
+        }
 
     testList "JobResult.catch tests" [
         testCase "catch returns success for Ok"

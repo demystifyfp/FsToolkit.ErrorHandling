@@ -10,16 +10,17 @@ module TaskOption =
 
     let inline map ([<InlineIfLambda>] f) ar = Task.map (Option.map f) ar
 
-    let inline bind ([<InlineIfLambda>] f) (ar: Task<_>) = task {
-        let! opt = ar
+    let inline bind ([<InlineIfLambda>] f) (ar: Task<_>) =
+        task {
+            let! opt = ar
 
-        let t =
-            match opt with
-            | Some x -> f x
-            | None -> task { return None }
+            let t =
+                match opt with
+                | Some x -> f x
+                | None -> task { return None }
 
-        return! t
-    }
+            return! t
+        }
 
     let inline retn x = task { return Some x }
     let inline some x = task { return Some x }

@@ -91,10 +91,11 @@ let ``JobResultCE bind Tests`` =
             let innerData = "Foo"
             let data = Result.Ok innerData
 
-            let! actual = jobResult {
-                let! data = data
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (data) "Should be ok"
 
@@ -104,10 +105,11 @@ let ``JobResultCE bind Tests`` =
             let innerData = "Foo"
             let data = Choice1Of2 innerData
 
-            let! actual = jobResult {
-                let! data = data
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -121,10 +123,11 @@ let ``JobResultCE bind Tests`` =
                 Result.Ok innerData
                 |> Async.singleton
 
-            let! actual = jobResult {
-                let! data = data
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal
                 actual
@@ -140,10 +143,11 @@ let ``JobResultCE bind Tests`` =
                 Result.Ok innerData
                 |> Task.singleton
 
-            let! actual = jobResult {
-                let! data = data
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (data.Result) "Should be ok"
         }
@@ -151,10 +155,11 @@ let ``JobResultCE bind Tests`` =
         <| job {
             let innerData = "Foo"
 
-            let! actual = jobResult {
-                let! data = Async.singleton innerData
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = Async.singleton innerData
+                    return data
+                }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -162,10 +167,11 @@ let ``JobResultCE bind Tests`` =
         <| job {
             let innerData = "Foo"
 
-            let! actual = jobResult {
-                let! data = Task.FromResult innerData
-                return data
-            }
+            let! actual =
+                jobResult {
+                    let! data = Task.FromResult innerData
+                    return data
+                }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -186,14 +192,15 @@ let ``JobResultCE combine/zero/delay/run Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                let result = data
+            let! actual =
+                jobResult {
+                    let result = data
 
-                if true then
-                    ()
+                    if true then
+                        ()
 
-                return result
-            }
+                    return result
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -207,16 +214,17 @@ let ``JobResultCE try Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                let data = data
+            let! actual =
+                jobResult {
+                    let data = data
 
-                try
-                    ()
-                with _ ->
-                    ()
+                    try
+                        ()
+                    with _ ->
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -224,16 +232,17 @@ let ``JobResultCE try Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                let data = data
+            let! actual =
+                jobResult {
+                    let data = data
 
-                try
-                    ()
-                finally
-                    ()
+                    try
+                        ()
+                    finally
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -251,10 +260,11 @@ let ``JobResultCE using Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                use d = makeDisposable ()
-                return data
-            }
+            let! actual =
+                jobResult {
+                    use d = makeDisposable ()
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -262,13 +272,14 @@ let ``JobResultCE using Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                use! d =
-                    makeDisposable ()
-                    |> Result.Ok
+            let! actual =
+                jobResult {
+                    use! d =
+                        makeDisposable ()
+                        |> Result.Ok
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -276,10 +287,11 @@ let ``JobResultCE using Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                use d = null
-                return data
-            }
+            let! actual =
+                jobResult {
+                    use d = null
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -302,12 +314,13 @@ let ``JobResultCE loop Tests`` =
                     let data = 42
                     let mutable index = 0
 
-                    let! actual = jobResult {
-                        while index < maxIndex do
-                            index <- index + 1
+                    let! actual =
+                        jobResult {
+                            while index < maxIndex do
+                                index <- index + 1
 
-                        return data
-                    }
+                            return data
+                        }
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Ok data) "Should be ok"
@@ -335,16 +348,17 @@ let ``JobResultCE loop Tests`` =
                 Ok "1M"
             ]
 
-            let! actual = jobResult {
-                while loopCount < data.Length do
-                    let! x = data.[loopCount]
+            let! actual =
+                jobResult {
+                    while loopCount < data.Length do
+                        let! x = data.[loopCount]
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                return sideEffect ()
-            }
+                    return sideEffect ()
+                }
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
@@ -354,12 +368,13 @@ let ``JobResultCE loop Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                for i in [ 1..10 ] do
-                    ()
+            let! actual =
+                jobResult {
+                    for i in [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -367,12 +382,13 @@ let ``JobResultCE loop Tests`` =
         <| job {
             let data = 42
 
-            let! actual = jobResult {
-                for i = 1 to 10 do
-                    ()
+            let! actual =
+                jobResult {
+                    for i = 1 to 10 do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
@@ -389,18 +405,19 @@ let ``JobResultCE loop Tests`` =
                 Ok "1M"
             ]
 
-            let! actual = jobResult {
-                for i in data do
-                    let! x = i
+            let! actual =
+                jobResult {
+                    for i in data do
+                        let! x = i
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                    ()
+                        ()
 
-                return "ok"
-            }
+                    return "ok"
+                }
 
             Expect.equal 2 loopCount "Should only loop twice"
             Expect.equal actual expected "Should be and error"
@@ -413,35 +430,38 @@ let ``AsyncResultCE applicative tests`` =
     testList "JobResultCE applicative tests" [
         testCaseJob "Happy Path JobResult"
         <| job {
-            let! actual = jobResult {
-                let! a = JobResult.retn 3
-                and! b = JobResult.retn 2
-                and! c = JobResult.retn 1
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = JobResult.retn 3
+                    and! b = JobResult.retn 2
+                    and! c = JobResult.retn 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
         testCaseJob "Happy Path AsyncResult"
         <| job {
-            let! actual = jobResult {
-                let! a = AsyncResult.retn 3
-                and! b = AsyncResult.retn 2
-                and! c = AsyncResult.retn 1
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = AsyncResult.retn 3
+                    and! b = AsyncResult.retn 2
+                    and! c = AsyncResult.retn 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
         testCaseJob "Happy Path TaskResult"
         <| job {
-            let! actual = jobResult {
-                let! a = TaskResult.retn 3
-                and! b = TaskResult.retn 2
-                and! c = TaskResult.retn 1
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = TaskResult.retn 3
+                    and! b = TaskResult.retn 2
+                    and! c = TaskResult.retn 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
@@ -449,74 +469,80 @@ let ``AsyncResultCE applicative tests`` =
 
         testCaseJob "Happy Path Result"
         <| job {
-            let! actual = jobResult {
-                let! a = Result.Ok 3
-                and! b = Result.Ok 2
-                and! c = Result.Ok 1
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = Result.Ok 3
+                    and! b = Result.Ok 2
+                    and! c = Result.Ok 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
         testCaseJob "Happy Path Choice"
         <| job {
-            let! actual = jobResult {
-                let! a = Choice1Of2 3
-                and! b = Choice1Of2 2
-                and! c = Choice1Of2 1
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = Choice1Of2 3
+                    and! b = Choice1Of2 2
+                    and! c = Choice1Of2 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
         testCaseJob "Happy Path Async"
         <| job {
-            let! actual = jobResult {
-                let! a = Async.singleton 3 //: Async<int>
-                and! b = Async.singleton 2 //: Async<int>
-                and! c = Async.singleton 1 //: Async<int>
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = Async.singleton 3 //: Async<int>
+                    and! b = Async.singleton 2 //: Async<int>
+                    and! c = Async.singleton 1 //: Async<int>
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
         testCaseJob "Happy Path 2 Async"
         <| job {
-            let! actual = jobResult {
-                let! a = Async.singleton 3 //: Async<int>
-                and! b = Async.singleton 2 //: Async<int>
-                return a + b
-            }
+            let! actual =
+                jobResult {
+                    let! a = Async.singleton 3 //: Async<int>
+                    and! b = Async.singleton 2 //: Async<int>
+                    return a + b
+                }
 
             Expect.equal actual (Ok 5) "Should be ok"
         }
 
         testCaseJob "Happy Path 2 Task"
         <| job {
-            let! actual = jobResult {
-                let! a = Task.FromResult 3
-                and! b = Task.FromResult 2
-                return a + b
-            }
+            let! actual =
+                jobResult {
+                    let! a = Task.FromResult 3
+                    and! b = Task.FromResult 2
+                    return a + b
+                }
 
             Expect.equal actual (Ok 5) "Should be ok"
         }
 
         testCaseJob "Happy Path Result/Choice/AsyncResult"
         <| job {
-            let! actual = jobResult {
-                let! a = Ok 3
-                and! b = Choice1Of2 2
+            let! actual =
+                jobResult {
+                    let! a = Ok 3
+                    and! b = Choice1Of2 2
 
-                and! c =
-                    Ok 1
-                    |> Async.singleton
+                    and! c =
+                        Ok 1
+                        |> Async.singleton
 
-                return a + b - c
-            }
+                    return a + b - c
+                }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
@@ -525,12 +551,13 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let expected = Error "TryParse failure"
 
-            let! actual = jobResult {
-                let! a = Ok 3
-                and! b = Ok 2
-                and! c = expected
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = Ok 3
+                    and! b = Ok 2
+                    and! c = expected
+                    return a + b - c
+                }
 
             Expect.equal actual expected "Should be Error"
         }
@@ -539,12 +566,13 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let errorMsg = "TryParse failure"
 
-            let! actual = jobResult {
-                let! a = Choice1Of2 3
-                and! b = Choice1Of2 2
-                and! c = Choice2Of2 errorMsg
-                return a + b - c
-            }
+            let! actual =
+                jobResult {
+                    let! a = Choice1Of2 3
+                    and! b = Choice1Of2 2
+                    and! c = Choice2Of2 errorMsg
+                    return a + b - c
+                }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
         }
@@ -553,16 +581,17 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let errorMsg = "TryParse failure"
 
-            let! actual = jobResult {
-                let! a = Choice1Of2 3
+            let! actual =
+                jobResult {
+                    let! a = Choice1Of2 3
 
-                and! b =
-                    Ok 2
-                    |> Async.singleton
+                    and! b =
+                        Ok 2
+                        |> Async.singleton
 
-                and! c = Error errorMsg
-                return a + b - c
-            }
+                    and! c = Error errorMsg
+                    return a + b - c
+                }
 
             Expect.equal actual (Error errorMsg) "Should be Error"
         }

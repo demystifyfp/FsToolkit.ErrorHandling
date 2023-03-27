@@ -57,17 +57,18 @@ let traverseTaskResultMTests =
             Expect.hasTaskErrorValueSync expected actual
     ]
 
-let notifyFailure (PostId _) (UserId uId) = task {
-    if
-        (uId = userId1
-         || uId = userId3)
-    then
-        return
-            sprintf "error: %s" (uId.ToString())
-            |> Error
-    else
-        return Ok()
-}
+let notifyFailure (PostId _) (UserId uId) =
+    task {
+        if
+            (uId = userId1
+             || uId = userId3)
+        then
+            return
+                sprintf "error: %s" (uId.ToString())
+                |> Error
+        else
+            return Ok()
+    }
 
 
 [<Tests>]

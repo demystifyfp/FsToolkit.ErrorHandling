@@ -39,91 +39,99 @@ let ceTests =
         <| fun _ ->
             let expected = Some 42
 
-            let actual = option {
-                let! value = Some 42
-                return value
-            }
+            let actual =
+                option {
+                    let! value = Some 42
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         testCase "Bind None"
         <| fun _ ->
             let expected = None
 
-            let actual = option {
-                let! value = None
-                return value
-            }
+            let actual =
+                option {
+                    let! value = None
+                    return value
+                }
 
             Expect.equal actual expected "Should bind value wrapped in option"
         testCase "Zero/Combine/Delay/Run"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                let result = data
+            let actual =
+                option {
+                    let result = data
 
-                if true then
-                    ()
+                    if true then
+                        ()
 
-                return result
-            }
+                    return result
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "Try With"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                try
-                    return data
-                with e ->
-                    return raise e
-            }
+            let actual =
+                option {
+                    try
+                        return data
+                    with e ->
+                        return raise e
+                }
 
             Expect.equal actual (Some data) "Try with failed"
         testCase "Try Finally"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                try
-                    return data
-                finally
-                    ()
-            }
+            let actual =
+                option {
+                    try
+                        return data
+                    finally
+                        ()
+                }
 
             Expect.equal actual (Some data) "Try with failed"
         testCase "Using null"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                use d = null
-                return data
-            }
+            let actual =
+                option {
+                    use d = null
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "Using disposeable"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                use d = makeDisposable ()
-                return data
-            }
+            let actual =
+                option {
+                    use d = makeDisposable ()
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "Using bind disposeable"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                use! d =
-                    (makeDisposable ()
-                     |> Some)
+            let actual =
+                option {
+                    use! d =
+                        (makeDisposable ()
+                         |> Some)
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         yield! [
@@ -139,12 +147,13 @@ let ceTests =
                     let data = 42
                     let mutable index = 0
 
-                    let actual = option {
-                        while index < maxIndex do
-                            index <- index + 1
+                    let actual =
+                        option {
+                            while index < maxIndex do
+                                index <- index + 1
 
-                        return data
-                    }
+                            return data
+                        }
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (Some data) "Should be ok"
@@ -171,16 +180,17 @@ let ceTests =
                 Some "1M"
             ]
 
-            let actual = option {
-                while loopCount < data.Length do
-                    let! x = data.[loopCount]
+            let actual =
+                option {
+                    while loopCount < data.Length do
+                        let! x = data.[loopCount]
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                return sideEffect ()
-            }
+                    return sideEffect ()
+                }
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
@@ -191,36 +201,39 @@ let ceTests =
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                for i in [ 1..10 ] do
-                    ()
+            let actual =
+                option {
+                    for i in [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "For in ResizeArray"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                for i in ResizeArray [ 1..10 ] do
-                    ()
+            let actual =
+                option {
+                    for i in ResizeArray [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "For to"
         <| fun () ->
             let data = 42
 
-            let actual = option {
-                for i = 1 to 10 do
-                    ()
+            let actual =
+                option {
+                    for i = 1 to 10 do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (Some data) "Should be ok"
         testCase "Nullable value"
@@ -239,10 +252,11 @@ let ceTests =
         <| fun () ->
             let data = "hello"
 
-            let actual = option {
-                let! v = data
-                return v
-            }
+            let actual =
+                option {
+                    let! v = data
+                    return v
+                }
 
             Expect.equal actual (Some data) ""
 
@@ -250,10 +264,11 @@ let ceTests =
         <| fun () ->
             let (data: string) = null
 
-            let actual = option {
-                let! v = data
-                return v
-            }
+            let actual =
+                option {
+                    let! v = data
+                    return v
+                }
 
             Expect.equal actual None ""
 
@@ -261,10 +276,11 @@ let ceTests =
         <| fun () ->
             let (data: Uri) = null
 
-            let actual = option {
-                let! v = data
-                return v
-            }
+            let actual =
+                option {
+                    let! v = data
+                    return v
+                }
 
             Expect.equal actual None ""
 
@@ -272,10 +288,11 @@ let ceTests =
         <| fun () ->
             let (data: IO.MemoryStream) = null
 
-            let actual = option {
-                let! v = data
-                return v
-            }
+            let actual =
+                option {
+                    let! v = data
+                    return v
+                }
 
             Expect.equal actual None ""
 
@@ -283,10 +300,11 @@ let ceTests =
         <| fun () ->
             let (data: ResizeArray<string>) = null
 
-            let actual = option {
-                let! v = data
-                return v
-            }
+            let actual =
+                option {
+                    let! v = data
+                    return v
+                }
 
             Expect.equal actual None ""
     ]
@@ -301,39 +319,42 @@ let ``OptionCE applicative tests`` =
     testList "OptionCE applicative tests" [
         testCase "Happy Path Option.Some"
         <| fun () ->
-            let actual = option {
-                let! a = Some 3
-                and! b = Some 2
-                and! c = Some 1
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Some 3
+                    and! b = Some 2
+                    and! c = Some 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Some 4) "Should be Some 4"
 
         testCase "Happy Path Nullable"
         <| fun () ->
-            let actual = option {
-                let! a = Nullable<_> 3
-                and! b = Nullable<_> 2
-                and! c = Nullable<_> 1
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Nullable<_> 3
+                    and! b = Nullable<_> 2
+                    and! c = Nullable<_> 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Some 4) "Should be Some 4"
 
         testCase "Happy Path null Objects"
         <| fun () ->
             // let hello = CustomClass
-            let actual = option {
-                let! a = CustomClass 3
-                and! b = CustomClass 2
-                and! c = CustomClass 1
+            let actual =
+                option {
+                    let! a = CustomClass 3
+                    and! b = CustomClass 2
+                    and! c = CustomClass 1
 
-                return
-                    a.getX
-                    + b.getX
-                    - c.getX
-            }
+                    return
+                        a.getX
+                        + b.getX
+                        - c.getX
+                }
 
             Expect.equal actual (Some 4) "Should be Some 4"
 
@@ -344,12 +365,13 @@ let ``OptionCE applicative tests`` =
             let world = "world "
             let fromfsharp = "from F#"
 
-            let actual = option {
-                let! a = hello
-                and! b = world
-                and! c = fromfsharp
-                return a + b + c
-            }
+            let actual =
+                option {
+                    let! a = hello
+                    and! b = world
+                    and! c = fromfsharp
+                    return a + b + c
+                }
 
             Expect.equal actual (Some "Hello world from F#") "Should be Some"
 
@@ -359,76 +381,82 @@ let ``OptionCE applicative tests`` =
             let r2 = ResizeArray [ 2 ]
             let r3 = ResizeArray [ 1 ]
 
-            let actual = option {
-                let! a = r1
-                and! b = r2
-                and! c = r3
-                a.AddRange b
-                a.AddRange c
+            let actual =
+                option {
+                    let! a = r1
+                    and! b = r2
+                    and! c = r3
+                    a.AddRange b
+                    a.AddRange c
 
-                return Seq.sum a
-            }
+                    return Seq.sum a
+                }
 
             Expect.equal actual (Some 6) "Should be Some"
 
         testCase "Happy Path Option.Some/Nullable"
         <| fun () ->
-            let actual = option {
-                let! a = Some 3
-                and! b = Nullable 2
-                and! c = Nullable 1
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Some 3
+                    and! b = Nullable 2
+                    and! c = Nullable 1
+                    return a + b - c
+                }
 
             Expect.equal actual (Some 4) "Should be Some 4"
 
         testCase "Happy Path Option.Some/Nullable/Objects"
         <| fun () ->
-            let actual = option {
-                let! a = Some 3
-                and! b = Nullable 2
-                and! c = CustomClass 1
+            let actual =
+                option {
+                    let! a = Some 3
+                    and! b = Nullable 2
+                    and! c = CustomClass 1
 
-                return
-                    a + b
-                    - c.getX
-            }
+                    return
+                        a + b
+                        - c.getX
+                }
 
             Expect.equal actual (Some 4) "Should be Some 4"
 
 
         testCase "Happy Combo all"
         <| fun () ->
-            let actual = option {
-                let! a = Nullable<_> 3
-                and! b = Some 2
-                and! c = "hello"
-                and! d = ResizeArray [ 1 ]
-                and! e = CustomClass 5
-                and! f = Uri "https://github.com/"
-                return sprintf "%d %d %s %d %d %s" a b c (Seq.head d) e.getX (string f)
-            }
+            let actual =
+                option {
+                    let! a = Nullable<_> 3
+                    and! b = Some 2
+                    and! c = "hello"
+                    and! d = ResizeArray [ 1 ]
+                    and! e = CustomClass 5
+                    and! f = Uri "https://github.com/"
+                    return sprintf "%d %d %s %d %d %s" a b c (Seq.head d) e.getX (string f)
+                }
 
             Expect.equal actual (Some "3 2 hello 1 5 https://github.com/") "Should be Some"
         testCase "Fail Path Option.None"
         <| fun () ->
-            let actual = option {
-                let! a = Some 3
-                and! b = Some 2
-                and! c = None
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Some 3
+                    and! b = Some 2
+                    and! c = None
+                    return a + b - c
+                }
 
             Expect.equal actual None "Should be None"
 
         testCase "Fail Path Nullable"
         <| fun () ->
-            let actual = option {
-                let! a = Nullable 3
-                and! b = Nullable 2
-                and! c = Nullable<_>()
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Nullable 3
+                    and! b = Nullable 2
+                    and! c = Nullable<_>()
+                    return a + b - c
+                }
 
             Expect.equal actual (None) "Should be None"
 
@@ -438,16 +466,17 @@ let ``OptionCE applicative tests`` =
             let c2 = CustomClass 2
             let c3: CustomClass = null
 
-            let actual = option {
-                let! a = c1
-                and! b = c2
-                and! c = c3
+            let actual =
+                option {
+                    let! a = c1
+                    and! b = c2
+                    and! c = c3
 
-                return
-                    a.getX
-                    + b.getX
-                    - c.getX
-            }
+                    return
+                        a.getX
+                        + b.getX
+                        - c.getX
+                }
 
             Expect.equal actual (None) "Should be None"
 
@@ -458,45 +487,49 @@ let ``OptionCE applicative tests`` =
             let c2 = CustomClass 2
             let c3: CustomClass = null
 
-            let actual = option {
-                let! a = c1
-                and! b = c2
-                and! c = c3
+            let actual =
+                option {
+                    let! a = c1
+                    and! b = c2
+                    and! c = c3
 
-                return
-                    a.getX
-                    + b.getX
-                    - c.getX
-            }
+                    return
+                        a.getX
+                        + b.getX
+                        - c.getX
+                }
 
             Expect.equal actual (None) "Should be None"
 
         testCase "Fail Path Option.Some/Nullable"
         <| fun () ->
-            let actual = option {
-                let! a = Nullable<_> 3
-                and! b = Some 2
-                and! c = Nullable<_>()
-                return a + b - c
-            }
+            let actual =
+                option {
+                    let! a = Nullable<_> 3
+                    and! b = Some 2
+                    and! c = Nullable<_>()
+                    return a + b - c
+                }
 
             Expect.equal actual None "Should be None"
 
         testCase "ValueOption.Some"
         <| fun () ->
-            let actual = option {
-                let! a = ValueSome 3
-                return a
-            }
+            let actual =
+                option {
+                    let! a = ValueSome 3
+                    return a
+                }
 
             Expect.equal actual (Some 3) "Should be None"
 
         testCase "ValueOption.None"
         <| fun () ->
-            let actual = option {
-                let! a = ValueNone
-                return a
-            }
+            let actual =
+                option {
+                    let! a = ValueNone
+                    return a
+                }
 
             Expect.equal actual (None) "Should be None"
     ]

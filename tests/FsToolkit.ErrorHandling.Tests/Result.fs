@@ -151,24 +151,26 @@ let resultCETests =
     testList "result Computation Expression tests" [
         testCase "bind with all Ok"
         <| fun _ ->
-            let createPostRequest = result {
-                let! lat = validLatR
-                let! lng = validLngR
-                let! tweet = validTweetR
-                return createPostRequest lat lng tweet
-            }
+            let createPostRequest =
+                result {
+                    let! lat = validLatR
+                    let! lng = validLngR
+                    let! tweet = validTweetR
+                    return createPostRequest lat lng tweet
+                }
 
             Expect.hasOkValue validCreatePostRequest createPostRequest
 
         testCase "bind with Error"
         <| fun _ ->
-            let post = result {
-                let! lat = invalidLatR
-                // Tests.failtestf "this should not get executed!"
-                let! lng = validLngR
-                let! tweet = validTweetR
-                return createPostRequest lat lng tweet
-            }
+            let post =
+                result {
+                    let! lat = invalidLatR
+                    // Tests.failtestf "this should not get executed!"
+                    let! lng = validLngR
+                    let! tweet = validTweetR
+                    return createPostRequest lat lng tweet
+                }
 
             post
             |> Expect.hasErrorValue invalidLatMsg

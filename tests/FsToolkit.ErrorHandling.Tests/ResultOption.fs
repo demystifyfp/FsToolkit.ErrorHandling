@@ -152,35 +152,37 @@ let resultOptionCETests =
     testList "resultOption Computation Expression tests" [
         testCase "bind with all Ok"
         <| fun _ ->
-            let createPostRequest = resultOption {
-                let! lat = Ok(Some validLat)
-                let! lng = Ok(Some validLng)
+            let createPostRequest =
+                resultOption {
+                    let! lat = Ok(Some validLat)
+                    let! lng = Ok(Some validLng)
 
-                let! tweet =
-                    validTweetR
-                    |> Result.map Some
+                    let! tweet =
+                        validTweetR
+                        |> Result.map Some
 
-                return createPostRequest lat lng tweet
-            }
+                    return createPostRequest lat lng tweet
+                }
 
             Expect.hasOkValue (Some validCreatePostRequest) createPostRequest
 
         testCase "bind with Error"
         <| fun _ ->
-            let post = resultOption {
-                let! lat =
-                    invalidLatR
-                    |> Result.map Some
+            let post =
+                resultOption {
+                    let! lat =
+                        invalidLatR
+                        |> Result.map Some
 
-                Tests.failtestf "this should not get executed!"
-                let! lng = Ok(Some validLng)
+                    Tests.failtestf "this should not get executed!"
+                    let! lng = Ok(Some validLng)
 
-                let! tweet =
-                    validTweetR
-                    |> Result.map Some
+                    let! tweet =
+                        validTweetR
+                        |> Result.map Some
 
-                return createPostRequest lat lng tweet
-            }
+                    return createPostRequest lat lng tweet
+                }
 
             post
             |> Expect.hasErrorValue invalidLatMsg

@@ -54,12 +54,14 @@ let bindTests =
         testCase "bind with Task(Some x)"
         <| fun _ ->
             allowedToPostOptional sampleUserId
-            |> TaskOption.bind (fun isAllowed -> task {
-                if isAllowed then
-                    return! createPostSome validCreatePostRequest
-                else
-                    return None
-            })
+            |> TaskOption.bind (fun isAllowed ->
+                task {
+                    if isAllowed then
+                        return! createPostSome validCreatePostRequest
+                    else
+                        return None
+                }
+            )
             |> Expect.hasTaskSomeValue (PostId newPostId)
 
         testCase "bind with Task(None)"
@@ -108,11 +110,10 @@ let taskOptionOperatorTests =
             newPostRequest
             <!> getFollowersResult
             <*> createPostResult
-            |> Expect.hasTaskSomeValue
-                {
-                    NewPostId = PostId newPostId
-                    UserIds = followerIds
-                }
+            |> Expect.hasTaskSomeValue {
+                NewPostId = PostId newPostId
+                UserIds = followerIds
+            }
 
         testCase "bind operator"
         <| fun _ ->
@@ -130,21 +131,23 @@ let taskOptionOperatorTests =
 let eitherTests =
     testList "TaskOption.either Tests" [
         testCaseTask "Some"
-        <| fun () -> task {
-            let value1 = TaskOption.retn 5
-            let f () = Task.FromResult 42
-            let add2 x = task { return x + 2 }
-            let! result = (TaskOption.either add2 f value1)
-            Expect.equal result 7 ""
-        }
+        <| fun () ->
+            task {
+                let value1 = TaskOption.retn 5
+                let f () = Task.FromResult 42
+                let add2 x = task { return x + 2 }
+                let! result = (TaskOption.either add2 f value1)
+                Expect.equal result 7 ""
+            }
         testCaseTask "None"
-        <| fun () -> task {
-            let value1 = Task.FromResult None
-            let f () = Task.FromResult 42
-            let add2 x = task { return x + 2 }
-            let! result = (TaskOption.either add2 f value1)
-            Expect.equal result 42 ""
-        }
+        <| fun () ->
+            task {
+                let value1 = Task.FromResult None
+                let f () = Task.FromResult 42
+                let add2 x = task { return x + 2 }
+                let! result = (TaskOption.either add2 f value1)
+                Expect.equal result 42 ""
+            }
     ]
 
 let allTests =

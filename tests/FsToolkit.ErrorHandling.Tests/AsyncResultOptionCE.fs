@@ -148,10 +148,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = Result.Ok innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -160,10 +161,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = Result.Error innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (Error innerData) "Should be ok"
         }
@@ -172,10 +174,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = Choice1Of2 innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -185,10 +188,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = Choice2Of2 innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (Error innerData) "Should be ok"
         }
@@ -198,10 +202,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = None
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkNone innerData) "Should be ok"
         }
@@ -212,10 +217,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let data = Some innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -228,10 +234,11 @@ let ``AsyncResultOptionCE bind Tests`` =
                 Result.Ok innerData
                 |> Async.singleton
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             let! data = data
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -245,10 +252,11 @@ let ``AsyncResultOptionCE bind Tests`` =
                 Some innerData
                 |> Async.singleton
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             let! data = data
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -260,10 +268,11 @@ let ``AsyncResultOptionCE bind Tests`` =
 
             let data = AsyncResultOption.retn innerData
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             let! data = data
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -274,10 +283,11 @@ let ``AsyncResultOptionCE bind Tests`` =
             let innerData = "Foo"
             let d = Async.singleton innerData
 
-            let! actual = asyncResultOption {
-                let! data = d
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = d
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -292,10 +302,11 @@ let ``AsyncResultOptionCE bind Tests`` =
                 Result.Ok innerData
                 |> Task.FromResult
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -308,10 +319,11 @@ let ``AsyncResultOptionCE bind Tests`` =
                 Some innerData
                 |> Task.FromResult
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -326,10 +338,11 @@ let ``AsyncResultOptionCE bind Tests`` =
                 |> Ok
                 |> Task.FromResult
 
-            let! actual = asyncResultOption {
-                let! data = data
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = data
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -338,10 +351,11 @@ let ``AsyncResultOptionCE bind Tests`` =
         <| async {
             let innerData = "Foo"
 
-            let! actual = asyncResultOption {
-                let! data = Task.FromResult innerData
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    let! data = Task.FromResult innerData
+                    return data
+                }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
         }
@@ -362,14 +376,15 @@ let ``AsyncResultOptionCE combine/zero/delay/run Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                let result = data
+            let! actual =
+                asyncResultOption {
+                    let result = data
 
-                if true then
-                    ()
+                    if true then
+                        ()
 
-                return result
-            }
+                    return result
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -381,16 +396,17 @@ let ``AsyncResultOptionCE try Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                let data = data
+            let! actual =
+                asyncResultOption {
+                    let data = data
 
-                try
-                    ()
-                with _ ->
-                    ()
+                    try
+                        ()
+                    with _ ->
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -398,16 +414,17 @@ let ``AsyncResultOptionCE try Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                let data = data
+            let! actual =
+                asyncResultOption {
+                    let data = data
 
-                try
-                    ()
-                finally
-                    ()
+                    try
+                        ()
+                    finally
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -430,10 +447,11 @@ let ``AsyncResultOptionCE using Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                use d = makeDisposable ()
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    use d = makeDisposable ()
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -444,17 +462,18 @@ let ``AsyncResultOptionCE using Tests`` =
             let data = 42
             let mutable isFinished = false
 
-            let! actual = asyncResultOption {
-                use d =
-                    makeAsyncDisposable (
-                        (fun () ->
-                            isFinished <- true
-                            ValueTask()
+            let! actual =
+                asyncResultOption {
+                    use d =
+                        makeAsyncDisposable (
+                            (fun () ->
+                                isFinished <- true
+                                ValueTask()
+                            )
                         )
-                    )
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
             Expect.isTrue isFinished ""
@@ -464,21 +483,22 @@ let ``AsyncResultOptionCE using Tests`` =
             let data = 42
             let mutable isFinished = false
 
-            let! actual = asyncResultOption {
-                use d =
-                    makeAsyncDisposable (
-                        (fun () ->
-                            task {
-                                do! Task.Yield()
-                                isFinished <- true
-                            }
-                            :> Task
-                            |> ValueTask
+            let! actual =
+                asyncResultOption {
+                    use d =
+                        makeAsyncDisposable (
+                            (fun () ->
+                                task {
+                                    do! Task.Yield()
+                                    isFinished <- true
+                                }
+                                :> Task
+                                |> ValueTask
+                            )
                         )
-                    )
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
             Expect.isTrue isFinished ""
@@ -489,13 +509,14 @@ let ``AsyncResultOptionCE using Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                use! d =
-                    makeDisposable ()
-                    |> Result.Ok
+            let! actual =
+                asyncResultOption {
+                    use! d =
+                        makeDisposable ()
+                        |> Result.Ok
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -506,10 +527,11 @@ let ``AsyncResultOptionCE using Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                use d = null
-                return data
-            }
+            let! actual =
+                asyncResultOption {
+                    use d = null
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -524,12 +546,13 @@ let ``AsyncResultOptionCE loop Tests`` =
             let data = 42
             let mutable index = 0
 
-            let! actual = asyncResultOption {
-                while index < 10 do
-                    index <- index + 1
+            let! actual =
+                asyncResultOption {
+                    while index < 10 do
+                        index <- index + 1
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -546,12 +569,13 @@ let ``AsyncResultOptionCE loop Tests`` =
                     let data = 42
                     let mutable index = 0
 
-                    let! actual = asyncResultOption {
-                        while index < maxIndex do
-                            index <- index + 1
+                    let! actual =
+                        asyncResultOption {
+                            while index < maxIndex do
+                                index <- index + 1
 
-                        return data
-                    }
+                            return data
+                        }
 
                     Expect.equal index maxIndex "Index should reach maxIndex"
                     Expect.equal actual (OkSome data) "Should be ok"
@@ -579,16 +603,17 @@ let ``AsyncResultOptionCE loop Tests`` =
                 Ok "1M"
             ]
 
-            let! actual = asyncResultOption {
-                while loopCount < data.Length do
-                    let! x = data.[loopCount]
+            let! actual =
+                asyncResultOption {
+                    while loopCount < data.Length do
+                        let! x = data.[loopCount]
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                return sideEffect ()
-            }
+                    return sideEffect ()
+                }
 
             Expect.equal loopCount 2 "Should only loop twice"
             Expect.equal actual expected "Should be an error"
@@ -599,12 +624,13 @@ let ``AsyncResultOptionCE loop Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                for i in [ 1..10 ] do
-                    ()
+            let! actual =
+                asyncResultOption {
+                    for i in [ 1..10 ] do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -612,12 +638,13 @@ let ``AsyncResultOptionCE loop Tests`` =
         <| async {
             let data = 42
 
-            let! actual = asyncResultOption {
-                for i = 1 to 10 do
-                    ()
+            let! actual =
+                asyncResultOption {
+                    for i = 1 to 10 do
+                        ()
 
-                return data
-            }
+                    return data
+                }
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
@@ -633,18 +660,19 @@ let ``AsyncResultOptionCE loop Tests`` =
                 Ok "1M"
             ]
 
-            let! actual = asyncResultOption {
-                for i in data do
-                    let! x = i
+            let! actual =
+                asyncResultOption {
+                    for i in data do
+                        let! x = i
 
-                    loopCount <-
-                        loopCount
-                        + 1
+                        loopCount <-
+                            loopCount
+                            + 1
 
-                    ()
+                        ()
 
-                return "ok"
-            }
+                    return "ok"
+                }
 
             Expect.equal 2 loopCount "Should only loop twice"
             Expect.equal actual expected "Should be and error"

@@ -101,11 +101,10 @@ let map2Tests =
 
             TaskResultOption.map2 userTweet postARO userARO
             |> Expect.hasTaskOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "map2 with Task(Ok Some(x)) Task(Ok None))"
@@ -190,11 +189,10 @@ let computationExpressionTests =
                 return userTweet post user
             }
             |> Expect.hasTaskOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "CE with Task(Ok None) Task(Ok Some(x))"
@@ -237,11 +235,10 @@ let operatorTests =
             <!> getPostResult
             <*> getUserResult
             |> Expect.hasTaskOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
 
         testCase "bind & map operator"
@@ -252,10 +249,9 @@ let operatorTests =
                 <!> getUserById post.UserId
             )
             |> Expect.hasTaskOkValueSync (
-                Some
-                    {
-                        Name = "someone"
-                        Tweet = "Hello, World!"
-                    }
+                Some {
+                    Name = "someone"
+                    Tweet = "Hello, World!"
+                }
             )
     ]

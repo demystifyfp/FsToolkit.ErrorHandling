@@ -65,16 +65,17 @@ let sequenceResultMTests =
         <| fun _ ->
             let mutable counter = 0
 
-            let tweets = seq {
-                "Hi"
-                "Hello"
-                "Hola"
-                aLongerInvalidTweet
+            let tweets =
+                seq {
+                    "Hi"
+                    "Hello"
+                    "Hola"
+                    aLongerInvalidTweet
 
-                counter <-
-                    counter
-                    + 1
-            }
+                    counter <-
+                        counter
+                        + 1
+                }
 
             let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
 

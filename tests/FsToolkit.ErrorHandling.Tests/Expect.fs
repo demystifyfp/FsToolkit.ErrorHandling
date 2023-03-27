@@ -49,34 +49,39 @@ module Expect =
         | None -> ()
         | Some _ -> Tests.failtestf "Expected None, was Some."
 
-    let hasAsyncValue v asyncX = async {
-        let! x = asyncX
+    let hasAsyncValue v asyncX =
+        async {
+            let! x = asyncX
 
-        if v = x then
-            ()
-        else
-            Tests.failtestf "Expected %A, was %A." v x
-    }
+            if v = x then
+                ()
+            else
+                Tests.failtestf "Expected %A, was %A." v x
+        }
 
-    let hasAsyncOkValue v asyncX = async {
-        let! x = asyncX
-        hasOkValue v x
-    }
+    let hasAsyncOkValue v asyncX =
+        async {
+            let! x = asyncX
+            hasOkValue v x
+        }
 
-    let hasAsyncErrorValue v asyncX = async {
-        let! x = asyncX
-        hasErrorValue v x
-    }
+    let hasAsyncErrorValue v asyncX =
+        async {
+            let! x = asyncX
+            hasErrorValue v x
+        }
 
-    let hasAsyncSomeValue v asyncX = async {
-        let! x = asyncX
-        hasSomeValue v x
-    }
+    let hasAsyncSomeValue v asyncX =
+        async {
+            let! x = asyncX
+            hasSomeValue v x
+        }
 
-    let hasAsyncNoneValue asyncX = async {
-        let! x = asyncX
-        hasNoneValue x
-    }
+    let hasAsyncNoneValue asyncX =
+        async {
+            let! x = asyncX
+            hasNoneValue x
+        }
 
 #if !FABLE_COMPILER
 
@@ -91,10 +96,11 @@ module Expect =
         else
             Tests.failtestf "Expected %A, was %A." v x
 
-    let hasTaskOkValue v (taskX: Task<_>) = task {
-        let! x = taskX
-        hasOkValue v x
-    }
+    let hasTaskOkValue v (taskX: Task<_>) =
+        task {
+            let! x = taskX
+            hasOkValue v x
+        }
 
     let hasTaskOkValueSync v taskX =
         let x =
@@ -112,10 +118,11 @@ module Expect =
 
         hasNoneValue x
 
-    let hasTaskErrorValue v (taskX: Task<_>) = task {
-        let! x = taskX
-        hasErrorValue v x
-    }
+    let hasTaskErrorValue v (taskX: Task<_>) =
+        task {
+            let! x = taskX
+            hasErrorValue v x
+        }
 
     let hasTaskErrorValueSync v taskX =
         let x =

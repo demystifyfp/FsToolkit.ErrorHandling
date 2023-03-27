@@ -13,20 +13,22 @@ let allTests =
     testList "AsyncOption.map Tests" [
         testCaseAsync "simple case 1"
         <| async {
-            let xs = asyncSeq {
-                1
-                2
-                3
-            }
+            let xs =
+                asyncSeq {
+                    1
+                    2
+                    3
+                }
 
-            let! actual = asyncResult {
-                let mutable sum = 0
+            let! actual =
+                asyncResult {
+                    let mutable sum = 0
 
-                for x in xs do
-                    sum <- sum + x
+                    for x in xs do
+                        sum <- sum + x
 
-                return sum
-            }
+                    return sum
+                }
 
             let expected = Ok 6
 
@@ -35,21 +37,23 @@ let allTests =
 
         testCaseAsync "simple case 2"
         <| async {
-            let xs = asyncSeq {
-                Ok 1
-                Ok 2
-                Error "oh no"
-                failwith "Evaluated too far"
-            }
+            let xs =
+                asyncSeq {
+                    Ok 1
+                    Ok 2
+                    Error "oh no"
+                    failwith "Evaluated too far"
+                }
 
-            let! actual = asyncResult {
-                let mutable sum = 0
+            let! actual =
+                asyncResult {
+                    let mutable sum = 0
 
-                for x in xs do
-                    sum <- sum + x
+                    for x in xs do
+                        sum <- sum + x
 
-                return sum
-            }
+                    return sum
+                }
 
             let expected = Error "oh no"
 

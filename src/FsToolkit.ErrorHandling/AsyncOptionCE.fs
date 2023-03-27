@@ -54,16 +54,17 @@ module AsyncOptionCE =
                 computation: Async<'value option>,
                 [<InlineIfLambda>] compensation: unit -> ValueTask
             ) : Async<'value option> =
-            let compensation = async {
-                let vTask = compensation ()
+            let compensation =
+                async {
+                    let vTask = compensation ()
 
-                if vTask.IsCompletedSuccessfully then
-                    return ()
-                else
-                    return!
-                        vTask.AsTask()
-                        |> Async.AwaitTask
-            }
+                    if vTask.IsCompletedSuccessfully then
+                        return ()
+                    else
+                        return!
+                            vTask.AsTask()
+                            |> Async.AwaitTask
+                }
 
             Async.TryFinallyAsync(computation, compensation)
 

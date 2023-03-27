@@ -1020,19 +1020,21 @@ module TaskOptionCEExtensionsMediumPriority =
             t
             |> Task.map Some
 
-        member inline this.Source(t: Task) : TaskOption<unit> = task {
-            do! t
-            return Some()
-        }
+        member inline this.Source(t: Task) : TaskOption<unit> =
+            task {
+                do! t
+                return Some()
+            }
 
         member inline this.Source(t: ValueTask<'T>) : TaskOption<'T> =
             t
             |> Task.mapV Some
 
-        member inline this.Source(t: ValueTask) : TaskOption<unit> = task {
-            do! t
-            return Some()
-        }
+        member inline this.Source(t: ValueTask) : TaskOption<unit> =
+            task {
+                do! t
+                return Some()
+            }
 
         member inline this.Source(opt: Option<'T>) : TaskOption<'T> = Task.FromResult opt
 
