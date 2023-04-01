@@ -91,39 +91,14 @@ module dotnet =
 
 
 let formatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> dotnet.fantomas
+    let result = dotnet.fantomas "."
 
     if not result.OK then
         Trace.traceErrorfn "Errors while formatting all files: %A" result.Messages
 
 
 let checkFormatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> sprintf "%s --check"
-        |> dotnet.fantomas
+    let result = dotnet.fantomas "--check ."
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"
@@ -148,21 +123,20 @@ let clean _ =
 
 
 let build _ =
-    let setParams (defaults: DotNet.BuildOptions) =
-        { defaults with
+    let setParams (defaults: DotNet.BuildOptions) = {
+        defaults with
             NoRestore = true
             Configuration = DotNet.BuildConfiguration.fromString configuration
-        }
+    }
 
     DotNet.build setParams solutionFile
 
 
 let restore _ =
-    Fake.DotNet.Paket.restore (fun p ->
-        { p with
+    Fake.DotNet.Paket.restore (fun p -> {
+        p with
             ToolType = ToolType.CreateLocalTool()
-        }
-    )
+    })
 
     DotNet.restore id solutionFile
 
@@ -176,13 +150,13 @@ let dotnetTest ctx =
     DotNet.test
         (fun c ->
 
-            { c with
-                Configuration = DotNet.BuildConfiguration.Release
-                Common =
-                    c.Common
-                    |> DotNet.Options.withAdditionalArgs args
-            }
-        )
+            {
+                c with
+                    Configuration = DotNet.BuildConfiguration.Release
+                    Common =
+                        c.Common
+                        |> DotNet.Options.withAdditionalArgs args
+            })
         solutionFile
 
 
@@ -253,27 +227,26 @@ let releaseNotes = String.toLines release.Notes
 let nuget _ =
     [ solutionFile ]
     |> Seq.iter (
-        DotNet.pack (fun p ->
-            { p with
+        DotNet.pack (fun p -> {
+            p with
                 // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                 OutputPath = Some distDir
                 Configuration = DotNet.BuildConfiguration.Release
-                MSBuildParams =
-                    { MSBuild.CliArguments.Create() with
+                MSBuildParams = {
+                    MSBuild.CliArguments.Create() with
                         // "/p" (property) arguments to MSBuild.exe
                         Properties = [
                             ("Version", release.NugetVersion)
                             ("PackageReleaseNotes", releaseNotes)
                         ]
-                    }
-            }
-        )
+                }
+        })
     )
 
 
 let publishNuget _ =
-    Paket.push (fun p ->
-        { p with
+    Paket.push (fun p -> {
+        p with
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
             WorkingDir = distDir
@@ -281,8 +254,7 @@ let publishNuget _ =
                 match nugetToken with
                 | Some s -> s
                 | _ -> p.ApiKey // assume paket-config was set properly
-        }
-    )
+    })
 
 
 let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"
