@@ -1,33 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <OutputType>Exe</OutputType>
-        <LangVersion>preview</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Optimize>true</Optimize>
-        <Configuration>Release</Configuration>
-        <IsPackable>false</IsPackable>
-        <NoWarn>FS1204;FS3501;FS3511</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)'=='Release'">
-        <Tailcalls>true</Tailcalls>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Include="ApplicativeTests.fs" />
-        <Compile Include="Benchmarks.fs" />
-        <Compile Include="AsyncResultCE.fs" />
-        <Compile Include="TaskResultCE.fs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Program.fs" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference
-            Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <Configuration>Release</Configuration>
+    <IsPackable>false</IsPackable>
+    <NoWarn>FS1204;FS3501;FS3511</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ApplicativeTests.fs" />
+    <Compile Include="Benchmarks.fs" />
+    <Compile Include="AsyncResultCE.fs" />
+    <Compile Include="TaskResultCE.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
+  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

@@ -1,11 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="Job.fs" />
@@ -19,15 +18,11 @@
     <Compile Include="JobResultOption.fs" />
     <Compile Include="JobResultOptionCE.fs" />
     <Compile Include="JobResultOptionOp.fs" />
-
     <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference
-      Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
+    <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
   </ItemGroup>
-
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

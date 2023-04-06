@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
@@ -8,8 +8,6 @@
     <LangVersion>preview</LangVersion>
     <NoWarn>FS1204;FS3511;FS3513</NoWarn>
   </PropertyGroup>
-
-
   <ItemGroup>
     <Compile Include="Result.fs" />
     <Compile Include="Task.fs" />
@@ -27,10 +25,8 @@
     <None Include="paket.references" />
     <Watch Include="@(None)" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
   </ItemGroup>
-
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
