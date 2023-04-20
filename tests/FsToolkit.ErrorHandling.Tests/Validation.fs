@@ -104,14 +104,14 @@ let applyTests =
 let operatorsTests =
 
     testList "Validation Operators Tests" [
-        testCase "map & apply operators"
+        testCase "map, apply & bind operators"
         <| fun _ ->
             createPostRequest
             <!> (lift validLatR)
             <*> (lift validLngR)
             <*> (lift validTweetR)
+            >>= (fun tweet -> Ok tweet)
             |> Expect.hasOkValue validCreatePostRequest
-
         testCase "map^ & apply^ operators"
         <| fun _ ->
             createPostRequest
