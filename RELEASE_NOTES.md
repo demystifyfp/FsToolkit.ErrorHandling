@@ -1,4 +1,4 @@
-### 4.6.0-beta001 - April 20, 2023
+### 4.6.0 - April 20, 2023
 - [Added bind operator for Validation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/214) Credits @ratsclub
 - [Fable 4.0](https://github.com/demystifyfp/FsToolkit.ErrorHandling/commit/9a8682a95c62ea7761f1346e59f2f0ae63ae4440) Credits @TheAngryByrd
 
