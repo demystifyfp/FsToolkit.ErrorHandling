@@ -1,3 +1,7 @@
+### 4.6.0-beta001 - April 20, 2023
+- [Added bind operator for Validation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/214) Credits @ratsclub
+- [Fable 4.0](https://github.com/demystifyfp/FsToolkit.ErrorHandling/commit/9a8682a95c62ea7761f1346e59f2f0ae63ae4440) Credits @TheAngryByrd
+
 ### 4.5.0 - March 26, 2023
 - [AsyncResultOption updated to be more useful](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/211) Credits @TheAngryByrd
 - [Adds use for IAsyncDisposable to async varieties](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/212) Credits @TheAngryByrd
