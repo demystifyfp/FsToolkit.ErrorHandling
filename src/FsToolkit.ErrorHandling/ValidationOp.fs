@@ -4,7 +4,6 @@ open FsToolkit.ErrorHandling
 
 [<AutoOpen>]
 module Validation =
-
     let inline (<!>)
         ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
         (input: Validation<'okInput, 'error>)
@@ -28,3 +27,9 @@ module Validation =
         (input: Result<'okInput, 'error>)
         : Validation<'okOutput, 'error> =
         Validation.apply applier (Validation.ofResult input)
+
+    let inline (>>=)
+        (input: Validation<'okInput, 'error>)
+        ([<InlineIfLambda>] binder: 'okInput -> Validation<'okOutput, 'error>)
+        : Validation<'okOutput, 'error> =
+        Validation.bind binder input
