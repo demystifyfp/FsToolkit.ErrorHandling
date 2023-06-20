@@ -44,20 +44,26 @@ module AsyncValidationCE =
                 [<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>,
                 [<InlineIfLambda>] handler: exn -> AsyncValidation<'ok, 'error>
             ) : AsyncValidation<'ok, 'error> =
-            try
-                this.Run generator
-            with e ->
-                handler e
+            async {
+                return!
+                    try
+                        this.Run generator
+                    with e ->
+                        handler e
+            }
 
         member inline this.TryFinally
             (
                 [<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>,
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : AsyncValidation<'ok, 'error> =
-            try
-                this.Run generator
-            finally
-                compensation ()
+            async {
+                return!
+                    try
+                        this.Run generator
+                    finally
+                        compensation ()
+            }
 
         member inline this.Using
             (
