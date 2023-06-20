@@ -8,7 +8,9 @@ module AsyncValidationCE =
     type AsyncValidationBuilder() =
         member inline _.Return(value: 'ok) : AsyncValidation<'ok, 'error> = AsyncValidation.ok value
 
-        member inline _.ReturnFrom(result: AsyncValidation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+        member inline _.ReturnFrom
+            (result: AsyncValidation<'ok, 'error>)
+            : AsyncValidation<'ok, 'error> =
             result
 
         member inline _.Bind
@@ -80,13 +82,15 @@ module AsyncValidationCE =
 
             async {
                 while doContinue
-                  && guard () do
+                      && guard () do
                     let! x = generator ()
+
                     match x with
                     | Ok() -> ()
                     | Error e ->
                         doContinue <- false
                         result <- Error e
+
                 return result
             }
 
@@ -121,7 +125,10 @@ module AsyncValidationCE =
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        member inline _.Source(result: AsyncValidation<'ok, 'error>) : AsyncValidation<'ok, 'error> = result
+        member inline _.Source
+            (result: AsyncValidation<'ok, 'error>)
+            : AsyncValidation<'ok, 'error> =
+            result
 
     let asyncValidation = AsyncValidationBuilder()
 

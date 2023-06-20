@@ -54,6 +54,7 @@ module AsyncValidation =
         : AsyncValidation<'ok, 'errorOutput> =
         async {
             let! result = result
+
             return!
                 result
                 |> Result.either ok (fun _ -> ifError)
@@ -65,6 +66,7 @@ module AsyncValidation =
         : AsyncValidation<'ok, 'errorOutput> =
         async {
             let! result = result
+
             return!
                 match result with
                 | Ok x -> ok x

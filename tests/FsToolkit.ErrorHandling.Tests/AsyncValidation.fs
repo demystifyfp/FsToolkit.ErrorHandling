@@ -19,29 +19,40 @@ let map2Tests =
         testCaseAsync "map2 with two ok parts"
         <| async {
             let! result = AsyncValidation.map2 location (lift validLatR) (lift validLngR)
-            return result |> Expect.hasOkValue validLocation
+
+            return
+                result
+                |> Expect.hasOkValue validLocation
         }
 
         testCaseAsync "map2 with one Error and one Ok parts"
         <| async {
             let! result = AsyncValidation.map2 location (lift invalidLatR) (lift validLngR)
-            return result |> Expect.hasErrorValue [ invalidLatMsg ]
+
+            return
+                result
+                |> Expect.hasErrorValue [ invalidLatMsg ]
         }
 
         testCaseAsync "map2 with one Ok and one Error parts"
         <| async {
             let! result = AsyncValidation.map2 location (lift validLatR) (lift invalidLngR)
-            return result |> Expect.hasErrorValue [ invalidLngMsg ]
+
+            return
+                result
+                |> Expect.hasErrorValue [ invalidLngMsg ]
         }
 
         testCaseAsync "map2 with two Error parts"
         <| async {
             let! result = AsyncValidation.map2 location (lift invalidLatR) (lift invalidLngR)
-            return result
-            |> Expect.hasErrorValue [
-                invalidLatMsg
-                invalidLngMsg
-            ]
+
+            return
+                result
+                |> Expect.hasErrorValue [
+                    invalidLatMsg
+                    invalidLngMsg
+                ]
         }
     ]
 
@@ -55,6 +66,7 @@ let map3Tests =
                     (lift validLatR)
                     (lift validLngR)
                     (lift validTweetR)
+
             return
                 result
                 |> Expect.hasOkValue validCreatePostRequest
@@ -68,6 +80,7 @@ let map3Tests =
                     (lift invalidLatR)
                     (lift validLngR)
                     (lift validTweetR)
+
             return
                 result
                 |> Expect.hasErrorValue [ invalidLatMsg ]
@@ -81,6 +94,7 @@ let map3Tests =
                     (lift validLatR)
                     (lift invalidLngR)
                     (lift validTweetR)
+
             return
                 result
                 |> Expect.hasErrorValue [ invalidLngMsg ]
@@ -95,8 +109,10 @@ let map3Tests =
                     (lift validLatR)
                     (lift validLngR)
                     (lift emptyInvalidTweetR)
+
             return
-                result |> Expect.hasErrorValue [ emptyTweetErrMsg ]
+                result
+                |> Expect.hasErrorValue [ emptyTweetErrMsg ]
         }
 
         testCaseAsync "map3 with (Error, Error, Error)"
@@ -107,6 +123,7 @@ let map3Tests =
                     (lift invalidLatR)
                     (lift invalidLngR)
                     (lift emptyInvalidTweetR)
+
             return
                 result
                 |> Expect.hasErrorValue [
@@ -126,15 +143,27 @@ let applyTests =
             let! result =
                 Tweet.TryCreate "foobar"
                 |> lift
-                |> AsyncValidation.apply (Ok remainingCharacters |> Async.retn)
-            return result |> Expect.hasOkValue 274
+                |> AsyncValidation.apply (
+                    Ok remainingCharacters
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue 274
         }
 
         testCaseAsync "apply with Error"
         <| async {
             let! result =
-                AsyncValidation.apply (Ok remainingCharacters |> Async.retn) (lift emptyInvalidTweetR)
-            return result |> Expect.hasErrorValue [ emptyTweetErrMsg ]
+                AsyncValidation.apply
+                    (Ok remainingCharacters
+                     |> Async.retn)
+                    (lift emptyInvalidTweetR)
+
+            return
+                result
+                |> Expect.hasErrorValue [ emptyTweetErrMsg ]
         }
     ]
 
@@ -149,8 +178,14 @@ let operatorsTests =
                 <!> (lift validLatR)
                 <*> (lift validLngR)
                 <*> (lift validTweetR)
-                >>= (fun tweet -> Ok tweet |> Async.retn)
-            return result |> Expect.hasOkValue validCreatePostRequest
+                >>= (fun tweet ->
+                    Ok tweet
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue validCreatePostRequest
         }
         testCaseAsync "map^ & apply^ operators"
         <| async {
@@ -159,7 +194,10 @@ let operatorsTests =
                 <!^> validLatR
                 <*^> validLngR
                 <*^> validTweetR
-            return result |> Expect.hasOkValue validCreatePostRequest
+
+            return
+                result
+                |> Expect.hasOkValue validCreatePostRequest
         }
     ]
 
@@ -167,17 +205,33 @@ let zipTests =
     testList "zip tests" [
         testCaseAsync "Ok, Ok"
         <| async {
-            let! actual = AsyncValidation.zip (Ok 1 |> Async.retn) (Ok 2 |> Async.retn)
+            let! actual =
+                AsyncValidation.zip
+                    (Ok 1
+                     |> Async.retn)
+                    (Ok 2
+                     |> Async.retn)
+
             Expect.equal actual (Ok(1, 2)) "Should be ok"
         }
         testCaseAsync "Ok, Error"
         <| async {
-            let! actual = AsyncValidation.zip (Ok 1 |> Async.retn) (AsyncValidation.error "Bad")
+            let! actual =
+                AsyncValidation.zip
+                    (Ok 1
+                     |> Async.retn)
+                    (AsyncValidation.error "Bad")
+
             Expect.equal actual (Error [ "Bad" ]) "Should be Error"
         }
         testCaseAsync "Error, Ok"
         <| async {
-            let! actual = AsyncValidation.zip (AsyncValidation.error "Bad") (Ok 1 |> Async.retn)
+            let! actual =
+                AsyncValidation.zip
+                    (AsyncValidation.error "Bad")
+                    (Ok 1
+                     |> Async.retn)
+
             Expect.equal actual (Error [ "Bad" ]) "Should be Error"
         }
         testCaseAsync "Error, Error"
@@ -201,30 +255,58 @@ let orElseTests =
         testCaseAsync "Ok Ok takes first Ok"
         <| async {
             let! result =
-                (Ok "First" |> Async.retn)
-                |> AsyncValidation.orElse (Ok "Second" |> Async.retn)
-            return result |> Expect.hasOkValue "First"
+                (Ok "First"
+                 |> Async.retn)
+                |> AsyncValidation.orElse (
+                    Ok "Second"
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "First"
         }
         testCaseAsync "Ok Error takes first Ok"
         <| async {
             let! result =
-                (Ok "First"|> Async.retn)
-                |> AsyncValidation.orElse (Error [ "Second" ] |> Async.retn)
-            return result |> Expect.hasOkValue "First"
+                (Ok "First"
+                 |> Async.retn)
+                |> AsyncValidation.orElse (
+                    Error [ "Second" ]
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "First"
         }
         testCaseAsync "Error Ok takes second Ok"
         <| async {
             let! result =
-                (Error [ "First" ] |> Async.retn)
-                |> AsyncValidation.orElse (Ok "Second" |> Async.retn)
-            return result |> Expect.hasOkValue "Second"
+                (Error [ "First" ]
+                 |> Async.retn)
+                |> AsyncValidation.orElse (
+                    Ok "Second"
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "Second"
         }
         testCaseAsync "Error Error takes second error"
         <| async {
             let! result =
-                (Error [ "First" ] |> Async.retn)
-                |> AsyncValidation.orElse (Error [ "Second" ] |> Async.retn)
-            return result |> Expect.hasErrorValue [ "Second" ]
+                (Error [ "First" ]
+                 |> Async.retn)
+                |> AsyncValidation.orElse (
+                    Error [ "Second" ]
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasErrorValue [ "Second" ]
         }
     ]
 
@@ -233,30 +315,58 @@ let orElseWithTests =
         testCaseAsync "Ok Ok takes first Ok"
         <| async {
             let! result =
-                (Ok "First" |> Async.retn)
-                |> AsyncValidation.orElseWith (fun _ -> Ok "Second" |> Async.retn)
-            return result |> Expect.hasOkValue "First"
+                (Ok "First"
+                 |> Async.retn)
+                |> AsyncValidation.orElseWith (fun _ ->
+                    Ok "Second"
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "First"
         }
         testCaseAsync "Ok Error takes first Ok"
         <| async {
             let! result =
-                (Ok "First" |> Async.retn)
-                |> AsyncValidation.orElseWith (fun _ -> Error [ "Second" ] |> Async.retn)
-            return result |> Expect.hasOkValue "First"
+                (Ok "First"
+                 |> Async.retn)
+                |> AsyncValidation.orElseWith (fun _ ->
+                    Error [ "Second" ]
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "First"
         }
         testCaseAsync "Error Ok takes second Ok"
         <| async {
             let! result =
-                (Error [ "First" ]|> Async.retn)
-                |> AsyncValidation.orElseWith (fun _ -> Ok "Second" |> Async.retn)
-            return result |> Expect.hasOkValue "Second"
+                (Error [ "First" ]
+                 |> Async.retn)
+                |> AsyncValidation.orElseWith (fun _ ->
+                    Ok "Second"
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasOkValue "Second"
         }
         testCaseAsync "Error Error takes second error"
         <| async {
             let! result =
-                (Error [ "First" ]|> Async.retn)
-                |> AsyncValidation.orElseWith (fun _ -> Error [ "Second" ] |> Async.retn)
-            return result |> Expect.hasErrorValue [ "Second" ]
+                (Error [ "First" ]
+                 |> Async.retn)
+                |> AsyncValidation.orElseWith (fun _ ->
+                    Error [ "Second" ]
+                    |> Async.retn
+                )
+
+            return
+                result
+                |> Expect.hasErrorValue [ "Second" ]
         }
     ]
 
