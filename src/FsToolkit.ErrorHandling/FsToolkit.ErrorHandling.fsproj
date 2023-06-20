@@ -21,6 +21,9 @@
     <Compile Include="Validation.fs" />
     <Compile Include="ValidationOp.fs" />
     <Compile Include="ValidationCE.fs" />
+    <Compile Include="AsyncValidation.fs" />
+    <Compile Include="AsyncValidationOp.fs" />
+    <Compile Include="AsyncValidationCE.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="OptionCE.fs" />
     <Compile Include="OptionOp.fs" />
