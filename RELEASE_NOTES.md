@@ -1,4 +1,4 @@
-### 4.7.0-beta001 - June 21, 2023
+### 4.7.0 - June 21, 2023
 - [Added AsyncValidation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/215) Credits @1eyewonder
 
 ### 4.6.0 - April 20, 2023
