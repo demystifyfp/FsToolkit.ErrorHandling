@@ -100,6 +100,15 @@
   * [ofResult](validation/ofResult.md)
   * [Operators](validation/operators.md)
   * [Result.tryCreate](validation/tryCreate.md)
+  * [Computation Expression](validation/ce.md)
+
+* [AsyncValidation](asyncValidation/index.md)
+    * [map2](asyncValidation/map2.md)
+    * [map3](asyncValidation/map3.md)
+    * [apply](asyncValidation/apply.md)
+    * [ofResult](asyncValidation/ofResult.md)
+    * [Operators](asyncValidation/operators.md)
+    * [Computation Expression](asyncValidation/ce.md)
 
 * [Test](test/index.md)
   * [testing](test/testing.md)
