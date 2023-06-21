@@ -92,7 +92,6 @@ module AsyncResultCE =
             )
 #endif
 
-
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,
