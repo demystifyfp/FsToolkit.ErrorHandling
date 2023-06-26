@@ -6,8 +6,6 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-The example from [Result CE](../result/ce.md#example-1) can be solved using the `option` computation expression as below:
-
 ```fsharp
 // Option<int>
 let addResult = option {

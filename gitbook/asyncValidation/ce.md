@@ -12,7 +12,7 @@ This CE can take advantage of the [and! operator](https://github.com/fsharp/fsla
 
 ## Examples
 
-The example from [AsyncValidation.map3](../asyncValidation/map3.md#example-1) can be solved using the `asyncValidation` computation expression as below:
+See [here](../validation/ce.md) for other validation-like examples
 
 ```fsharp
 // Result<string, string> -> Async<Result<string, string>>
@@ -27,8 +27,7 @@ let addResult = asyncValidation {
   and! z = downloadAsync (Ok "async!")
   return sprintf "%s %s %s" x y z
 }
-
-// result = async { return Ok "I am async!" }
+// async { return Ok "I am async!" }
 
 // AsyncValidation<string, string>
 let addResult = asyncValidation {
@@ -38,6 +37,5 @@ let addResult = asyncValidation {
   return sprintf "%s %s %s" x y z
 }
 
-// result = async { return Error [ "Am"; "I"; "async?" ] }
+// async { return Error [ "Am"; "I"; "async?" ] }
 ```
-

@@ -1,11 +1,11 @@
-## TaskResult.ofAsync
+## CancellableTaskResult.ofAsync
 
 Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
 ```fsharp
-Async<'a> -> Task<Result<'a, Exception>>
+Async<'a> -> CancellableTask<Result<'a, Exception>>
 ```
 
 ## Examples

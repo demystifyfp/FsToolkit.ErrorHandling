@@ -1,11 +1,11 @@
-## TaskResult.foldResult
+## CancellableTaskResult.foldResult
 
 Namespace: `FsToolkit.ErrorHandling`
 
 Function Signature:
 
 ```fsharp
-('a -> 'b) -> ('c -> 'b) -> Task<Result<'a, 'c>> -> Task<'b>
+('a -> 'b) -> ('c -> 'b) -> CancellableTask<Result<'a, 'c>> -> Task<'b>
 ```
 
 This is just a shortcut for `Task.map Result.fold`. See [Result.fold](../result/fold.md) for more.
@@ -19,18 +19,18 @@ type HttpResponse<'a, 'b> =
   | OK of 'a
   | InternalError of 'b
 
-// CreatePostRequest -> Task<Result<PostId, exn>>
-let createPost (req : CreatePostRequest) = task {
+// CreatePostRequest -> CancellableTask<Result<PostId, exn>>
+let createPost (req : CreatePostRequest) = cancellableTask {
   // ...
 }
 
-// Task<HttpResponse>
+// CancellableTask<HttpResponse>
 let handler (httpReq : HttpRequest) = 
   // ... 
   
-  // Task<Result<PostId, exn>>
+  // CancellableTask<Result<PostId, exn>>
   let createPostTR = createPost httpReq
 
   createPostTR
-  |> TaskResult.fold Ok InternalError
+  |> CancellableTaskResult.fold Ok InternalError
 ```

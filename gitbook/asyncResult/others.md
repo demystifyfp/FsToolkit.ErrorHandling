@@ -84,7 +84,7 @@ Replaces an error value of an async-wrapped result with a custom error value
 Replaces a unit error value of an async-wrapped result with a custom error value. Safer than `setError` since you're not losing any information.
 
 ```fsharp
-'a -> Async<Result<'b, uni>t> -> Async<Result<'b, 'a>>
+'a -> Async<Result<'b, unit> -> Async<Result<'b, 'a>>
 ```
 
 ### defaultValue

@@ -84,7 +84,7 @@ Replaces an error value of an job-wrapped result with a custom error value
 Replaces a unit error value of an job-wrapped result with a custom error value. Safer than `setError` since you're not losing any information.
 
 ```fsharp
-'a -> job<Result<'b, uni>t> -> job<Result<'b, 'a>>
+'a -> job<Result<'b, unit> -> job<Result<'b, 'a>>
 ```
 
 ### defaultValue

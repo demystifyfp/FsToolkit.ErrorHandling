@@ -29,8 +29,8 @@ let handler (httpReq : HttpRequest) =
   // ... 
   
   // Job<Result<PostId, exn>>
-  let createPostAR = createPost httpReq
+  let createPostJR = createPost httpReq
 
-  createPostAR
+  createPostJR
   |> JobResult.fold Ok InternalError
 ```
