@@ -18,7 +18,7 @@ Note: Many use-cases requiring `map` operations can also be solved using [the `j
 Given the functions
 
 ```fsharp
-getFollowerIds : UserId -> Job<Result<UserId, exn>>
+getFollowerIds : UserId -> Job<Result<UserId list, exn>>
 createPost : CreatePostRequest -> Job<Result<PostId, exn>>
 ```
 
@@ -36,7 +36,7 @@ We can create a `NotifyNewPostRequest` using `JobResult.map2` as below:
 
 ```fsharp
 let createPostAndGetNotifyRequest (req : CreatePostRequest) = 
-  //  Job<Result<UserId, exn>>
+  //  Job<Result<UserId list, exn>>
   let getFollowersResult = getFollowerIds req.UserId
 
   // Job<Result<PostId, exn>>

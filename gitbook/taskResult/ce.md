@@ -7,7 +7,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-The initial [motivating example](../../) is perhaps more realistic if some functions are asynchronous. Given the following functions:
+The initial [motivating example](../README.md) is perhaps more realistic if some functions are asynchronous. Given the following functions:
 
 ```fsharp
 tryGetUser : string -> Task<User option>

@@ -24,7 +24,7 @@ We can save the post and return its inner using `JobResult.map`:
 
 ```fsharp
 let rawPostId : Job<Result<Guid, exn>> =
-  savePost createostRequest
+  savePost createPostRequest
   |> JobResult.map (fun (PostId postId) -> postId)
 ```
 

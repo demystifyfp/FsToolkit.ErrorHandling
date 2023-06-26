@@ -18,7 +18,7 @@ Note: Many use-cases requiring `map` operations can also be solved using [the `a
 Given the functions
 
 ```fsharp
-getFollowerIds : UserId -> Async<Result<UserId, exn>>
+getFollowerIds : UserId -> Async<Result<UserId list, exn>>
 createPost : CreatePostRequest -> Async<Result<PostId, exn>>
 ```
 
@@ -36,7 +36,7 @@ We can create a `NotifyNewPostRequest` using `AsyncResult.map2` as below:
 
 ```fsharp
 let createPostAndGetNotifyRequest (req : CreatePostRequest) = 
-  //  Async<Result<UserId, exn>>
+  //  Async<Result<UserId list, exn>>
   let getFollowersResult = getFollowerIds req.UserId
 
   // Async<Result<PostId, exn>>

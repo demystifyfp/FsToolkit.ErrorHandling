@@ -66,7 +66,7 @@ let toCreatePostRequest (dto : CreatePostRequestDto) =
 
   // Result<Location option, string>
   let locationR =
-    ResultOption.map2 location latR lngR
+    ResultOption.map2 location.Create latR lngR
 
   // Result<Tweet, string>
   let tweetR = Tweet.TryCreate dto.Tweet
