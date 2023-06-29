@@ -33,6 +33,7 @@ let addResult = validation {
   and! z = tryParseInt "2"
   return add x y z
 }
+// Ok 42
 ```
 
 ### Validation "Gotchas"

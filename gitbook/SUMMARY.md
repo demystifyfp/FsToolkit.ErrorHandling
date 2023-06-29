@@ -81,7 +81,7 @@
 
 * FsToolkit.ErrorHandling.AsyncSeq
 * FsToolkit.ErrorHandling.IcedTasks
-  * TaskResult
+  * [CancellableTaskResult](cancellableTaskResult/index.md)
     * [map](cancellableTaskResult/map.md)
     * [map2](cancellableTaskResult/map2.md)
     * [map3](cancellableTaskResult/map3.md)
@@ -94,6 +94,12 @@
     * [Computation Expression](cancellableTaskResult/ce.md)
     * [Operators](cancellableTaskResult/operators.md)
     * [Other Functions](cancellableTaskResult/others.md)
+  * [CancellableTaskValidation](cancellableTaskValidation/index.md)
+    * [map2](cancellableTaskValidation/map2.md)
+    * [map3](cancellableTaskValidation/map3.md)
+    * [apply](cancellableTaskValidation/apply.md)
+    * [Computation Expression](cancellableTaskValidation/ce.md)
+    * [Operators](cancellableTaskValidation/operators.md)
 * FsToolkit.ErrorHandling.JobResult
   * JobResult
       * [map](jobResult/map.md)
