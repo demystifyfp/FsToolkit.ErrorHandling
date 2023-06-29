@@ -5,8 +5,13 @@
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SampleDomain.fs" />
+    <Compile Include="TestData.fs" />
+    <Compile Include="Expect.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.TaskResult.Tests/Expecto.fs" />
     <Compile Include="CancellableTaskResultCE.fs" />
+      <Compile Include="CancellableTaskValidation.fs" />
+    <Compile Include="CancellableTaskValidationCE.fs" />
     <Compile Include="Main.fs" />
     <None Include="paket.references" />
     <Watch Include="@(None)" />

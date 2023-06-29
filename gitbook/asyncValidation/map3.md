@@ -1,4 +1,4 @@
-## AsyncAsyncValidation.map3
+## AsyncValidation.map3
 
 Namespace: `FsToolkit.ErrorHandling`
 
