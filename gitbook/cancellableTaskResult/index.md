@@ -1,4 +1,4 @@
-## CancellableTaskValidation
+## CancellableTaskResult
 
 Namespace: `FsToolkit.ErrorHandling`
 

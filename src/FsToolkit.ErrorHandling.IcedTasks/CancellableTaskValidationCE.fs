@@ -260,10 +260,14 @@ module CancellableTaskValidationCE =
             cancellableTask { return! t }
 
         member inline _.Source(result: Result<_, _>) : CancellableTaskValidation<_, _> =
-            result |> Validation.ofResult |> CancellableTask.singleton
+            result
+            |> Validation.ofResult
+            |> CancellableTask.singleton
 
         member inline this.Source(result: Choice<_, _>) : CancellableTaskValidation<_, _> =
-            result |> Result.ofChoice |> this.Source
+            result
+            |> Result.ofChoice
+            |> this.Source
 
         member inline this.MergeSources
             (
@@ -343,7 +347,8 @@ module CancellableTaskValidationCE =
                     sm.Data.CancellationToken <- ct
                     sm.ResumptionDynamicInfo <- resumptionInfo
 
-                    sm.Data.MethodBuilder <- CancellableTaskValidationMethodBuilder<'T, 'Error>.Create()
+                    sm.Data.MethodBuilder <-
+                        CancellableTaskValidationMethodBuilder<'T, 'Error>.Create()
 
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
@@ -496,7 +501,9 @@ module CancellableTaskValidationCE =
     module CancellableTaskValidationBuilder =
 
         let cancellableTaskValidation = CancellableTaskValidationBuilder()
-        let backgroundCancellableTaskValidation = BackgroundCancellableTaskValidationBuilder()
+
+        let backgroundCancellableTaskValidation =
+            BackgroundCancellableTaskValidationBuilder()
 
     [<AutoOpen>]
     module LowPriority =
@@ -678,6 +685,9 @@ module CancellableTaskValidationCE =
                         )
                 )
 
+            member inline _.Source(result: Validation<_, _>) : CancellableTaskValidation<_, _> =
+                CancellableTask.singleton result
+
     [<AutoOpen>]
     module HighPriority =
         type Microsoft.FSharp.Control.Async with
@@ -712,7 +722,6 @@ module CancellableTaskValidationCE =
                 : CancellableTaskValidationCode<'T, 'Error, 'T> =
                 this.Bind(task, (fun v -> this.Return v))
 
-
     [<AutoOpen>]
     module MediumPriority =
         open HighPriority
@@ -725,13 +734,17 @@ module CancellableTaskValidationCE =
                     return Ok r
                 }
 
-            member inline _.Source(result: CancellableTask<'T>) : CancellableTaskValidation<'T, 'Error> =
+            member inline _.Source
+                (result: CancellableTask<'T>)
+                : CancellableTaskValidation<'T, 'Error> =
                 cancellableTask {
                     let! r = result
                     return Ok r
                 }
 
-            member inline _.Source(result: CancellableTask) : CancellableTaskValidation<unit, 'Error> =
+            member inline _.Source
+                (result: CancellableTask)
+                : CancellableTaskValidation<unit, 'Error> =
                 cancellableTask {
                     let! r = result
                     return Ok r
@@ -755,9 +768,13 @@ module CancellableTaskValidationCE =
                     return Ok r
                 }
 
-            member inline _.Source(t: Result<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
+            member inline _.Source
+                (t: Result<'ok, 'error>)
+                : CancellableTaskValidation<'ok, 'error> =
                 cancellableTask {
-                    return t |> Validation.ofResult
+                    return
+                        t
+                        |> Validation.ofResult
                 }
 
     [<AutoOpen>]
@@ -771,7 +788,9 @@ module CancellableTaskValidationCE =
                 ) : Async<_> =
                 this.Bind(Async.AwaitCancellableTaskValidation t, binder)
 
-            member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>) =
+            member inline this.ReturnFrom
+                ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
+                =
                 this.ReturnFrom(Async.AwaitCancellableTaskValidation t)
 
 
@@ -802,7 +821,7 @@ module CancellableTaskValidationCE =
         /// <param name="error">The item to be the error result of the CancellableTaskValidation.</param>
         /// <returns>A CancellableTaskValidation with the item as the result.</returns>
         let inline error (error: 'error) : CancellableTaskValidation<'ok, 'error> =
-            fun _ -> Task.FromResult(Error [error])
+            fun _ -> Task.FromResult(Error [ error ])
 
         let inline ofResult (result: Result<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
             let x = Result.mapError List.singleton result
@@ -878,10 +897,14 @@ module CancellableTaskValidationCE =
 
                 return
                     match cResult1, cResult2 with
-                    | Ok x, Ok y -> Ok (mapper x y)
+                    | Ok x, Ok y -> Ok(mapper x y)
                     | Ok _, Error errs -> Error errs
                     | Error errs, Ok _ -> Error errs
-                    | Error errs1, Error errs2 -> Error (errs1 @ errs2)
+                    | Error errs1, Error errs2 ->
+                        Error(
+                            errs1
+                            @ errs2
+                        )
             }
 
         /// <summary>Allows chaining of CancellableTaskValidation.</summary>
@@ -967,7 +990,8 @@ module CancellableTaskValidationCE =
             }
 
         let inline orElseWith
-            ([<InlineIfLambda>] ifErrorFunc: 'errorInput list -> CancellableTaskValidation<'input, 'errorOutput>)
+            ([<InlineIfLambda>] ifErrorFunc:
+                'errorInput list -> CancellableTaskValidation<'input, 'errorOutput>)
             (cTask: CancellableTaskValidation<'input, 'errorInput>)
             : CancellableTaskValidation<'input, 'errorOutput> =
             cancellableTask {
@@ -1012,16 +1036,17 @@ module CancellableTaskValidationCE =
 
                 match ct' with
                 | Ok ct ->
-                    return! cancellableTask {
-                        let! r1 = left ct
-                        let! r2 = right ct
+                    return!
+                        cancellableTask {
+                            let! r1 = left ct
+                            let! r2 = right ct
 
-                        return
-                            match r1, r2 with
-                            | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-                            | Error e, Ok _ -> Error e
-                            | Ok _, Error e -> Error e
-                            | Error e1, Error e2 -> Error(e1 @ e2)
-                    }
+                            return
+                                match r1, r2 with
+                                | Ok x1res, Ok x2res -> Ok(x1res, x2res)
+                                | Error e, Ok _ -> Error e
+                                | Ok _, Error e -> Error e
+                                | Error e1, Error e2 -> Error(e1 @ e2)
+                        }
                 | Error e -> return Error e
             }
