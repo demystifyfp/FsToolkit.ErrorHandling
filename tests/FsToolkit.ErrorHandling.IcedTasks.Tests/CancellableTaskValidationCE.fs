@@ -34,7 +34,7 @@ let ``CancellableTaskValidationCE return! Tests`` =
             let innerData = "Foo"
             let! expected = CancellableTaskValidation.error innerData
             let data = Result.Error innerData
-            let! actual = cancellableTaskValidation { return! data }
+            let! actual = cancellableTaskValidation { return! data |> CancellableTaskValidation.ofResult }
             Expect.equal actual expected "Should be error"
         }
         testCaseAsync "Return Ok Choice"
@@ -49,7 +49,7 @@ let ``CancellableTaskValidationCE return! Tests`` =
             let innerData = "Foo"
             let! expected = CancellableTaskValidation.error innerData
             let data = Choice2Of2 innerData
-            let! actual = cancellableTaskValidation { return! data }
+            let! actual = cancellableTaskValidation { return! data  }
             Expect.equal actual expected "Should be error"
         }
         testCaseAsync "Return Ok Validation"
@@ -179,7 +179,7 @@ let ``CancellableTaskValidationCE bind Tests`` =
             let innerData = ()
             let! expected = CancellableTaskValidation.error innerData
             let data = Choice2Of2 innerData
-            let! actual = cancellableTaskValidation { do! data }
+            let! actual = cancellableTaskValidation { do! data  }
             Expect.equal actual expected "Should be error"
         }
         testCaseAsync "do! Ok Validation"
@@ -361,7 +361,7 @@ let ``CancellableTaskValidationCE loop Tests`` =
             let! actual =
                 cancellableTaskValidation {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! x = data.[loopCount] |> CancellableTaskValidation.ofResult
 
                         loopCount <-
                             loopCount

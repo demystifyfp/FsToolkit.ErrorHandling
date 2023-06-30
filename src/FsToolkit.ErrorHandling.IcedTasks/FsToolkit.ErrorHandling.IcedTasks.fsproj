@@ -10,7 +10,6 @@
   <ItemGroup>
     <Compile Include="CancellableTaskResultCE.fs" />
     <None Include="paket.references" />
-    <Compile Include="CancellableTaskValidation.fs" />
     <Compile Include="CancellableTaskValidationCE.fs" />
     <Compile Include="CancellableTaskValidationOp.fs" />
     <Watch Include="@(None)" />
