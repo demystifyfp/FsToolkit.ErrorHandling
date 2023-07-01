@@ -944,7 +944,7 @@ module CancellableTaskResultCE =
                 <| fun () ->
                     let innerTask =
                         cancellableTaskResult {
-                            return! CancellableTaskValidation.getCancellationToken ()
+                            return! CancellableTaskResult.getCancellationToken ()
                         }
 
                     let outerAsync =
@@ -965,7 +965,7 @@ module CancellableTaskResultCE =
                 <| fun () ->
                     let innerTask =
                         cancellableTaskResult {
-                            return! CancellableTaskValidation.getCancellationToken ()
+                            return! CancellableTaskResult.getCancellationToken ()
                         }
 
                     let outerAsync = asyncResult { return! innerTask }
@@ -1019,7 +1019,7 @@ module CancellableTaskResultCE =
                 <| fun () ->
                     let innerAsync =
                         cancellableTaskResult {
-                            return! CancellableTaskValidation.getCancellationToken ()
+                            return! CancellableTaskResult.getCancellationToken ()
                         }
 
                     let outerTask = cancellableTaskResult { return! innerAsync }
@@ -1039,7 +1039,7 @@ module CancellableTaskResultCE =
             testList "singleton" [
                 testCaseAsync "Simple"
                 <| async {
-                    let innerCall = CancellableTaskValidation.ok "lol"
+                    let innerCall = CancellableTaskResult.singleton "lol"
 
                     let! someTask = innerCall
 
@@ -1053,7 +1053,7 @@ module CancellableTaskResultCE =
 
                     let! someTask =
                         innerCall
-                        |> CancellableTaskValidation.bind (fun x ->
+                        |> CancellableTaskResult.bind (fun x ->
                             cancellableTaskResult { return x + "fooo" }
                         )
 
@@ -1067,7 +1067,7 @@ module CancellableTaskResultCE =
 
                     let! someTask =
                         innerCall
-                        |> CancellableTaskValidation.map (fun x -> x + "fooo")
+                        |> CancellableTaskResult.map (fun x -> x + "fooo")
 
                     Expect.equal (Ok "lolfooo") someTask ""
                 }
@@ -1080,7 +1080,7 @@ module CancellableTaskResultCE =
 
                     let! someTask =
                         innerCall
-                        |> CancellableTaskValidation.apply applier
+                        |> CancellableTaskResult.apply applier
 
                     Expect.equal (Ok "lolfooo") someTask ""
                 }
@@ -1094,7 +1094,7 @@ module CancellableTaskResultCE =
 
                     let! someTask =
                         innerCall
-                        |> CancellableTaskValidation.zip innerCall2
+                        |> CancellableTaskResult.zip innerCall2
 
                     Expect.equal (Ok("lol", "fooo")) someTask ""
                 }
@@ -1108,7 +1108,7 @@ module CancellableTaskResultCE =
 
                     let! someTask =
                         innerCall
-                        |> CancellableTaskValidation.parallelZip innerCall2
+                        |> CancellableTaskResult.parallelZip innerCall2
 
                     Expect.equal (Ok("lol", "fooo")) someTask ""
                 }

@@ -690,8 +690,7 @@ module CancellableTaskResultCE =
                     continuation:
                         ('TResult1 -> CancellableTaskResultCode<'TOverall, 'Error, 'TResult2>)
                 ) : CancellableTaskResultCode<'TOverall, 'Error, 'TResult2> =
-                let x = fun ct -> (task ct).GetAwaiter()
-                this.Bind(x, continuation)
+                this.Bind((fun ct -> (task ct).GetAwaiter()), continuation)
 
             member inline this.ReturnFrom
                 (task: CancellableTaskResult<'T, 'Error>)
