@@ -269,24 +269,6 @@ module CancellableTaskValidationCE =
             |> Result.ofChoice
             |> this.Source
 
-        member inline this.MergeSources
-            (
-                left: CancellableTaskValidation<'left, 'error>,
-                right: CancellableTaskValidation<'right, 'error>
-            ) : CancellableTaskValidation<'left * 'right, 'error> =
-            cancellableTask {
-                let! r1 = left
-                let! r2 = right
-
-                return
-                    match r1, r2 with
-                    | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-                    | Error e, Ok _ -> Error e
-                    | Ok _, Error e -> Error e
-                    | Error e1, Error e2 -> Error(e1 @ e2)
-            }
-
-
     type CancellableTaskValidationBuilder() =
 
         inherit CancellableTaskValidationBuilderBase()
@@ -605,6 +587,16 @@ module CancellableTaskValidationCE =
 
                 this.Bind(getAwaiter, (fun v -> this.Return v))
 
+            [<NoEagerConstraintApplication>]
+            member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
+                when ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+                (
+                    getAwaiter: CancellationToken -> 'Awaiter,
+                    f : 'TResult1 -> 'TResult2
+                ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
+                this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
 
             [<NoEagerConstraintApplication>]
             member inline _.Source<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
@@ -716,6 +708,17 @@ module CancellableTaskValidationCE =
                 ) : CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2> =
                 let x = fun ct -> (task ct).GetAwaiter()
                 this.Bind(getAwaiter = x, continuation = continuation)
+
+            [<NoEagerConstraintApplication>]
+            member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
+                when ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+                (
+                    getAwaiter: CancellationToken -> 'Awaiter,
+                    f : 'TResult1 -> 'TResult2
+                ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
+                this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
 
             member inline this.ReturnFrom
                 (task: CancellableTaskValidation<'T, 'Error>)
@@ -1050,3 +1053,28 @@ module CancellableTaskValidationCE =
                         }
                 | Error e -> return Error e
             }
+
+    [<AutoOpen>]
+     module JimmyToldMeTo =
+
+         type CancellableTaskResultBuilderBase with
+
+             member inline this.MergeSources
+                 (
+                     left: CancellableTaskValidation<'left, 'error>,
+                     right: CancellableTaskValidation<'right, 'error>
+                 ) : CancellableTaskValidation<'left * 'right, 'error> =
+                 cancellableTask {
+                     let! ct = CancellableTask.getCancellationToken ()
+                     let r1 = left ct
+                     let r2 = right ct
+                     let! r1' = r1
+                     let! r2' = r2
+
+                     return
+                         match r1', r2' with
+                         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
+                         | Error e, Ok _ -> Error e
+                         | Ok _, Error e -> Error e
+                         | Error e1, Error e2 -> Error(e1 @ e2)
+                 }

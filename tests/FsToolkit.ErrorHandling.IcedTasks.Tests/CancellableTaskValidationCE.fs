@@ -996,9 +996,9 @@ module CancellableTaskValidationCE =
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = AsyncValidation.ok 3
-                                and! b = AsyncValidation.ok 2
-                                and! c = AsyncValidation.ok 1
+                                let! a = CancellableTaskValidation.ok 3
+                                and! b = CancellableTaskValidation.ok 2
+                                and! c = CancellableTaskValidation.ok 1
                                 return a + b - c
                             }
 
@@ -1011,9 +1011,9 @@ module CancellableTaskValidationCE =
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = AsyncValidation.ok 3
+                                let! a = CancellableTaskValidation.ok 3
                                 and! b = Ok 2
-                                and! c = AsyncValidation.ok 1
+                                and! c = CancellableTaskValidation.ok 1
                                 return a + b - c
                             }
 
@@ -1043,7 +1043,7 @@ module CancellableTaskValidationCE =
                             cancellableTaskValidation {
                                 let! a = Ok 3
                                 and! b = Choice1Of2 2
-                                and! c = AsyncValidation.ok 1
+                                and! c = CancellableTaskValidation.ok 1
                                 return a + b - c
                             }
 
@@ -1080,13 +1080,13 @@ module CancellableTaskValidationCE =
                 testCaseTask "Fail Path Validation"
                 <| fun () ->
                     task {
-                        let expected = AsyncValidation.error "TryParse failure"
-                        let! expected' = expected
+                        let expected = CancellableTaskValidation.error "TryParse failure"
+                        let! expected' = expected CancellationToken.None
 
                         let actual =
                             cancellableTaskValidation {
-                                let! a = AsyncValidation.ok 3
-                                and! b = AsyncValidation.ok 2
+                                let! a = CancellableTaskValidation.ok 3
+                                and! b = CancellableTaskValidation.ok 2
                                 and! c = expected
                                 return a + b - c
                             }
