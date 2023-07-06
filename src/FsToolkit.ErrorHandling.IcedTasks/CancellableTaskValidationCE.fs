@@ -238,38 +238,99 @@ module CancellableTaskValidationCE =
                 )
             )
 
-        member inline this.Source
-            (ctr: CancellableTaskValidation<'T, 'Error>)
-            : CancellableTaskValidation<'T, 'Error> =
-            ctr
+
+        [<NoEagerConstraintApplication>]
+        static member inline BindDynamic
+            (
+                sm:
+                    byref<ResumableStateMachine<CancellableTaskValidationStateMachineData<'TOverall, 'Error>>>,
+                getAwaiter: CancellationToken -> ^Awaiter,
+                continuation:
+                    ('TResult1 -> CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2>)
+            ) : bool =
+            sm.Data.CancellationToken.ThrowIfCancellationRequested()
+
+            let mutable awaiter = getAwaiter sm.Data.CancellationToken
+
+            let cont =
+                (CancellableTaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
+                    let result = Awaiter.GetResult awaiter
+
+                    match result with
+                    | Ok result -> (continuation result).Invoke(&sm)
+                    | Error e ->
+                        sm.Data.Result <- Error e
+                        true
+                ))
+
+            // shortcut to continue immediately
+            if Awaiter.IsCompleted awaiter then
+                cont.Invoke(&sm)
+            else
+                sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+
+                sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                false
+
+        [<NoEagerConstraintApplication>]
+        member inline _.Bind
+            (
+                getAwaiter: CancellationToken -> ^Awaiter,
+                continuation:
+                    ('TResult1 -> CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2>)
+            ) : CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2> =
+
+            CancellableTaskValidationCode<'TOverall, _, _>(fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    sm.Data.CancellationToken.ThrowIfCancellationRequested()
+                    // Get an awaiter from the awaitable
+                    let mutable awaiter = getAwaiter sm.Data.CancellationToken
+
+                    let mutable __stack_fin = true
+
+                    if not (Awaiter.IsCompleted awaiter) then
+                        // This will yield with __stack_yield_fin = false
+                        // This will resume with __stack_yield_fin = true
+                        let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                        __stack_fin <- __stack_yield_fin
+
+                    if __stack_fin then
+                        let result = Awaiter.GetResult awaiter
+
+                        match result with
+                        | Ok result -> (continuation result).Invoke(&sm)
+                        | Error e ->
+                            sm.Data.Result <- Error e
+                            true
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                        false
+                else
+                    CancellableTaskValidationBuilderBase.BindDynamic(&sm, getAwaiter, continuation)
+            //-- RESUMABLE CODE END
+            )
+
 
         member inline this.Source(xs: #seq<_>) = xs
 
-        member inline _.Source(result: TaskResult<_, _>) : CancellableTaskValidation<_, _> =
-            cancellableTask { return! result }
 
-        member inline _.Source(result: Async<Result<_, _>>) : CancellableTaskValidation<_, _> =
-            cancellableTask { return! result }
+        [<NoEagerConstraintApplication>]
+        member inline this.ReturnFrom
+            (getAwaiter: CancellationToken -> ^Awaiter)
+            : CancellableTaskValidationCode<'TResult1, 'Error, 'TResult1> =
 
-        member inline this.Source(result: Async<Choice<_, _>>) : CancellableTaskValidation<_, _> =
-            result
-            |> Async.map Result.ofChoice
-            |> this.Source
-
-        member inline _.Source(t: ValueTask<Result<_, _>>) : CancellableTaskValidation<'T, 'Error> =
-            cancellableTask { return! t }
+            this.Bind(getAwaiter, (fun v -> this.Return v))
 
 
-        member inline this.Source(result: Choice<_, _>) : CancellableTaskValidation<_, _> =
-            result
-            |> Result.ofChoice
-            |> Validation.ofResult
-            |> CancellableTask.singleton
+        [<NoEagerConstraintApplication>]
+        member inline this.BindReturn
+            (
+                getAwaiter: CancellationToken -> ^Awaiter,
+                f: 'a -> 'TResult1
+            ) : CancellableTaskValidationCode<'TResult1, 'Error, 'TResult1> =
 
-        member inline _.Source(result: Validation<_, _>) : CancellableTaskValidation<_, _> =
-            result
-            |> CancellableTask.singleton
-
+            this.Bind(getAwaiter, (fun v -> this.Return(f v)))
 
     type CancellableTaskValidationBuilder() =
 
@@ -489,161 +550,40 @@ module CancellableTaskValidationCE =
         let backgroundCancellableTaskValidation =
             BackgroundCancellableTaskValidationBuilder()
 
+
     [<AutoOpen>]
-    module LowPriority =
-        // Low priority extensions
+    module LowestPriority =
+
         type CancellableTaskValidationBuilderBase with
 
-            [<NoEagerConstraintApplication>]
-            static member inline BindDynamic
-                (
-                    sm:
-                        byref<ResumableStateMachine<CancellableTaskValidationStateMachineData<'TOverall, 'Error>>>,
-                    getAwaiter: CancellationToken -> ^Awaiter,
-                    continuation:
-                        ('TResult1 -> CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2>)
-                ) : bool =
-                sm.Data.CancellationToken.ThrowIfCancellationRequested()
-
-                let mutable awaiter = getAwaiter sm.Data.CancellationToken
-
-                let cont =
-                    (CancellableTaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
-                        let result = Awaiter.GetResult awaiter
-
-                        match result with
-                        | Ok result -> (continuation result).Invoke(&sm)
-                        | Error e ->
-                            sm.Data.Result <- Error e
-                            true
-                    ))
-
-                // shortcut to continue immediately
-                if Awaiter.IsCompleted awaiter then
-                    cont.Invoke(&sm)
-                else
-                    sm.ResumptionDynamicInfo.ResumptionData <-
-                        (awaiter :> ICriticalNotifyCompletion)
-
-                    sm.ResumptionDynamicInfo.ResumptionFunc <- cont
-                    false
 
             [<NoEagerConstraintApplication>]
-            member inline _.Bind
+            member inline this.MergeSources<'TResult1, 'TResult2, ^Awaiter1, ^Awaiter2, 'Error
+                when ^Awaiter1 :> ICriticalNotifyCompletion
+                and ^Awaiter1: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter1: (member GetResult: unit -> Validation<'TResult1, 'Error>)
+                and ^Awaiter2 :> ICriticalNotifyCompletion
+                and ^Awaiter2: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter2: (member GetResult: unit -> Validation<'TResult2, 'Error>)>
                 (
-                    getAwaiter: CancellationToken -> ^Awaiter,
-                    continuation:
-                        ('TResult1 -> CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2>)
-                ) : CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2> =
+                    [<InlineIfLambda>] left: CancellationToken -> ^Awaiter1,
+                    [<InlineIfLambda>] right: CancellationToken -> ^Awaiter2
+                ) : CancellationToken -> TaskAwaiter<Validation<'TResult1 * 'TResult2, 'Error>> =
 
-                CancellableTaskValidationCode<'TOverall, _, _>(fun sm ->
-                    if __useResumableCode then
-                        //-- RESUMABLE CODE START
-                        sm.Data.CancellationToken.ThrowIfCancellationRequested()
-                        // Get an awaiter from the awaitable
-                        let mutable awaiter = getAwaiter sm.Data.CancellationToken
+                (fun ct ->
+                    let handler =
+                        cancellableTask {
+                            let! ct = CancellableTask.getCancellationToken ()
+                            let left' = left ct
+                            let right' = right ct
+                            let! leftResult = left'
+                            let! rightResult = right'
 
-                        let mutable __stack_fin = true
+                            return Validation.zip leftResult rightResult
+                        }
 
-                        if not (Awaiter.IsCompleted awaiter) then
-                            // This will yield with __stack_yield_fin = false
-                            // This will resume with __stack_yield_fin = true
-                            let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
-                            __stack_fin <- __stack_yield_fin
-
-                        if __stack_fin then
-                            let result = Awaiter.GetResult awaiter
-
-                            match result with
-                            | Ok result -> (continuation result).Invoke(&sm)
-                            | Error e ->
-                                sm.Data.Result <- Error e
-                                true
-                        else
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
-                            false
-                    else
-                        CancellableTaskValidationBuilderBase.BindDynamic(
-                            &sm,
-                            getAwaiter,
-                            continuation
-                        )
-                //-- RESUMABLE CODE END
+                    (handler ct).GetAwaiter()
                 )
-
-            [<NoEagerConstraintApplication>]
-            member inline this.ReturnFrom
-                (getAwaiter: CancellationToken -> ^Awaiter)
-                : CancellableTaskValidationCode<'TResult1, 'Error, 'TResult1> =
-
-                this.Bind(getAwaiter, (fun v -> this.Return v))
-
-            // [<NoEagerConstraintApplication>]
-            // member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
-            //     when ^Awaiter :> ICriticalNotifyCompletion
-            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-            //     (
-            //         getAwaiter: CancellationToken -> 'Awaiter,
-            //         f: 'TResult1 -> 'TResult2
-            //     ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
-            //     this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
-
-            [<NoEagerConstraintApplication>]
-            // member inline _.Source<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-            //     when ^Awaiter :> ICriticalNotifyCompletion
-            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-            member inline _.Source<'TResult1, 'Awaiter when Awaiter<'Awaiter, 'TResult1>>
-                (getAwaiter: CancellationToken -> ^Awaiter)
-                : CancellationToken -> ^Awaiter =
-                getAwaiter
-
-            // member inline _.Foo<'T, 'U, 'Error when 'T :> 'U> (x : 'T) = x
-
-            [<NoEagerConstraintApplication>]
-            member inline _.Source< ^Awaitable, ^Awaiter, 'TResult1, 'Error
-                when ^Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-
-                // TODO: New SRTP alias syntax doesn't seem to work for specifying Result as a constraint
-                // TODO: Need to open an issue on FSharp repo for this
-                // Awaitable<'Awaitable, 'Awaiter, Result<'TResult, 'Error>>>
-                (task: ^Awaitable)
-                : CancellationToken -> ^Awaiter =
-                (fun (ct: CancellationToken) -> Awaitable.GetAwaiter task)
-
-
-            [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
-                (t: ^TaskLike)
-                : CancellableTaskValidation<'T, 'Error> =
-
-                cancellableTask {
-                    let! r = t
-                    return Ok r
-                }
-
-
-            [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
-                (t: unit -> ^TaskLike)
-                : CancellableTaskValidation<'T, 'Error> =
-
-                cancellableTask {
-                    let! r = t
-                    return Ok r
-                }
 
 
             [<NoEagerConstraintApplication>]
@@ -653,12 +593,127 @@ module CancellableTaskValidationCE =
                 and ^Awaiter: (member get_IsCompleted: unit -> bool)
                 and ^Awaiter: (member GetResult: unit -> 'T)>
                 (t: CancellationToken -> ^TaskLike)
-                : CancellableTaskValidation<'T, 'Error> =
+                =
 
-                cancellableTask {
-                    let! r = t
-                    return Ok r
-                }
+                fun ct ->
+                    (task {
+                        let! r = t ct
+                        return Validation.ok r
+                    })
+                        .GetAwaiter()
+
+
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'T)>
+                (t: unit -> ^TaskLike)
+                =
+
+                fun (ct: CancellationToken) ->
+                    (task {
+                        let! r = t ()
+                        return Validation.ok r
+                    })
+                        .GetAwaiter()
+
+
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> 'T)>
+                (t: ^TaskLike)
+                =
+
+                fun (ct: CancellationToken) ->
+                    (task {
+                        let! r = t
+                        return Validation.ok r
+                    })
+                        .GetAwaiter()
+
+
+    [<AutoOpen>]
+    module LowerPriority =
+
+        type CancellableTaskValidationBuilderBase with
+
+
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+                (t: CancellationToken -> ^TaskLike)
+                =
+
+                fun ct ->
+                    (task {
+                        let! r = t ct
+                        return Validation.ofResult r
+                    })
+                        .GetAwaiter()
+
+
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+                (t: unit -> ^TaskLike)
+                =
+
+                fun (ct: CancellationToken) ->
+                    (task {
+                        let! r = t ()
+                        return Validation.ofResult r
+                    })
+                        .GetAwaiter()
+
+
+            [<NoEagerConstraintApplication>]
+            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+                and ^Awaiter :> ICriticalNotifyCompletion
+                and ^Awaiter: (member get_IsCompleted: unit -> bool)
+                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
+                (t: ^TaskLike)
+                =
+
+                fun (ct: CancellationToken) ->
+                    (task {
+                        let! r = t
+                        return Validation.ofResult r
+                    })
+                        .GetAwaiter()
+
+
+    [<AutoOpen>]
+    module LowPriority =
+        // Low priority extensions
+        type CancellableTaskValidationBuilderBase with
+
+            member this.Source(t: Task<'T>) =
+                fun (ct: CancellationToken) -> (Task.map Validation.ok t).GetAwaiter()
+
+            member this.Source(t: ColdTask<'T>) =
+                fun (ct: CancellationToken) -> (Task.map Validation.ok (t ())).GetAwaiter()
+
+
+            member this.Source(t: CancellableTask<'T>) =
+                fun (ct: CancellationToken) -> (Task.map Validation.ok (t ct)).GetAwaiter()
+
+            member this.Source(t: Async<'T>) =
+
+                fun (ct: CancellationToken) ->
+                    (Task.map Validation.ok (Async.StartAsTask(t, cancellationToken = ct)))
+                        .GetAwaiter()
 
             member inline _.Using<'Resource, 'TOverall, 'Error, 'T when 'Resource :> IDisposable>
                 (
@@ -674,11 +729,8 @@ module CancellableTaskValidationCE =
                         )
                 )
 
-            member inline _.Source(result: Validation<_, _>) : CancellableTaskValidation<_, _> =
-                CancellableTask.singleton result
-
     [<AutoOpen>]
-    module HighPriority =
+    module MediumPriority =
         type Microsoft.FSharp.Control.Async with
 
             static member inline AwaitCancellableTaskValidation
@@ -697,86 +749,59 @@ module CancellableTaskValidationCE =
 
         type CancellableTaskValidationBuilderBase with
 
-            member inline this.Bind
-                (
-                    task: CancellableTaskValidation<'TResult1, 'Error>,
-                    continuation:
-                        ('TResult1 -> CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2>)
-                ) : CancellableTaskValidationCode<'TOverall, 'Error, 'TResult2> =
-                let x = fun ct -> (task ct).GetAwaiter()
-                this.Bind(getAwaiter = x, continuation = continuation)
 
-            // [<NoEagerConstraintApplication>]
-            // member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
-            //     when ^Awaiter :> ICriticalNotifyCompletion
-            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-            //     (
-            //         getAwaiter: CancellationToken -> 'Awaiter,
-            //         f: 'TResult1 -> 'TResult2
-            //     ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
-            //     this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
+            member _.Source(t: Result<'T, 'Error>) =
+                fun (ct: CancellationToken) ->
+                    (t
+                     |> Validation.ofResult
+                     |> Task.FromResult)
+                        .GetAwaiter()
 
-            member inline this.ReturnFrom
-                (task: CancellableTaskValidation<'T, 'Error>)
-                : CancellableTaskValidationCode<'T, 'Error, 'T> =
-                this.Bind(task, (fun v -> this.Return v))
+            member _.Source(t: Choice<'T, 'Error>) =
+                fun (ct: CancellationToken) ->
+                    (t
+                     |> Result.ofChoice
+                     |> Validation.ofResult
+                     |> Task.FromResult)
+                        .GetAwaiter()
+
+
+            member _.Source(t: TaskResult<'T, 'Error>) =
+                fun (ct: CancellationToken) -> (Task.map Validation.ofResult t).GetAwaiter()
+
+
+            member _.Source(t: Async<Result<'T, 'Error>>) =
+                fun ct ->
+                    (Async.StartAsTask(t, cancellationToken = ct)
+                     |> Task.map Validation.ofResult)
+                        .GetAwaiter()
+
+
+            member this.Source(t: Async<Choice<'T, 'Error>>) =
+                this.Source(Async.map Result.ofChoice t)
+
+
+            member _.Source(t: CancellableTaskResult<'T, 'Error>) =
+                CancellableTask.map Validation.ofResult t
 
     [<AutoOpen>]
-    module MediumPriority =
-        open HighPriority
+    module HighPriority =
 
         type CancellableTaskValidationBuilder with
 
-            member inline _.Source(t: Task<'T>) : CancellableTaskValidation<'T, 'Error> =
-                cancellableTask {
-                    let! r = t
-                    return Ok r
-                }
+            member inline _.Source(t: Validation<'T, 'Error>) =
+                fun (ct: CancellationToken) -> (Task.FromResult t).GetAwaiter()
 
-            member inline _.Source
-                (result: CancellableTask<'T>)
-                : CancellableTaskValidation<'T, 'Error> =
-                cancellableTask {
-                    let! r = result
-                    return Ok r
-                }
+            member inline _.Source(t: CancellableTaskValidation<'T, 'Error>) =
+                fun ct -> (t ct).GetAwaiter()
 
-            member inline _.Source
-                (result: CancellableTask)
-                : CancellableTaskValidation<unit, 'Error> =
-                cancellableTask {
-                    let! r = result
-                    return Ok r
-                }
 
-            member inline _.Source(result: ColdTask<_>) : CancellableTaskValidation<_, _> =
-                cancellableTask {
-                    let! r = result
-                    return Ok r
-                }
+            member inline _.Source(t: Task<Validation<'T, 'Error>>) =
+                fun (ct: CancellationToken) -> t.GetAwaiter()
 
-            member inline _.Source(result: ColdTask) : CancellableTaskValidation<_, _> =
-                cancellableTask {
-                    let! r = result
-                    return Ok r
-                }
 
-            member inline _.Source(t: Async<'T>) : CancellableTaskValidation<'T, 'Error> =
-                cancellableTask {
-                    let! r = t
-                    return Ok r
-                }
-
-            member inline _.Source
-                (t: Result<'ok, 'error>)
-                : CancellableTaskValidation<'ok, 'error> =
-                cancellableTask {
-                    return
-                        t
-                        |> Validation.ofResult
-                }
-
+            member inline _.Source(t: Async<Validation<'T, 'Error>>) =
+                fun ct -> Async.StartAsTask(t, cancellationToken = ct).GetAwaiter()
 
     [<AutoOpen>]
     module AsyncExtensions =
@@ -1051,28 +1076,3 @@ module CancellableTaskValidationCE =
                         }
                 | Error e -> return Error e
             }
-
-    [<AutoOpen>]
-    module JimmyToldMeTo =
-
-        type CancellableTaskResultBuilderBase with
-
-            member inline this.MergeSources
-                (
-                    left: CancellableTaskValidation<'left, 'error>,
-                    right: CancellableTaskValidation<'right, 'error>
-                ) : CancellableTaskValidation<'left * 'right, 'error> =
-                cancellableTask {
-                    let! ct = CancellableTask.getCancellationToken ()
-                    let r1 = left ct
-                    let r2 = right ct
-                    let! r1' = r1
-                    let! r2' = r2
-
-                    return
-                        match r1', r2' with
-                        | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-                        | Error e, Ok _ -> Error e
-                        | Ok _, Error e -> Error e
-                        | Error e1, Error e2 -> Error(e1 @ e2)
-                }
