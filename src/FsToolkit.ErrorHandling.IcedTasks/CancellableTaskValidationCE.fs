@@ -533,7 +533,6 @@ module CancellableTaskValidationCE =
                 BackgroundCancellableTaskValidationBuilder.RunDynamic(code)
 
 
-    [<AutoOpen>]
     module CancellableTaskValidationBuilder =
 
         let cancellableTaskValidation = CancellableTaskValidationBuilder()
@@ -542,7 +541,6 @@ module CancellableTaskValidationCE =
             BackgroundCancellableTaskValidationBuilder()
 
 
-    [<AutoOpen>]
     module LowestPriority =
 
         type CancellableTaskValidationBuilderBase with
@@ -628,7 +626,6 @@ module CancellableTaskValidationCE =
                         .GetAwaiter()
 
 
-    [<AutoOpen>]
     module LowerPriority =
 
         type CancellableTaskValidationBuilderBase with
@@ -684,7 +681,6 @@ module CancellableTaskValidationCE =
                     })
                         .GetAwaiter()
 
-    [<AutoOpen>]
     module LowerPriority2 =
         // Low priority extensions
         type CancellableTaskValidationBuilderBase with
@@ -724,7 +720,6 @@ module CancellableTaskValidationCE =
 
                 fun (ct: CancellationToken) -> Awaitable.GetAwaiter(t)
 
-    [<AutoOpen>]
     module LowPriority =
         // Low priority extensions
         type CancellableTaskValidationBuilderBase with
@@ -761,7 +756,6 @@ module CancellableTaskValidationCE =
                         )
                 )
 
-    [<AutoOpen>]
     module MediumPriority =
         type Microsoft.FSharp.Control.Async with
 
@@ -816,7 +810,6 @@ module CancellableTaskValidationCE =
             member inline _.Source([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>) =
                 CancellableTask.map Validation.ofResult t
 
-    [<AutoOpen>]
     module HighPriority =
 
         type CancellableTaskValidationBuilder with
@@ -827,16 +820,15 @@ module CancellableTaskValidationCE =
             member inline _.Source([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>) =
                 fun ct -> (t ct).GetAwaiter()
 
-
             member inline _.Source(t: Task<Validation<'T, 'Error>>) =
                 fun (ct: CancellationToken) -> t.GetAwaiter()
-
 
             member inline _.Source(t: Async<Validation<'T, 'Error>>) =
                 fun ct -> Async.StartAsTask(t, cancellationToken = ct).GetAwaiter()
 
-    [<AutoOpen>]
     module AsyncExtensions =
+        open MediumPriority
+
         type Microsoft.FSharp.Control.AsyncBuilder with
 
             member inline this.Bind
@@ -1094,3 +1086,44 @@ module CancellableTaskValidationCE =
                 return Validation.zip r1 r2
 
             }
+
+    // What's going on here?
+    //
+    // F# method overload resolution  has some weird quirks we're taking advantage of to allow
+    // for binding (`let!/do!/return!`) many various types (Such as Task/Async/Result/Validation)
+    // in a computation expression. .The gist is, any member methods attached to the type itself
+    // (the Builder object) will be preferred above all else when selection overloads to resolve. It
+    // will then use the  the most recent Extension Methods that have been opened. The way we structure
+    // these overloads is to provide the most "concrete" overloads first, and then the more generic
+    // ones later. For example, `Validation` is defined as a `Result<'T, 'Error list>`, but we also
+    // want to be able to bind to `Result` itself and create a list of errors from it.  So we need to
+    // have a `Validation` member method in a higher module, and then a `Result` member method
+    // somewhere lower. Another example is `Task<Result<'T, 'Error>>` vs `Task<'T>`. We want to be able
+    // to bind to both, so we need to have a `Task<Result<'T, 'Error>>` member method in a higher
+    //  module, and then a `Task<'T>` member method somewhere lower.
+
+    // NoEagerConstraintApplication also changes behavior of SRTP methods, read the
+    // TaskBuilder RFC for more info.
+
+    // The reason we do AutoOpens here instead of using the attribute on the module itself
+    // is because it may restrict how the implementation is relying on other sections, such as
+    // The MediumPriority module may use something from the HighPriority module. If we put the
+    // HighPriority module after the MediumPriority module it will fail to compile. So we don't want
+    // the order of the code itself to determine the priority, this allows us to control that ordering
+    // more explicitly.
+    //
+    // Additional readings:
+    // - [F# Computation Expression Method Overload Resolution Ordering](https://gist.github.com/TheAngryByrd/c8b9c8ebcda3bb162f425bfb281d2e2b)
+    // - [F# RFC FS-1097 - Task builder](https://github.com/fsharp/fslang-design/blob/main/FSharp-6.0/FS-1097-task-builder.md#feature-noeagerconstraintapplicationattribute)
+    // - ["Most concrete" tiebreaker for generic overloads](https://github.com/fsharp/fslang-suggestions/issues/905)
+
+
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.LowestPriority")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.LowerPriority")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.LowerPriority2")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.LowPriority")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.MediumPriority")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.HighPriority")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.AsyncExtensions")>]
+    [<assembly: AutoOpen("FsToolkit.ErrorHandling.CancellableTaskValidationCE.CancellableTaskValidationBuilderModule")>]
+    do ()
