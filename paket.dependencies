@@ -47,7 +47,7 @@ nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk
 nuget Fable.Mocha
 nuget Fable.Core >= 4.0.0
-nuget IcedTasks >= 0.5.1
+nuget IcedTasks >= 0.7.0
 framework: netstandard2.1, net7.0
 storage: none
 condition: netstandard2_1
