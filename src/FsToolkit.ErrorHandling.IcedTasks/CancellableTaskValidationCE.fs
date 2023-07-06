@@ -259,15 +259,17 @@ module CancellableTaskValidationCE =
         member inline _.Source(t: ValueTask<Result<_, _>>) : CancellableTaskValidation<'T, 'Error> =
             cancellableTask { return! t }
 
-        member inline _.Source(result: Result<_, _>) : CancellableTaskValidation<_, _> =
-            result
-            |> Validation.ofResult
-            |> CancellableTask.singleton
 
         member inline this.Source(result: Choice<_, _>) : CancellableTaskValidation<_, _> =
             result
             |> Result.ofChoice
-            |> this.Source
+            |> Validation.ofResult
+            |> CancellableTask.singleton
+
+        member inline _.Source(result: Validation<_, _>) : CancellableTaskValidation<_, _> =
+            result
+            |> CancellableTask.singleton
+
 
     type CancellableTaskValidationBuilder() =
 
@@ -587,16 +589,16 @@ module CancellableTaskValidationCE =
 
                 this.Bind(getAwaiter, (fun v -> this.Return v))
 
-            [<NoEagerConstraintApplication>]
-            member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-                (
-                    getAwaiter: CancellationToken -> 'Awaiter,
-                    f : 'TResult1 -> 'TResult2
-                ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
-                this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
+            // [<NoEagerConstraintApplication>]
+            // member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
+            //     when ^Awaiter :> ICriticalNotifyCompletion
+            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            //     (
+            //         getAwaiter: CancellationToken -> 'Awaiter,
+            //         f: 'TResult1 -> 'TResult2
+            //     ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
+            //     this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
 
             [<NoEagerConstraintApplication>]
             member inline _.Source<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
@@ -709,16 +711,16 @@ module CancellableTaskValidationCE =
                 let x = fun ct -> (task ct).GetAwaiter()
                 this.Bind(getAwaiter = x, continuation = continuation)
 
-            [<NoEagerConstraintApplication>]
-            member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-                (
-                    getAwaiter: CancellationToken -> 'Awaiter,
-                    f : 'TResult1 -> 'TResult2
-                ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
-                this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
+            // [<NoEagerConstraintApplication>]
+            // member inline this.BindReturn<'TResult1, 'TResult2, 'Awaiter, 'TOverall, 'Error
+            //     when ^Awaiter :> ICriticalNotifyCompletion
+            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            //     (
+            //         getAwaiter: CancellationToken -> 'Awaiter,
+            //         f: 'TResult1 -> 'TResult2
+            //     ) : CancellableTaskValidationCode<'TResult2, 'Error, 'TResult2> =
+            //     this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
 
             member inline this.ReturnFrom
                 (task: CancellableTaskValidation<'T, 'Error>)
@@ -779,6 +781,7 @@ module CancellableTaskValidationCE =
                         t
                         |> Validation.ofResult
                 }
+
 
     [<AutoOpen>]
     module AsyncExtensions =
@@ -1055,26 +1058,26 @@ module CancellableTaskValidationCE =
             }
 
     [<AutoOpen>]
-     module JimmyToldMeTo =
+    module JimmyToldMeTo =
 
-         type CancellableTaskResultBuilderBase with
+        type CancellableTaskResultBuilderBase with
 
-             member inline this.MergeSources
-                 (
-                     left: CancellableTaskValidation<'left, 'error>,
-                     right: CancellableTaskValidation<'right, 'error>
-                 ) : CancellableTaskValidation<'left * 'right, 'error> =
-                 cancellableTask {
-                     let! ct = CancellableTask.getCancellationToken ()
-                     let r1 = left ct
-                     let r2 = right ct
-                     let! r1' = r1
-                     let! r2' = r2
+            member inline this.MergeSources
+                (
+                    left: CancellableTaskValidation<'left, 'error>,
+                    right: CancellableTaskValidation<'right, 'error>
+                ) : CancellableTaskValidation<'left * 'right, 'error> =
+                cancellableTask {
+                    let! ct = CancellableTask.getCancellationToken ()
+                    let r1 = left ct
+                    let r2 = right ct
+                    let! r1' = r1
+                    let! r2' = r2
 
-                     return
-                         match r1', r2' with
-                         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-                         | Error e, Ok _ -> Error e
-                         | Ok _, Error e -> Error e
-                         | Error e1, Error e2 -> Error(e1 @ e2)
-                 }
+                    return
+                        match r1', r2' with
+                        | Ok x1res, Ok x2res -> Ok(x1res, x2res)
+                        | Error e, Ok _ -> Error e
+                        | Ok _, Error e -> Error e
+                        | Error e1, Error e2 -> Error(e1 @ e2)
+                }
