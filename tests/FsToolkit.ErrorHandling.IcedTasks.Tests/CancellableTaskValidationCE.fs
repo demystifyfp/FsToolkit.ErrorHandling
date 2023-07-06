@@ -124,6 +124,21 @@ module CancellableTaskValidationCE =
                         Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
                     }
 
+
+                testCaseTask "return! valueTaskValidation"
+                <| fun () ->
+                    task {
+                        let data = 42
+
+                        let ctr =
+                            cancellableTaskValidation {
+                                return! ValueTask.FromResult(Validation.ok data)
+                            }
+
+                        let! (actual: Validation<int, obj>) = ctr CancellationToken.None
+                        Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
+                    }
+
                 testCaseTask "return! result"
                 <| fun () ->
                     task {
