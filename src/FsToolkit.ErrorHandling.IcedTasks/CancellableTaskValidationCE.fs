@@ -495,10 +495,7 @@ module CancellableTaskValidationCE =
         type CancellableTaskValidationBuilderBase with
 
             [<NoEagerConstraintApplication>]
-            static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            static member inline BindDynamic
                 (
                     sm:
                         byref<ResumableStateMachine<CancellableTaskValidationStateMachineData<'TOverall, 'Error>>>,
@@ -512,8 +509,7 @@ module CancellableTaskValidationCE =
 
                 let cont =
                     (CancellableTaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
-                        let result =
-                            (^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>) (awaiter))
+                        let result = Awaiter.GetResult awaiter
 
                         match result with
                         | Ok result -> (continuation result).Invoke(&sm)
@@ -523,7 +519,7 @@ module CancellableTaskValidationCE =
                     ))
 
                 // shortcut to continue immediately
-                if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                if Awaiter.IsCompleted awaiter then
                     cont.Invoke(&sm)
                 else
                     sm.ResumptionDynamicInfo.ResumptionData <-
@@ -533,10 +529,7 @@ module CancellableTaskValidationCE =
                     false
 
             [<NoEagerConstraintApplication>]
-            member inline _.Bind<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            member inline _.Bind
                 (
                     getAwaiter: CancellationToken -> ^Awaiter,
                     continuation:
@@ -552,15 +545,14 @@ module CancellableTaskValidationCE =
 
                         let mutable __stack_fin = true
 
-                        if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                        if not (Awaiter.IsCompleted awaiter) then
                             // This will yield with __stack_yield_fin = false
                             // This will resume with __stack_yield_fin = true
                             let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
                             __stack_fin <- __stack_yield_fin
 
                         if __stack_fin then
-                            let result =
-                                (^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>) (awaiter))
+                            let result = Awaiter.GetResult awaiter
 
                             match result with
                             | Ok result -> (continuation result).Invoke(&sm)
@@ -571,7 +563,7 @@ module CancellableTaskValidationCE =
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
                             false
                     else
-                        CancellableTaskValidationBuilderBase.BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                        CancellableTaskValidationBuilderBase.BindDynamic(
                             &sm,
                             getAwaiter,
                             continuation
@@ -580,10 +572,7 @@ module CancellableTaskValidationCE =
                 )
 
             [<NoEagerConstraintApplication>]
-            member inline this.ReturnFrom<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            member inline this.ReturnFrom
                 (getAwaiter: CancellationToken -> ^Awaiter)
                 : CancellableTaskValidationCode<'TResult1, 'Error, 'TResult1> =
 
@@ -601,25 +590,31 @@ module CancellableTaskValidationCE =
             //     this.Bind((fun ct -> getAwaiter ct), (fun v -> this.Return(f v)))
 
             [<NoEagerConstraintApplication>]
-            member inline _.Source<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-                when ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            // member inline _.Source<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            //     when ^Awaiter :> ICriticalNotifyCompletion
+            //     and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            //     and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
+            member inline _.Source<'TResult1, 'Awaiter when Awaiter<'Awaiter, 'TResult1>>
                 (getAwaiter: CancellationToken -> ^Awaiter)
                 : CancellationToken -> ^Awaiter =
                 getAwaiter
 
+            // member inline _.Foo<'T, 'U, 'Error when 'T :> 'U> (x : 'T) = x
+
             [<NoEagerConstraintApplication>]
-            member inline _.Source< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            member inline _.Source< ^Awaitable, ^Awaiter, 'TResult1, 'Error
+                when ^Awaitable: (member GetAwaiter: unit -> ^Awaiter)
                 and ^Awaiter :> ICriticalNotifyCompletion
                 and ^Awaiter: (member get_IsCompleted: unit -> bool)
                 and ^Awaiter: (member GetResult: unit -> Validation<'TResult1, 'Error>)>
-                (task: ^TaskLike)
+
+                // TODO: New SRTP alias syntax doesn't seem to work for specifying Result as a constraint
+                // TODO: Need to open an issue on FSharp repo for this
+                // Awaitable<'Awaitable, 'Awaiter, Result<'TResult, 'Error>>>
+                (task: ^Awaitable)
                 : CancellationToken -> ^Awaiter =
-                (fun (ct: CancellationToken) ->
-                    (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (task))
-                )
+                (fun (ct: CancellationToken) -> Awaitable.GetAwaiter task)
+
 
             [<NoEagerConstraintApplication>]
             member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
