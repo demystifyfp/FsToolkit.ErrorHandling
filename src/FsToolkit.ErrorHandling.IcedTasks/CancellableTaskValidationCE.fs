@@ -812,7 +812,7 @@ module CancellableTaskValidationCE =
                 this.ReturnFrom(Async.AwaitCancellableTaskValidation t)
 
 
-        type FsToolkit.ErrorHandling.AsyncResultCE.AsyncResultBuilder with
+        type FsToolkit.ErrorHandling.AsyncValidationCE.AsyncValidationBuilder with
 
             member inline this.Source
                 ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)

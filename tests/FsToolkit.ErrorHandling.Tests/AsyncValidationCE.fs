@@ -57,14 +57,14 @@ let ``AsyncValidationCE return! Tests`` =
         testCaseAsync "Return Ok Validation"
         <| async {
             let innerData = "Foo"
-            let! data = AsyncValidation.ok innerData
+            let data = Validation.ok innerData
             let! actual = asyncValidation { return! data }
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Error Validation"
         <| async {
             let innerData = "Foo"
-            let! expected = AsyncValidation.error innerData
+            let expected = Validation.error innerData
             let data = AsyncValidation.error innerData
             let! actual = asyncValidation { return! data }
             Expect.equal actual expected "Should be ok"
@@ -74,6 +74,18 @@ let ``AsyncValidationCE return! Tests`` =
 
 let ``AsyncValidationCE bind Tests`` =
     testList "AsyncValidationCE bind Tests" [
+        testCaseAsync "let! Async"
+        <| async {
+            let data = "Foo"
+
+            let! actual =
+                asyncValidation {
+                    let! f = async { return data }
+                    return f
+                }
+
+            Expect.equal actual (Ok data) "Should be ok"
+        }
         testCaseAsync "let! Ok result"
         <| async {
             let data = Result.Ok "Foo"
@@ -130,11 +142,10 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "let! Ok Validation"
         <| async {
             let innerData = "Foo"
-            let! data = AsyncValidation.ok innerData
 
             let! actual =
                 asyncValidation {
-                    let! f = data
+                    let! f = validation { return innerData }
                     return f
                 }
 
@@ -143,12 +154,11 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "let! Error Validation"
         <| async {
             let innerData = "Foo"
-            let data = AsyncValidation.error innerData
             let! expected = AsyncValidation.error innerData
 
             let! actual =
                 asyncValidation {
-                    let! f = data
+                    let! f = validation { return Error innerData }
                     return f
                 }
 
