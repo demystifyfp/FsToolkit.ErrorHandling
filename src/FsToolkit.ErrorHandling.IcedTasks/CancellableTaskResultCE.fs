@@ -607,13 +607,10 @@ module CancellableTaskResultCE =
                 )
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
-                (t: ^TaskLike)
-                : CancellableTaskResult<'T, 'Error> =
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult, 'Error
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
+                (t: 'Awaitable)
+                : CancellableTaskResult<'TResult, 'Error> =
 
                 cancellableTask {
                     let! r = t
@@ -622,13 +619,10 @@ module CancellableTaskResultCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
-                (t: unit -> ^TaskLike)
-                : CancellableTaskResult<'T, 'Error> =
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult, 'Error
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
+                (t: unit -> 'Awaitable)
+                : CancellableTaskResult<'TResult, 'Error> =
 
                 cancellableTask {
                     let! r = t
@@ -637,13 +631,10 @@ module CancellableTaskResultCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
-                when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
-                (t: CancellationToken -> ^TaskLike)
-                : CancellableTaskResult<'T, 'Error> =
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult, 'Error
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
+                (t: CancellationToken -> 'Awaitable)
+                : CancellableTaskResult<'TResult, 'Error> =
 
                 cancellableTask {
                     let! r = t

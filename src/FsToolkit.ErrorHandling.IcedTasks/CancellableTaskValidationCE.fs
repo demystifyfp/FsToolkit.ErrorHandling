@@ -545,7 +545,7 @@ module CancellableTaskValidationCE =
 
         type CancellableTaskValidationBuilderBase with
 
-
+            // https://github.com/dotnet/fsharp/discussions/15567
             [<NoEagerConstraintApplication>]
             member inline this.MergeSources<'TResult1, 'TResult2, ^Awaiter1, ^Awaiter2, 'Error
                 when ^Awaiter1 :> ICriticalNotifyCompletion
@@ -574,13 +574,9 @@ module CancellableTaskValidationCE =
                     (handler ct).GetAwaiter()
                 )
 
-
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
                 ([<InlineIfLambda>] t: CancellationToken -> 'Awaitable)
                 =
 
@@ -593,11 +589,8 @@ module CancellableTaskValidationCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
                 ([<InlineIfLambda>] t: unit -> 'Awaitable)
                 =
 
@@ -610,11 +603,8 @@ module CancellableTaskValidationCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> 'T)>
+            member inline this.Source<'Awaitable, 'Awaiter, 'TResult
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult>>
                 (t: 'Awaitable)
                 =
 
@@ -632,14 +622,7 @@ module CancellableTaskValidationCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
-                ([<InlineIfLambda>] t: CancellationToken -> 'Awaitable)
-                =
-
+            member inline this.Source([<InlineIfLambda>] t: CancellationToken -> 'Awaitable) =
                 fun ct ->
                     (task {
                         let! r = t ct
@@ -649,14 +632,7 @@ module CancellableTaskValidationCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
-                ([<InlineIfLambda>] t: unit -> 'Awaitable)
-                =
-
+            member inline this.Source([<InlineIfLambda>] t: unit -> 'Awaitable) =
                 fun (ct: CancellationToken) ->
                     (task {
                         let! r = t ()
@@ -666,14 +642,7 @@ module CancellableTaskValidationCE =
 
 
             [<NoEagerConstraintApplication>]
-            member inline this.Source<'Awaitable, ^Awaiter, 'T, 'Error
-                when 'Awaitable: (member GetAwaiter: unit -> ^Awaiter)
-                and ^Awaiter :> ICriticalNotifyCompletion
-                and ^Awaiter: (member get_IsCompleted: unit -> bool)
-                and ^Awaiter: (member GetResult: unit -> Result<'T, 'Error>)>
-                (t: 'Awaitable)
-                =
-
+            member inline this.Source(t: 'Awaitable) =
                 fun (ct: CancellationToken) ->
                     (task {
                         let! r = t
@@ -723,7 +692,6 @@ module CancellableTaskValidationCE =
     module LowPriority =
         // Low priority extensions
         type CancellableTaskValidationBuilderBase with
-
 
             member inline this.Source(t: Task<'T>) =
                 fun (ct: CancellationToken) -> (Task.map Validation.ok t).GetAwaiter()
