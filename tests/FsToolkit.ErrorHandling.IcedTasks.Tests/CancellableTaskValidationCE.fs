@@ -1088,7 +1088,39 @@ module CancellableTaskValidationCE =
                         Expect.equal actual expected "Should be Error"
                     }
 
-                testCaseTask "Fail Path Validation"
+                testCaseTask "Fail Path Error Validation"
+                <| fun () ->
+                    task {
+                        let expected =
+                            Error [
+                                "Error 1"
+                                "Error 2"
+                                "Error 3"
+                            ]
+
+                        let actual =
+                            cancellableTaskValidation {
+                                let! a = Ok 3
+                                and! b = Ok 2
+                                and! c = Error "Error 1"
+
+                                and! d =
+                                    Error [
+                                        "Error 2"
+                                        "Error 3"
+                                    ]
+
+                                return
+                                    a + b
+                                    - c
+                                    - d
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual expected "Should be Error"
+                    }
+
+                testCaseTask "Fail Path Ok Validation"
                 <| fun () ->
                     task {
                         let expected = CancellableTaskValidation.error "TryParse failure"
@@ -1186,6 +1218,22 @@ module CancellableTaskValidationCE =
 
                     Expect.equal actual (Ok cts.Token) ""
 
+                testCase
+                    "CancellationToken flows from AsyncValidation<T> to CancellableTaskValidation<T>"
+                <| fun () ->
+                    let innerTask =
+                        cancellableTaskValidation {
+                            return! CancellableTaskValidation.getCancellationToken ()
+                        }
+
+                    let outerAsync = asyncValidation { return! innerTask }
+
+                    use cts = new CancellationTokenSource()
+
+                    let actual = Async.RunSynchronously(outerAsync, cancellationToken = cts.Token)
+
+                    Expect.equal actual (Ok cts.Token) ""
+
                 testCase "CancellationToken flows from CancellableTaskValidation<T> to Async<unit>"
                 <| fun () ->
                     let innerAsync = async { return! Async.CancellationToken }
@@ -1202,6 +1250,19 @@ module CancellableTaskValidationCE =
                     "CancellationToken flows from CancellableTaskValidation<T> to AsyncResult<unit>"
                 <| fun () ->
                     let innerAsync = asyncResult { return! Async.CancellationToken }
+
+                    let outerTask = cancellableTaskValidation { return! innerAsync }
+
+                    use cts = new CancellationTokenSource()
+
+                    let actual = (outerTask cts.Token).GetAwaiter().GetResult()
+
+                    Expect.equal actual (Ok cts.Token) ""
+
+                testCase
+                    "CancellationToken flows from CancellableTaskValidation<T> to AsyncValidation<unit>"
+                <| fun () ->
+                    let innerAsync = asyncValidation { return! Async.CancellationToken }
 
                     let outerTask = cancellableTaskValidation { return! innerAsync }
 

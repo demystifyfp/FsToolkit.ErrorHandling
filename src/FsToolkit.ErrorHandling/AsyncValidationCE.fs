@@ -139,16 +139,18 @@ module AsyncValidationCE =
     let asyncValidation = AsyncValidationBuilder()
 
 [<AutoOpen>]
-module AsyncValidationCEExtensions =
+module HighPriority =
 
     // Having members as extensions gives them lower priority in
     // overload resolution and allows skipping more type annotations.
     type AsyncValidationBuilder with
 
         /// <summary>
-        /// Needed to allow `for..in` and `for..do` functionality
+        /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(s: #seq<_>) : #seq<_> = s
+        member inline _.Source(s: Async<Result<'ok, 'error>>) : AsyncValidation<_, 'error> =
+            s
+            |> AsyncResult.mapError (fun e -> [ e ])
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -160,5 +162,31 @@ module AsyncValidationCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         /// <returns></returns>
+        member inline _.Source(a: Async<'ok>) : AsyncValidation<'ok, 'error> =
+            async {
+                let! result = a
+                return! AsyncValidation.ok result
+            }
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        /// <returns></returns>
         member inline _.Source(choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
             AsyncValidation.ofChoice choice
+
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline _.Source(s: #seq<_>) : #seq<_> = s
+
+[<AutoOpen>]
+module LowPriority =
+
+    type AsyncValidationBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(s: Validation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+            Async.retn s
