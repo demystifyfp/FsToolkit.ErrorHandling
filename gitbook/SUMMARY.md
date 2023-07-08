@@ -102,18 +102,18 @@
     * [Operators](cancellableTaskValidation/operators.md)
 * FsToolkit.ErrorHandling.JobResult
   * JobResult
-      * [map](jobResult/map.md)
-      * [map2](jobResult/map2.md)
-      * [map3](jobResult/map3.md)
-      * [mapError](jobResult/mapError.md)
-      * [apply](jobResult/apply.md)
-      * [foldResult](jobResult/foldResult.md)
-      * [ofTask](jobResult/ofTask.md)
-      * [bind](jobResult/bind.md)
-      * [ignore](jobResult/ignore.md)
-      * [Computation Expression](jobResult/ce.md)
-      * [Operators](jobResult/operators.md)
-      * [Other Functions](jobResult/others.md)
+    * [map](jobResult/map.md)
+    * [map2](jobResult/map2.md)
+    * [map3](jobResult/map3.md)
+    * [mapError](jobResult/mapError.md)
+    * [apply](jobResult/apply.md)
+    * [foldResult](jobResult/foldResult.md)
+    * [ofTask](jobResult/ofTask.md)
+    * [bind](jobResult/bind.md)
+    * [ignore](jobResult/ignore.md)
+    * [Computation Expression](jobResult/ce.md)
+    * [Operators](jobResult/operators.md)
+    * [Other Functions](jobResult/others.md)
 * FsToolkit.ErrorHandling.TaskResult
   * TaskResult
     * [map](taskResult/map.md)
@@ -144,3 +144,5 @@
     * [Operators](taskResultOption/operators.md)
   * TaskOption
     * [Computation Expression](taskOption/ce.md)
+* General Docs
+  * [Bind Mappings](bindMappings.md)
