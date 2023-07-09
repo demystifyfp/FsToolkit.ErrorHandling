@@ -21,6 +21,7 @@
         <Compile Include="Result.fs" />
         <Compile Include="ResultCE.fs" />
         <Compile Include="ResultOption.fs" />
+        <Compile Include="ResultOptionCE.fs" />
         <Compile Include="Option.fs" />
         <Compile Include="OptionCE.fs" />
         <Compile Include="ValueOption.fs" />
