@@ -67,8 +67,8 @@ module Option =
     /// <summary>
     /// Takes two options and returns a tuple of the pair or none if either are none
     /// </summary>
-    /// <param name="option1">The input option</param>
-    /// <param name="option2">The input option</param>
+    /// <param name="left">The input option</param>
+    /// <param name="right">The input option</param>
     /// <returns></returns>
     let inline zip (left: 'left option) (right: 'right option) : ('left * 'right) option =
         match left, right with
