@@ -1,4 +1,4 @@
-## Validation
+# Validation
 
 Namespace: `FsToolkit.ErrorHandling`
 

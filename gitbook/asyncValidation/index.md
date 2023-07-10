@@ -1,4 +1,4 @@
-## AsyncValidation
+# AsyncValidation
 
 Namespace: `FsToolkit.ErrorHandling`
 
