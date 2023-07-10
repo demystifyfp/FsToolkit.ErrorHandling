@@ -1,3 +1,7 @@
+
+### 4.9.0 - July 09, 2023
+- [ResultOption Updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/221)
+
 ### 4.8.0 - July 06, 2023
 
 - [Added cancellableTaskValidation feature, tests, and documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/217) Credits @1eyewonder
