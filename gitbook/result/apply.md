@@ -1,11 +1,14 @@
-## Result.apply
+# Result.apply
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+`apply` combines two Result values and returns a new Result value. If both Result values are Ok, it applies the function from the first Result to the value from the second Result, producing a new Result type. If either Result is an Error, the apply function propagates the error by returning the corresponding Error value.
+
+## Function Signature
 
 ```fsharp
-Result<('a -> 'b), 'c> -> Result<'a, 'c> -> Result<'b, 'c>
+Result<('okInput -> 'okOutput), 'error> -> Result<'okInput, 'error> 
+    -> Result<'okOutput, 'error>
 ```
 
 ## Examples
@@ -39,4 +42,3 @@ let remainingCharactersStr (tweetStr : string) =
   Tweet.TryCreate tweet
   |> Result.map remainingCharacters
 ```
-

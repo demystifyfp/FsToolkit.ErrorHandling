@@ -1,11 +1,12 @@
-## Result.fold
+# Result.fold
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+## Function Signature
 
 ```fsharp
-('a -> 'b) -> ('c -> 'b) -> Result<'a, 'c> -> 'b
+('a -> 'b) -> ('c -> 'b) 
+    -> Result<'a, 'c> -> 'b
 ```
 
 ## Examples

@@ -1,10 +1,10 @@
-## List.traverseResultA
+# List.traverseResultA
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+## Function Signature
 
-```
+```fsharp
 ('a -> Result<'b,'c>) -> 'a list -> Result<'b list, 'c list>
 ```
 

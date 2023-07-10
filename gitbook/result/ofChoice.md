@@ -1,10 +1,10 @@
-## Result.ofChoice
-
-Transforms F#'s `Choice` value to `Result`.
+# Result.ofChoice
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+Transforms F#'s `Choice` value to `Result`.
+
+## Function Signature
 
 ```fsharp
 Choice<'a,'b> -> Result<'a, 'b>
@@ -21,4 +21,3 @@ Result.ofChoice (Choice1Of2 42)
 Result.ofChoice (Choice2Of2 "Something went wrong!") 
 // Error "Something went wrong!"
 ```
-

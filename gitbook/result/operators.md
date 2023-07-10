@@ -1,4 +1,4 @@
-## Result Infix Operators
+# Result Infix Operators
 
 Namespace: `FsToolkit.ErrorHandling.Operator.Result`
 

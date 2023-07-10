@@ -1,14 +1,14 @@
-## Result.ignore
+# Result.ignore
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+This is a shortcut for `Result.map ignore`.
+
+## Function Signature
 
 ```fsharp
 Result<'a, 'b> -> Result<unit, 'b>
 ```
-
-This is a shortcut for `Result.map ignore`.
 
 ## Examples
 

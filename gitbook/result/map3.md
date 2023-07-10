@@ -1,12 +1,12 @@
-## Result.map3
+# Result.map3
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+## Function Signature
 
 ```fsharp
 ('a -> 'b -> 'c -> 'd) -> Result<'a, 'e> -> Result<'b, 'e>
-  -> Result<'c, 'e> -> Result<'d, 'e>
+    -> Result<'c, 'e> -> Result<'d, 'e>
 ```
 
 ## Examples
