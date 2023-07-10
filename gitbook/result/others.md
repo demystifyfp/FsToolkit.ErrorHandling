@@ -1,183 +1,104 @@
-## Other Useful Functions
+# Other Result Functions
 
-### isOk
+## isOk
 
 Returns `true` if the value is Ok, otherwise returns `false`.
+
+### Function Signature
+
 ```fsharp
 Result<_> -> bool
 ```
 
-### isError
+## isError
 
 Returns `true` if the value is Error, otherwise returns `false`.
+
+### Function Signature
+
 ```fsharp
 Result<_> -> bool
 ```
 
-### requireTrue
+## sequenceAsync
 
-Returns the specified error if the value is `false`.
-```fsharp
-'a -> bool -> Result<unit, 'a>
-```
-### requireFalse
+Converts a `Result<Async<'a>, 'b>` to `Async<Result<'a, 'b>>`.
 
-Returns the specified error if the value is `true`.
-```fsharp
-'a -> bool -> Result<unit, 'a>
-```
-
-
-### requireSome
-
-Converts an Option to a Result, using the given error if None.
-```fsharp
-'a -> 'b option -> Result<'b, 'a>
-```
-### requireNone
-
-Converts an Option to a Result, using the given error if Some.
-```fsharp
-'a -> 'b option -> Result<unit, 'a>
-```
-### requireNotNull
-
-Converts a nullable value to a Result, using the given error if null.
-```fsharp
-'a -> 'b -> Result<'b, 'a>
-```
-
-
-### requireEqual
-
-Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqualTo`, but with a parameter order that fits normal function application better than piping.
-```fsharp
-'a -> 'a -> 'b -> Result<unit, 'b>
-```
-
-
-### requireEqualTo
-
-Returns Ok if the two values are equal, or the specified error if not. Same as `requireEqual`, but with a parameter order that fits piping better than normal function application.
+### Function Signature
 
 ```fsharp
-'a -> 'b -> 'a  -> Result<unit, 'b>
+Result<Async<'a>, 'b> -> Async<Result<'a, 'b>>
 ```
 
-### requireEmpty
+## traverseAsync
 
-Returns Ok if the sequence is empty, or the specified error if not.
+Converts a `Result<'a, 'error>` to `Async<Result<'b, 'error>>` by applying the given function to the Ok value.
+
+### Function Signature
 
 ```fsharp
-'a -> seq<'b> -> Result<unit, 'a>
+('okInput -> Async<'okOutput>) -> Result<'okInput, 'error> 
+    -> Async<Result<'okOutput, 'error>>
 ```
 
-### requireNotEmpty
-
-Returns the specified error if the sequence is empty, or Ok if not.
-
-```fsharp
-'a -> seq<'b> -> Result<unit, 'a>
-```
-
-### requireHead
-
-Returns the first item of the sequence if it exists, or the specified error if the sequence is empty
-
-```fsharp
-'a -> seq<'b> -> Result<'b, 'a>
-```
-
-
-### setError
+## setError
 
 Replaces an error value with a custom error value
+
+### Function Signature
 
 ```fsharp
 'a -> Result<'b, 'c> -> Result<'b, 'a>
 ```
 
-### withError
+## withError
 
 Replaces a unit error value with a custom error value. Safer than `setError` since you're not losing any information.
+
+### Function Signature
 
 ```fsharp
 'a -> Result<'b, unit> -> Result<'b, 'a>
 ```
 
-
-### defaultValue
+## defaultValue
 
 Returns the contained value if Ok, otherwise returns the provided value
+
+### Function Signature
 
 ```fsharp
 'a -> Result<'a, 'b> -> 'a
 ```
 
-### defaultWith
+## defaultWith
 
 Returns the contained value if Ok, otherwise evaluates the given function and returns the result.
+
+### Function Signature
 
 ```fsharp
 (unit -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
 
-### valueOr
+## valueOr
 
 Returns the Ok value or runs the specified function over the error value.
+
+### Function Signature
 
 ```fsharp
 ('b -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
 
-### ignoreError
+## ignoreError
 
 Same as `defaultValue` for a result where the Ok value is unit. The name describes better what is actually happening in this case.
 
+### Function Signature
+
 ```fsharp
 Result<unit, 'a> -> unit
-```
-
-### tee
-
-If the result is Ok, executes the function on the Ok value. Passes through the input value unchanged.
-
-```fsharp
-('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
-```
-
-### teeError
-
-If the result is Error, executes the function on the Error value. Passes through the input value unchanged.
-
-```fsharp
-('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
-```
-
-### teeIf
-
-If the result is Ok and the predicate returns true for the wrapped value, executes the function on the Ok value. Passes through the input value unchanged.
-
-```fsharp
-('a -> bool) -> ('a -> unit) -> Result<'a, 'b> -> Result<'a, 'b>
-```
-
-### teeErrorIf
-
-If the result is Error and the predicate returns true for the wrapped value, executes the function on the Error value. Passes through the input value unchanged.
-
-```fsharp
-('a -> bool) -> ('a -> unit) -> Result<'b, 'a> -> Result<'b, 'a>
-```
-
-
-### sequenceAsync
-
-
-Converts a `Result<Async<'a>, 'b>` to `Async<Result<'a, 'b>>`.
-
-```fsharp
-Result<Async<'a>, 'b> -> Async<Result<'a, 'b>>
 ```

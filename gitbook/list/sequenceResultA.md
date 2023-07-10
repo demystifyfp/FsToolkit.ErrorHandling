@@ -1,10 +1,10 @@
-## List.sequenceResultA
+# List.sequenceResultA
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+## Function Signature
 
-```
+```fsharp
 Result<'a, 'b> list -> Result<'a list, 'b list>
 ```
 

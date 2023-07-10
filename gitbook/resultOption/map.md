@@ -16,7 +16,7 @@ Take the following functions for example
 
 ```fsharp
 // string -> int
-let remainingCharacters (string: prompt) =
+let remainingCharacters (prompt: string) =
     280 - prompt.Length
 ```
 

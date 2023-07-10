@@ -1,8 +1,8 @@
-## Result Computation Expression
+# Result Computation Expression
 
 Namespace: `FsToolkit.ErrorHandling`
 
-## Examples:
+## Examples
 
 ### Example 1
 
