@@ -4,10 +4,9 @@ module FsToolkit.ErrorHandling.Tests
 open Fable.Mocha
 #else
 open Expecto
-#endif
-
 //needed for `dotnet test` to work
 [<Tests>]
+#endif
 let allTests =
     testList "All Tests" [
         ResultTests.allTests
@@ -31,7 +30,6 @@ let allTests =
         ValueOptionTests.allTests
         ValueOptionCETests.allTests
     ]
-
 
 [<EntryPoint>]
 let main argv =
