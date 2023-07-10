@@ -154,11 +154,11 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "let! Error Validation"
         <| async {
             let innerData = "Foo"
-            let! expected = AsyncValidation.error innerData
+            let expected = Error [ innerData ]
 
             let! actual =
                 asyncValidation {
-                    let! f = validation { return Error innerData }
+                    let! f = validation { return! expected }
                     return f
                 }
 
@@ -173,8 +173,8 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "do! Error result"
         <| async {
             let innerData = ()
-            let! expected = AsyncValidation.error innerData
             let data = Result.Error innerData
+            let! expected = AsyncValidation.error innerData
             let! actual = asyncValidation { do! data }
             Expect.equal actual expected "Should be error"
         }

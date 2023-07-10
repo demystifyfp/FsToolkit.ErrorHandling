@@ -183,13 +183,7 @@ let ``ResultOptionCE bind Tests`` =
                 let data = ()
                 let actual = resultOption { do! None }
 
-                Expect.equal actual (Ok(Some data)) "Should be ok some"
-
-            testCase "Error result"
-            <| fun _ ->
-                let data = Error()
-                let actual = resultOption { do! data }
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual (Ok None) "Should be ok none"
 
             testCase "Ok Choice"
             <| fun _ ->

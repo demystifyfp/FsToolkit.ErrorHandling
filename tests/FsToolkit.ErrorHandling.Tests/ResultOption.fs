@@ -207,6 +207,86 @@ let resultOptionOperatorsTests =
             |> Expect.hasOkValue (Some validURL)
     ]
 
+let zipTests =
+    testList "zip tests" [
+        testCase "Ok Some, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok(Some 1)) (Ok(Some 2))
+            Expect.equal actual (Ok(Some(1, 2))) "Should be ok some"
+        testCase "Ok None, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok None) (Ok None)
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Ok Some, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok(Some 1)) (Ok None)
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Ok None, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok None) (Ok(Some 1))
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Ok Some, Error"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok(Some 1)) (Error "Bad")
+            Expect.equal actual (Error "Bad") "Should be Error"
+        testCase "Error, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zip (Error "Bad") (Ok(Some 1))
+            Expect.equal actual (Error "Bad") "Should be Error"
+        testCase "Ok None, Error"
+        <| fun () ->
+            let actual = ResultOption.zip (Ok None) (Error "Bad")
+            Expect.equal actual (Error "Bad") "Should be Error"
+        testCase "Error, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zip (Error "Bad") (Ok None)
+            Expect.equal actual (Error "Bad") "Should be Error"
+        testCase "Error, Error"
+        <| fun () ->
+            let actual = ResultOption.zip (Error "Bad1") (Error "Bad2")
+            Expect.equal actual (Error "Bad1") "Should be Error"
+    ]
+
+let zipErrorTests =
+    testList "zipError tests" [
+        testCase "Ok Some, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok(Some 1)) (Ok(Some 2))
+            Expect.equal actual (Ok(Some 1)) "Should be ok some"
+        testCase "Ok None, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok None) (Ok None)
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Ok Some, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok(Some 1)) (Ok None)
+            Expect.equal actual (Ok(Some 1)) "Should be ok some"
+        testCase "Ok None, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok None) (Ok(Some 1))
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Ok Some, Error"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok(Some 1)) (Error "Bad")
+            Expect.equal actual (Ok(Some 1)) "Should be ok some"
+        testCase "Error, Ok Some"
+        <| fun () ->
+            let actual = ResultOption.zipError (Error "Bad") (Ok(Some 1))
+            Expect.equal actual (Ok(Some 1)) "Should be ok some"
+        testCase "Ok None, Error"
+        <| fun () ->
+            let actual = ResultOption.zipError (Ok None) (Error "Bad")
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Error, Ok None"
+        <| fun () ->
+            let actual = ResultOption.zipError (Error "Bad") (Ok None)
+            Expect.equal actual (Ok None) "Should be ok none"
+        testCase "Error, Error"
+        <| fun () ->
+            let actual = ResultOption.zipError (Error "Bad1") (Error "Bad2")
+            Expect.equal actual (Error("Bad1", "Bad2")) "Should be Error tuple"
+    ]
+
 let allTests =
     testList "Result Option Tests" [
         map2Tests
@@ -217,4 +297,6 @@ let allTests =
         ignoreTests
         resultOptionCETests
         resultOptionOperatorsTests
+        zipTests
+        zipErrorTests
     ]
