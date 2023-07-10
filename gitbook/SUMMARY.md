@@ -28,9 +28,10 @@
       * [sequenceResultA](list/sequenceResultA.md)
 
   * Option
-    * [traverseResult](option/traverseResult.md)
-    * [sequenceResult](option/sequenceResult.md)
     * [Computation Expression](option/ce.md)
+    * Lists
+      * [traverseResult](option/traverseResult.md)
+      * [sequenceResult](option/sequenceResult.md)
 
   * ResultOption
     * [apply](resultOption/apply.md)
