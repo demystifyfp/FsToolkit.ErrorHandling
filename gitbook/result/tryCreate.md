@@ -1,8 +1,8 @@
-## Result.tryCreate
+# Result.tryCreate
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+## Function Signature
 
 ```fsharp
 string -> 'a -> Result<^b, (string * 'c)>
@@ -14,7 +14,7 @@ string -> 'a -> Result<^b, (string * 'c)>
 ^b : (static member TryCreate : 'a -> Result< ^b, 'c>)
 ```
 
-This can be useful when constructing types for collecting construction validation errors associated with passed-in parameter names, as the example below demonstrate.
+This can be useful when constructing types for collecting construction result errors associated with passed-in parameter names, as the example below demonstrate.
 
 ## Examples
 
@@ -97,10 +97,10 @@ type CreatePostRequestDto = {
 }
 ```
 
-We can then do validation using `Result.tryResult` and the [`Validation` infix operators](../validation/operators.md) as below:
+We can then do result using `Result.tryResult` and the [`Result` infix operators](../result/operators.md) as below:
 
 ```fsharp
-open FsToolkit.ErrorHandling.Operator.Validation
+open FsToolkit.ErrorHandling.Operator.Result
 
 // CreatePostRequestDto -> Result<CreatePostRequest, (string * string) list>
 let validateCreatePostRequest (dto : CreatePostRequestDto) =
@@ -141,7 +141,7 @@ When serialized:
 
 ### Example 2
 
-In Example 1, we collected all the error messages. But what if we wanted to stop on the first error? One way to do this is to make use of the `result` computation expression instead of using infix operators from `Validation` module.
+In Example 1, we collected all the error messages. But what if we wanted to stop on the first error? One way to do this is to make use of the `result` computation expression instead of using infix operators from `Result` module.
 
 ```fsharp
 // CreatePostRequestDto -> Result<CreatePostRequest, string>
