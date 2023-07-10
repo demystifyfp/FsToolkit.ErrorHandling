@@ -94,24 +94,20 @@
 * FsToolkit.ErrorHandling.AsyncSeq
 * FsToolkit.ErrorHandling.IcedTasks
   * [CancellableTaskResult](cancellableTaskResult/index.md)
-    * [map](cancellableTaskResult/map.md)
-    * [map2](cancellableTaskResult/map2.md)
-    * [map3](cancellableTaskResult/map3.md)
-    * [mapError](cancellableTaskResult/mapError.md)
     * [apply](cancellableTaskResult/apply.md)
-    * [foldResult](cancellableTaskResult/foldResult.md)
-    * [ofAsync](cancellableTaskResult/ofAsync.md)
     * [bind](cancellableTaskResult/bind.md)
-    * [ignore](cancellableTaskResult/ignore.md)
     * [Computation Expression](cancellableTaskResult/ce.md)
+    * [map](cancellableTaskResult/map.md)
     * [Operators](cancellableTaskResult/operators.md)
     * [Other Functions](cancellableTaskResult/others.md)
+
   * [CancellableTaskValidation](cancellableTaskValidation/index.md)
-    * [map2](cancellableTaskValidation/map2.md)
-    * [map3](cancellableTaskValidation/map3.md)
     * [apply](cancellableTaskValidation/apply.md)
     * [Computation Expression](cancellableTaskValidation/ce.md)
+    * [map2](cancellableTaskValidation/map2.md)
+    * [map3](cancellableTaskValidation/map3.md)
     * [Operators](cancellableTaskValidation/operators.md)
+
 * FsToolkit.ErrorHandling.JobResult
   * JobResult
     * [map](jobResult/map.md)
