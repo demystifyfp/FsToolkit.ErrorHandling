@@ -1,4 +1,4 @@
-## Result Computation Expression
+# Result Computation Expression
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -15,9 +15,24 @@ let addResult : Result<int option, string> = resultOption {
   let! z = Ok (Some 2)
   return add x y z
 }
+// Ok (Some 42)
 ```
 
 ### Example 2
+
+```fsharp
+let add x y z = x + y + z
+
+let addResult : Result<int option, string> = resultOption {
+  let! x = Ok (Some 30)
+  and! y = Error "Oops 1"
+  and! z = Error "Oops 2"
+  return add x y z
+}
+// Error "Oops 1"
+```
+
+### Example 3
 
 The [ResultOption.map2 example](../resultOption/map2.md#example-2) can be written using the `resultOption` computation expression as below
 

@@ -1,4 +1,4 @@
-## ResultOption Infix Operators
+# ResultOption Infix Operators
 
 Namespace: `FsToolkit.ErrorHandling.Operator.ResultOption`
 
@@ -6,7 +6,7 @@ FsToolkit.ErrorHandling provides the standard infix operators for the `map` (`<!
 
 In addition to these, it also offers an another infix operator `<*^>` for usage with normal `Result` values (without an inner `Option`). It has the following function signature:
 
-```
+``` fsharp
 Result<('a -> 'b) option, 'c> -> Result<'a, 'c> 
   -> Result<'b option, 'c>
 ```

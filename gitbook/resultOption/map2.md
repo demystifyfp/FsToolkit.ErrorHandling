@@ -1,4 +1,4 @@
-## ResultOption.map2
+# ResultOption.map2
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -10,6 +10,8 @@ Function Signature:
   -> Result<'b option, 'd>
   -> Result<'c option, 'd>
 ```
+
+## Examples
 
 ### Example 1
 
@@ -48,7 +50,6 @@ type CreatePostRequestDto = {
 ```
 
 We can then create a function transforming a `CreatePostRequestDto` to a `CreatePostRequest`, using `Option.traverseResult`, `ResultOption.map2`, and `Result.map2`:
-
 
 ```fsharp
 // CreatePostRequestDto -> Result<CreatePostRequest, string>

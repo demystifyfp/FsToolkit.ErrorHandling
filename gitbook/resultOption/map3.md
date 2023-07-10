@@ -1,4 +1,4 @@
-## ResultOption.map3
+# ResultOption.map3
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -11,6 +11,8 @@ Function Signature:
   -> Result<'c option, 'e>
   -> Result<'d option, 'e>
 ```
+
+## Examples
 
 ### Example 1
 
@@ -26,4 +28,3 @@ Then using `ResultOption.map3`, we can do the following:
 ResultOption.map3 add (Ok (Some 30)) (Ok (Some 10)) (Ok (Some 2)) 
 // Ok (Some 42)
 ```
-

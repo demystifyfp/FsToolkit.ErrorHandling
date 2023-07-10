@@ -30,7 +30,7 @@ Each CE can bind to itself so we don't list that here to reduce clutter
 | JobResultOption           |                                                                                                                                            |
 | Option                    | ValueOption, nullable object                                                                                                               |
 | Result                    | Choice                                                                                                                                     |
-| ResultOption              |                                                                                                                                            |
+| ResultOption              | Result, Choice, Option                                                                                                                     |
 | Task                      |                                                                                                                                            |
 | TaskOption                | ValueTaskOption, AsyncOption, PlyOption, Async, Task, ValueTask, Option                                                                    |
 | TaskResult                | AsyncResult, PlyResult, TaskResult, ValueTaskResult, Result, Choice, Ply, Async, Task, ValueTask                                           |

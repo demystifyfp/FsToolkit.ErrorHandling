@@ -1,4 +1,4 @@
-## ResultOption.ignore
+# ResultOption.ignore
 
 Namespace: `FsToolkit.ErrorHandling`
 
