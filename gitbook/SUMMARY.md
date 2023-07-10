@@ -130,17 +130,20 @@
   * JobResultOption
 
 * FsToolkit.ErrorHandling.TaskResult
+  * Task
+
+  * TaskOption
+    * [Computation Expression](taskOption/ce.md)
+
   * TaskResult
+    * [apply](taskResult/apply.md)
+    * [bind](taskResult/bind.md)
+    * [Computation Expression](taskResult/ce.md)
+    * [ignore](taskResult/ignore.md)
     * [map](taskResult/map.md)
     * [map2](taskResult/map2.md)
     * [map3](taskResult/map3.md)
     * [mapError](taskResult/mapError.md)
-    * [apply](taskResult/apply.md)
-    * [foldResult](taskResult/foldResult.md)
-    * [ofAsync](taskResult/ofAsync.md)
-    * [bind](taskResult/bind.md)
-    * [ignore](taskResult/ignore.md)
-    * [Computation Expression](taskResult/ce.md)
     * [Operators](taskResult/operators.md)
     * [Other Functions](taskResult/others.md)
     * Lists
@@ -148,16 +151,16 @@
       * [sequenceTaskResultM](list/sequenceTaskResultM.md)
       * [traverseTaskResultA](list/traverseTaskResultA.md)
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
+
   * TaskResultOption
+    * [apply](taskResultOption/apply.md)
+    * [bind](taskResultOption/bind.md)
+    * [Computation Expression](taskResultOption/ce.md)
+    * [ignore](taskResultOption/ignore.md)
     * [map](taskResultOption/map.md)
     * [map2](taskResultOption/map2.md)
     * [map3](taskResultOption/map3.md)
-    * [apply](taskResultOption/apply.md)
-    * [bind](taskResultOption/bind.md)
-    * [ignore](taskResultOption/ignore.md)
-    * [Computation Expression](taskResultOption/ce.md)
     * [Operators](taskResultOption/operators.md)
-  * TaskOption
-    * [Computation Expression](taskOption/ce.md)
+
 * General Docs
   * [Bind Mappings](bindMappings.md)
