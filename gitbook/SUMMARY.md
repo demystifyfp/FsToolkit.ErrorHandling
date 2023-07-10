@@ -46,17 +46,17 @@
     * [zipError](resultOption/zipError.md)
 
   * AsyncResult
+    * [apply](asyncResult/apply.md)
+    * [bind](asyncResult/bind.md)
+    * [Computation Expression](asyncResult/ce.md)
+    * [foldResult](asyncResult/foldResult.md)
+    * [ignore](asyncResult/ignore.md)
     * [map](asyncResult/map.md)
     * [map2](asyncResult/map2.md)
     * [map3](asyncResult/map3.md)
     * [mapError](asyncResult/mapError.md)
-    * [apply](asyncResult/apply.md)
-    * [foldResult](asyncResult/foldResult.md)
     * [ofTask](asyncResult/ofTask.md)
     * [ofTaskAction](asyncResult/ofTaskAction.md)
-    * [bind](asyncResult/bind.md)
-    * [ignore](asyncResult/ignore.md)
-    * [Computation Expression](asyncResult/ce.md)
     * [Operators](asyncResult/operators.md)
     * [Other Functions](asyncResult/others.md)
     * List
@@ -66,31 +66,30 @@
       * [sequenceAsyncResultA](list/sequenceAsyncResultA.md)
 
   * AsyncResultOption
+    * [apply](asyncResultOption/apply.md)
+    * [bind](asyncResultOption/bind.md)
+    * [Computation Expression](asyncResultOption/ce.md)
+    * [ignore](asyncResultOption/ignore.md)
     * [map](asyncResultOption/map.md)
     * [map2](asyncResultOption/map2.md)
     * [map3](asyncResultOption/map3.md)
-    * [apply](asyncResultOption/apply.md)
-    * [bind](asyncResultOption/bind.md)
-    * [ignore](asyncResultOption/ignore.md)
-    * [Computation Expression](asyncResultOption/ce.md)
     * [Operators](asyncResultOption/operators.md)
 
   * [Validation](validation/index.md)
+    * [apply](validation/apply.md)
+    * [Computation Expression](validation/ce.md)
     * [map2](validation/map2.md)
     * [map3](validation/map3.md)
-    * [apply](validation/apply.md)
     * [ofResult](validation/ofResult.md)
     * [Operators](validation/operators.md)
-    * [Result.tryCreate](validation/tryCreate.md)
-    * [Computation Expression](validation/ce.md)
 
   * [AsyncValidation](asyncValidation/index.md)
+    * [apply](asyncValidation/apply.md)
+    * [Computation Expression](asyncValidation/ce.md)
     * [map2](asyncValidation/map2.md)
     * [map3](asyncValidation/map3.md)
-    * [apply](asyncValidation/apply.md)
     * [ofResult](asyncValidation/ofResult.md)
     * [Operators](asyncValidation/operators.md)
-    * [Computation Expression](asyncValidation/ce.md)
 
 * FsToolkit.ErrorHandling.AsyncSeq
 * FsToolkit.ErrorHandling.IcedTasks
