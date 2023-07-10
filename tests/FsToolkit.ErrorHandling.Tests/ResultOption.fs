@@ -95,6 +95,12 @@ let applyTests =
             Ok None
             |> ResultOption.apply (Ok(Some remainingCharacters))
             |> Expect.hasOkValue None
+
+        testCase "apply with Error"
+        <| fun _ ->
+            Error "bad things happened"
+            |> ResultOption.apply (Ok(Some remainingCharacters))
+            |> Expect.hasErrorValue "bad things happened"
     ]
 
 
@@ -121,6 +127,12 @@ let bindTests =
             Ok(Some validTweet2)
             |> ResultOption.bind firstURLInTweet
             |> Expect.hasOkValue (Some validURL)
+
+        testCase "bind with Error"
+        <| fun _ ->
+            Error "bad things happened"
+            |> ResultOption.bind firstURLInTweet
+            |> Expect.hasErrorValue "bad things happened"
     ]
 
 
