@@ -1,13 +1,27 @@
-## Validation.ofResult
+# Validation.ofResult
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+Transforms a `Result<'T, 'Error>` into a `Result<'T, 'Error list>`
+
+## Function Signature
 
 ```fsharp
-Result<'a, 'b> -> Result<'a, 'b list>
+Result<'T, 'Error> -> Result<'T, 'Error list>
 ```
 
-Simply wraps the error in a list.
-
 ## Examples
+
+### Example 1
+
+```fsharp
+let result = Validation.ofResult (Ok 42)
+// Ok 42
+```
+
+### Example 2
+
+```fsharp
+let result = Validation.ofResult (Error "error")
+// Error ["error"]
+```
