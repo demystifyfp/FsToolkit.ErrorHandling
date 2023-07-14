@@ -1,13 +1,27 @@
-## AsyncValidation.ofResult
+# AsyncValidation.ofResult
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Function Signature:
+Transforms a `Result<'T, 'Error>` into a `Async<Result<'T, 'Error list>>`
+
+## Function Signature
 
 ```fsharp
-Result<'a, 'b> -> Async<Result<'a, 'b list>>
+Result<'T, 'Error> -> Async<Result<'T, 'Error list>>
 ```
 
-Simply wraps the error in a list and makes the result async.
-
 ## Examples
+
+### Example 1
+
+```fsharp
+let result = AsyncValidation.ofResult (Ok 42)
+// async { return Ok 42 }
+```
+
+### Example 2
+
+```fsharp
+let result = AsyncValidation.ofResult (Error "error")
+// async { return Error ["error"] }
+```

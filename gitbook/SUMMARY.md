@@ -12,7 +12,6 @@
     * [map2](result/map2.md)
     * [map3](result/map3.md)
     * [mapError](result/mapError.md)
-    * [ofChoice](result/ofChoice.md)
     * [Operators](result/operators.md)
     * [orElse Functions](result/orElseFunctions.md)
     * [Other Functions](result/others.md)
@@ -26,6 +25,8 @@
       * [sequenceResultM](list/sequenceResultM.md)
       * [traverseResultA](list/traverseResultA.md)
       * [sequenceResultA](list/sequenceResultA.md)
+    * Transforms
+      * [ofChoice](result/ofChoice.md)
 
   * Option
     * [bind](pr.md)
@@ -33,13 +34,16 @@
     * [Computation Expression](option/ce.md)
     * [either](pr.md)
     * [map](pr.md)
-    * [ofPair](pr.md)
-    * [ofValueOption](pr.md)
-    * [toValueOption](pr.md)
     * [zip](pr.md)
     * Lists
       * [traverseResult](option/traverseResult.md)
       * [sequenceResult](option/sequenceResult.md)
+    * Transforms
+      * [ofNull](option/ofNull.md)
+      * [ofPair](option/ofPair.md)
+      * [ofResult](option/ofResult.md)
+      * [ofValueOption](option/ofValueOption.md)
+      * [toValueOption](option/toValueOption.md)
 
   * ResultOption
     * [apply](resultOption/apply.md)
@@ -50,12 +54,13 @@
     * [map2](resultOption/map2.md)
     * [map3](resultOption/map3.md)
     * [mapError](pr.md)
-    * [ofResult](pr.md)
-    * [ofOption](pr.md)
-    * [ofChoice](pr.md)
     * [Operators](resultOption/operators.md)
     * [zip](resultOption/zip.md)
     * [zipError](resultOption/zipError.md)
+    * Transforms
+      * [ofChoice](resultOption/ofChoice.md)
+      * [ofOption](resultOption/ofOption.md)
+      * [ofResult](resultOption/ofResult.md)
 
   * AsyncResult
     * [apply](asyncResult/apply.md)
@@ -68,10 +73,6 @@
     * [map2](asyncResult/map2.md)
     * [map3](asyncResult/map3.md)
     * [mapError](asyncResult/mapError.md)
-    * [ofAsync](pr.md)
-    * [ofResult](pr.md)
-    * [ofTask](asyncResult/ofTask.md)
-    * [ofTaskAction](asyncResult/ofTaskAction.md)
     * [Operators](asyncResult/operators.md)
     * [Other Functions](asyncResult/others.md)
     * [zip](pr.md)
@@ -81,6 +82,11 @@
       * [sequenceAsyncResultM](list/sequenceAsyncResultM.md)
       * [traverseAsyncResultA](list/traverseAsyncResultA.md)
       * [sequenceAsyncResultA](list/sequenceAsyncResultA.md)
+    * Transforms
+      * [ofAsync](asyncResult/ofAsync.md)
+      * [ofResult](asyncResult/ofResult.md)
+      * [ofTask](asyncResult/ofTask.md)
+      * [ofTaskAction](asyncResult/ofTaskAction.md)
 
   * AsyncResultOption
     * [apply](asyncResultOption/apply.md)
@@ -90,11 +96,12 @@
     * [map](asyncResultOption/map.md)
     * [map2](asyncResultOption/map2.md)
     * [map3](asyncResultOption/map3.md)
-    * [ofAsyncOption](pr.md)
-    * [ofAsyncResult](pr.md)
-    * [ofOption](pr.md)
-    * [ofResult](pr.md)
     * [Operators](asyncResultOption/operators.md)
+    * Transforms
+      * [ofAsyncOption](asyncResultOption/ofAsyncOption.md)
+      * [ofAsyncResult](asyncResultOption/ofAsyncResult.md)
+      * [ofOption](asyncResultOption/ofOption.md)
+      * [ofResult](asyncResultOption/ofResult.md)
 
   * [Validation](validation/index.md)
     * [apply](validation/apply.md)
@@ -105,11 +112,12 @@
     * [map3](validation/map3.md)
     * [mapError](pr.md)
     * [mapErrors](pr.md)
-    * [ofChoice](pr.md)
-    * [ofResult](validation/ofResult.md)
     * [Operators](validation/operators.md)
     * [returnError](pr.md)
     * [zip](pr.md)
+    * Transforms
+      * [ofChoice](validation/ofChoice.md)
+      * [ofResult](validation/ofResult.md)
 
   * [AsyncValidation](asyncValidation/index.md)
     * [apply](asyncValidation/apply.md)
@@ -120,11 +128,12 @@
     * [map3](asyncValidation/map3.md)
     * [mapError](pr.md)
     * [mapErrors](pr.md)
-    * [ofChoice](pr.md)
-    * [ofResult](asyncValidation/ofResult.md)
     * [Operators](asyncValidation/operators.md)
     * [returnError](pr.md)
     * [zip](pr.md)
+    * Transforms
+      * [ofChoice](asyncValidation/ofChoice.md)
+      * [ofResult](asyncValidation/ofResult.md)
 
 * FsToolkit.ErrorHandling.AsyncSeq
   * AsyncSeq
@@ -153,11 +162,12 @@
     * [map3](cancellableTaskValidation/map3.md)
     * [mapError](pr.md)
     * [mapErrors](pr.md)
-    * [ofChoice](pr.md)
-    * [ofResult](pr.md)
     * [Operators](cancellableTaskValidation/operators.md)
     * [zip](pr.md)
     * [parallelZip](pr.md)
+    * Transforms
+      * [ofChoice](cancellableTaskValidation/ofChoice.md)
+      * [ofResult](cancellableTaskValidation/ofResult.md)
 
 * FsToolkit.ErrorHandling.JobResult
   * Job
@@ -187,10 +197,6 @@
     * [map2](jobResult/map2.md)
     * [map3](jobResult/map3.md)
     * [mapError](jobResult/mapError.md)
-    * [ofAsync](pr.md)
-    * [ofJob](pr.md)
-    * [ofResult](pr.md)
-    * [ofTask](jobResult/ofTask.md)
     * [Operators](jobResult/operators.md)
     * [Other Functions](jobResult/others.md)
     * [returnError](pr.md)
@@ -201,6 +207,12 @@
       * [sequenceJobResultM](pr.md)
       * [traverseJobResultA](pr.md)
       * [sequenceJobResultA](pr.md)
+    * Transforms
+      * [ofAsync](jobResult/ofAsync.md)
+      * [ofJob](jobResult/ofJob.md)
+      * [ofResult](jobResult/ofResult.md)
+      * [fromTask](jobResult/fromTask.md)
+      * [fromUnitTask](jobResult/fromUnitTask.md)
 
   * JobResultOption
     * [apply](pr.md)
@@ -225,6 +237,8 @@
     * [map3](pr.md)
     * [ofUnit](pr.md)
     * [zip](pr.md)
+    * Transforms
+      * [ofUnit](task/ofUnit.md)
 
   * TaskOption
     * [apply](pr.md)
@@ -245,9 +259,6 @@
     * [map2](taskResult/map2.md)
     * [map3](taskResult/map3.md)
     * [mapError](taskResult/mapError.md)
-    * [ofAsync](pr.md)
-    * [ofResult](pr.md)
-    * [ofTask](pr.md)
     * [Operators](taskResult/operators.md)
     * [Other Functions](taskResult/others.md)
     * [returnError](pr.md)
@@ -258,6 +269,10 @@
       * [sequenceTaskResultM](list/sequenceTaskResultM.md)
       * [traverseTaskResultA](list/traverseTaskResultA.md)
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
+    * Transforms
+      * [ofAsync](taskResult/ofAsync.md)
+      * [ofResult](taskResult/ofResult.md)
+      * [ofTask](taskResult/ofTask.md)
 
   * TaskResultOption
     * [apply](taskResultOption/apply.md)
