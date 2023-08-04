@@ -94,6 +94,7 @@ module AsyncOptionCE =
                 this.Zero()
             else
                 this.Bind(computation, (fun () -> this.While(guard, computation)))
+
                 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -103,6 +104,7 @@ module AsyncOptionCE =
                 let! v = vopt
                 return Option.ofValueOption v
             }
+
         
         /// <summary>
         /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
