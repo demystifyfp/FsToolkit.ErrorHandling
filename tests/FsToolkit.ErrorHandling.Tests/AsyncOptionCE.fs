@@ -35,7 +35,7 @@ let ``AsyncOptionCE return! Tests`` =
             Expect.equal actual (data) "Should be ok"
         }
 
-        testCaseAsync "Return ValueSome Result"
+        testCaseAsync "Return ValueSome AsyncOption"
         <| async {
             let innerData = "Foo"
             let data = ValueSome innerData
