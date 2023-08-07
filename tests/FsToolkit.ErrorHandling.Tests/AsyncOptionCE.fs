@@ -105,7 +105,7 @@ let ``AsyncOptionCE bind Tests`` =
 
         }
 
-        testCaseAsync "Bind ValueSome Result"
+        testCaseAsync "Bind ValueSome AsyncOption"
         <| async {
             let innerData = "Foo"
             let data = ValueSome innerData
