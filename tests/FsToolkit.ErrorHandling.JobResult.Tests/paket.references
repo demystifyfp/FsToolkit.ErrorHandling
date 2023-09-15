@@ -4,9 +4,11 @@ group NetStandard2
     Expecto.Hopac
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk
+    Fable.Pyxpecto
 
 group NetStandard2_1
     Expecto
     Expecto.Hopac
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk
+    Fable.Pyxpecto

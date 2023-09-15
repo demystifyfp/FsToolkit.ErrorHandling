@@ -162,12 +162,12 @@ let dotnetTest ctx =
         solutionFile
 
 
-let runFableTests _ = Npm.test id
+let runNpmTest _ = Npm.test id
 
 
 let fableAwareTests = [
-    "./tests/FsToolkit.ErrorHandling.Tests"
-    "./tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
+    "tests/FsToolkit.ErrorHandling.Tests"
+    "tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
 ]
 
 
@@ -188,6 +188,46 @@ let femtoValidate _ =
             Fake.Testing.Common.FailedTestsException
                 "Femto failed; perhaps you need to update the package.json?"
             |> raise
+
+let runPythonTests _ =
+    for testProject in fableAwareTests do
+        let pythonBuildDir =
+            testProject
+            </> ".python-tests"
+
+        let mainFilePath =
+            pythonBuildDir
+            </> "main.py"
+
+        let result =
+            CreateProcess.fromRawCommand "dotnet" [
+                "fable"
+                testProject
+                "--lang"
+                "py"
+                "-o"
+                pythonBuildDir
+            ]
+            |> Proc.run
+
+        if
+            result.ExitCode
+            <> 0
+        then
+            Fake.Testing.Common.FailedTestsException "Failed to build python tests"
+            |> raise
+        else
+            let testsResult =
+                CreateProcess.fromRawCommand "python" [ mainFilePath ]
+                |> Proc.run
+
+            if
+                testsResult.ExitCode
+                <> 0
+            then
+                Fake.Testing.Common.FailedTestsException
+                    "Python tests failed, see output for more information."
+                |> raise
 
 
 let release =
@@ -310,7 +350,8 @@ let initTargets () =
     Target.create "Restore" restore
     Target.create "NpmRestore" npmRestore
     Target.create "RunTests" dotnetTest
-    Target.create "RunFableTests" runFableTests
+    Target.create "RunNpmTest" runNpmTest
+    Target.create "RunPythonTests" runPythonTests
     Target.create "FemtoValidate" femtoValidate
     Target.create "AssemblyInfo" generateAssemblyInfo
     Target.create "NuGet" nuget
@@ -338,7 +379,7 @@ let initTargets () =
     ==> "Build"
     ==> "FemtoValidate"
     ==> "RunTests"
-    ==> "RunFableTests"
+    ==> "RunNpmTest"
     ==> "NuGet"
     ==> "PublishNuGet"
     ==> "GitRelease"

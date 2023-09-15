@@ -1,8 +1,12 @@
 module AsyncSeq
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_PYTHON
+open Fable.Pyxpecto
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
 open Fable.Mocha
-#else
+#endif
+#if !FABLE_COMPILER
 open Expecto
 #endif
 

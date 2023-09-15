@@ -392,3 +392,6 @@ js-dist/
 
 # Benchmarks
 benchmarks/BenchmarkDotNet.Artifacts/
+
+# Python Tests Output
+.python-tests/
