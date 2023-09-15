@@ -5,6 +5,7 @@ group NetStandard2
     Fable.Mocha
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk
+    Fable.Pyxpecto
 
 group NetStandard2_1
     FSharp.Core
@@ -12,3 +13,4 @@ group NetStandard2_1
     Fable.Mocha
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk
+    Fable.Pyxpecto
