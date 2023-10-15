@@ -29,12 +29,15 @@
       * [ofChoice](result/ofChoice.md)
 
   * Option
-    * [bind](pr.md)
-    * [bindNull](pr.md)
+    * [bind](option/bind.md)
+    * [bindNull](option/bindNull.md)
     * [Computation Expression](option/ce.md)
-    * [either](pr.md)
-    * [map](pr.md)
-    * [zip](pr.md)
+    * [either](option/either.md)
+    * [map](option/map.md)
+    * [map2](option/map2.md)
+    * [map3](option/map3.md)
+    * [tee Functions](option/teeFunctions.md)
+    * [zip](option/zip.md)
     * Lists
       * [traverseResult](option/traverseResult.md)
       * [sequenceResult](option/sequenceResult.md)

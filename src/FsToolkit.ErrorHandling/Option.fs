@@ -3,14 +3,44 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
-    let inline bind ([<InlineIfLambdaAttribute>] f) x =
-        match x with
-        | Some v -> f v
+    let inline bind
+        ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput option)
+        (input: 'TInput option)
+        : 'TOutput option =
+        match input with
+        | Some v -> mapper v
         | None -> None
 
-    let inline map ([<InlineIfLambdaAttribute>] f) x =
-        match x with
-        | Some v -> Some(f v)
+    let inline map
+        ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput)
+        (input: 'TInput option)
+        : 'TOutput option =
+        match input with
+        | Some v -> Some(mapper v)
+        | None -> None
+
+    let inline map2
+        ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TOutput)
+        (input1: 'TInput1 option)
+        (input2: 'TInput2 option)
+        : 'TOutput option =
+        match (input1, input2) with
+        | Some x, Some y -> Some(mapper x y)
+        | _ -> None
+
+    let inline map3
+        ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TInput3 -> 'TOutput)
+        (input1: 'TInput1 option)
+        (input2: 'TInput2 option)
+        (input3: 'TInput3 option)
+        : 'TOutput option =
+        match (input1, input2, input3) with
+        | Some x, Some y, Some z -> Some(mapper x y z)
+        | _ -> None
+
+    let inline ignore (opt: 'T option) : unit option =
+        match opt with
+        | Some _ -> Some()
         | None -> None
 
     let inline ofValueOption (vopt: 'value voption) : 'value option =
@@ -97,7 +127,6 @@ module Option =
         else
             Some value
 
-
     /// <summary>
     ///
     /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c>
@@ -121,6 +150,7 @@ module Option =
             |> ofNull
         | None -> None
 
+
     /// <summary>
     /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
     /// </summary>
@@ -138,6 +168,37 @@ module Option =
         match input with
         | Some x -> onSome x
         | None -> onNone ()
+
+    /// If the option is Some, executes the function on the Ok value. Passes through
+    /// the input value.
+    let inline teeSome ([<InlineIfLambda>] f: 'T -> unit) (opt: 'T option) : 'T option =
+        match opt with
+        | Some x -> f x
+        | None -> ()
+
+        opt
+
+    let inline teeNone (f: unit -> unit) (opt: 'T option) : 'T option =
+        match opt with
+        | Some _ -> ()
+        | None -> f ()
+
+        opt
+
+    /// If the result is Some and the predicate returns true, executes the function
+    /// on the Some value. Passes through the input value.
+    let inline teeIf
+        ([<InlineIfLambda>] predicate: 'T -> bool)
+        ([<InlineIfLambda>] f: 'T -> unit)
+        (opt: 'T option)
+        : 'T option =
+        match opt with
+        | Some x ->
+            if predicate x then
+                f x
+        | None -> ()
+
+        opt
 
     let inline ofPair (input: bool * 'a) =
         match input with
