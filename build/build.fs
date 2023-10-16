@@ -64,7 +64,9 @@ let distGlob =
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 
-let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+let nugetToken =
+    Environment.environVarOrNone "NUGET_TOKEN"
+    |> Option.orElseWith (fun () -> Environment.environVarOrNone "FSTK_NUGET_TOKEN")
 
 
 let failOnBadExitAndPrint (p: ProcessResult) =
@@ -300,6 +302,7 @@ let initTargets () =
 
     Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken
     Option.iter (TraceSecrets.register "<NUGET_TOKEN>") nugetToken
+    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") nugetToken
 
 
     Target.create "Clean" clean
