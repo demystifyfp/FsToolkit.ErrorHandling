@@ -47,6 +47,45 @@ let traverseResultMTests =
                 "traverse the list and return the first error"
     ]
 
+let traverseOptionMTests =
+    testList "List.traverseOptionM Tests" [
+        let tryTweetOption x =
+            match x with
+            | x when String.IsNullOrEmpty x -> None
+            | _ -> Some x
+
+        testCase "traverseOption with a list of valid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                "Hola"
+            ]
+
+            let expected = Some tweets
+            let actual = List.traverseOptionM tryTweetOption tweets
+
+            Expect.equal
+                actual
+                expected
+                "Should have a list of valid tweets"
+
+        testCase "traverseOption with few invalid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                String.Empty
+            ]
+
+            let expected = None
+            let actual = List.traverseOptionM tryTweetOption tweets
+
+            Expect.equal
+                actual
+                expected
+                "traverse the list and return none"
+    ]
 
 let sequenceResultMTests =
     testList "List.sequenceResultM Tests" [
@@ -82,6 +121,41 @@ let sequenceResultMTests =
                 "traverse the list and return the first error"
     ]
 
+let sequenceOptionMTests =
+    testList "List.sequenceOptionM Tests" [
+        let tryTweetOption x =
+            match x with
+            | x when String.IsNullOrEmpty x -> None
+            | _ -> Some x
+
+        testCase "traverseOption with a list of valid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                "Hola"
+            ]
+
+            let expected = Some tweets
+            let actual = List.sequenceOptionM (List.map tryTweetOption tweets)
+
+            Expect.equal actual expected "Should have a list of valid tweets"
+
+        testCase "sequenceOptionM with few invalid data"
+        <| fun _ ->
+            let tweets = [
+                String.Empty
+                "Hello"
+                String.Empty
+            ]
+
+            let actual = List.sequenceOptionM (List.map tryTweetOption tweets)
+
+            Expect.equal
+                actual
+                None
+                "traverse the list and return none"
+    ]
 
 let traverseResultATests =
     testList "List.traverseResultA Tests" [
@@ -285,6 +359,39 @@ let traverseAsyncResultMTests =
         }
     ]
 
+let traverseAsyncOptionMTests =
+
+    let userIds =
+        [
+            userId1
+            userId2
+            userId3
+        ]
+
+    testList "List.traverseAsyncOptionM Tests" [
+        testCaseAsync "traverseAsyncOptionM with a list of valid data"
+        <| async {
+            let expected = Some userIds
+            let f x = async { return Some x }
+            let actual = List.traverseAsyncOptionM f userIds
+
+            match expected with
+            | Some e -> do! Expect.hasAsyncSomeValue e actual
+            | None -> failwith "Error in the test case code"
+        }
+
+        testCaseAsync "traverseOptionA with few invalid data"
+        <| async {
+            let expected = None
+            let f _ = async { return None }
+            let actual = List.traverseAsyncOptionM f userIds
+
+            match expected with
+            | Some _ -> failwith "Error in the test case code"
+            | None -> do! Expect.hasAsyncNoneValue actual
+        }
+    ]
+
 let notifyFailure (PostId _) (UserId uId) =
     async {
         if
@@ -370,6 +477,38 @@ let sequenceAsyncResultMTests =
         }
     ]
 
+let sequenceAsyncOptionMTests =
+
+    let userIds =
+        [
+            userId1
+            userId2
+            userId3
+        ]
+
+    testList "List.sequenceAsyncOptionM Tests" [
+        testCaseAsync "sequenceAsyncOptionM with a list of valid data"
+        <| async {
+            let expected = Some userIds
+            let f x = async { return Some x }
+            let actual = List.map f userIds |> List.sequenceAsyncOptionM
+
+            match expected with
+            | Some e -> do! Expect.hasAsyncSomeValue e actual
+            | None -> failwith "Error in the test case code"
+        }
+
+        testCaseAsync "sequenceOptionA with few invalid data"
+        <| async {
+            let expected = None
+            let f _ = async { return None }
+            let actual = List.map f userIds |> List.sequenceAsyncOptionM
+
+            match expected with
+            | Some _ -> failwith "Error in the test case code"
+            | None -> do! Expect.hasAsyncNoneValue actual
+        }
+    ]
 
 let sequenceAsyncResultATests =
     let userIds =
@@ -412,13 +551,17 @@ let sequenceAsyncResultATests =
 let allTests =
     testList "List Tests" [
         traverseResultMTests
+        traverseOptionMTests
         sequenceResultMTests
+        sequenceOptionMTests
         traverseResultATests
         sequenceResultATests
         traverseValidationATests
         sequenceValidationATests
         traverseAsyncResultMTests
+        traverseAsyncOptionMTests
         traverseAsyncResultATests
         sequenceAsyncResultMTests
+        sequenceAsyncOptionMTests
         sequenceAsyncResultATests
     ]
