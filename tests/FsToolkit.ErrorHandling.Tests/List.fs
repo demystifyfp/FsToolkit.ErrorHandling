@@ -65,10 +65,7 @@ let traverseOptionMTests =
             let expected = Some tweets
             let actual = List.traverseOptionM tryTweetOption tweets
 
-            Expect.equal
-                actual
-                expected
-                "Should have a list of valid tweets"
+            Expect.equal actual expected "Should have a list of valid tweets"
 
         testCase "traverseOption with few invalid data"
         <| fun _ ->
@@ -81,10 +78,7 @@ let traverseOptionMTests =
             let expected = None
             let actual = List.traverseOptionM tryTweetOption tweets
 
-            Expect.equal
-                actual
-                expected
-                "traverse the list and return none"
+            Expect.equal actual expected "traverse the list and return none"
     ]
 
 let sequenceResultMTests =
@@ -151,10 +145,7 @@ let sequenceOptionMTests =
 
             let actual = List.sequenceOptionM (List.map tryTweetOption tweets)
 
-            Expect.equal
-                actual
-                None
-                "traverse the list and return none"
+            Expect.equal actual None "traverse the list and return none"
     ]
 
 let traverseResultATests =
@@ -361,12 +352,11 @@ let traverseAsyncResultMTests =
 
 let traverseAsyncOptionMTests =
 
-    let userIds =
-        [
-            userId1
-            userId2
-            userId3
-        ]
+    let userIds = [
+        userId1
+        userId2
+        userId3
+    ]
 
     testList "List.traverseAsyncOptionM Tests" [
         testCaseAsync "traverseAsyncOptionM with a list of valid data"
@@ -479,19 +469,21 @@ let sequenceAsyncResultMTests =
 
 let sequenceAsyncOptionMTests =
 
-    let userIds =
-        [
-            userId1
-            userId2
-            userId3
-        ]
+    let userIds = [
+        userId1
+        userId2
+        userId3
+    ]
 
     testList "List.sequenceAsyncOptionM Tests" [
         testCaseAsync "sequenceAsyncOptionM with a list of valid data"
         <| async {
             let expected = Some userIds
             let f x = async { return Some x }
-            let actual = List.map f userIds |> List.sequenceAsyncOptionM
+
+            let actual =
+                List.map f userIds
+                |> List.sequenceAsyncOptionM
 
             match expected with
             | Some e -> do! Expect.hasAsyncSomeValue e actual
@@ -502,7 +494,10 @@ let sequenceAsyncOptionMTests =
         <| async {
             let expected = None
             let f _ = async { return None }
-            let actual = List.map f userIds |> List.sequenceAsyncOptionM
+
+            let actual =
+                List.map f userIds
+                |> List.sequenceAsyncOptionM
 
             match expected with
             | Some _ -> failwith "Error in the test case code"

@@ -159,6 +159,7 @@ module List =
 
     let sequenceOptionM xs = traverseOptionM id xs
 
-    let traverseAsyncOptionM f xs = traverseAsyncOptionM' (AsyncOption.retn []) f xs
+    let traverseAsyncOptionM f xs =
+        traverseAsyncOptionM' (AsyncOption.retn []) f xs
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
