@@ -1,5 +1,7 @@
 # Created by https://www.gitignore.io/api/f#,linux,windows,macos,vim,emacs,visualstudio,visualstudiocode
 
+.env
+
 ### F# ###
 lib/debug
 lib/release
@@ -8,7 +10,6 @@ Debug
 *.user
 obj
 bin
-
 
 ### Linux ###
 *~
@@ -21,7 +22,6 @@ bin
 
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
-
 
 ### Windows ###
 # Windows image file caches
@@ -43,7 +43,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-
 ### macOS ###
 *.DS_Store
 .AppleDouble
@@ -51,7 +50,6 @@ $RECYCLE.BIN/
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*
@@ -72,7 +70,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
 ### Vim ###
 # swap
 [._]*.s[a-w][a-z]
@@ -84,7 +81,6 @@ Session.vim
 *~
 # auto-generated tag files
 tags
-
 
 ### Emacs ###
 # -*- mode: gitignore; -*-
@@ -393,7 +389,6 @@ fable_modules
 .fable
 *.fs.js
 js-dist/
-
 
 # Benchmarks
 benchmarks/BenchmarkDotNet.Artifacts/
