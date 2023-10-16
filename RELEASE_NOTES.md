@@ -1,6 +1,9 @@
 
+### 4.10.0 - October 16, 2023
+- [Added traverse and sequence functions for Option](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/231) Credits @1eyewonder
+
 ### 4.9.0 - July 09, 2023
-- [ResultOption Updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/221)
+- [ResultOption Updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/221) Credits @1eyewonder
 
 ### 4.8.0 - July 06, 2023
 
