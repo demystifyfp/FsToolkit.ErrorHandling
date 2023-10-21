@@ -1,16 +1,79 @@
 {
-	"name": "dotnet",
-	// Set the build context one level higher so we can grab metadata like global.json
-	"context": "..",
-	"dockerFile": "Dockerfile",
-	"forwardPorts": [
-		0
-	],
-	"extensions": [
-		"ionide.ionide-fsharp",
-		"ms-dotnettools.csharp",
-		"editorconfig.editorconfig",
-		"ionide.ionide-paket",
-		"ionide.ionide-fake"
-	]
+    "name": "dotnet",
+    // Set the build context one level higher so we can grab metadata like global.json
+    "context": "..",
+    "dockerFile": "Dockerfile",
+    "forwardPorts": [
+        0
+    ],
+    "features": {
+        // https://github.com/devcontainers/features/blob/main/src/common-utils/README.md
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "installOhMyZshConfig": true,
+            "configureZshAsDefaultShell": true,
+            "username": "vscode",
+            "userUid": "1000",
+            "userGid": "1000",
+            "upgradePackages": true
+        },
+        // https://github.com/devcontainers/features/blob/main/src/github-cli/README.md
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        // https://github.com/devcontainers-contrib/features/blob/main/src/starship/README.md
+        "ghcr.io/devcontainers-contrib/features/starship:1": {},
+        // https://github.com/devcontainers/features/blob/main/src/dotnet/README.md
+        "ghcr.io/devcontainers/features/dotnet:2": {
+            "version": "7.0",
+            "additionalVersions": "6.0"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.10"
+        }
+    },
+    "overrideFeatureInstallOrder": [
+        "ghcr.io/devcontainers/features/common-utils",
+        "ghcr.io/devcontainers/features/github-cli",
+        "ghcr.io/devcontainers-contrib/features/starship",
+        "ghcr.io/devcontainers/features/dotnet"
+    ],
+    "customizations": {
+        "vscode": {
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "ms-dotnettools.csharp",
+                "Ionide.Ionide-fsharp",
+                "tintoy.msbuild-project-tools",
+                "ionide.ionide-paket",
+                "usernamehw.errorlens",
+                "alefragnani.Bookmarks",
+                "oderwat.indent-rainbow",
+                "vscode-icons-team.vscode-icons",
+                "EditorConfig.EditorConfig",
+                "ms-azuretools.vscode-docker",
+                "GitHub.vscode-pull-request-github",
+                "github.vscode-github-actions"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "csharp.suppressDotnetInstallWarning": true
+            }
+        }
+    },
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    "containerEnv": {
+        // Expose the local environment variable to the container
+        // They are used for releasing and publishing from the container
+        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+    },
+    "onCreateCommand": {
+        "enable-starship": "echo 'eval \"$(starship init zsh)\"' >> ~/.zshrc"
+    },
+    "postAttachCommand": {
+        "restore": "dotnet tool restore && dotnet restore"
+    },
+    "waitFor": "updateContentCommand"
 }

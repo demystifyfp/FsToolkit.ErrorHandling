@@ -126,12 +126,17 @@ let checkFormatCode _ =
 
 let clean _ =
     !! "bin"
+    ++ "benchmarks/**/bin"
     ++ "src/**/bin"
     ++ "tests/**/bin"
+    ++ "tools/**/bin"
+    ++ "benchmarks/**/obj"
     ++ "src/**/obj"
     ++ "tests/**/obj"
+    ++ "tools/**/obj"
     ++ "dist"
     ++ "js-dist"
+    ++ "**/.python-tests"
     |> Shell.cleanDirs
 
     [ "paket-files/paket.restore.cached" ]
