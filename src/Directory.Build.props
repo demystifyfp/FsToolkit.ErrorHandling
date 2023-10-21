@@ -15,6 +15,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsPackable>true</IsPackable>
         <IsTestProject>false</IsTestProject>
+        <PackageTags>f#;fsharp;railway oriented programming;ROP;result type;error handling</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
