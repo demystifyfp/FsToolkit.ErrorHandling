@@ -7,6 +7,7 @@ jobs:
   # Dotnet Build
   dotnet-build:
     strategy:
+      fail-fast: false
       matrix:
         # Builds for Debug and Release configurations
         configuration: [Debug, Release]
@@ -41,6 +42,7 @@ jobs:
   # Fable Npm Build
   fable-npm-build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
@@ -77,6 +79,7 @@ jobs:
   # Fable Python Build
   fable-python-build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
