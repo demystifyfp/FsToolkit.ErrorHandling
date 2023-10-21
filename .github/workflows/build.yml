@@ -112,5 +112,16 @@ jobs:
       env:
         CI: true
 
+  # Builds the project in a dev container
+  build-devcontainer:
+    runs-on: ubuntu-latest
+    steps:
 
+      - uses: actions/checkout@v3
 
+      - name: Build and run dev container task
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            chmod +x ./build.sh
+            ./build.sh RunTests
