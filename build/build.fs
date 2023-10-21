@@ -11,6 +11,7 @@ open Fake.JavaScript
 open System
 open System.IO
 open Fake.BuildServer
+open FsToolkit.Build
 
 let project = "FsToolkit.ErrorHandling"
 
@@ -62,11 +63,12 @@ let distGlob =
     distDir
     @@ "*.nupkg"
 
-let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+let githubToken = lazy (Environment.environVarOrNone "GITHUB_TOKEN")
 
 let nugetToken =
-    Environment.environVarOrNone "NUGET_TOKEN"
-    |> Option.orElseWith (fun () -> Environment.environVarOrNone "FSTK_NUGET_TOKEN")
+    lazy
+        (Environment.environVarOrNone "NUGET_TOKEN"
+         |> Option.orElseWith (fun () -> Environment.environVarOrNone "FSTK_NUGET_TOKEN"))
 
 
 let failOnBadExitAndPrint (p: ProcessResult) =
@@ -266,7 +268,7 @@ let generateAssemblyInfo _ =
 
 let releaseNotes = String.toLines release.Notes
 
-let nuget _ =
+let dotnetPack _ =
     [ solutionFile ]
     |> Seq.iter (
         DotNet.pack (fun p -> {
@@ -293,7 +295,7 @@ let publishNuget _ =
             PublishUrl = "https://www.nuget.org"
             WorkingDir = distDir
             ApiKey =
-                match nugetToken with
+                match nugetToken.Value with
                 | Some s -> s
                 | _ -> p.ApiKey // assume paket-config was set properly
     })
@@ -313,7 +315,7 @@ let gitRelease _ =
 
 let githubRelease _ =
     let token =
-        match githubToken with
+        match githubToken.Value with
         | Some s -> s
         | _ ->
             failwith
@@ -337,30 +339,49 @@ let githubRelease _ =
 
 let initTargets () =
 
+    /// Defines a dependency - y is dependent on x. Finishes the chain.
+    let (==>!) x y =
+        x ==> y
+        |> ignore
 
+    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run. Finishes the chain.
+    let (?=>!) x y =
+        x ?=> y
+        |> ignore
+
+    DotEnv.load rootDir
     BuildServer.install [ GitHubActions.Installer ]
 
-    Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken
-    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") nugetToken
-    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") nugetToken
+    Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") githubToken.Value
 
 
     Target.create "Clean" clean
     Target.create "Build" build
-    Target.create "Restore" restore
+    Target.create "DotnetRestore" restore
     Target.create "NpmRestore" npmRestore
-    Target.create "RunTests" dotnetTest
-    Target.create "RunNpmTest" runNpmTest
-    Target.create "RunPythonTests" runPythonTests
+    Target.create "NpmTest" runNpmTest
+    Target.create "PythonTest" runPythonTests
+    Target.create "DotnetTest" dotnetTest
+
+    Target.create "RunTests" ignore
     Target.create "FemtoValidate" femtoValidate
-    Target.create "AssemblyInfo" generateAssemblyInfo
-    Target.create "NuGet" nuget
+    Target.create "GenerateAssemblyInfo" generateAssemblyInfo
+    Target.create "DotnetPack" dotnetPack
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
-    Target.create "PublishNuget" publishNuget
+    Target.create "PublishToNuGet" publishNuget
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
     Target.create "Release" ignore
+
+    Target.create
+        "DebugEnv"
+        (fun _ ->
+            printfn "githubToken %A" githubToken.Value
+            printfn "nugetToken %A" nugetToken.Value
+        )
 
     Target.create
         "UpdateDocs"
@@ -370,21 +391,79 @@ let initTargets () =
             Git.Branches.push ""
         )
 
-    // *** Define Dependencies ***
+    "DotnetRestore"
+    ==>! "CheckFormatCode"
+
+    //*** Dotnet Build ***//
+    "DotnetRestore"
+    ==>! "Build"
+
+    "Build"
+    ==>! "DotnetTest"
+    //*** Dotnet Build ***//
+
+
+    //*** Fable Javascript *** //
+    "DotnetRestore"
+    ==>! "NpmRestore"
+
+    "NpmRestore"
+    ==>! "FemtoValidate"
+
+    "FemtoValidate"
+    ==>! "NpmTest"
+    //*** Fable Javascript *** //
+
+    //*** Fable Python *** //
+    "DotnetRestore"
+    ==>! "NpmRestore"
+
+    "NpmRestore"
+    ==>! "FemtoValidate"
+
+    "FemtoValidate"
+    ==>! "PythonTest"
+    //*** Fable Python *** //
+
+    "DotnetTest"
+    ==>! "RunTests"
+
+    "PythonTest"
+    ==>! "RunTests"
+
+    "NpmTest"
+    ==>! "RunTests"
+
+
+    //*** Publishing ***//
+
+    // Only call Clean if DotnetPack was in the call chain
+    // Ensure Clean is called before DotnetRestore
     "Clean"
-    ==> "AssemblyInfo"
-    ==> "Restore"
-    ==> "NpmRestore"
+    ?=>! "DotnetRestore"
+
+    // Only call GenerateAssemblyInfo if Publish was in the call chain
+    // Ensure GenerateAssemblyInfo is called after DotnetRestore and before DotnetBuild
+    "DotnetRestore"
+    ?=>! "GenerateAssemblyInfo"
+
+    "GenerateAssemblyInfo"
+    ?=>! "DotnetPack"
+
+    "GenerateAssemblyInfo"
+    ==>! "PublishToNuGet"
+
+    "Clean"
     ==> "CheckFormatCode"
-    ==> "Build"
-    ==> "FemtoValidate"
-    ==> "RunTests"
-    ==> "RunNpmTest"
-    ==> "NuGet"
-    ==> "PublishNuGet"
+    ==> "DotnetPack"
+    ==> "PublishToNuGet"
     ==> "GitRelease"
     ==> "GitHubRelease"
-    ==> "Release"
+    ==>! "Release"
+
+
+//*** Publishing ***//
+
 
 //-----------------------------------------------------------------------------
 // Target Start
@@ -400,6 +479,6 @@ let main argv =
     initTargets ()
     |> ignore
 
-    Target.runOrDefaultWithArguments "NuGet"
+    Target.runOrDefaultWithArguments "DotnetPack"
 
     0 // return an integer exit code
