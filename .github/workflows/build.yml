@@ -3,7 +3,9 @@ name: Build master
 on: [push, pull_request]
 
 jobs:
-  build:
+
+  # Dotnet Build
+  dotnet-build:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
@@ -30,3 +32,77 @@ jobs:
       run: ./build.cmd
       env:
         CI: true
+
+  # Fable Npm Build
+  fable-npm-build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          6.x
+
+    - name: Build via Bash
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x ./build.sh
+        ./build.sh NpmTest
+      env:
+        CI: true
+    - name: Build via Windows
+      if: runner.os == 'Windows'
+      run: ./build.cmd NpmTest
+      env:
+        CI: true
+
+
+  # Fable Python Build
+  fable-python-build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          6.x
+
+    - name: Build via Bash
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x ./build.sh
+        ./build.sh PythonTest
+      env:
+        CI: true
+    - name: Build via Windows
+      if: runner.os == 'Windows'
+      run: ./build.cmd PythonTest
+      env:
+        CI: true
+
+
+
