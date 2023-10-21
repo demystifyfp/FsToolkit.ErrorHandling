@@ -8,6 +8,9 @@ jobs:
   dotnet-build:
     strategy:
       matrix:
+        # Builds for Debug and Release configurations
+        configuration: [Debug, Release]
+        # Builds for Ubuntu, Windows, and macOS
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
@@ -26,11 +29,13 @@ jobs:
         chmod +x ./build.sh
         ./build.sh
       env:
+        CONFIGURATION: ${{ matrix.configuration }}
         CI: true
     - name: Build via Windows
       if: runner.os == 'Windows'
       run: ./build.cmd
       env:
+        CONFIGURATION: ${{ matrix.configuration }}
         CI: true
 
   # Fable Npm Build

@@ -18,7 +18,19 @@ let project = "FsToolkit.ErrorHandling"
 let summary =
     "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 
-let configuration = "Release"
+let isRelease (targets: Target list) =
+    targets
+    |> Seq.map (fun t -> t.Name)
+    |> Seq.exists ((=) "Release")
+
+let configuration (targets: Target list) =
+    let defaultVal = if isRelease targets then "Release" else "Debug"
+
+    match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
+    | "Debug" -> DotNet.BuildConfiguration.Debug
+    | "Release" -> DotNet.BuildConfiguration.Release
+    | config -> DotNet.BuildConfiguration.Custom config
+
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
 let rootDir =
@@ -126,11 +138,11 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 
-let build _ =
+let build ctx =
     let setParams (defaults: DotNet.BuildOptions) = {
         defaults with
             NoRestore = true
-            Configuration = DotNet.BuildConfiguration.fromString configuration
+            Configuration = (configuration ctx.Context.AllExecutingTargets)
     }
 
     DotNet.build setParams solutionFile
@@ -156,7 +168,7 @@ let dotnetTest ctx =
 
             {
                 c with
-                    Configuration = DotNet.BuildConfiguration.Release
+                    Configuration = configuration ctx.Context.AllExecutingTargets
                     Common =
                         c.Common
                         |> DotNet.Options.withAdditionalArgs args
@@ -238,14 +250,14 @@ let release =
         </> "RELEASE_NOTES.md"
     )
 
-let generateAssemblyInfo _ =
+let generateAssemblyInfo ctx =
     let getAssemblyInfoAttributes projectName = [
         AssemblyInfo.Title(projectName)
         AssemblyInfo.Product project
         AssemblyInfo.Description summary
         AssemblyInfo.Version release.AssemblyVersion
         AssemblyInfo.FileVersion release.AssemblyVersion
-        AssemblyInfo.Configuration configuration
+        AssemblyInfo.Configuration(string (configuration (ctx.Context.AllExecutingTargets)))
     ]
 
     let getProjectDetails (projectPath: string) =
@@ -268,14 +280,14 @@ let generateAssemblyInfo _ =
 
 let releaseNotes = String.toLines release.Notes
 
-let dotnetPack _ =
+let dotnetPack ctx =
     [ solutionFile ]
     |> Seq.iter (
         DotNet.pack (fun p -> {
             p with
                 // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                 OutputPath = Some distDir
-                Configuration = DotNet.BuildConfiguration.Release
+                Configuration = configuration ctx.Context.AllExecutingTargets
                 MSBuildParams = {
                     MSBuild.CliArguments.Create() with
                         // "/p" (property) arguments to MSBuild.exe
@@ -399,7 +411,8 @@ let initTargets () =
     ==>! "Build"
 
     "Build"
-    ==>! "DotnetTest"
+    ==> "DotnetTest"
+    ==>! "DotnetPack"
     //*** Dotnet Build ***//
 
 
