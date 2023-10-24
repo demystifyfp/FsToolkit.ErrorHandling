@@ -34,16 +34,31 @@ GitHub Actions |
 | FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq/absoluteLatest)
 | FsToolkit.ErrorHandling.IcedTasks | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks/absoluteLatest)
 
-### Developing locally
 
-#### Requirements
+
+## Developing locally
+
+### Devcontainer 
+This repository has a devcontainer setup for VSCode. For more infomation see:
+- [VSCode](https://code.visualstudio.com/docs/devcontainers/containers)
+
+### Local Setup
 
 * [.NET Core SDK](https://www.microsoft.com/net/download/)
   * [v6.x](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
   * [v7.x](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+
+#### Optional 
+
+To test fable builds locally you will need:
+
 * [Node](https://nodejs.org/en/)
-  * v16.0.0 or LTS
+  * v18.0.0 or Higher
   * Not required but recommend that you use [NVM](https://github.com/nvm-sh/nvm) to easily manage multiple versions of Node
+* [Python](https://www.python.org/downloads/)
+  * v3.10.0 or higher
+  * Required for Fable-Python
+
 
 #### Compiling
 
@@ -51,6 +66,20 @@ GitHub Actions |
 > build.cmd <optional buildtarget> // on windows
 $ ./build.sh  <optional buildtarget>// on unix
 ```
+
+Without specifying a build target, the default target is `DotnetPack`, which will run tests for all projects on dotnet and then pack the projects into nuget packages. For additional notable targets see below.
+
+##### Build Targets
+
+- `Clean` - Will clean all projects `bin` and `obj` folders
+- `DotnetTest` - Will run tests for `dotnet` projects
+- `NpmTest` - Will run tests for `fable-javascript` projects
+- `PythonTest` - Will run tests for `fable-python` projects
+- `RunTests` - Will run tests for `dotnet`, `fable-javascript` and `fable-python` projects
+- `FormatCode` - Will run `fantomas` to format the codebase
+
+This is not an exhausting list. Additional targets can be found in the `./build/build.fs` file.
+
 
 A motivating example
 --------------------
