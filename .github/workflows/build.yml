@@ -110,8 +110,11 @@ jobs:
         CI: true
     - name: Build via Windows
       if: runner.os == 'Windows'
-      run: ./build.cmd PythonTest
+      run: |
+        chcp 65001
+        ./build.cmd PythonTest
       env:
+        PYTHONIOENCODING: utf-8
         CI: true
 
   # Builds the project in a dev container
