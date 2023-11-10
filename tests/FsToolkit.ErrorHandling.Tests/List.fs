@@ -547,6 +547,70 @@ let sequenceAsyncResultATests =
         }
     ]
 
+let traverseVOptionMTests =
+    testList "List.traverseVOptionM Tests" [
+        let tryTweetVOption x =
+            match x with
+            | x when String.IsNullOrEmpty x -> ValueNone
+            | _ -> ValueSome x
+
+        testCase "traverseVOption with a list of valid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                "Hola"
+            ]
+
+            let expected = ValueSome tweets
+            let actual = List.traverseVOptionM tryTweetVOption tweets
+
+            Expect.equal actual expected "Should have a list of valid tweets"
+
+        testCase "traverseVOption with few invalid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                String.Empty
+            ]
+
+            let actual = List.traverseVOptionM tryTweetVOption tweets
+            Expect.equal actual ValueNone "traverse the list and return value none"
+    ]
+
+let sequenceVOptionMTests =
+    testList "List.sequenceVOptionM Tests" [
+        let tryTweetOption x =
+            match x with
+            | x when String.IsNullOrEmpty x -> ValueNone
+            | _ -> ValueSome x
+
+        testCase "traverseVOption with a list of valid data"
+        <| fun _ ->
+            let tweets = [
+                "Hi"
+                "Hello"
+                "Hola"
+            ]
+
+            let expected = ValueSome tweets
+            let actual = List.sequenceVOptionM (List.map tryTweetOption tweets)
+
+            Expect.equal actual expected "Should have a list of valid tweets"
+
+        testCase "sequenceVOptionM with few invalid data"
+        <| fun _ ->
+            let tweets = [
+                String.Empty
+                "Hello"
+                String.Empty
+            ]
+
+            let actual = List.sequenceVOptionM (List.map tryTweetOption tweets)
+            Expect.equal actual ValueNone "traverse the list and return value none"
+    ]
+
 let allTests =
     testList "List Tests" [
         traverseResultMTests
@@ -563,4 +627,6 @@ let allTests =
         sequenceAsyncResultMTests
         sequenceAsyncOptionMTests
         sequenceAsyncResultATests
+        traverseVOptionMTests
+        sequenceVOptionMTests
     ]
