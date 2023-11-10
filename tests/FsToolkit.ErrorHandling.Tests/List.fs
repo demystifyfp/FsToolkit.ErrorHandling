@@ -547,6 +547,7 @@ let sequenceAsyncResultATests =
         }
     ]
 
+#if !FABLE_COMPILER
 let traverseVOptionMTests =
     testList "List.traverseVOptionM Tests" [
         let tryTweetVOption x =
@@ -611,6 +612,8 @@ let sequenceVOptionMTests =
             Expect.equal actual ValueNone "traverse the list and return value none"
     ]
 
+#endif
+
 let allTests =
     testList "List Tests" [
         traverseResultMTests
@@ -627,6 +630,8 @@ let allTests =
         sequenceAsyncResultMTests
         sequenceAsyncOptionMTests
         sequenceAsyncResultATests
+#if !FABLE_COMPILER
         traverseVOptionMTests
         sequenceVOptionMTests
+#endif
     ]
