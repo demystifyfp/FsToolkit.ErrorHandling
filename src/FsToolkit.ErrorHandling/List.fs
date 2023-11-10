@@ -164,6 +164,7 @@ module List =
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 
+#if !FABLE_COMPILER
     let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
         match xs with
         | [] ->
@@ -184,3 +185,5 @@ module List =
     let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
 
     let sequenceVOptionM xs = traverseVOptionM id xs
+
+#endif
