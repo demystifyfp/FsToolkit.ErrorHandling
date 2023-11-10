@@ -163,3 +163,24 @@ module List =
         traverseAsyncOptionM' (AsyncOption.retn []) f xs
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
+
+    let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
+        match xs with
+        | [] ->
+            state
+            |> ValueOption.map List.rev
+        | x :: xs ->
+            let r =
+                voption {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
+
+            match r with
+            | ValueSome _ -> traverseVOptionM' r f xs
+            | ValueNone -> r
+
+    let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
+
+    let sequenceVOptionM xs = traverseVOptionM id xs
