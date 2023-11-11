@@ -1,4 +1,7 @@
 
+### 4.11.0 - November 11, 2023
+- [Added sequence and traverse VOptionM](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/233) Credits @1eyewonder
+
 ### 4.10.0 - October 16, 2023
 - [Added traverse and sequence functions for Option](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/231) Credits @1eyewonder
 
