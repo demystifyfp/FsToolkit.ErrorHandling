@@ -1,15 +1,6 @@
 module TaskValidationCETests
 
-
-#if FABLE_COMPILER_PYTHON
-open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
-#endif
-#if !FABLE_COMPILER
 open Expecto
-#endif
 
 open TestHelpers
 open FsToolkit.ErrorHandling
