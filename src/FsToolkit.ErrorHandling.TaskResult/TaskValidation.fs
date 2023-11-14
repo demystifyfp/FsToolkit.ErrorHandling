@@ -2,7 +2,7 @@
 
 open System.Threading.Tasks
 
-/// TaskValidation<'a, 'err> is defined as Async<Result<'a, 'err list>> meaning you can use many of the functions found in the Result and Async module.
+/// TaskValidation<'a, 'err> is defined as Task<Result<'a, 'err list>> meaning you can use many of the functions found in the Result and Async module.
 type TaskValidation<'ok, 'error> = Task<Result<'ok, 'error list>>
 
 [<RequireQualifiedAccess>]
