@@ -4,6 +4,7 @@
     <PropertyGroup>
         <Description>FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.</Description>
         <PackageLicenseFile>License</PackageLicenseFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/"/>
