@@ -15,7 +15,7 @@
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <PackageTags>f#;fsharp;railway oriented programming;ROP;result type;error handling</PackageTags>
+        <PackageTags>f#, fsharp, railway oriented programming, ROP, result type, error handling</PackageTags>
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
