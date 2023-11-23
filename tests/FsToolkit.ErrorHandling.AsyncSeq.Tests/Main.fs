@@ -22,5 +22,5 @@ let main argv =
     Mocha.runTests allTests
 #endif
 #if !FABLE_COMPILER
-    Tests.runTestsWithArgs defaultConfig argv  allTests
+    Tests.runTestsWithCLIArgs [] argv allTests
 #endif

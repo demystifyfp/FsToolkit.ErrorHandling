@@ -1,16 +1,9 @@
-group NetStandard2
-    FSharp.Core
-    Ply
-    Expecto
-    Fable.Mocha
-    Microsoft.NET.Test.Sdk
-    YoloDev.Expecto.TestSdk
-    Fable.Pyxpecto
-
-group NetStandard2_1
-    FSharp.Core
-    Expecto
-    Fable.Mocha
-    Microsoft.NET.Test.Sdk
-    YoloDev.Expecto.TestSdk
-    Fable.Pyxpecto
+group Test
+  FSharp.Core
+  Ply
+  Expecto
+  Expecto.Hopac
+  Microsoft.NET.Test.Sdk
+  YoloDev.Expecto.TestSdk
+  Fable.Mocha
+  Fable.Pyxpecto
