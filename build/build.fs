@@ -416,8 +416,7 @@ let initTargets () =
     ==>! "Build"
 
     "Build"
-    ==> "DotnetTest"
-    ==>! "DotnetPack"
+    ==>! "DotnetTest"
     //*** Dotnet Build ***//
 
 

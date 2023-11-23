@@ -1,14 +1,8 @@
-group NetStandard2
-    Ply
-    Expecto
-    Expecto.Hopac
-    Microsoft.NET.Test.Sdk
-    YoloDev.Expecto.TestSdk
-    Fable.Pyxpecto
-
-group NetStandard2_1
-    Expecto
-    Expecto.Hopac
-    Microsoft.NET.Test.Sdk
-    YoloDev.Expecto.TestSdk
-    Fable.Pyxpecto
+group Test
+  Expecto
+  Expecto.Hopac
+  Microsoft.NET.Test.Sdk
+  YoloDev.Expecto.TestSdk
+  Fable.Mocha
+  Fable.Pyxpecto
+  Ply
