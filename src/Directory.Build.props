@@ -15,8 +15,6 @@
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <IsPackable>true</IsPackable>
-        <IsTestProject>false</IsTestProject>
         <PackageTags>f#;fsharp;railway oriented programming;ROP;result type;error handling</PackageTags>
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
