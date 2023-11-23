@@ -3,21 +3,18 @@
 
     <PropertyGroup>
         <Description>FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.</Description>
-        <PackageLicenseFile>License</PackageLicenseFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
     </PropertyGroup>
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/"/>
-        <None Include="$(MSBuildThisFileDirectory)..\License" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <PropertyGroup>
-
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsPackable>true</IsPackable>
         <IsTestProject>false</IsTestProject>
         <PackageTags>f#;fsharp;railway oriented programming;ROP;result type;error handling</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
         <!-- Sourcelink -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
