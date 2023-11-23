@@ -2,7 +2,7 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
-        <Description>FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.</Description>
+        <Description>FsToolkit.ErrorHandling is an extensive utility library based around the F# Result type, enabling consistent and powerful error handling.</Description>
         <Authors>demystifyfp, TheAngryByrd</Authors>
         <Copyright>Copyright © 2018-23</Copyright>
         <PackageProjectUrl>https://demystifyfp.gitbook.io/fstoolkit-errorhandling</PackageProjectUrl>
