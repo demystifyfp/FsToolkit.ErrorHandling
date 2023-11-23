@@ -5,6 +5,7 @@
         <Description>FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling.</Description>
         <Authors>demystifyfp, TheAngryByrd</Authors>
         <Copyright>Copyright © 2018-23</Copyright>
+        <PackageProjectUrl>https://demystifyfp.gitbook.io/fstoolkit-errorhandling</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
     </PropertyGroup>
