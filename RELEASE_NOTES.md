@@ -1,4 +1,9 @@
 
+### 4.11.1 - November 23, 2023
+
+- [fix: Add PackageLicenseExpression for /src](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/236) Credits @bartelink
+- [Fix netstandard2 package version drift](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/237) Credits @TheAngryByrd
+
 ### 4.11.0 - November 11, 2023
 - [Added sequence and traverse VOptionM](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/233) Credits @1eyewonder
 
