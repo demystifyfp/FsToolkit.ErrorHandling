@@ -6,7 +6,7 @@
     <LangVersion>preview</LangVersion>
     <DebugType>portable</DebugType>
 
-    <PackageTags>($PackageTags);fable-library;fable-dotnet;fable-javascript;fable-python</PackageTags>
+    <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Shims.fs" />
