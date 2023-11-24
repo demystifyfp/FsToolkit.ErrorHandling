@@ -52,3 +52,14 @@ module AsyncOption =
             | Some v -> onSome v
             | None -> onNone
         )
+
+    let inline defaultValue (value: 'value) (asyncOption: Async<'value option>) =
+        asyncOption
+        |> Async.map (Option.defaultValue value)
+
+    let inline defaultWith
+        ([<InlineIfLambda>] defThunk: unit -> 'value)
+        (asyncOption: Async<'value option>)
+        : Async<'value> =
+        asyncOption
+        |> Async.map (Option.defaultWith defThunk)

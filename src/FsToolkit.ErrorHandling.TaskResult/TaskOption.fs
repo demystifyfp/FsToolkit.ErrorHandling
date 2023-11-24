@@ -53,3 +53,14 @@ module TaskOption =
             | Some v -> onSome v
             | None -> onNone ()
         )
+
+    let inline defaultValue (value: 'value) (taskOption: Task<'value option>) =
+        taskOption
+        |> Task.map (Option.defaultValue value)
+
+    let inline defaultWith
+        ([<InlineIfLambda>] defThunk: unit -> 'value)
+        (taskOption: Task<'value option>)
+        : Task<'value> =
+        taskOption
+        |> Task.map (Option.defaultWith defThunk)
