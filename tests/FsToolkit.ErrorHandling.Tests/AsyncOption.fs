@@ -127,6 +127,48 @@ let eitherTests =
         }
     ]
 
+let defaultValueTests =
+    testList "TaskOption.defaultValue Tests" [
+        testCaseAsync "Some"
+        <| async {
+            let defaultValue = 10
+            let expectedValue = 5
+
+            let asyncOption = AsyncOption.retn expectedValue
+            let! result = AsyncOption.defaultValue defaultValue asyncOption
+            Expect.equal result expectedValue ""
+        }
+
+        testCaseAsync "None"
+        <| async {
+            let expectedValue = 10
+            let asyncOption = Async.singleton None
+            let! result = AsyncOption.defaultValue expectedValue asyncOption
+            Expect.equal result expectedValue ""
+        }
+    ]
+
+let defaultWithTests =
+    testList "AsyncOption.defaultWith Tests" [
+        testCaseAsync "Some"
+        <| async {
+            let defaultValue = 10
+            let expectedValue = 5
+
+            let asyncOption = AsyncOption.retn expectedValue
+            let! result = AsyncOption.defaultWith (fun () -> defaultValue) asyncOption
+            Expect.equal result expectedValue ""
+        }
+
+        testCaseAsync "None"
+        <| async {
+            let expectedValue = 10
+            let asyncOption = Async.singleton None
+            let! result = AsyncOption.defaultWith (fun () -> expectedValue) asyncOption
+            Expect.equal result expectedValue ""
+        }
+    ]
+
 let allTests =
     testList "Async Option Tests" [
         mapTests
@@ -135,4 +177,6 @@ let allTests =
         retnTests
         asyncOptionOperatorTests
         eitherTests
+        defaultValueTests
+        defaultWithTests
     ]
