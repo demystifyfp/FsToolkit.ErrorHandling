@@ -1,6 +1,8 @@
 
-### 4.11.1 - November 23, 2023
+### 4.12.0 - November 27, 2023
+- [Add Task/AsyncOption defaultValue and defaultWith](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/238) Credits @sheridanchris
 
+### 4.11.1 - November 23, 2023
 - [fix: Add PackageLicenseExpression for /src](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/236) Credits @bartelink
 - [Fix netstandard2 package version drift](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/237) Credits @TheAngryByrd
 
