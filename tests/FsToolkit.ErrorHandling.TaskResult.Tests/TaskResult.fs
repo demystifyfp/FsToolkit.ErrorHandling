@@ -815,3 +815,28 @@ let TaskResultBindRequireTests =
                     |> Expect.hasTaskOkValue "john_doe"
             }
     ]
+
+[<Tests>]
+let foldResultTests =
+
+    testList "TaskResult.foldResult tests" [
+        testCaseTask "foldResult with Task(Ok x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    createPostSuccess validCreatePostRequest
+                    |> TaskResult.foldResult (fun (PostId id) -> id.ToString()) string
+
+                Expect.same (newPostId.ToString()) actual
+            }
+
+        testCaseTask "foldResult with Task(Error x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    createPostFailure validCreatePostRequest
+                    |> TaskResult.foldResult string (fun ex -> ex.Message)
+
+                Expect.same (commonEx.Message) actual
+            }
+    ]
