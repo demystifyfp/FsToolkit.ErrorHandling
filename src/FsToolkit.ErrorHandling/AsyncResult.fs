@@ -365,3 +365,19 @@ module AsyncResult =
             Result.requireNone error
             >> Async.singleton
         )
+
+    /// Bind the AsyncResult and requireValueSome on the inner voption value.
+    let inline bindRequireValueSome error x =
+        x
+        |> bind (
+            Result.requireValueSome error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireValueNone on the inner voption value.
+    let inline bindRequireValueNone error x =
+        x
+        |> bind (
+            Result.requireValueNone error
+            >> Async.singleton
+        )

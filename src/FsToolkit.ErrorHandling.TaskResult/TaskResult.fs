@@ -260,3 +260,19 @@ module TaskResult =
             Result.requireNone error
             >> Task.singleton
         )
+
+    /// Bind the TaskResult and requireValueSome on the inner voption value.
+    let inline bindRequireValueSome error x =
+        x
+        |> bind (
+            Result.requireValueSome error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireValueNone on the inner voption value.
+    let inline bindRequireValueNone error x =
+        x
+        |> bind (
+            Result.requireValueNone error
+            >> Task.singleton
+        )

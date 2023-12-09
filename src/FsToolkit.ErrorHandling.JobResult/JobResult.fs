@@ -272,3 +272,19 @@ module JobResult =
             Result.requireNone error
             >> Job.singleton
         )
+
+    /// Bind the JobResult and requireValueSome on the inner voption value.
+    let inline bindRequireValueSome error x =
+        x
+        |> bind (
+            Result.requireValueSome error
+            >> Job.singleton
+        )
+
+    /// Bind the JobResult and requireValueNone on the inner voption value.
+    let inline bindRequireValueNone error x =
+        x
+        |> bind (
+            Result.requireValueNone error
+            >> Job.singleton
+        )

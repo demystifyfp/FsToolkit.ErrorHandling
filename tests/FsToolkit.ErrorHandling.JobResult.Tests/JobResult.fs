@@ -770,6 +770,28 @@ let bindRequireTests =
         }
     ]
 
+[<Tests>]
+let bindRequireValueOptionTests =
+    testList "JobResult Bind + RequireValueOption tests" [
+        testCaseJob "bindRequireValueNone"
+        <| job {
+            return!
+                ValueSome "john_doe"
+                |> JobResult.ok
+                |> JobResult.bindRequireValueNone "user exists"
+                |> Expect.hasJobErrorValue "user exists"
+        }
+
+        testCaseJob "bindRequireValueSome"
+        <| job {
+            return!
+                ValueSome "john_doe"
+                |> JobResult.ok
+                |> JobResult.bindRequireValueSome "user doesn't exists"
+                |> Expect.hasJobOkValue "john_doe"
+        }
+    ]
+
 type CreatePostResult =
     | PostSuccess of NotifyNewPostRequest
     | NotAllowedToPost
