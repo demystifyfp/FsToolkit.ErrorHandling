@@ -250,3 +250,10 @@ module TaskResult =
             Result.requireNone error
             >> Task.singleton
         )
+
+    let inline foldResult
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        Task.map (Result.either onSuccess onError) input
