@@ -28,6 +28,19 @@ Converts an task-wrapped Option to a Result, using the given error if Some.
 'a -> Task<'b option> -> Task<Result<unit, 'a>>`
 ```
 
+### requireValueSome
+
+Converts an task-wrapped ValueOption to a Result, using the given error if ValueNone.
+```fsharp
+'a -> Task<'b voption> -> Task<Result<'b, 'a>>
+```
+### requireValueNone
+
+Converts an task-wrapped ValueOption to a Result, using the given error if ValueSome.
+
+```fsharp
+'a -> Task<'b voption> -> Task<Result<unit, 'a>>
+```
 
 ### requireEqual
 
