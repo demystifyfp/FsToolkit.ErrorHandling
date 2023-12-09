@@ -168,6 +168,19 @@ module AsyncResult =
         value
         |> Async.map (Result.requireNone error)
 
+    // Converts an async-wrapped ValueOption to a Result, using the given error if ValueNone.
+    let inline requireValueSome (error: 'error) (value: Async<'ok voption>) : Async<Result<'ok, 'error>> =
+        value
+        |> Async.map (Result.requireValueSome error)
+
+    // Converts an async-wrapped ValueOption to a Result, using the given error if ValueSome.
+    let inline requireValueNone
+        (error: 'error)
+        (value: Async<'ok voption>)
+        : Async<Result<unit, 'error>> =
+        value
+        |> Async.map (Result.requireValueNone error)
+
     /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
     let inline requireEqual
         (value1: 'value)
