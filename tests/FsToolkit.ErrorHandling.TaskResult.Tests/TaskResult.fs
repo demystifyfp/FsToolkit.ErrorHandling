@@ -310,6 +310,38 @@ let requireNoneTests =
     ]
 
 [<Tests>]
+let requireValueSomeTests =
+    testList "TaskResult.requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskOkValueSync 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
+let requireValueNoneTests =
+    testList "TaskResult.requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskOkValueSync ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
 let requireEqualToTests =
     testList "TaskResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
