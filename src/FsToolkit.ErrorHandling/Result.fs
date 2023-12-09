@@ -180,6 +180,18 @@ module Result =
         | Some _ -> Error error
         | None -> Ok()
 
+    /// Converts an ValueOption to a Result, using the given error if ValueNone.
+    let inline requireValueSome (error: 'error) (voption: 'ok voption) : Result<'ok, 'error> =
+        match voption with
+        | ValueSome x -> Ok x
+        | ValueNone -> Error error
+
+    /// Converts an ValueOption to a Result, using the given error if ValueSome.
+    let inline requireValueNone (error: 'error) (voption: 'value voption) : Result<unit, 'error> =
+        match voption with
+        | ValueSome _ -> Error error
+        | ValueNone -> Ok()
+
     /// Converts a nullable value into a Result, using the given error if null
     let inline requireNotNull (error: 'error) (value: 'ok) : Result<'ok, 'error> =
         match value with

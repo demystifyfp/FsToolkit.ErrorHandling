@@ -332,6 +332,19 @@ let requireSomeTests =
             |> Expect.hasErrorValue err
     ]
 
+let requireValueSomeTests =
+    testList "requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            Result.requireValueSome err (ValueSome 42)
+            |> Expect.hasOkValue 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            Result.requireValueSome err ValueNone
+            |> Expect.hasErrorValue err
+    ]
+
 let requireNotNullTests =
     testList "requireNotNull Tests" [
         testCase "requireNotNull happy path"
@@ -358,6 +371,18 @@ let requireNoneTests =
             |> Expect.hasErrorValue err
     ]
 
+let requireValueNoneTests =
+    testList "requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            Result.requireValueNone err ValueNone
+            |> Expect.hasOkValue ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            Result.requireValueNone err (ValueSome 42)
+            |> Expect.hasErrorValue err
+    ]
 
 let requireEqualToTests =
     testList "requireEqualTo Tests" [
@@ -816,7 +841,9 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
+        requireValueSomeTests
         requireNoneTests
+        requireValueNoneTests
         requireNotNullTests
         requireEqualToTests
         requireEqualTests
