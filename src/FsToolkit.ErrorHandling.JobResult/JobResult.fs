@@ -131,6 +131,16 @@ module JobResult =
         option
         |> Job.map (Result.requireNone error)
 
+    // Converts an job-wrapped ValueOption to a Result, using the given error if ValueNone.
+    let inline requireValueSome error voption =
+        voption
+        |> Job.map (Result.requireValueSome error)
+
+    // Converts an job-wrapped ValueOption to a Result, using the given error if ValueSome.
+    let inline requireValueNone error voption =
+        voption
+        |> Job.map (Result.requireValueNone error)
+
     /// Returns Ok if the job-wrapped value and the provided value are equal, or the specified error if not.
     let inline requireEqual x1 x2 error =
         x2

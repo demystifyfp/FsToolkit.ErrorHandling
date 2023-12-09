@@ -301,6 +301,38 @@ let requireNoneTests =
     ]
 
 [<Tests>]
+let requireValueSomeTests =
+    testList "JobResult.requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            toJob (ValueSome 42)
+            |> JobResult.requireValueSome err
+            |> Expect.hasJobOkValueSync 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            toJob ValueNone
+            |> JobResult.requireValueSome err
+            |> Expect.hasJobErrorValueSync err
+    ]
+
+[<Tests>]
+let requireValueNoneTests =
+    testList "JobResult.requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            toJob ValueNone
+            |> JobResult.requireValueNone err
+            |> Expect.hasJobOkValueSync ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            toJob (ValueSome 42)
+            |> JobResult.requireValueNone err
+            |> Expect.hasJobErrorValueSync err
+    ]
+
+[<Tests>]
 let requireEqualToTests =
     testList "JobResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
