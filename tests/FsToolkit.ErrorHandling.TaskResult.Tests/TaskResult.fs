@@ -310,6 +310,38 @@ let requireNoneTests =
     ]
 
 [<Tests>]
+let requireValueSomeTests =
+    testList "TaskResult.requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskOkValueSync 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
+let requireValueNoneTests =
+    testList "TaskResult.requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskOkValueSync ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
 let requireEqualToTests =
     testList "TaskResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
@@ -817,6 +849,30 @@ let TaskResultBindRequireTests =
     ]
 
 [<Tests>]
+let TaskResultBindRequireValueOptionTests =
+    testList "TaskResult Bind + RequireValueOption Tests" [
+        testCaseTask "bindRequireValueNone"
+        <| fun _ ->
+            task {
+                do!
+                    ValueSome "john_doe"
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireValueNone "User exists"
+                    |> Expect.hasTaskErrorValue "User exists"
+            }
+
+        testCaseTask "bindRequireValueSome"
+        <| fun _ ->
+            task {
+                do!
+                    ValueSome "john_doe"
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireValueSome "User doesn't exist"
+                    |> Expect.hasTaskOkValue "john_doe"
+            }
+    ]
+
+[<Tests>]
 let foldResultTests =
     testList "TaskResult.foldResult tests" [
         testCaseTask "foldResult with Task(Ok x)"
@@ -837,5 +893,6 @@ let foldResultTests =
                     |> TaskResult.foldResult string (fun ex -> ex.Message)
 
                 Expect.same (commonEx.Message) actual
+
             }
     ]
