@@ -260,7 +260,7 @@ module TaskResult =
             Result.requireNone error
             >> Task.singleton
         )
-
+        
     /// Bind the TaskResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
         x
@@ -276,3 +276,11 @@ module TaskResult =
             Result.requireValueNone error
             >> Task.singleton
         )
+        
+    let inline foldResult
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        Task.map (Result.either onSuccess onError) input
+
