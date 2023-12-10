@@ -1,4 +1,8 @@
 
+### 4.13.0-beta001 - December 10, 2023
+- [Add TaskResult.foldResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/242) Credits @Maxumka
+- [Add support voption to require function](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/243) Credits Credits @Maxumka
+
 ### 4.12.0 - November 27, 2023
 - [Add Task/AsyncOption defaultValue and defaultWith](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/238) Credits @sheridanchris
 
