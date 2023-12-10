@@ -1,5 +1,5 @@
 
-### 4.13.0-beta001 - December 10, 2023
+### 4.13.0-beta002 - December 10, 2023
 - [Add TaskResult.foldResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/242) Credits @Maxumka
 - [Add support voption to require function](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/243) Credits Credits @Maxumka
 
