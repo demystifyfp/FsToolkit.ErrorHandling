@@ -382,7 +382,7 @@ module AsyncResult =
             >> Async.singleton
         )
 
-    /// Bind the AsyncResult and requireTrue on the inner bool value.
+    /// Bind the AsyncResult and requireTrue on the inner value.
     let inline bindRequireTrue error x =
         x
         |> bind (
@@ -390,7 +390,7 @@ module AsyncResult =
             >> Async.singleton
         )
 
-    /// Bind the AsyncResult and requireFalse on the inner bool value.
+    /// Bind the AsyncResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
         x
         |> bind (

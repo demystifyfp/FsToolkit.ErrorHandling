@@ -260,7 +260,7 @@ module TaskResult =
             Result.requireNone error
             >> Task.singleton
         )
-        
+
     /// Bind the TaskResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
         x
@@ -276,11 +276,66 @@ module TaskResult =
             Result.requireValueNone error
             >> Task.singleton
         )
-        
+
+    /// Bind the TaskResult and requireTrue on the inner value.
+    let inline bindRequireTrue error x =
+        x
+        |> bind (
+            Result.requireTrue error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireFalse on the inner value.
+    let inline bindRequireFalse error x =
+        x
+        |> bind (
+            Result.requireFalse error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireNotNull on the inner value.
+    let inline bindRequireNotNull error x =
+        x
+        |> bind (
+            Result.requireNotNull error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireEequal on the inner value.
+    let inline bindRequireEqual y error x =
+        x
+        |> bind (fun x ->
+            Result.requireEqual x y error
+            |> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireEmpty on the inner value.
+    let inline bindRequireEmpty error x =
+        x
+        |> bind (
+            Result.requireEmpty error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireNotEmpty on the inner value.
+    let inline bindRequireNotEmpty error x =
+        x
+        |> bind (
+            Result.requireNotEmpty error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireHead on the inner value
+    let inline bindRequireHead error x =
+        x
+        |> bind (
+            Result.requireHead error
+            >> Task.singleton
+        )
+
     let inline foldResult
         ([<InlineIfLambda>] onSuccess: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Task<Result<'input, 'inputError>>)
         : Task<'output> =
         Task.map (Result.either onSuccess onError) input
-
