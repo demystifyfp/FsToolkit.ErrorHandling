@@ -381,3 +381,59 @@ module AsyncResult =
             Result.requireValueNone error
             >> Async.singleton
         )
+
+    /// Bind the AsyncResult and requireTrue on the inner value.
+    let inline bindRequireTrue error x =
+        x
+        |> bind (
+            Result.requireTrue error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireFalse on the inner value.
+    let inline bindRequireFalse error x =
+        x
+        |> bind (
+            Result.requireFalse error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireNotNull on the inner value.
+    let inline bindRequireNotNull error x =
+        x
+        |> bind (
+            Result.requireNotNull error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireEequal on the inner value.
+    let inline bindRequireEqual y error x =
+        x
+        |> bind (fun x ->
+            Result.requireEqual x y error
+            |> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireEmpty on the inner value.
+    let inline bindRequireEmpty error x =
+        x
+        |> bind (
+            Result.requireEmpty error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireNotEmpty on the inner value.
+    let inline bindRequireNotEmpty error x =
+        x
+        |> bind (
+            Result.requireNotEmpty error
+            >> Async.singleton
+        )
+
+    /// Bind the AsyncResult and requireHead on the inner value
+    let inline bindRequireHead error x =
+        x
+        |> bind (
+            Result.requireHead error
+            >> Async.singleton
+        )
