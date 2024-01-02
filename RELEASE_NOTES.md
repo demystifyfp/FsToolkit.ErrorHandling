@@ -1,3 +1,6 @@
+### 4.14.0 - January 01, 2024
+- [Added AsyncResult and TaskResult Helpers](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/245) Credits @1eyewonder
+
 
 ### 4.13.0 - December 10, 2023
 - [Add TaskResult.foldResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/242) Credits @Maxumka
