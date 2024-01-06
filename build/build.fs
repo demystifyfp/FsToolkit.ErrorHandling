@@ -11,13 +11,26 @@ open Fake.JavaScript
 open System
 open System.IO
 open Fake.BuildServer
+open FsToolkit.Build
 
 let project = "FsToolkit.ErrorHandling"
 
 let summary =
     "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 
-let configuration = "Release"
+let isRelease (targets: Target list) =
+    targets
+    |> Seq.map (fun t -> t.Name)
+    |> Seq.exists ((=) "Release")
+
+let configuration (targets: Target list) =
+    let defaultVal = if isRelease targets then "Release" else "Debug"
+
+    match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
+    | "Debug" -> DotNet.BuildConfiguration.Debug
+    | "Release" -> DotNet.BuildConfiguration.Release
+    | config -> DotNet.BuildConfiguration.Custom config
+
 let solutionFile = "FsToolkit.ErrorHandling.sln"
 
 let rootDir =
@@ -62,9 +75,12 @@ let distGlob =
     distDir
     @@ "*.nupkg"
 
-let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+let githubToken = lazy (Environment.environVarOrNone "GITHUB_TOKEN")
 
-let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+let nugetToken =
+    lazy
+        (Environment.environVarOrNone "NUGET_TOKEN"
+         |> Option.orElseWith (fun () -> Environment.environVarOrNone "FSTK_NUGET_TOKEN"))
 
 
 let failOnBadExitAndPrint (p: ProcessResult) =
@@ -110,23 +126,28 @@ let checkFormatCode _ =
 
 let clean _ =
     !! "bin"
+    ++ "benchmarks/**/bin"
     ++ "src/**/bin"
     ++ "tests/**/bin"
+    ++ "tools/**/bin"
+    ++ "benchmarks/**/obj"
     ++ "src/**/obj"
     ++ "tests/**/obj"
+    ++ "tools/**/obj"
     ++ "dist"
     ++ "js-dist"
+    ++ "**/.python-tests"
     |> Shell.cleanDirs
 
     [ "paket-files/paket.restore.cached" ]
     |> Seq.iter Shell.rm
 
 
-let build _ =
+let build ctx =
     let setParams (defaults: DotNet.BuildOptions) = {
         defaults with
             NoRestore = true
-            Configuration = DotNet.BuildConfiguration.fromString configuration
+            Configuration = (configuration ctx.Context.AllExecutingTargets)
     }
 
     DotNet.build setParams solutionFile
@@ -152,7 +173,7 @@ let dotnetTest ctx =
 
             {
                 c with
-                    Configuration = DotNet.BuildConfiguration.Release
+                    Configuration = configuration ctx.Context.AllExecutingTargets
                     Common =
                         c.Common
                         |> DotNet.Options.withAdditionalArgs args
@@ -160,12 +181,12 @@ let dotnetTest ctx =
         solutionFile
 
 
-let runFableTests _ = Npm.test id
+let runNpmTest _ = Npm.test id
 
 
 let fableAwareTests = [
-    "./tests/FsToolkit.ErrorHandling.Tests"
-    "./tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
+    "tests/FsToolkit.ErrorHandling.Tests"
+    "tests/FsToolkit.ErrorHandling.AsyncSeq.Tests"
 ]
 
 
@@ -187,6 +208,46 @@ let femtoValidate _ =
                 "Femto failed; perhaps you need to update the package.json?"
             |> raise
 
+let runPythonTests _ =
+    for testProject in fableAwareTests do
+        let pythonBuildDir =
+            testProject
+            </> ".python-tests"
+
+        let mainFilePath =
+            pythonBuildDir
+            </> "main.py"
+
+        let result =
+            CreateProcess.fromRawCommand "dotnet" [
+                "fable"
+                testProject
+                "--lang"
+                "py"
+                "-o"
+                pythonBuildDir
+            ]
+            |> Proc.run
+
+        if
+            result.ExitCode
+            <> 0
+        then
+            Fake.Testing.Common.FailedTestsException "Failed to build python tests"
+            |> raise
+        else
+            let testsResult =
+                CreateProcess.fromRawCommand "python" [ mainFilePath ]
+                |> Proc.run
+
+            if
+                testsResult.ExitCode
+                <> 0
+            then
+                Fake.Testing.Common.FailedTestsException
+                    "Python tests failed, see output for more information."
+                |> raise
+
 
 let release =
     ReleaseNotes.load (
@@ -194,14 +255,14 @@ let release =
         </> "RELEASE_NOTES.md"
     )
 
-let generateAssemblyInfo _ =
+let generateAssemblyInfo ctx =
     let getAssemblyInfoAttributes projectName = [
         AssemblyInfo.Title(projectName)
         AssemblyInfo.Product project
         AssemblyInfo.Description summary
         AssemblyInfo.Version release.AssemblyVersion
         AssemblyInfo.FileVersion release.AssemblyVersion
-        AssemblyInfo.Configuration configuration
+        AssemblyInfo.Configuration(string (configuration (ctx.Context.AllExecutingTargets)))
     ]
 
     let getProjectDetails (projectPath: string) =
@@ -224,14 +285,14 @@ let generateAssemblyInfo _ =
 
 let releaseNotes = String.toLines release.Notes
 
-let nuget _ =
+let dotnetPack ctx =
     [ solutionFile ]
     |> Seq.iter (
         DotNet.pack (fun p -> {
             p with
                 // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                 OutputPath = Some distDir
-                Configuration = DotNet.BuildConfiguration.Release
+                Configuration = configuration ctx.Context.AllExecutingTargets
                 MSBuildParams = {
                     MSBuild.CliArguments.Create() with
                         // "/p" (property) arguments to MSBuild.exe
@@ -251,7 +312,7 @@ let publishNuget _ =
             PublishUrl = "https://www.nuget.org"
             WorkingDir = distDir
             ApiKey =
-                match nugetToken with
+                match nugetToken.Value with
                 | Some s -> s
                 | _ -> p.ApiKey // assume paket-config was set properly
     })
@@ -271,7 +332,7 @@ let gitRelease _ =
 
 let githubRelease _ =
     let token =
-        match githubToken with
+        match githubToken.Value with
         | Some s -> s
         | _ ->
             failwith
@@ -295,28 +356,49 @@ let githubRelease _ =
 
 let initTargets () =
 
+    /// Defines a dependency - y is dependent on x. Finishes the chain.
+    let (==>!) x y =
+        x ==> y
+        |> ignore
 
+    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run. Finishes the chain.
+    let (?=>!) x y =
+        x ?=> y
+        |> ignore
+
+    DotEnv.load rootDir
     BuildServer.install [ GitHubActions.Installer ]
 
-    Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken
-    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") nugetToken
+    Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") githubToken.Value
 
 
     Target.create "Clean" clean
     Target.create "Build" build
-    Target.create "Restore" restore
+    Target.create "DotnetRestore" restore
     Target.create "NpmRestore" npmRestore
-    Target.create "RunTests" dotnetTest
-    Target.create "RunFableTests" runFableTests
+    Target.create "NpmTest" runNpmTest
+    Target.create "PythonTest" runPythonTests
+    Target.create "DotnetTest" dotnetTest
+
+    Target.create "RunTests" ignore
     Target.create "FemtoValidate" femtoValidate
-    Target.create "AssemblyInfo" generateAssemblyInfo
-    Target.create "NuGet" nuget
+    Target.create "GenerateAssemblyInfo" generateAssemblyInfo
+    Target.create "DotnetPack" dotnetPack
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
-    Target.create "PublishNuget" publishNuget
+    Target.create "PublishToNuGet" publishNuget
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
     Target.create "Release" ignore
+
+    Target.create
+        "DebugEnv"
+        (fun _ ->
+            printfn "githubToken %A" githubToken.Value
+            printfn "nugetToken %A" nugetToken.Value
+        )
 
     Target.create
         "UpdateDocs"
@@ -326,21 +408,80 @@ let initTargets () =
             Git.Branches.push ""
         )
 
-    // *** Define Dependencies ***
+    "DotnetRestore"
+    ==>! "CheckFormatCode"
+
+    //*** Dotnet Build ***//
+    "DotnetRestore"
+    ==>! "Build"
+
+    "Build"
+    ==> "DotnetTest"
+    ==>! "DotnetPack"
+    //*** Dotnet Build ***//
+
+
+    //*** Fable Javascript *** //
+    "DotnetRestore"
+    ==>! "NpmRestore"
+
+    "NpmRestore"
+    ==>! "FemtoValidate"
+
+    "FemtoValidate"
+    ==>! "NpmTest"
+    //*** Fable Javascript *** //
+
+    //*** Fable Python *** //
+    "DotnetRestore"
+    ==>! "NpmRestore"
+
+    "NpmRestore"
+    ==>! "FemtoValidate"
+
+    "FemtoValidate"
+    ==>! "PythonTest"
+    //*** Fable Python *** //
+
+    "DotnetTest"
+    ==>! "RunTests"
+
+    "PythonTest"
+    ==>! "RunTests"
+
+    "NpmTest"
+    ==>! "RunTests"
+
+
+    //*** Publishing ***//
+
+    // Only call Clean if DotnetPack was in the call chain
+    // Ensure Clean is called before DotnetRestore
     "Clean"
-    ==> "AssemblyInfo"
-    ==> "Restore"
-    ==> "NpmRestore"
+    ?=>! "DotnetRestore"
+
+    // Only call GenerateAssemblyInfo if Publish was in the call chain
+    // Ensure GenerateAssemblyInfo is called after DotnetRestore and before DotnetBuild
+    "DotnetRestore"
+    ?=>! "GenerateAssemblyInfo"
+
+    "GenerateAssemblyInfo"
+    ?=>! "DotnetPack"
+
+    "GenerateAssemblyInfo"
+    ==>! "PublishToNuGet"
+
+    "Clean"
     ==> "CheckFormatCode"
-    ==> "Build"
-    ==> "FemtoValidate"
-    ==> "RunTests"
-    ==> "RunFableTests"
-    ==> "NuGet"
-    ==> "PublishNuGet"
+    ==> "DotnetPack"
+    ==> "PublishToNuGet"
     ==> "GitRelease"
     ==> "GitHubRelease"
-    ==> "Release"
+    ==>! "Release"
+
+
+//*** Publishing ***//
+
 
 //-----------------------------------------------------------------------------
 // Target Start
@@ -356,6 +497,6 @@ let main argv =
     initTargets ()
     |> ignore
 
-    Target.runOrDefaultWithArguments "NuGet"
+    Target.runOrDefaultWithArguments "DotnetPack"
 
     0 // return an integer exit code

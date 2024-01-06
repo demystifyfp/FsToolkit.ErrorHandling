@@ -1,6 +1,26 @@
+### 4.14.0 - January 01, 2024
+- [Added AsyncResult and TaskResult Helpers](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/245) Credits @1eyewonder
+
+
+### 4.13.0 - December 10, 2023
+- [Add TaskResult.foldResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/242) Credits @Maxumka
+- [Add support voption to require function](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/243) Credits Credits @Maxumka
+
+### 4.12.0 - November 27, 2023
+- [Add Task/AsyncOption defaultValue and defaultWith](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/238) Credits @sheridanchris
+
+### 4.11.1 - November 23, 2023
+- [fix: Add PackageLicenseExpression for /src](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/236) Credits @bartelink
+- [Fix netstandard2 package version drift](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/237) Credits @TheAngryByrd
+
+### 4.11.0 - November 11, 2023
+- [Added sequence and traverse VOptionM](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/233) Credits @1eyewonder
+
+### 4.10.0 - October 16, 2023
+- [Added traverse and sequence functions for Option](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/231) Credits @1eyewonder
 
 ### 4.9.0 - July 09, 2023
-- [ResultOption Updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/221)
+- [ResultOption Updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/221) Credits @1eyewonder
 
 ### 4.8.0 - July 06, 2023
 

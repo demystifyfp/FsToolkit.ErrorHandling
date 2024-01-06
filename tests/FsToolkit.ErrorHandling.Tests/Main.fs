@@ -1,8 +1,12 @@
 module FsToolkit.ErrorHandling.Tests
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_PYTHON
+open Fable.Pyxpecto
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
 open Fable.Mocha
-#else
+#endif
+#if !FABLE_COMPILER
 open Expecto
 //needed for `dotnet test` to work
 [<Tests>]
@@ -33,8 +37,12 @@ let allTests =
 
 [<EntryPoint>]
 let main argv =
-#if FABLE_COMPILER
+#if FABLE_COMPILER_PYTHON
+    Pyxpecto.runTests allTests
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
     Mocha.runTests allTests
-#else
+#endif
+#if !FABLE_COMPILER
     Tests.runTestsWithCLIArgs [] Array.empty allTests
 #endif

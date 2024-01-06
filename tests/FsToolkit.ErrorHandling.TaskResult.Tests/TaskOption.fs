@@ -1,9 +1,13 @@
 module TaskOptionTests
 
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_PYTHON
+open Fable.Pyxpecto
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
 open Fable.Mocha
-#else
+#endif
+#if !FABLE_COMPILER
 open Expecto
 #endif
 
@@ -150,6 +154,52 @@ let eitherTests =
             }
     ]
 
+let defaultValueTests =
+    testList "TaskOption.defaultValue Tests" [
+        testCaseTask "Some"
+        <| fun () ->
+            task {
+                let defaultValue = 10
+                let expectedValue = 5
+
+                let taskOption = TaskOption.retn expectedValue
+                let! result = TaskOption.defaultValue defaultValue taskOption
+                Expect.equal result expectedValue ""
+            }
+
+        testCaseTask "None"
+        <| fun () ->
+            task {
+                let expectedValue = 10
+                let taskOption = Task.singleton None
+                let! result = TaskOption.defaultValue expectedValue taskOption
+                Expect.equal result expectedValue ""
+            }
+    ]
+
+let defaultWithTests =
+    testList "TaskOption.defaultWith Tests" [
+        testCaseTask "Some"
+        <| fun () ->
+            task {
+                let defaultValue = 10
+                let expectedValue = 5
+
+                let taskOption = TaskOption.retn expectedValue
+                let! result = TaskOption.defaultWith (fun () -> defaultValue) taskOption
+                Expect.equal result expectedValue ""
+            }
+
+        testCaseTask "None"
+        <| fun () ->
+            task {
+                let expectedValue = 10
+                let taskOption = Task.singleton None
+                let! result = TaskOption.defaultWith (fun () -> expectedValue) taskOption
+                Expect.equal result expectedValue ""
+            }
+    ]
+
 let allTests =
     testList "Task Option Tests" [
         mapTests
@@ -158,4 +208,6 @@ let allTests =
         retnTests
         taskOptionOperatorTests
         eitherTests
+        defaultValueTests
+        defaultWithTests
     ]

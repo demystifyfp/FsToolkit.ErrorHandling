@@ -28,6 +28,20 @@ Converts an async-wrapped Option to a Result, using the given error if Some.
 'a -> Async<'b option> -> Async<Result<unit, 'a>>`
 ```
 
+### requireValueSome
+
+Converts an async-wrapped ValueOption to a Result, using the given error if ValueNone.
+```fsharp
+'a -> Async<'b voption> -> Async<Result<'b, 'a>>
+```
+
+### requireValueNone
+
+Converts an async-wrapped ValueOption to a Result, using the given error if ValueSome.
+
+```fsharp
+'a -> Async<'b voption> -> Async<Result<unit, 'a>>
+```
 
 ### requireEqual
 

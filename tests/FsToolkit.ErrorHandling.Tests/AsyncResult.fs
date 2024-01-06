@@ -1,9 +1,13 @@
 module AsyncResultTests
 
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_PYTHON
+open Fable.Pyxpecto
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
 open Fable.Mocha
-#else
+#endif
+#if !FABLE_COMPILER
 open Expecto
 #endif
 
@@ -305,6 +309,34 @@ let requireNoneTests =
         testCaseAsync "requireNone error path"
         <| (toAsync (Some 42)
             |> AsyncResult.requireNone err
+            |> Expect.hasAsyncErrorValue err)
+    ]
+
+
+let requireValueSomeTests =
+    testList "AsyncResult.requireValueSome Tests" [
+        testCaseAsync "requireValueSome happy path"
+        <| (toAsync (ValueSome 42)
+            |> AsyncResult.requireValueSome err
+            |> Expect.hasAsyncOkValue 42)
+
+        testCaseAsync "requireValueSome error path"
+        <| (toAsync ValueNone
+            |> AsyncResult.requireValueSome err
+            |> Expect.hasAsyncErrorValue err)
+    ]
+
+
+let requireValueNoneTests =
+    testList "AsyncResult.requireValueNone Tests" [
+        testCaseAsync "requireValueNone happy path"
+        <| (toAsync ValueNone
+            |> AsyncResult.requireValueNone err
+            |> Expect.hasAsyncOkValue ())
+
+        testCaseAsync "requireValueNone error path"
+        <| (toAsync (ValueSome 42)
+            |> AsyncResult.requireValueNone err
             |> Expect.hasAsyncErrorValue err)
     ]
 
@@ -797,6 +829,109 @@ let asyncResultBindRequireTests =
         }
     ]
 
+
+let asyncResultBindRequireValueOptionTests =
+    testList "AsyncResult Bind + RequireValueOption Tests" [
+        testCaseAsync "bindRequireValueNone"
+        <| async {
+            do!
+                ValueSome "john_doe"
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireValueNone "User exists"
+                |> Expect.hasAsyncErrorValue "User exists"
+        }
+
+        testCaseAsync "bindRequireValueSome"
+        <| async {
+            do!
+                ValueSome "john_doe"
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireValueSome "User doesn't exist"
+                |> Expect.hasAsyncOkValue "john_doe"
+        }
+    ]
+
+let asyncResultBindRequireTrueTests =
+    testList "AsyncResult Bind + RequireTrue Tests" [
+        testCaseAsync "bindRequireTrue"
+        <| async {
+            do!
+                true
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireTrue "Should be true"
+                |> Expect.hasAsyncOkValue ()
+        }
+
+        testCaseAsync "bindRequireFalse"
+        <| async {
+            do!
+                false
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireFalse "Should be false"
+                |> Expect.hasAsyncOkValue ()
+        }
+    ]
+
+let asyncResultBindRequireNotNullTests =
+    testList "AsyncResult Bind + RequireNotNull Tests" [
+        testCaseAsync "bindRequireNotNull"
+        <| async {
+            do!
+                "Test"
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireNotNull "Should not be null"
+                |> Expect.hasAsyncOkValue "Test"
+        }
+    ]
+
+let asyncResultBindRequireEqualTests =
+    testList "AsyncResult Bind + RequireEqual Tests" [
+        testCaseAsync "bindRequireEqual"
+        <| async {
+            do!
+                2
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireEqual 2 "Should be equal"
+                |> Expect.hasAsyncOkValue ()
+        }
+    ]
+
+let asyncResultBindRequireEmptyTests =
+    testList "AsyncResult Bind + RequireEmpty Tests" [
+        testCaseAsync "bindRequireEmpty"
+        <| async {
+            do!
+                []
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireEmpty "Should be empty"
+                |> Expect.hasAsyncOkValue ()
+        }
+    ]
+
+let asyncResultBindRequireNotEmptyTests =
+    testList "AsyncResult Bind + RequireNotEmpty Tests" [
+        testCaseAsync "bindRequireNotEmpty"
+        <| async {
+            do!
+                [ 1 ]
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireNotEmpty "Should not be empty"
+                |> Expect.hasAsyncOkValue ()
+        }
+    ]
+
+let asyncResultBindRequireHeadTests =
+    testList "AsyncResult Bind + RequireHead Tests" [
+        testCaseAsync "bindRequireHead"
+        <| async {
+            do!
+                [ 1 ]
+                |> AsyncResult.ok
+                |> AsyncResult.bindRequireHead "Should not be empty"
+                |> Expect.hasAsyncOkValue 1
+        }
+    ]
+
 let allTests =
     testList "Async Result tests" [
         mapTests
@@ -810,6 +945,9 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
+        requireNoneTests
+        requireValueSomeTests
+        requireValueNoneTests
         requireEqualToTests
         requireEqualTests
         requireEmptyTests
@@ -831,4 +969,11 @@ let allTests =
         zipTests
         zipErrorTests
         asyncResultBindRequireTests
+        asyncResultBindRequireValueOptionTests
+        asyncResultBindRequireTrueTests
+        asyncResultBindRequireNotNullTests
+        asyncResultBindRequireEqualTests
+        asyncResultBindRequireEmptyTests
+        asyncResultBindRequireNotEmptyTests
+        asyncResultBindRequireHeadTests
     ]

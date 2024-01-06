@@ -310,6 +310,38 @@ let requireNoneTests =
     ]
 
 [<Tests>]
+let requireValueSomeTests =
+    testList "TaskResult.requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskOkValueSync 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueSome err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
+let requireValueNoneTests =
+    testList "TaskResult.requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            toTask ValueNone
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskOkValueSync ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            toTask (ValueSome 42)
+            |> TaskResult.requireValueNone err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+[<Tests>]
 let requireEqualToTests =
     testList "TaskResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
@@ -813,5 +845,148 @@ let TaskResultBindRequireTests =
                     |> TaskResult.ok
                     |> TaskResult.bindRequireSome "User doesn't exist"
                     |> Expect.hasTaskOkValue "john_doe"
+            }
+    ]
+
+[<Tests>]
+let TaskResultBindRequireValueOptionTests =
+    testList "TaskResult Bind + RequireValueOption Tests" [
+        testCaseTask "bindRequireValueNone"
+        <| fun _ ->
+            task {
+                do!
+                    ValueSome "john_doe"
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireValueNone "User exists"
+                    |> Expect.hasTaskErrorValue "User exists"
+            }
+
+        testCaseTask "bindRequireValueSome"
+        <| fun _ ->
+            task {
+                do!
+                    ValueSome "john_doe"
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireValueSome "User doesn't exist"
+                    |> Expect.hasTaskOkValue "john_doe"
+            }
+    ]
+
+[<Tests>]
+let foldResultTests =
+    testList "TaskResult.foldResult tests" [
+        testCaseTask "foldResult with Task(Ok x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    createPostSuccess validCreatePostRequest
+                    |> TaskResult.foldResult (fun (PostId id) -> id.ToString()) string
+
+                Expect.same (newPostId.ToString()) actual
+            }
+
+        testCaseTask "foldResult with Task(Error x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    createPostFailure validCreatePostRequest
+                    |> TaskResult.foldResult string (fun ex -> ex.Message)
+
+                Expect.same (commonEx.Message) actual
+
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireTrueTests =
+    testList "TaskResult Bind + RequireTrue Tests" [
+        testCaseTask "bindRequireTrue"
+        <| fun _ ->
+            task {
+                do!
+                    true
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireTrue "Should be true"
+                    |> Expect.hasTaskOkValue ()
+            }
+
+        testCaseTask "bindRequireFalse"
+        <| fun _ ->
+            task {
+                do!
+                    false
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireFalse "Should be false"
+                    |> Expect.hasTaskOkValue ()
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireNotNullTests =
+    testList "TaskResult Bind + RequireNotNull Tests" [
+        testCaseTask "bindRequireNotNull"
+        <| fun _ ->
+            task {
+                do!
+                    "Test"
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireNotNull "Should not be null"
+                    |> Expect.hasTaskOkValue "Test"
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireEqualTests =
+    testList "TaskResult Bind + RequireEqual Tests" [
+        testCaseTask "bindRequireEqual"
+        <| fun _ ->
+            task {
+                do!
+                    2
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireEqual 2 "Should be equal"
+                    |> Expect.hasTaskOkValue ()
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireEmptyTests =
+    testList "TaskResult Bind + RequireEmpty Tests" [
+        testCaseTask "bindRequireEmpty"
+        <| fun _ ->
+            task {
+                do!
+                    []
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireEmpty "Should be empty"
+                    |> Expect.hasTaskOkValue ()
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireNotEmptyTests =
+    testList "TaskResult Bind + RequireNotEmpty Tests" [
+        testCaseTask "bindRequireNotEmpty"
+        <| fun _ ->
+            task {
+                do!
+                    [ 1 ]
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireNotEmpty "Should not be empty"
+                    |> Expect.hasTaskOkValue ()
+            }
+    ]
+
+[<Tests>]
+let taskResultBindRequireHeadTests =
+    testList "TaskResult Bind + RequireHead Tests" [
+        testCaseTask "bindRequireHead"
+        <| fun _ ->
+            task {
+                do!
+                    [ 1 ]
+                    |> TaskResult.ok
+                    |> TaskResult.bindRequireHead "Should not be empty"
+                    |> Expect.hasTaskOkValue 1
             }
     ]

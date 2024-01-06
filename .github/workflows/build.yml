@@ -3,9 +3,15 @@ name: Build master
 on: [push, pull_request]
 
 jobs:
-  build:
+
+  # Dotnet Build
+  dotnet-build:
     strategy:
+      fail-fast: false
       matrix:
+        # Builds for Debug and Release configurations
+        configuration: [Debug, Release]
+        # Builds for Ubuntu, Windows, and macOS
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
@@ -24,9 +30,103 @@ jobs:
         chmod +x ./build.sh
         ./build.sh
       env:
+        CONFIGURATION: ${{ matrix.configuration }}
         CI: true
     - name: Build via Windows
       if: runner.os == 'Windows'
       run: ./build.cmd
       env:
+        CONFIGURATION: ${{ matrix.configuration }}
         CI: true
+
+  # Fable Npm Build
+  fable-npm-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node-version: ['18', '20', 'latest' ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          6.x
+
+    - name: Build via Bash
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x ./build.sh
+        ./build.sh NpmTest
+      env:
+        CI: true
+    - name: Build via Windows
+      if: runner.os == 'Windows'
+      run: ./build.cmd NpmTest
+      env:
+        CI: true
+
+
+  # Fable Python Build
+  fable-python-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        python-version: ['3.10', '3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Setup necessary dotnet SDKs
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          6.x
+
+    - name: Build via Bash
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x ./build.sh
+        ./build.sh PythonTest
+      env:
+        CI: true
+    - name: Build via Windows
+      if: runner.os == 'Windows'
+      run: |
+        chcp 65001
+        ./build.cmd PythonTest
+      env:
+        PYTHONIOENCODING: utf-8
+        CI: true
+
+  # Builds the project in a dev container
+  build-devcontainer:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Build and run dev container task
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            chmod +x ./build.sh
+            ./build.sh RunTests

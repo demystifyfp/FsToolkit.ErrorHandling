@@ -119,6 +119,16 @@ module TaskResult =
         option
         |> Task.map (Result.requireNone error)
 
+    // Converts an task-wrapped ValueOption to a Result, using the given error if ValueNone.
+    let inline requireValueSome error voption =
+        voption
+        |> Task.map (Result.requireValueSome error)
+
+    // Converts an task-wrapped ValueOption to a Result, using the given error if ValueSome.
+    let inline requireValueNone error voption =
+        voption
+        |> Task.map (Result.requireValueNone error)
+
     /// Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not.
     let inline requireEqual x1 x2 error =
         x2
@@ -250,3 +260,82 @@ module TaskResult =
             Result.requireNone error
             >> Task.singleton
         )
+
+    /// Bind the TaskResult and requireValueSome on the inner voption value.
+    let inline bindRequireValueSome error x =
+        x
+        |> bind (
+            Result.requireValueSome error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireValueNone on the inner voption value.
+    let inline bindRequireValueNone error x =
+        x
+        |> bind (
+            Result.requireValueNone error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireTrue on the inner value.
+    let inline bindRequireTrue error x =
+        x
+        |> bind (
+            Result.requireTrue error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireFalse on the inner value.
+    let inline bindRequireFalse error x =
+        x
+        |> bind (
+            Result.requireFalse error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireNotNull on the inner value.
+    let inline bindRequireNotNull error x =
+        x
+        |> bind (
+            Result.requireNotNull error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireEequal on the inner value.
+    let inline bindRequireEqual y error x =
+        x
+        |> bind (fun x ->
+            Result.requireEqual x y error
+            |> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireEmpty on the inner value.
+    let inline bindRequireEmpty error x =
+        x
+        |> bind (
+            Result.requireEmpty error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireNotEmpty on the inner value.
+    let inline bindRequireNotEmpty error x =
+        x
+        |> bind (
+            Result.requireNotEmpty error
+            >> Task.singleton
+        )
+
+    /// Bind the TaskResult and requireHead on the inner value
+    let inline bindRequireHead error x =
+        x
+        |> bind (
+            Result.requireHead error
+            >> Task.singleton
+        )
+
+    let inline foldResult
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        Task.map (Result.either onSuccess onError) input

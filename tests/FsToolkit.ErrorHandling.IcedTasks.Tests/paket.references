@@ -1,4 +1,5 @@
-group NetStandard2_1
+group Test
     Expecto
     Microsoft.NET.Test.Sdk
     YoloDev.Expecto.TestSdk
+    Fable.Pyxpecto

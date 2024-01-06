@@ -52,3 +52,30 @@ module AsyncOption =
             | Some v -> onSome v
             | None -> onNone
         )
+
+    /// <summary>
+    ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.
+    /// </summary>
+    /// <param name="value">The specified default value.</param>
+    /// <param name="asyncOption">The input option.</param>
+    /// <returns>
+    /// The option if the option is <c>Some</c>, else the default value.
+    /// </returns>
+    let inline defaultValue (value: 'value) (asyncOption: Async<'value option>) =
+        asyncOption
+        |> Async.map (Option.defaultValue value)
+
+    /// <summary>
+    ///  Gets the value of the option if the option is <c>Some</c>, otherwise evaluates <paramref name="defThunk"/> and returns the result.
+    /// </summary>
+    /// <param name="defThunk">A thunk that provides a default value when evaluated.</param>
+    /// <param name="asyncOption">The input option.</param>
+    /// <returns>
+    /// The option if the option is <c>Some</c>, else the result of evaluating <paramref name="defThunk"/>.
+    /// </returns>
+    let inline defaultWith
+        ([<InlineIfLambda>] defThunk: unit -> 'value)
+        (asyncOption: Async<'value option>)
+        : Async<'value> =
+        asyncOption
+        |> Async.map (Option.defaultWith defThunk)

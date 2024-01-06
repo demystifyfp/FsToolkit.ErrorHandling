@@ -28,6 +28,19 @@ Converts an job-wrapped Option to a Result, using the given error if Some.
 'a -> job<'b option> -> job<Result<unit, 'a>>`
 ```
 
+### requireValueSome
+
+Converts an job-wrapped ValueOption to a Result, using the given error if ValueNone.
+```fsharp
+'a -> job<'b voption> -> job<Result<'b, 'a>>
+```
+### requireValueNone
+
+Converts an job-wrapped ValueOption to a Result, using the given error if ValueSome.
+
+```fsharp
+'a -> job<'b voption> -> job<Result<unit, 'a>>
+```
 
 ### requireEqual
 

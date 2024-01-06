@@ -1,8 +1,13 @@
 module ResultTests
 
-#if FABLE_COMPILER
+
+#if FABLE_COMPILER_PYTHON
+open Fable.Pyxpecto
+#endif
+#if FABLE_COMPILER_JAVASCRIPT
 open Fable.Mocha
-#else
+#endif
+#if !FABLE_COMPILER
 open Expecto
 #endif
 open SampleDomain
@@ -353,6 +358,31 @@ let requireNoneTests =
             |> Expect.hasErrorValue err
     ]
 
+let requireValueSomeTests =
+    testList "requireValueSome Tests" [
+        testCase "requireValueSome happy path"
+        <| fun _ ->
+            Result.requireValueSome err (ValueSome 42)
+            |> Expect.hasOkValue 42
+
+        testCase "requireValueSome error path"
+        <| fun _ ->
+            Result.requireValueSome err ValueNone
+            |> Expect.hasErrorValue err
+    ]
+
+let requireValueNoneTests =
+    testList "requireValueNone Tests" [
+        testCase "requireValueNone happy path"
+        <| fun _ ->
+            Result.requireValueNone err ValueNone
+            |> Expect.hasOkValue ()
+
+        testCase "requireValueNone error path"
+        <| fun _ ->
+            Result.requireValueNone err (ValueSome 42)
+            |> Expect.hasErrorValue err
+    ]
 
 let requireEqualToTests =
     testList "requireEqualTo Tests" [
@@ -812,6 +842,8 @@ let allTests =
         requireFalseTests
         requireSomeTests
         requireNoneTests
+        requireValueSomeTests
+        requireValueNoneTests
         requireNotNullTests
         requireEqualToTests
         requireEqualTests

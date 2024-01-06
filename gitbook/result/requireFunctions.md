@@ -128,6 +128,70 @@ let result : Result<unit, string> =
 // Error "Value must be None"
 ```
 
+## requireValueSome
+
+Converts an ValueOption to a Result, using the given error if ValueNone.
+
+### Function Signature
+
+```fsharp
+'a -> 'b voption -> Result<'b, 'a>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Result<unit, string> =
+    ValueSome 1
+    |> Result.requireValueSome "Value must be ValueSome"
+    
+// Ok ()
+```
+
+#### Example 2
+
+```fsharp
+let result : Result<unit, string> =
+    None
+    |> Result.requireValueSome "Value must be ValueSome"
+    
+// Error "Value must be ValueSome"
+```
+
+## requireValueNone
+
+Converts an ValueOption to a Result, using the given error if ValueSome.
+
+### Function Signature
+
+```fsharp
+'a -> 'b voption -> Result<unit, 'a>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Result<unit, string> =
+    ValueNone
+    |> Result.requireValueNone "Value must be ValueNone"
+    
+// Ok ()
+```
+
+#### Example 2
+
+```fsharp
+let result : Result<unit, string> =
+    ValueSome 1
+    |> Result.requireValueNone "Value must be ValueNone"
+    
+// Error "Value must be ValueNone"
+```
+
 ## requireNotNull
 
 Converts a nullable value to a Result, using the given error if null.

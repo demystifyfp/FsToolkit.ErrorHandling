@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DotEnv.fs" />
     <Compile Include="build.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

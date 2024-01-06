@@ -15,13 +15,13 @@ Async<Result<'T, 'Error>> -> Async<Result<'T option, 'Error>>
 ### Example 1
 
 ```fsharp
-let result = AsyncResult.ofAsyncResult (async { return Ok 42 })
+let result = AsyncResultOption.ofAsyncResult (async { return Ok 42 })
 // async { return Ok (Some 42) }
 ```
 
 ### Example 2
 
 ```fsharp
-let result = AsyncResult.ofAsyncResult (async { return Error "error" })
+let result = AsyncResultOption.ofAsyncResult (async { return Error "error" })
 // async { return Error "error" }
 ```

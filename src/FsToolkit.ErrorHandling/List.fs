@@ -52,7 +52,6 @@ module List =
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
-
     let rec private traverseResultA' state f xs =
         match xs with
         | [] ->
@@ -115,8 +114,76 @@ module List =
 
     let sequenceValidationA xs = traverseValidationA id xs
 
-
     let traverseAsyncResultA f xs =
         traverseAsyncResultA' (AsyncResult.retn []) f xs
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
+
+    let rec private traverseOptionM' (state: Option<_>) (f: _ -> Option<_>) xs =
+        match xs with
+        | [] ->
+            state
+            |> Option.map List.rev
+        | x :: xs ->
+            let r =
+                option {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
+
+            match r with
+            | Some _ -> traverseOptionM' r f xs
+            | None -> r
+
+    let rec private traverseAsyncOptionM' (state: Async<Option<_>>) (f: _ -> Async<Option<_>>) xs =
+        match xs with
+        | [] ->
+            state
+            |> AsyncOption.map List.rev
+        | x :: xs ->
+            async {
+                let! o =
+                    asyncOption {
+                        let! y = f x
+                        let! ys = state
+                        return y :: ys
+                    }
+
+                match o with
+                | Some _ -> return! traverseAsyncOptionM' (Async.singleton o) f xs
+                | None -> return o
+            }
+
+    let traverseOptionM f xs = traverseOptionM' (Some []) f xs
+
+    let sequenceOptionM xs = traverseOptionM id xs
+
+    let traverseAsyncOptionM f xs =
+        traverseAsyncOptionM' (AsyncOption.retn []) f xs
+
+    let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
+
+#if !FABLE_COMPILER
+    let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
+        match xs with
+        | [] ->
+            state
+            |> ValueOption.map List.rev
+        | x :: xs ->
+            let r =
+                voption {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
+
+            match r with
+            | ValueSome _ -> traverseVOptionM' r f xs
+            | ValueNone -> r
+
+    let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
+
+    let sequenceVOptionM xs = traverseVOptionM id xs
+
+#endif
