@@ -29,15 +29,20 @@
       * [ofChoice](result/ofChoice.md)
 
   * Option
-    * [bind](pr.md)
-    * [bindNull](pr.md)
+    * [bind](option/bind.md)
+    * [bindNull](option/bindNull.md)
     * [Computation Expression](option/ce.md)
-    * [either](pr.md)
-    * [map](pr.md)
-    * [zip](pr.md)
+    * [either](option/either.md)
+    * [map](option/map.md)
+    * [map2](option/map2.md)
+    * [map3](option/map3.md)
+    * [tee Functions](option/teeFunctions.md)
+    * [zip](option/zip.md)
     * Lists
-      * [traverseResult](option/traverseResult.md)
-      * [sequenceResult](option/sequenceResult.md)
+        * [traverseOptionM](option/traverseOptionM.md)
+        * [sequenceOptionM](option/sequenceOptionM.md)
+        * [traverseVOptionM](option/traverseVOptionM.md)
+        * [sequenceVOptionM](option/sequenceVOptionM.md)
     * Transforms
       * [ofNull](option/ofNull.md)
       * [ofPair](option/ofPair.md)
@@ -57,6 +62,9 @@
     * [Operators](resultOption/operators.md)
     * [zip](resultOption/zip.md)
     * [zipError](resultOption/zipError.md)
+    * Lists
+      * [traverseResult](resultOption/traverseResult.md)
+      * [sequenceResult](resultOption/sequenceResult.md)
     * Transforms
       * [ofChoice](resultOption/ofChoice.md)
       * [ofOption](resultOption/ofOption.md)

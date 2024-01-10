@@ -16,6 +16,173 @@ open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Option
 
+let map2Tests =
+    testList "Option.map2 Tests" [
+        testCase "map2 with two Some parts"
+        <| fun _ ->
+            Option.map2 (+) (Some 1) (Some 2)
+            |> Expect.hasSomeValue 3
+
+        testCase "map2 with (None, Some)"
+        <| fun _ ->
+            let opt = Option.map2 (+) None (Some 2)
+            Expect.isNone opt "Should be None"
+
+        testCase "map2 with (Some, None)"
+        <| fun _ ->
+            let opt = Option.map2 (+) (Some 1) None
+            Expect.isNone opt "Should be None"
+
+        testCase "map2 with (None, None)"
+        <| fun _ ->
+            let opt = Option.map2 (+) None None
+            Expect.isNone opt "Should be None"
+    ]
+
+let map3Tests =
+    testList "Option.map3 Tests" [
+        testCase "map3 with (Some, Some, Some)"
+        <| fun _ ->
+            Option.map3 (fun x y z -> x + y + z) (Some 1) (Some 2) (Some 3)
+            |> Expect.hasSomeValue 6
+
+        testCase "map3 with (None, Some, Some)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) None (Some 2) (Some 3)
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (Some, None, Some)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) (Some 1) None (Some 3)
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (Some, Some, None)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) (Some 1) (Some 2) None
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (None, None, Some)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) None None (Some 3)
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (None, Some, None)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) None (Some 2) None
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (Some, None, None)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) (Some 1) None None
+            Expect.isNone opt "Should be None"
+
+        testCase "map3 with (None, None, None)"
+        <| fun _ ->
+            let opt = Option.map3 (fun x y z -> x + y + z) None None None
+            Expect.isNone opt "Should be None"
+    ]
+
+let ignoreTests =
+    testList "Option.ignore Tests" [
+        testCase "ignore with Some"
+        <| fun _ ->
+            Option.ignore (Some 1)
+            |> Expect.hasSomeValue ()
+
+        testCase "ignore with None"
+        <| fun _ ->
+            let opt = Option.ignore None
+            Expect.isNone opt "Should be None"
+    ]
+
+let teeSomeTests =
+    testList "teeSome Tests" [
+        testCase "teeSome executes the function for Some"
+        <| fun _ ->
+            let mutable foo = "foo"
+            let mutable input = 0
+
+            let bar x =
+                input <- x
+
+                foo <- "bar"
+
+            let opt = Option.teeSome bar (Some 42)
+            Expect.hasSomeValue 42 opt
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
+
+        testCase "teeSome ignores the function for None"
+        <| fun _ ->
+            let mutable foo = "foo"
+
+            let bar _ = foo <- "bar"
+
+            let opt = Option.teeSome bar None
+            Expect.isNone opt "Should be None"
+            Expect.equal foo "foo" ""
+    ]
+
+let teeNoneTests =
+    testList "teeNone Tests" [
+        testCase "teeNone executes the function for None"
+        <| fun _ ->
+            let mutable foo = "foo"
+
+            let bar () = foo <- "bar"
+
+            let opt = Option.teeNone bar None
+            Expect.isNone opt "Should be None"
+            Expect.equal foo "bar" ""
+
+        testCase "teeNone ignores the function for Some"
+        <| fun _ ->
+            let mutable foo = "foo"
+
+            let bar () = foo <- "bar"
+
+            let opt = Option.teeNone bar (Some 42)
+            Expect.hasSomeValue 42 opt
+            Expect.equal foo "foo" ""
+    ]
+
+let teeIfTests =
+    testList "teeIf Tests" [
+        testCase "teeIf executes the function for Some, if predicate is true"
+        <| fun _ ->
+            let mutable foo = "foo"
+            let mutable input = 0
+
+            let bar x =
+                input <- x
+
+                foo <- "bar"
+
+            let opt = Option.teeIf (fun x -> x > 0) bar (Some 42)
+            Expect.hasSomeValue 42 opt
+            Expect.equal foo "bar" ""
+            Expect.equal input 42 ""
+
+        testCase "teeIf ignores the function for Some, if predicate is false"
+        <| fun _ ->
+            let mutable foo = "foo"
+
+            let bar _ = foo <- "bar"
+
+            let opt = Option.teeIf (fun x -> x > 0) bar (Some -42)
+            Expect.hasSomeValue -42 opt
+            Expect.equal foo "foo" ""
+
+        testCase "teeIf ignores the function for None"
+        <| fun _ ->
+            let mutable foo = "foo"
+
+            let bar _ = foo <- "bar"
+
+            let opt = Option.teeIf (fun x -> x > 0) bar None
+            Expect.isNone opt "Should be None"
+            Expect.equal foo "foo" ""
+    ]
 
 let traverseResultTests =
     testList "Option.traverseResult Tests" [
@@ -208,4 +375,10 @@ let allTests =
         eitherTests
         ofPairTests
         optionOperatorsTests
+        map2Tests
+        map3Tests
+        ignoreTests
+        teeSomeTests
+        teeNoneTests
+        teeIfTests
     ]
