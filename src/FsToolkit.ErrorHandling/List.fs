@@ -155,8 +155,23 @@ module List =
                 | None -> return o
             }
 
+    /// <summary>
+    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
+    /// and returns an option containing a list of the results. If any of the function applications return None,
+    /// the entire result will be None.
+    /// </summary>
+    /// <param name="f">The function to apply to each element in the input list.</param>
+    /// <param name="xs">The input list.</param>
+    /// <returns>An option containing a list of the results of applying the function to each element in the input list,
+    /// or None if any of the function applications return None.</returns>
     let traverseOptionM f xs = traverseOptionM' (Some []) f xs
 
+    /// <summary>
+    /// Applies the monadic function <paramref name="id"/> to each element in the input list <paramref name="xs"/>,
+    /// and returns the result as an option. If any element in the list is None, the entire result will be None.
+    /// </summary>
+    /// <param name="xs">The input list.</param>
+    /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
     let traverseAsyncOptionM f xs =
@@ -182,8 +197,22 @@ module List =
             | ValueSome _ -> traverseVOptionM' r f xs
             | ValueNone -> r
 
+    /// <summary>
+    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
+    /// and returns an option containing a list of the results. If any of the function applications return ValueNone,
+    /// the entire result will be ValueNone.
+    /// </summary>
+    /// <param name="f">The function to apply to each element in the input list.</param>
+    /// <param name="xs">The input list</param>
+    /// <returns>An Option monad containing the collected results.</returns>
     let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
 
+    /// <summary>
+    /// Applies the <paramref name="id"/> function to each element in the input list <paramref name="xs"/>,
+    /// and returns the result as a value option. If any element in the list is ValueNone, the entire result will be ValueNone.
+    /// </summary>
+    /// <param name="xs">The input list.</param>
+    /// <returns>A <see cref="Option{T}"/> representing the sequence of results.</returns>
     let sequenceVOptionM xs = traverseVOptionM id xs
 
 #endif
