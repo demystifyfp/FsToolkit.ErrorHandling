@@ -3,6 +3,14 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
+    /// <summary>
+    /// Binds a function to an option, applying the function to the value if the option is <c>Some</c>.
+    /// </summary>
+    /// <param name="mapper">The function to apply to the value.</param>
+    /// <param name="input">The input option.</param>
+    /// <typeparam name="'TInput">The input type of the option.</typeparam>
+    /// <typeparam name="'TOutput">The output type of the option.</typeparam>
+    /// <returns>The result of applying the function to the value, or <c>None</c> if the option is <c>None</c>.</returns>
     let inline bind
         ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput option)
         (input: 'TInput option)
@@ -11,6 +19,12 @@ module Option =
         | Some v -> mapper v
         | None -> None
 
+    /// <summary>
+    /// Applies a mapper function to the value inside an option, returning a new option with the mapped value.
+    /// </summary>
+    /// <param name="mapper">The function to apply to the value inside the option.</param>
+    /// <param name="input">The input option.</param>
+    /// <returns>An option with the mapped value if the input option is <c>Some</c>, otherwise <c>None</c>.</returns>
     let inline map
         ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput)
         (input: 'TInput option)
@@ -19,6 +33,13 @@ module Option =
         | Some v -> Some(mapper v)
         | None -> None
 
+    /// <summary>
+    /// Applies a mapper function to the values inside two options, returning a new option with the mapped value.
+    /// </summary>
+    /// <param name="mapper">The function to apply to the values inside the options.</param>
+    /// <param name="input1">The first input option.</param>
+    /// <param name="input2">The second input option.</param>
+    /// <returns>An option with the mapped value if both input options are <c>Some</c>, otherwise <c>None</c>.</returns>
     let inline map2
         ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TOutput)
         (input1: 'TInput1 option)
@@ -28,6 +49,14 @@ module Option =
         | Some x, Some y -> Some(mapper x y)
         | _ -> None
 
+    /// <summary>
+    /// Applies a mapper function to the values inside three options, returning a new option with the mapped value.
+    /// </summary>
+    /// <param name="mapper">The function to apply to the values inside the options.</param>
+    /// <param name="input1">The first input option.</param>
+    /// <param name="input2">The second input option.</param>
+    /// <param name="input3">The third input option.</param>
+    /// <returns>An option with the mapped value if all input options are <c>Some</c>, otherwise <c>None</c>.</returns>
     let inline map3
         ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TInput3 -> 'TOutput)
         (input1: 'TInput1 option)
@@ -38,21 +67,42 @@ module Option =
         | Some x, Some y, Some z -> Some(mapper x y z)
         | _ -> None
 
+    /// <summary>
+    /// Ignores the value of an option and returns a unit option.
+    /// </summary>
+    /// <param name="opt">The option to ignore.</param>
+    /// <returns>A unit option.</returns>
     let inline ignore (opt: 'T option) : unit option =
         match opt with
         | Some _ -> Some()
         | None -> None
 
+    /// <summary>
+    /// Converts a value option to a regular option.
+    /// </summary>
+    /// <param name="vopt">The value option to convert.</param>
+    /// <returns>The converted regular option.</returns>
     let inline ofValueOption (vopt: 'value voption) : 'value option =
         match vopt with
         | ValueSome v -> Some v
         | ValueNone -> None
 
+    /// <summary>
+    /// Converts an option value to a value option.
+    /// </summary>
+    /// <param name="opt">The option value to convert.</param>
+    /// <returns>A value option.</returns>
     let inline toValueOption (opt: 'value option) : 'value voption =
         match opt with
         | Some v -> ValueSome v
         | None -> ValueNone
 
+    /// <summary>
+    /// Traverses an option value and applies a function to its inner value, returning a result.
+    /// </summary>
+    /// <param name="binder">The function to apply to the inner value of the option.</param>
+    /// <param name="input">The option value to traverse.</param>
+    /// <returns>A result containing either an option with the transformed value or an error.</returns>
     let inline traverseResult
         ([<InlineIfLambda>] binder: 'input -> Result<'okOutput, 'error>)
         (input: option<'input>)
@@ -67,6 +117,12 @@ module Option =
         traverseResult id opt
 
 #if !FABLE_COMPILER
+    /// <summary>
+    /// Tries to parse a string value into a specified type using the TryParse method of the type.
+    /// </summary>
+    /// <typeparam name="^value">The type to parse the string value into, if it has a <c>TryParse</c> function</typeparam>
+    /// <param name="valueToParse">The string value to parse.</param>
+    /// <returns>An option containing the parsed value if successful, or None if parsing fails.</returns>
     let inline tryParse< ^value
         when ^value: (static member TryParse: string * byref< ^value > -> bool)>
         (valueToParse: string)
@@ -81,6 +137,16 @@ module Option =
         | true -> Some output
         | _ -> None
 
+    /// <summary>
+    /// Tries to get the value associated with the specified key from the dictionary.
+    /// </summary>
+    /// <param name="key">The key to look up in the dictionary.</param>
+    /// <param name="dictionary">The dictionary to search for the key.</param>
+    /// <typeparam name="^Dictionary">The type of the dictionary, assuming it has a <c>TryGetValue</c> member accessible</typeparam>
+    /// <returns>
+    /// An option containing the value associated with the key if it exists in the dictionary,
+    /// or None if the key does not exist.
+    /// </returns>
     let inline tryGetValue (key: 'key) (dictionary: ^Dictionary) : ^value option =
         let mutable output = Unchecked.defaultof< ^value>
 
@@ -105,7 +171,11 @@ module Option =
         | Some v1, Some v2 -> Some(v1, v2)
         | _ -> None
 
-
+    /// <summary>
+    /// Converts a <c>Result</c> to an <c>option</c>.
+    /// </summary>
+    /// <param name="r">The result to convert.</param>
+    /// <returns>An option containing the value if the result is <c>Ok</c>, or <c>None</c> if the result is <c>Error</c></returns>
     let inline ofResult (r: Result<'ok, 'error>) : 'ok option =
         match r with
         | Ok v -> Some v
@@ -150,7 +220,6 @@ module Option =
             |> ofNull
         | None -> None
 
-
     /// <summary>
     /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
     /// </summary>
@@ -169,8 +238,12 @@ module Option =
         | Some x -> onSome x
         | None -> onNone ()
 
-    /// If the option is Some, executes the function on the Ok value. Passes through
-    /// the input value.
+    /// <summary>
+    /// If the option is <c>Some</c>, executes the function on the <c>Some</c> value and passes through the input value.
+    /// </summary>
+    /// <param name="f">The function to execute on the <c>Some</c> value.</param>
+    /// <param name="opt">The input option.</param>
+    /// <returns>The input option</returns>
     let inline teeSome ([<InlineIfLambda>] f: 'T -> unit) (opt: 'T option) : 'T option =
         match opt with
         | Some x -> f x
@@ -178,6 +251,12 @@ module Option =
 
         opt
 
+    /// <summary>
+    /// If the option is <c>None</c>, executes the function and passes through the input value.
+    /// </summary>
+    /// <param name="f">The function to execute if the input is <c>None</c>.</param>
+    /// <param name="opt">The input option.</param>
+    /// <returns>The input option</returns>
     let inline teeNone (f: unit -> unit) (opt: 'T option) : 'T option =
         match opt with
         | Some _ -> ()
@@ -185,8 +264,14 @@ module Option =
 
         opt
 
-    /// If the result is Some and the predicate returns true, executes the function
-    /// on the Some value. Passes through the input value.
+    /// <summary>
+    /// If the result is <c>Some</c> and the predicate returns true, executes the function
+    /// on the <c>Some</c> value and passes through the input value.
+    /// </summary>
+    /// <param name="predicate">The predicate to execute on the <c>Some</c> value.</param>
+    /// <param name="f">The function to execute on the <c>Some</c> value if the predicate proves true</param>
+    /// <param name="opt">The input option.</param>
+    /// <returns>The input option</returns>
     let inline teeIf
         ([<InlineIfLambda>] predicate: 'T -> bool)
         ([<InlineIfLambda>] f: 'T -> unit)
@@ -200,6 +285,13 @@ module Option =
 
         opt
 
+    /// <summary>
+    /// Creates an option from a boolean value and a value of type 'a.
+    /// If the boolean value is true, returns <c>Some</c> value.
+    /// If the boolean value is false, returns <c>None</c>.
+    /// </summary>
+    /// <param name="input">A tuple containing a boolean value and a value of type 'a.</param>
+    /// <returns>An option value.</returns>
     let inline ofPair (input: bool * 'a) =
         match input with
         | true, x -> Some x
