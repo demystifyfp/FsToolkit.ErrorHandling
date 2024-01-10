@@ -161,7 +161,7 @@ module Option =
 #endif
 
     /// <summary>
-    /// Takes two options and returns a tuple of the pair or none if either are none
+    /// Takes two options and returns a tuple of the pair or <c>None</c> if either are <c>None</c>
     /// </summary>
     /// <param name="left">The input option</param>
     /// <param name="right">The input option</param>
