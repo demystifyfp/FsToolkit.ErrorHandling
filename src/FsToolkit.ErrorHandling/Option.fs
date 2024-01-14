@@ -5,7 +5,7 @@ module Option =
 
     /// <summary>
     /// Binds a function to an option, applying the function to the value if the option is <c>Some</c>.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bind</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the value.</param>
@@ -23,7 +23,7 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the value inside an option, returning a new option with the mapped value.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the value inside the option.</param>
@@ -39,7 +39,7 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the values inside two options, returning a new option with the mapped value.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map2</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the values inside the options.</param>
@@ -57,7 +57,7 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the values inside three options, returning a new option with the mapped value.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map3</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the values inside the options.</param>
@@ -87,7 +87,7 @@ module Option =
 
     /// <summary>
     /// Converts a value option to a regular option.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/ofvalueoption</href>
     /// </summary>
     /// <param name="vopt">The value option to convert.</param>
@@ -99,7 +99,7 @@ module Option =
 
     /// <summary>
     /// Converts an option value to a value option.
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/tovalueoption</href>
     /// </summary>
     /// <param name="opt">The option value to convert.</param>
@@ -174,7 +174,7 @@ module Option =
 
     /// <summary>
     /// Takes two options and returns a tuple of the pair or <c>None</c> if either are <c>None</c>
-    /// <br/>
+    ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/zip</href>
     /// </summary>
     /// <param name="left">The input option</param>
