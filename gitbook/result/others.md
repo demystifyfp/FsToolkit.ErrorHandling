@@ -71,6 +71,16 @@ Returns the contained value if Ok, otherwise returns the provided value
 'a -> Result<'a, 'b> -> 'a
 ```
 
+## defaultError
+
+Returns the contained value if Error, otherwise returns the provided value
+
+### Function Signature
+
+```fsharp
+'b -> Result<'a, 'b> -> 'b
+```
+
 ## defaultWith
 
 Returns the contained value if Ok, otherwise evaluates the given function and returns the result.
@@ -92,6 +102,15 @@ Returns the Ok value or runs the specified function over the error value.
 ('b -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
+## ignore
+
+Ignores the value of the input result and returns unit instead
+
+### Function Signature
+
+```fsharp
+Result<'ok, 'error> -> Result<unit, 'error>
+```
 
 ## ignoreError
 

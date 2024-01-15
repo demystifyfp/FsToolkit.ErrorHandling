@@ -5,6 +5,8 @@ module Option =
 
     /// <summary>
     /// Binds a function to an option, applying the function to the value if the option is <c>Some</c>.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bind</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the value.</param>
     /// <param name="input">The input option.</param>
@@ -21,6 +23,8 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the value inside an option, returning a new option with the mapped value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the value inside the option.</param>
     /// <param name="input">The input option.</param>
@@ -35,6 +39,8 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the values inside two options, returning a new option with the mapped value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map2</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the values inside the options.</param>
     /// <param name="input1">The first input option.</param>
@@ -51,6 +57,8 @@ module Option =
 
     /// <summary>
     /// Applies a mapper function to the values inside three options, returning a new option with the mapped value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map3</href>
     /// </summary>
     /// <param name="mapper">The function to apply to the values inside the options.</param>
     /// <param name="input1">The first input option.</param>
@@ -79,6 +87,8 @@ module Option =
 
     /// <summary>
     /// Converts a value option to a regular option.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/ofvalueoption</href>
     /// </summary>
     /// <param name="vopt">The value option to convert.</param>
     /// <returns>The converted regular option.</returns>
@@ -89,6 +99,8 @@ module Option =
 
     /// <summary>
     /// Converts an option value to a value option.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/tovalueoption</href>
     /// </summary>
     /// <param name="opt">The option value to convert.</param>
     /// <returns>A value option.</returns>
@@ -162,6 +174,8 @@ module Option =
 
     /// <summary>
     /// Takes two options and returns a tuple of the pair or <c>None</c> if either are <c>None</c>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/zip</href>
     /// </summary>
     /// <param name="left">The input option</param>
     /// <param name="right">The input option</param>
@@ -173,6 +187,8 @@ module Option =
 
     /// <summary>
     /// Converts a <c>Result</c> to an <c>option</c>.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/ofresult</href>
     /// </summary>
     /// <param name="r">The result to convert.</param>
     /// <returns>An option containing the value if the result is <c>Ok</c>, or <c>None</c> if the result is <c>Error</c></returns>
@@ -187,6 +203,8 @@ module Option =
     /// This is different from <see cref="FSharp.Core.Option.ofObj">Option.ofObj</see> where it doesn't require the value to be constrained to null.
     /// This is beneficial where third party APIs may generate a record type using reflection and it can be null.
     /// See <a href="https://latkin.org/blog/2015/05/18/null-checking-considerations-in-f-its-harder-than-you-think/">Null-checking considerations in F#</a> for more details.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/ofnull</href>
     /// </summary>
     /// <param name="value">The potentially null value</param>
     /// <returns>An option</returns>
@@ -202,6 +220,8 @@ module Option =
     /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c>
     ///
     /// Automatically onverts the result of binder that is pontentially null into an option.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bindnull</href>
     /// </summary>
     /// <param name="binder">A function that takes the value of type 'value from an option and transforms it into
     /// a value of type 'nullableValue.</param>
@@ -222,6 +242,8 @@ module Option =
 
     /// <summary>
     /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/either</href>
     /// </summary>
     /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
@@ -240,6 +262,8 @@ module Option =
 
     /// <summary>
     /// If the option is <c>Some</c>, executes the function on the <c>Some</c> value and passes through the input value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/teefunctions#teesome</href>
     /// </summary>
     /// <param name="f">The function to execute on the <c>Some</c> value.</param>
     /// <param name="opt">The input option.</param>
@@ -253,6 +277,8 @@ module Option =
 
     /// <summary>
     /// If the option is <c>None</c>, executes the function and passes through the input value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/teefunctions#teenone</href>
     /// </summary>
     /// <param name="f">The function to execute if the input is <c>None</c>.</param>
     /// <param name="opt">The input option.</param>
@@ -267,6 +293,8 @@ module Option =
     /// <summary>
     /// If the result is <c>Some</c> and the predicate returns true, executes the function
     /// on the <c>Some</c> value and passes through the input value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/teefunctions#teeif</href>
     /// </summary>
     /// <param name="predicate">The predicate to execute on the <c>Some</c> value.</param>
     /// <param name="f">The function to execute on the <c>Some</c> value if the predicate proves true</param>
@@ -289,6 +317,8 @@ module Option =
     /// Creates an option from a boolean value and a value of type 'a.
     /// If the boolean value is true, returns <c>Some</c> value.
     /// If the boolean value is false, returns <c>None</c>.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/transforms/ofpair</href>
     /// </summary>
     /// <param name="input">A tuple containing a boolean value and a value of type 'a.</param>
     /// <returns>An option value.</returns>
