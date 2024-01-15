@@ -1,3 +1,6 @@
+### 4.15.1 - January 15, 2024
+- [Doc updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/247) Credits @1eyewonder
+
 ### 4.15.0 - January 10, 2024
 - [Added Option functions and Added Missing Documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/246) Credits @1eyewonder
 
