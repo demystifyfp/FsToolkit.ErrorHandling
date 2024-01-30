@@ -7,10 +7,6 @@ open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET6_0
-open FSharp.Control.Tasks
-#endif
-
 
 [<Tests>]
 let ``TaskResultCE return Tests`` =
@@ -103,16 +99,6 @@ let ``TaskResultCE return! Tests`` =
 
                 Expect.equal actual (Result.Ok()) "Should be ok"
             }
-#if NETSTANDARD2_0
-        testCaseTask "Return Ply"
-        <| fun () ->
-            task {
-                let innerData = "Foo"
-                let! actual = taskResult { return! Unsafe.uply { return innerData } }
-
-                Expect.equal actual (Result.Ok innerData) "Should be ok"
-            }
-#endif
     ]
 
 
@@ -251,21 +237,6 @@ let ``TaskResultCE bind Tests`` =
 
                 Expect.equal actual (Ok()) "Should be ok"
             }
-#if NETSTANDARD2_0
-        testCaseTask "Bind Ply"
-        <| fun () ->
-            task {
-                let innerData = "Foo"
-
-                let! actual =
-                    taskResult {
-                        let! data = Unsafe.uply { return innerData }
-                        return data
-                    }
-
-                Expect.equal actual (Result.Ok innerData) "Should be ok"
-            }
-#endif
     ]
 
 
@@ -640,11 +611,7 @@ let ``TaskResultCE applicative tests`` =
                 Expect.equal actual (Ok 5) "Should be ok"
             }
         let specialCaseTask returnValue =
-#if NETSTANDARD2_0
-            Unsafe.uply { return returnValue }
-#else
             Task.FromResult returnValue
-#endif
 
         testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask"
         <| fun () ->

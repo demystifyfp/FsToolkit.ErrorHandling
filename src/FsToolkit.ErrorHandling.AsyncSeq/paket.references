@@ -1,6 +1,8 @@
 Microsoft.SourceLink.GitHub
 
 group NetStandard2
+    FSharp.Core
     FSharp.Control.AsyncSeq
 group NetStandard2_1
+    FSharp.Core
     FSharp.Control.AsyncSeq

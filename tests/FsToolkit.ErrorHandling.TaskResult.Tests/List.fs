@@ -7,11 +7,6 @@ open TestHelpers
 open System
 open FsToolkit.ErrorHandling
 
-#if NETSTANDARD2_0 || NET6_0
-open FSharp.Control.Tasks
-#endif
-
-
 let userId1 = Guid.NewGuid()
 let userId2 = Guid.NewGuid()
 let userId3 = Guid.NewGuid()
