@@ -19,7 +19,7 @@ jobs:
         # Builds for Debug and Release configurations
         configuration: [Debug, Release]
         # Builds for Ubuntu, Windows, and macOS
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
         node-version: ['18', '20', 'latest' ]
     runs-on: ${{ matrix.os }}
 
@@ -93,7 +93,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
         python-version: ['3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
 
