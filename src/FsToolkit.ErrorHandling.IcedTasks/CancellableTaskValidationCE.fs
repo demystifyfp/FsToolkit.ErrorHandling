@@ -175,7 +175,7 @@ module CancellableTaskValidationCE =
                     )
                 )
             )
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
+
         member inline internal this.TryFinallyAsync
             (
                 [<InlineIfLambda>] body: CancellableTaskValidationCode<'TOverall, 'Error, 'T>,
@@ -238,7 +238,6 @@ module CancellableTaskValidationCE =
                         ValueTask()
                 )
             )
-#endif
 
         [<NoEagerConstraintApplication>]
         static member inline BindDynamic

@@ -261,7 +261,6 @@ let ``AsyncOptionCE using Tests`` =
             Expect.equal actual (Some data) "Should be ok"
             Expect.isTrue isFinished ""
         }
-#if NET7_0
         testCaseAsync "use sync asyncdisposable"
         <| async {
             let data = 42
@@ -308,7 +307,7 @@ let ``AsyncOptionCE using Tests`` =
             Expect.equal actual (Some data) "Should be ok"
             Expect.isTrue isFinished ""
         }
-#endif
+
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42

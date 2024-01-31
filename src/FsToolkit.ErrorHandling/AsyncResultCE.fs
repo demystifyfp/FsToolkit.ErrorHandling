@@ -54,8 +54,6 @@ module AsyncResultCE =
             ) : Async<Result<'ok, 'error>> =
             async.TryFinally(computation, compensation)
 
-#if NETSTANDARD2_1
-
         member inline _.TryFinallyAsync
             (
                 computation: Async<Result<'ok, 'error>>,
@@ -90,8 +88,6 @@ module AsyncResultCE =
                         ValueTask()
                 )
             )
-#endif
-
 
         member inline this.While
             (

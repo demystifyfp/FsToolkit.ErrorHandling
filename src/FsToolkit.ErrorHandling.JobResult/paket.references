@@ -1,3 +1,4 @@
 Microsoft.SourceLink.GitHub
 FSharp.Core
 Hopac
+Microsoft.Bcl.AsyncInterfaces
