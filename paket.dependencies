@@ -2,39 +2,16 @@ source https://api.nuget.org/v3/index.json
 
 
 storage: none
-
+lowest_matching: true
+strategy: min
+nuget FSharp.Core >= 6.0.1
+nuget Hopac >=  0.5.1
+nuget FSharp.Control.AsyncSeq >= 3.2.1
+nuget Fable.Core >= 4.2.0
+nuget IcedTasks >= 0.10.2
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 
 
-
-
-group NetStandard2
-source https://api.nuget.org/v3/index.json
-lowest_matching: true
-strategy: min
-nuget FSharp.Core >= 4.7.2
-nuget Ply
-nuget Hopac
-nuget FSharp.Control.AsyncSeq
-nuget Fable.Core >= 4.2.0
-framework: netstandard2.0, net6.0
-storage: none
-condition: netstandard2_0
-
-
-
-
-group NetStandard2_1
-source https://api.nuget.org/v3/index.json
-lowest_matching: true
-strategy: min
-nuget FSharp.Core >= 7.0.0
-nuget Hopac
-nuget FSharp.Control.AsyncSeq
-nuget IcedTasks >= 0.7.0
-framework: netstandard2.1, net7.0
-storage: none
-condition: netstandard2_1
 
 group Test
 source https://api.nuget.org/v3/index.json
@@ -50,7 +27,6 @@ nuget Fable.Core
 nuget Fable.Mocha
 nuget Fable.Python
 nuget Fable.Pyxpecto
-nuget Ply
 
 group Benchmarks
 source https://api.nuget.org/v3/index.json

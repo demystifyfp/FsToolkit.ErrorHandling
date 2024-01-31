@@ -1,6 +1,5 @@
 group Test
   FSharp.Core
-  Ply
   Expecto
   Expecto.Hopac
   Microsoft.NET.Test.Sdk

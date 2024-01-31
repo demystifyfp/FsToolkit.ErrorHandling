@@ -6,4 +6,3 @@ group Test
   YoloDev.Expecto.TestSdk
   Fable.Mocha
   Fable.Pyxpecto
-  Ply
