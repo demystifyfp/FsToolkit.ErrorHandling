@@ -53,9 +53,7 @@ module AsyncResultCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : Async<Result<'ok, 'error>> =
             async.TryFinally(computation, compensation)
-
-#if NETSTANDARD2_1
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: Async<Result<'ok, 'error>>,
@@ -91,8 +89,6 @@ module AsyncResultCE =
                 )
             )
 #endif
-
-
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,

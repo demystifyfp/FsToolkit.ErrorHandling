@@ -18,10 +18,6 @@ module Expect =
 
 #endif
 
-#if NETSTANDARD2_0 || NET6_0
-    open FSharp.Control.Tasks
-#endif
-
 
 #if FABLE_COMPILER
     let isOk x message =

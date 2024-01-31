@@ -490,8 +490,7 @@ let ``AsyncResultOptionCE using Tests`` =
             Expect.equal actual (Ok(Some 42)) "Should be ok"
             Expect.isTrue disposed "Should be disposed"
         }
-
-#if NET7_0
+#if !FABLE_COMPILER
         testCaseAsync "use sync asyncdisposable"
         <| async {
             let data = 42
