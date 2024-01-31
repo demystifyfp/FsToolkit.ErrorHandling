@@ -463,7 +463,7 @@ let ``AsyncResultOptionCE using Tests`` =
 
             Expect.equal actual (OkSome data) "Should be ok"
         }
-
+#if !FABLE_COMPILER
         testCaseAsync "use sync asyncdisposable"
         <| async {
             let data = 42
@@ -510,6 +510,7 @@ let ``AsyncResultOptionCE using Tests`` =
             Expect.equal actual (OkSome data) "Should be ok"
             Expect.isTrue isFinished ""
         }
+#endif
 
         testCaseAsync "use! normal wrapped disposable"
         <| async {

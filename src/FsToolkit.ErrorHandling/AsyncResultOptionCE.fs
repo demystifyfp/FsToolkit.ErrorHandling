@@ -43,7 +43,7 @@ module AsyncResultOptionCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : AsyncResultOption<'ok, 'error> =
             async.TryFinally(computation, compensation)
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: AsyncResultOption<'ok, 'error>,
@@ -63,7 +63,6 @@ module AsyncResultOptionCE =
 
             Async.TryFinallyAsync(computation, compensation)
 
-
         member inline this.Using
             (
                 resource: 'ok :> IAsyncDisposable,
@@ -78,6 +77,7 @@ module AsyncResultOptionCE =
                         ValueTask()
                 )
             )
+#endif
 
         member inline this.While
             (

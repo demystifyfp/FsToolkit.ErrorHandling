@@ -45,7 +45,7 @@ module AsyncOptionCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : Async<'value option> =
             async.TryFinally(computation, compensation)
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: Async<'value option>,
@@ -80,7 +80,7 @@ module AsyncOptionCE =
                         ValueTask()
                 )
             )
-
+#endif
 
         member this.While
             (
