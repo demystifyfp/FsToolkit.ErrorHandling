@@ -4,7 +4,6 @@ open System
 open System.Threading.Tasks
 
 
-
 open System
 open System.Runtime.CompilerServices
 open System.Threading
@@ -153,7 +152,6 @@ type TaskOptionBuilderBase() =
             )
         )
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
     member inline internal this.TryFinallyAsync
         (
             body: TaskOptionCode<'TOverall, 'T>,
@@ -213,7 +211,6 @@ type TaskOptionBuilderBase() =
                     ValueTask()
             )
         )
-#endif
 
     member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
         computation
@@ -221,12 +218,9 @@ type TaskOptionBuilderBase() =
 
     member inline this.Source(taskOption: TaskOption<'T>) : TaskOption<'T> = taskOption
 
-
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
-
     member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> =
         taskOption.AsTask()
-#endif
+
 
 type TaskOptionBuilder() =
 
@@ -607,7 +601,6 @@ module TaskOptionCEExtensionsMediumPriority =
                 return Some()
             }
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
         member inline this.Source(t: ValueTask<'T>) : TaskOption<'T> =
             t
             |> Task.mapV Some
@@ -617,7 +610,6 @@ module TaskOptionCEExtensionsMediumPriority =
                 do! t
                 return Some()
             }
-#endif
 
         member inline this.Source(opt: Option<'T>) : TaskOption<'T> = Task.FromResult opt
 

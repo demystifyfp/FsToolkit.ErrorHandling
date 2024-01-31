@@ -1,22 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="SampleDomain.fs" />
-    <Compile Include="TestData.fs" />
-    <Compile Include="Expect.fs" />
-    <Compile Include="../FsToolkit.ErrorHandling.TaskResult.Tests/Expecto.fs" />
-    <Compile Include="CancellableTaskResultCE.fs" />
-    <Compile Include="CancellableTaskValidationCE.fs" />
-    <Compile Include="Main.fs" />
-    <None Include="paket.references" />
-    <Watch Include="@(None)" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="SampleDomain.fs" />
+        <Compile Include="TestData.fs" />
+        <Compile Include="Expect.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.TaskResult.Tests/Expecto.fs" />
+        <Compile Include="CancellableTaskResultCE.fs" />
+        <Compile Include="CancellableTaskValidationCE.fs" />
+        <Compile Include="Main.fs" />
+        <None Include="paket.references" />
+        <Watch Include="@(None)" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference
+            Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

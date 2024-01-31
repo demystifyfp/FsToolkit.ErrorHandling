@@ -4,7 +4,6 @@ open System
 open System.Threading.Tasks
 
 
-
 open System
 open System.Runtime.CompilerServices
 open System.Threading
@@ -153,7 +152,6 @@ type TaskResultBuilderBase() =
             )
         )
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
     member inline internal this.TryFinallyAsync
         (
             body: TaskResultCode<'TOverall, 'Error, 'T>,
@@ -215,7 +213,7 @@ type TaskResultBuilderBase() =
                     ValueTask()
             )
         )
-#endif
+
 
     member inline this.Source(taskResult: TaskResult<'T, 'Error>) : TaskResult<'T, 'Error> =
         taskResult
@@ -224,9 +222,8 @@ type TaskResultBuilderBase() =
         result
         |> Async.StartImmediateAsTask
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
     member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
-#endif
+
     member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
 
     member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =

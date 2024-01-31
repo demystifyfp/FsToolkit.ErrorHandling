@@ -177,7 +177,6 @@ module CancellableTaskResultCE =
                 )
             )
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
         member inline internal this.TryFinallyAsync
             (
                 body: CancellableTaskResultCode<'TOverall, 'Error, 'T>,
@@ -239,7 +238,7 @@ module CancellableTaskResultCE =
                         ValueTask()
                 )
             )
-#endif
+
         member inline this.Source
             (ctr: CancellableTaskResult<'T, 'Error>)
             : CancellableTaskResult<'T, 'Error> =
@@ -258,10 +257,9 @@ module CancellableTaskResultCE =
             |> Async.map Result.ofChoice
             |> this.Source
 
-#if NETSTANDARD2_1 || NET6_0_OR_GREATER
         member inline _.Source(t: ValueTask<Result<_, _>>) : CancellableTaskResult<'T, 'Error> =
             cancellableTask { return! t }
-#endif
+
         member inline _.Source(result: Result<_, _>) : CancellableTaskResult<_, _> =
             CancellableTask.singleton result
 
