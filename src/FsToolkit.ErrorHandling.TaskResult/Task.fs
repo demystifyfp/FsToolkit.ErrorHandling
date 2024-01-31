@@ -2,9 +2,6 @@ namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0
-open FSharp.Control.Tasks.Affine
-#endif
 
 [<RequireQualifiedAccess>]
 module Task =
@@ -18,12 +15,13 @@ module Task =
             return! f x
         }
 
+#if NETSTANDARD2_1 || NET6_0_OR_GREATER
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {
             let! x = x
             return! f x
         }
-
+#endif
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
@@ -34,12 +32,14 @@ module Task =
             >> singleton
         )
 
+#if NETSTANDARD2_1 || NET6_0_OR_GREATER
     let inline mapV ([<InlineIfLambda>] f) x =
         x
         |> bindV (
             f
             >> singleton
         )
+#endif
 
     let inline map2 ([<InlineIfLambda>] f) x y = (apply (apply (singleton f) x) y)
 

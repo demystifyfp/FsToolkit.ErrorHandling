@@ -1,6 +1,13 @@
 name: Build master
 
-on: [push, pull_request]
+on:
+  # Runs only on pushes to the default branch or pull requests to the default branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
 

@@ -1,7 +1,2 @@
-
+FSharp.Core
 Microsoft.SourceLink.GitHub
-
-group NetStandard2
-    FSharp.Core
-group NetStandard2_1
-    FSharp.Core

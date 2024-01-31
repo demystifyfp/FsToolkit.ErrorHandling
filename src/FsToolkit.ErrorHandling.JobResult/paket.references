@@ -1,6 +1,3 @@
 Microsoft.SourceLink.GitHub
-
-group NetStandard2
-    Hopac
-group NetStandard2_1
-    Hopac
+FSharp.Core
+Hopac
