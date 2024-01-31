@@ -53,3 +53,6 @@ group Build
     nuget Fake.BuildServer.GitHubActions 5.22.0
     nuget MSBuild.StructuredLogger
     nuget Octokit
+    nuget Nuget.Common >= 6.6.1
+    nuget NuGet.Protocol >= 6.6.1
+    nuget System.Security.Cryptography.Pkcs >= 7.0.2
