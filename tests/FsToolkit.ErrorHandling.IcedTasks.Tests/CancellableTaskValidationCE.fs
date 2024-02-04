@@ -1809,9 +1809,23 @@ module CancellableTaskValidationCE =
             ]
         ]
 
+
+    // let ``CancellableTaskResultCE inference checks`` =
+    //     testList "CancellableTaskResultCE inference checks" [
+    //         testCase "Inference checks"
+    //         <| fun () ->
+    //             // Compilation is success
+    //             let f res = cancellableTaskResult { return! res }
+
+    //             f (CancellableTaskResult.singleton ())
+    //             |> ignore
+    //     ]
+
+
     [<Tests>]
     let cancellableTaskValidationTests =
         testList "CancellableTaskValidation" [
             cancellableTaskValidationBuilderTests
             functionTests
+        // ``CancellableTaskResultCE inference checks``
         ]

@@ -8,11 +8,11 @@
         <NoWarn>FS3511;FS3513</NoWarn>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="CancellableTaskResultBuilderBase.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
         <None Include="paket.references" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="CancellableTaskValidationOp.fs" />
-        <Watch Include="@(None)" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference
