@@ -686,6 +686,19 @@ let ``AsyncResultOptionCE loop Tests`` =
         }
     ]
 
+
+let ``AsyncResultOptionCE inference checks`` =
+    testList "AsyncResultOptionCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncResultOption { return! res }
+
+            f (AsyncResultOption.retn ())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "AsyncResultCETests" [
         ``AsyncResultOptionCE return Tests``
@@ -695,4 +708,5 @@ let allTests =
         ``AsyncResultOptionCE try Tests``
         ``AsyncResultOptionCE using Tests``
         ``AsyncResultOptionCE loop Tests``
+        ``AsyncResultOptionCE inference checks``
     ]

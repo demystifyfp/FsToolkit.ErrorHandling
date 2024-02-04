@@ -542,8 +542,19 @@ let ``AsyncOptionCE Stack Trace Tests`` =
 
 #else
     testList "AsyncOptionCE Stack Trace Tests" []
-
 #endif
+
+
+let ``AsyncOptionCE inference checks`` =
+    testList "AsyncOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncOption { return! res }
+
+            f (AsyncOption.some ())
+            |> ignore
+    ]
 
 let allTests =
     testList "AsyncResultCETests" [
@@ -555,4 +566,5 @@ let allTests =
         ``AsyncOptionCE using Tests``
         ``AsyncOptionCE loop Tests``
         ``AsyncOptionCE Stack Trace Tests``
+        ``AsyncOptionCE inference checks``
     ]

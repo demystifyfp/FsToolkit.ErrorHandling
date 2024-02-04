@@ -733,6 +733,19 @@ let ``AsyncResultCE Stack Trace Tests`` =
 
 #endif
 
+
+let ``AsyncResultCE inference checks`` =
+    testList "AsyncResultCEInference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncResult { return! res }
+
+            f (AsyncResult.retn ())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "AsyncResultCETests" [
         ``AsyncResultCE return Tests``
@@ -744,4 +757,5 @@ let allTests =
         ``AsyncResultCE loop Tests``
         ``AsyncResultCE applicative tests``
         ``AsyncResultCE Stack Trace Tests``
+        ``AsyncResultCE inference checks``
     ]

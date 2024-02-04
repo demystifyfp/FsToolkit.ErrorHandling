@@ -545,10 +545,23 @@ let ``ValueOptionCE applicative tests`` =
     ]
 
 
+let ``ValueOptionCE inference checks`` =
+    testList "ValueOptionCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = voption { return! res }
+
+            f (ValueSome())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "ValueOption CE tests" [
         ceTests
         ``ValueOptionCE applicative tests``
+        ``ValueOptionCE inference checks``
     ]
 #else
 let allTests = testList "ValueOption CE tests" []
