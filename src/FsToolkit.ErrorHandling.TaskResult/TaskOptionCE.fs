@@ -212,15 +212,7 @@ type TaskOptionBuilderBase() =
             )
         )
 
-    member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
-        computation
-        |> Async.StartImmediateAsTask
-
     member inline this.Source(taskOption: TaskOption<'T>) : TaskOption<'T> = taskOption
-
-    member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> =
-        taskOption.AsTask()
-
 
 type TaskOptionBuilder() =
 
@@ -617,3 +609,17 @@ module TaskOptionCEExtensionsMediumPriority =
             computation
             |> Async.map Some
             |> Async.StartImmediateAsTask
+
+
+[<AutoOpen>]
+module TaskOptionCEExtensionsHighPriority2 =
+
+    // Medium priority extensions
+    type TaskOptionBuilderBase with
+
+        member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
+            computation
+            |> Async.StartImmediateAsTask
+
+        member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> =
+            taskOption.AsTask()

@@ -701,3 +701,16 @@ let ``BackgroundTaskResultCE applicative tests`` =
                 Expect.equal actual (Error errorMsg) "Should be Error"
             }
     ]
+
+
+[<Tests>]
+let ``BackgroundTaskResultCE inference checks`` =
+    testList "BackgroundTaskResultCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = backgroundTaskResult { return! res }
+
+            f (TaskResult.ok ())
+            |> ignore
+    ]

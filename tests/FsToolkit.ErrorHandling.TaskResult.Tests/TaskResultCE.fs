@@ -610,8 +610,7 @@ let ``TaskResultCE applicative tests`` =
 
                 Expect.equal actual (Ok 5) "Should be ok"
             }
-        let specialCaseTask returnValue =
-            Task.FromResult returnValue
+        let specialCaseTask returnValue = Task.FromResult returnValue
 
         testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask"
         <| fun () ->
@@ -689,4 +688,17 @@ let ``TaskResultCE applicative tests`` =
 
                 Expect.equal actual (Error errorMsg) "Should be Error"
             }
+    ]
+
+
+[<Tests>]
+let ``TaskResultCE inference checks`` =
+    testList "TaskResultCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = taskResult { return! res }
+
+            f (TaskResult.retn ())
+            |> ignore
     ]

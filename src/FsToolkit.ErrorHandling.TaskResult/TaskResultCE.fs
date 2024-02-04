@@ -218,19 +218,6 @@ type TaskResultBuilderBase() =
     member inline this.Source(taskResult: TaskResult<'T, 'Error>) : TaskResult<'T, 'Error> =
         taskResult
 
-    member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
-        result
-        |> Async.StartImmediateAsTask
-
-    member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
-
-    member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
-
-    member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
-        result
-        |> Result.ofChoice
-        |> Task.singleton
-
 
 type TaskResultBuilder() =
 
@@ -591,3 +578,23 @@ module TaskResultCEExtensionsMediumPriority =
             computation
             |> Async.map Ok
             |> Async.StartImmediateAsTask
+
+[<AutoOpen>]
+module TaskResultCEExtensionsHighPriority2 =
+
+    // Medium priority extensions
+    type TaskResultBuilderBase with
+
+
+        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
+            result
+            |> Async.StartImmediateAsTask
+
+        member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
+
+        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
+
+        member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
+            result
+            |> Result.ofChoice
+            |> Task.singleton

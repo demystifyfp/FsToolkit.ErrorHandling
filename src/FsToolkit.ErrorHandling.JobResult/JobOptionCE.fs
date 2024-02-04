@@ -118,19 +118,6 @@ module JobOptionCE =
         /// </summary>
         member inline _.Source(job: Job<_ option>) : Job<_ option> = job
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(async: Async<_ option>) : Job<_ option> =
-            async
-            |> Job.fromAsync
-
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(task: Task<_ option>) : Job<_ option> =
-            task
-            |> Job.awaitTask
 
     let jobOption = JobOptionBuilder()
 
@@ -173,3 +160,24 @@ module JobOptionCEExtensions =
             a
             |> Job.awaitTask
             |> Job.map Some
+
+[<AutoOpen>]
+// Having members as extensions gives them lower priority in
+// overload resolution and allows skipping more type annotations.
+module JobOptionCEExtensions2 =
+
+    type JobOptionBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(async: Async<_ option>) : Job<_ option> =
+            async
+            |> Job.fromAsync
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(task: Task<_ option>) : Job<_ option> =
+            task
+            |> Job.awaitTask
