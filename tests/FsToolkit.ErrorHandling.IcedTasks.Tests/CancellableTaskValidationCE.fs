@@ -19,11 +19,11 @@ module ValidationCompileTests =
             System.Console.WriteLine(dto)
         }
 
-    let testFunctionBCTV<'Dto> () =
-        backgroundCancellableTaskValidation {
-            let dto = Unchecked.defaultof<'Dto>
-            System.Console.WriteLine(dto)
-        }
+// let testFunctionBCTV<'Dto> () =
+//     backgroundCancellableTaskValidation {
+//         let dto = Unchecked.defaultof<'Dto>
+//         System.Console.WriteLine(dto)
+//     }
 
 module CancellableTaskValidationCE =
 
