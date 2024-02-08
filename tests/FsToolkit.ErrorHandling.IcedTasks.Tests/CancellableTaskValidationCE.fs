@@ -988,64 +988,335 @@ module CancellableTaskValidationCE =
             ]
 
             testList "applicatives" [
-                testCaseTask "Happy Path Result"
+                testCaseTask "cancellableTaskValidation x cancellableTaskValidation"
                 <| fun () ->
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = Ok 3
-                                and! b = Ok 2
-                                and! c = Ok 1
-                                return a + b - c
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = cancellableTaskValidation { return 3 }
+                                return a + b
                             }
 
                         let! actual = actual CancellationToken.None
-                        Expect.equal actual (Ok 4) "Should be ok"
+                        Expect.equal actual (Ok 6) "Should be ok"
                     }
-                testCaseTask "Happy Path Validation"
+                testCaseTask "cancellableTaskValidation x cancellableTask"
                 <| fun () ->
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = CancellableTaskValidation.ok 3
-                                and! b = CancellableTaskValidation.ok 2
-                                and! c = CancellableTaskValidation.ok 1
-                                return a + b - c
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = cancellableTask { return 3 }
+                                return a + b
                             }
 
                         let! actual = actual CancellationToken.None
-                        Expect.equal actual (Ok 4) "Should be ok"
+                        Expect.equal actual (Ok 6) "Should be ok"
                     }
 
-                testCaseTask "Happy Path Result/Valiation"
+                testCaseTask "cancellableTaskValidation x taskResult"
                 <| fun () ->
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = CancellableTaskValidation.ok 3
-                                and! b = Ok 2
-                                and! c = CancellableTaskValidation.ok 1
-                                return a + b - c
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = taskResult { return 3 }
+                                return a + b
                             }
 
                         let! actual = actual CancellationToken.None
-                        Expect.equal actual (Ok 4) "Should be ok"
+                        Expect.equal actual (Ok 6) "Should be ok"
                     }
 
-                testCaseTask "Happy Path Choice"
+
+                testCaseTask "cancellableTaskValidation x taskValidation"
                 <| fun () ->
                     task {
                         let actual =
                             cancellableTaskValidation {
-                                let! a = Choice1Of2 3
-                                and! b = Choice1Of2 2
-                                and! c = Choice1Of2 1
-                                return a + b - c
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = task { return Validation.ok 3 }
+                                return a + b
                             }
 
                         let! actual = actual CancellationToken.None
-                        Expect.equal actual (Ok 4) "Should be ok"
+                        Expect.equal actual (Ok 6) "Should be ok"
                     }
+
+                testCaseTask "cancellableTaskValidation x task"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = task { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "cancellableTaskValidation x ok"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! a = cancellableTaskValidation { return 3 }
+                                and! b = Ok 3
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "cancellableTask x cancellableTaskValidation "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = cancellableTaskValidation { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "cancellableTask x cancellableTask "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = cancellableTask { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "cancellableTask x taskResult "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = taskResult { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "cancellableTask x taskValidation "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = task { return Validation.Ok 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "cancellableTask x task "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = task { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "cancellableTask x ok "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = cancellableTask { return 3 }
+                                and! a = Ok 3
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "taskResult x cancellableTaskValidation "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = cancellableTaskValidation { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "taskResult x cancellableTask "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = cancellableTask { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "taskResult x taskResult "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = taskResult { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "taskResult x taskValidation "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = task { return Validation.ok 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+                testCaseTask "taskResult x task "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = task { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+                testCaseTask "taskResult x ok "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = taskResult { return 3 }
+                                and! a = Ok 3
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "task x cancellableTaskValidation "
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = task { return 3 }
+                                and! a = cancellableTaskValidation { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+                testCaseTask "task x cancellableTask"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = task { return 3 }
+                                and! a = cancellableTask { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "task x taskResult"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = task { return 3 }
+                                and! a = taskResult { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "task x task"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = task { return 3 }
+                                and! a = task { return 3 }
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
+
+                testCaseTask "task x ok"
+                <| fun () ->
+                    task {
+                        let actual =
+                            cancellableTaskValidation {
+                                let! b = task { return 3 }
+                                and! a = Ok 3
+                                return a + b
+                            }
+
+                        let! actual = actual CancellationToken.None
+                        Expect.equal actual (Ok 6) "Should be ok"
+                    }
+
 
                 testCaseTask "Happy Path Result/Choice/Validation"
                 <| fun () ->
