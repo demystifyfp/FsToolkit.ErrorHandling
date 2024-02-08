@@ -113,13 +113,6 @@ module ValueOptionCE =
         member inline _.Source(result: _ voption) : _ voption = result
 
 
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
-        member inline _.Source(vopt: _ option) : _ voption =
-            vopt
-            |> ValueOption.ofOption
-
     let voption = ValueOptionBuilder()
 
 [<AutoOpen>]
@@ -156,10 +149,18 @@ module ValueOptionExtensions =
         /// </summary>
         member inline _.Source(s: #seq<_>) = s
 
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
         member inline _.Source(nullable: Nullable<'a>) : 'a voption =
             nullable
             |> ValueOption.ofNullable
+
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(vopt: _ option) : _ voption =
+            vopt
+            |> ValueOption.ofOption
 #endif

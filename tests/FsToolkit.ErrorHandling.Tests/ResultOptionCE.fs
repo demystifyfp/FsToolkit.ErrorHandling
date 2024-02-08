@@ -511,6 +511,19 @@ let ``ResultOptionCE applicative tests`` =
             Expect.equal actual (Error errorMsg1) "Should be Error"
     ]
 
+
+let ``ResultOptionCE inference checks`` =
+    testList "ResultOptionCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = resultOption { return! res }
+
+            f (Ok(Some()))
+            |> ignore
+    ]
+
+
 let allTests =
     testList "Result CE Tests" [
         ``ResultOptionCE return Tests``
@@ -520,4 +533,5 @@ let allTests =
         ``ResultOptionCE using Tests``
         ``ResultOptionCE loop Tests``
         ``ResultOptionCE applicative tests``
+        ``ResultOptionCE inference checks``
     ]

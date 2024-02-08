@@ -435,6 +435,17 @@ let ``ResultCE applicative tests`` =
     ]
 
 
+let ``ResultCE inference checks`` =
+    testList "ResultCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = result { return! res }
+
+            f (Ok())
+            |> ignore
+    ]
+
 let allTests =
     testList "Result CE Tests" [
         ``ResultCE return Tests``
@@ -445,4 +456,5 @@ let allTests =
         ``ResultCE using Tests``
         ``ResultCE loop Tests``
         ``ResultCE applicative tests``
+        ``ResultCE inference checks``
     ]

@@ -103,19 +103,7 @@ module AsyncResultOptionCE =
             (result: AsyncResultOption<'ok, 'error>)
             : AsyncResultOption<'ok, 'error> =
             result
-#if !FABLE_COMPILER
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
-        ///
-        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
-        /// </summary>
-        member inline _.Source
-            (result: Task<Result<Option<'ok>, 'error>>)
-            : AsyncResultOption<'ok, 'error> =
-            result
-            |> Async.AwaitTask
-#endif
     let asyncResultOption = new AsyncResultOptionBuilder()
 
 
@@ -230,4 +218,23 @@ module AsyncResultOptionCEExtensionsHighPriority =
             result
             |> Async.AwaitTask
             |> AsyncResultOption.ofAsyncOption
+#endif
+
+#if !FABLE_COMPILER
+[<AutoOpen>]
+module AsyncResultOptionCEExtensionsHighPriority2 =
+
+    type AsyncResultOptionBuilder with
+
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+        ///
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source
+            (result: Task<Result<Option<'ok>, 'error>>)
+            : AsyncResultOption<'ok, 'error> =
+            result
+            |> Async.AwaitTask
 #endif

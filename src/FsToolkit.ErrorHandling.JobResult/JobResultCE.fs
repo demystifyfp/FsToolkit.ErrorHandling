@@ -123,20 +123,6 @@ module JobResultCE =
         /// </summary>
         member inline _.Source(job': Job<Result<_, _>>) : Job<Result<_, _>> = job'
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
-        /// </summary>
-        member inline _.Source(task: Task<Result<_, _>>) : Job<Result<_, _>> =
-            task
-            |> Job.awaitTask
-
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(result: Async<Result<_, _>>) : Job<Result<_, _>> =
-            result
-            |> Job.fromAsync
-
     let jobResult = JobResultBuilder()
 
 [<AutoOpen>]
@@ -194,3 +180,22 @@ module JobResultCEExtensions =
             t
             |> Job.awaitUnitTask
             |> Job.map Ok
+
+
+[<AutoOpen>]
+module JobResultCEExtensions2 =
+    type JobResultBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation. This is the identity method to recognize the self type.
+        /// </summary>
+        member inline _.Source(task: Task<Result<_, _>>) : Job<Result<_, _>> =
+            task
+            |> Job.awaitTask
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(result: Async<Result<_, _>>) : Job<Result<_, _>> =
+            result
+            |> Job.fromAsync
