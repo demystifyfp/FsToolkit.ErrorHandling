@@ -63,7 +63,7 @@ let createPostRequestFromDto (dto : CreatePostRequestDto) = result {
     // Parse the location DTO option to a Location option,
     // returning an error if it's Some and invalid
     let! location =
-      dto.Location |> Option.traverseResult locationDtoToLocation
+      dto.Location |> Option.traverseResult locationFromDto
 
     let! tweet = Tweet.TryCreate dto.Tweet
     return {
