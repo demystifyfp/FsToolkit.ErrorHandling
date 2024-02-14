@@ -1,18 +1,14 @@
 source https://api.nuget.org/v3/index.json
 
-
 storage: none
-
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
-
-
 
 
 group NetStandard2
 source https://api.nuget.org/v3/index.json
 lowest_matching: true
 strategy: min
-nuget FSharp.Core >= 4.7.2
+nuget FSharp.Core >= 4.7.2 content: none
 nuget Ply
 nuget Hopac
 nuget FSharp.Control.AsyncSeq
@@ -20,9 +16,6 @@ nuget Fable.Core >= 4.2.0
 framework: netstandard2.0, net6.0
 storage: none
 condition: netstandard2_0
-
-
-
 
 group NetStandard2_1
 source https://api.nuget.org/v3/index.json
@@ -35,6 +28,7 @@ nuget IcedTasks >= 0.7.0
 framework: netstandard2.1, net7.0
 storage: none
 condition: netstandard2_1
+
 
 group Test
 source https://api.nuget.org/v3/index.json
@@ -52,6 +46,7 @@ nuget Fable.Python
 nuget Fable.Pyxpecto
 nuget Ply
 
+
 group Benchmarks
 source https://api.nuget.org/v3/index.json
 storage: none
@@ -65,7 +60,7 @@ nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
 group Build
     source https://api.nuget.org/v3/index.json
     storage: none
-    nuget FSharp.Core
+    nuget FSharp.Core content: none
     nuget Fake.Core.Target 5.22.0
     nuget Fake.DotNet.Cli 5.22.0
     nuget Fake.Core.ReleaseNotes 5.22.0
