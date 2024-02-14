@@ -1,6 +1,5 @@
 module SeqTests
 
-
 #if FABLE_COMPILER_PYTHON
 open Fable.Pyxpecto
 #endif
@@ -12,60 +11,50 @@ open Expecto
 #endif
 open SampleDomain
 open TestData
-open TestHelpers
-open System
 open FsToolkit.ErrorHandling
-
 
 let sequenceResultMTests =
     testList "Seq.sequenceResultM Tests" [
-        testCase "traverseResult with an empty sequence"
+        testCase "sequenceResult with an empty sequence"
         <| fun _ ->
-            let tweets = []
-            let expected = Ok []
-
-            let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-                |> Result.map Seq.toList
-
-            Expect.equal actual expected "Should have an empty list of valid tweets"
-
-        testCase "traverseResult with a sequence of valid data"
-        <| fun _ ->
-            let tweets = [
-                "Hi"
-                "Hello"
-                "Hola"
-            ]
-
-            let expected =
-                List.map tweet tweets
-                |> Ok
-
-            let actual =
-                Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-                |> Result.map Seq.toList
-
-            Expect.equal actual expected "Should have a list of valid tweets"
-
-        testCase "sequenceResultM with few invalid data"
-        <| fun _ ->
-            let tweets =
-                [
-                    ""
-                    "Hello"
-                    aLongerInvalidTweet
-                ]
-                :> seq<_>
+            let tweets = Seq.empty
+            let expected = Ok [||]
 
             let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
 
-            Expect.equal
-                actual
-                (Error emptyTweetErrMsg)
-                "traverse the sequence and return the first error"
+            Expect.equal actual expected "Should have an empty list of valid tweets"
 
-        testCase "sequenceResultM stops after first invalid data"
+        testCase "sequenceResult with a sequence of valid data"
+        <| fun _ ->
+            let tweets =
+                seq {
+                    "Hi"
+                    "Hello"
+                    "Hola"
+                }
+
+            let expected = Ok [| for x in tweets -> tweet x |]
+
+            let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+
+            Expect.equal actual expected "Should have a list of valid tweets"
+
+        testCase "sequenceResult with few invalid data"
+        <| fun _ ->
+            let tweets =
+                seq {
+                    ""
+                    "Hello"
+                    aLongerInvalidTweet
+                }
+
+            let expected = Error emptyTweetErrMsg
+
+            let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+
+            Expect.equal actual expected "traverse the sequence and return the first error"
+
+        testCase "sequenceResult stops after first invalid data"
         <| fun _ ->
             let mutable counter = 0
 
@@ -81,12 +70,11 @@ let sequenceResultMTests =
                         + 1
                 }
 
+            let expected = Error longerTweetErrMsg
+
             let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
 
-            Expect.equal
-                actual
-                (Error longerTweetErrMsg)
-                "traverse the sequence and return the first error"
+            Expect.equal actual expected "traverse the sequence and return the first error"
 
             Expect.equal counter 0 "evaluation of the sequence stops at the first error"
     ]
