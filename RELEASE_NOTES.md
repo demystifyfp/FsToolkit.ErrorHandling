@@ -1,4 +1,4 @@
-### 4.16.0
+### 5.0.0-alpha.1
 - [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
 - [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
 
