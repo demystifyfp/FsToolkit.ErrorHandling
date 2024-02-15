@@ -59,7 +59,7 @@ let checkIfAllPrime (numbers : int list) =
     numbers
     |> List.map isPrime // Result<bool, string> list
     |> List.sequenceResultA // Result<bool list, string list>
-    |> Result.map (List.forall id) // shortened version of '|> Result.map (fun boolList -> boolList |> List.map (fun x -> x = true))'
+    |> Result.map (List.forall id) // shortened version of '|> Result.map (fun boolList -> boolList |> List.forall (fun x -> x = true))
     
 let a = [1; 2; 3; 4; 5;] |> checkIfAllPrime
 // Error ["1 must be greater than 1"]
