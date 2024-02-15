@@ -48,11 +48,11 @@ let isPrime (x: int) =
             else isPrime' x (i + 1)
         isPrime' x 2
   
-// int seq -> Result<bool, string list>      
+// int seq -> Result<bool, string[]>      
 let checkIfAllPrime (numbers: seq<int>) =
     numbers
-    |> Seq.map isPrime // Result<bool, string> list
-    |> Seq.sequenceResultM // Result<bool list, string>
+    |> Seq.map isPrime // seq<Result<bool, string>>
+    |> Seq.sequenceResultM // Result<bool[], string>
     |> Result.map (Array.forall id) // shortened version of '|> Result.map (fun bools -> bools |> Array.forall (fun x -> x = true))'
     
 let a = [ 1; 2; 3; 4; 5 ] |> checkIfAllPrime
