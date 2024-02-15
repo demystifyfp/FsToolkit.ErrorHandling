@@ -1,5 +1,6 @@
 ### 4.16.0
 - [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
+- [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
 
 ### 4.15.1 - January 15, 2024
 - [Doc updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/247) Credits @1eyewonder

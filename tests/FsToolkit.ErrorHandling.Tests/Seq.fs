@@ -79,4 +79,68 @@ let sequenceResultMTests =
             Expect.equal counter 0 "evaluation of the sequence stops at the first error"
     ]
 
-let allTests = testList "Seq Tests" [ sequenceResultMTests ]
+let sequenceResultATests =
+    testList "Seq.sequenceResultA Tests" [
+        testCase "valid data only"
+        <| fun _ ->
+            let tweets =
+                seq {
+                    "Hi"
+                    "Hello"
+                    "Hola"
+                }
+
+            let expected = Ok [| for t in tweets -> tweet t |]
+
+            let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
+
+            Expect.equal actual expected "Should yield an array of valid tweets"
+
+        testCase "valid and multiple invalid data"
+        <| fun _ ->
+            let tweets = [
+                ""
+                "Hello"
+                aLongerInvalidTweet
+            ]
+
+            let expected =
+                Error [|
+                    emptyTweetErrMsg
+                    longerTweetErrMsg
+                |]
+
+            let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
+
+            Expect.equal actual expected "traverse the seq and return all the errors"
+
+        testCase "iterates exacly once"
+        <| fun _ ->
+            let mutable counter = 0
+
+            let tweets =
+                seq {
+                    "Hi"
+                    "Hello"
+                    "Hola"
+                    aLongerInvalidTweet
+
+                    counter <-
+                        counter
+                        + 1
+                }
+
+            let expected = Error [| longerTweetErrMsg |]
+
+            let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
+
+            Expect.equal actual expected "traverse the seq and return all the errors"
+
+            Expect.equal counter 1 "evaluation of the sequence completes exactly once"
+    ]
+
+let allTests =
+    testList "Seq Tests" [
+        sequenceResultMTests
+        sequenceResultATests
+    ]
