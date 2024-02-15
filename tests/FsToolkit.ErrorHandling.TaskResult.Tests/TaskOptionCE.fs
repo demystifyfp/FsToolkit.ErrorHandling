@@ -4,9 +4,6 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET6_0
-open FSharp.Control.Tasks
-#endif
 
 module TestFuncs =
     let testFunctionTO<'Dto> () =

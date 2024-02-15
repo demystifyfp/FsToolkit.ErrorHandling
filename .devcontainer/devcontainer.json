@@ -23,8 +23,8 @@
         "ghcr.io/devcontainers-contrib/features/starship:1": {},
         // https://github.com/devcontainers/features/blob/main/src/dotnet/README.md
         "ghcr.io/devcontainers/features/dotnet:2": {
-            "version": "7.0",
-            "additionalVersions": "6.0"
+            "version": "8.0",
+            "additionalVersions": "7.0,6.0"
         },
         "ghcr.io/devcontainers/features/node:1": {
             "version": "18"

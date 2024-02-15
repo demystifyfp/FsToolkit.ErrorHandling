@@ -1,21 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
-    <DebugType>portable</DebugType>
-    <NoWarn>FS3511;FS3513</NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="CancellableTaskResultCE.fs" />
-    <None Include="paket.references" />
-    <Compile Include="CancellableTaskValidationCE.fs" />
-    <Compile Include="CancellableTaskValidationOp.fs" />
-    <Watch Include="@(None)" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>preview</LangVersion>
+        <DebugType>portable</DebugType>
+        <NoWarn>FS3511;FS3513</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="CancellableTaskResultCE.fs" />
+        <None Include="paket.references" />
+        <Compile Include="CancellableTaskValidationCE.fs" />
+        <Compile Include="CancellableTaskValidationOp.fs" />
+        <Watch Include="@(None)" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference
+            Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
