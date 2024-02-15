@@ -19,3 +19,19 @@ let sequenceResultM (xs: seq<Result<'t, 'e>>) : Result<'t[], 'e> =
             err <- e
 
     if ok then Ok(acc.ToArray()) else Error err
+
+let sequenceResultA (xs: seq<Result<'t, 'e>>) : Result<'t[], 'e[]> =
+    if isNull xs then
+        nullArg (nameof xs)
+
+    let oks = ResizeArray()
+    let errs = ResizeArray()
+
+    for x in xs do
+        match x with
+        | Ok r -> oks.Add r
+        | Error e -> errs.Add e
+
+    match errs.ToArray() with
+    | [||] -> Ok(oks.ToArray())
+    | errs -> Error errs
