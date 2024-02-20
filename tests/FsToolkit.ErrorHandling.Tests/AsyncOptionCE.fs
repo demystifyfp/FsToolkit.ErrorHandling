@@ -39,6 +39,15 @@ let ``AsyncOptionCE return! Tests`` =
             Expect.equal actual (data) "Should be ok"
         }
 
+        testCaseAsync "Return ValueSome AsyncOption"
+        <| async {
+            let innerData = "Foo"
+            let data = ValueSome innerData
+            let! actual = asyncOption { return! data }
+
+            Expect.equal actual (data) "Should be ok"
+        }
+
         testCaseAsync "Return Some AsyncOption"
         <| async {
             let innerData = "Foo"
@@ -89,6 +98,21 @@ let ``AsyncOptionCE bind Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Some innerData
+
+            let! actual =
+                asyncOption {
+                    let! data = data
+                    return data
+                }
+
+            Expect.equal actual (data) "Should be ok"
+
+        }
+
+        testCaseAsync "Bind ValueSome AsyncOption"
+        <| async {
+            let innerData = "Foo"
+            let data = ValueSome innerData
 
             let! actual =
                 asyncOption {
