@@ -139,7 +139,7 @@ module AsyncValidationCE =
     let asyncValidation = AsyncValidationBuilder()
 
 [<AutoOpen>]
-module HighPriority =
+module LowPriority =
 
     // Having members as extensions gives them lower priority in
     // overload resolution and allows skipping more type annotations.
@@ -148,15 +148,19 @@ module HighPriority =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(s: Async<Result<'ok, 'error>>) : AsyncValidation<_, 'error> =
-            s
-            |> AsyncResult.mapError (fun e -> [ e ])
+        member inline _.Source(s: Async<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
+            AsyncResult.mapError List.singleton s
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(s: Result<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-            AsyncValidation.ofResult s
+        member inline _.Source(s: Result<'ok, 'error list>) : AsyncValidation<'ok, 'error> =
+            Async.retn s
+
+[<AutoOpen>]
+module HighPriority =
+
+    type AsyncValidationBuilder with
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -171,6 +175,12 @@ module HighPriority =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
+        member inline _.Source(s: Result<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+            AsyncValidation.ofResult s
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
         /// <returns></returns>
         member inline _.Source(choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
             AsyncValidation.ofChoice choice
@@ -179,14 +189,3 @@ module HighPriority =
         /// Needed to allow `for..in` and `for..do` functionality
         /// </summary>
         member inline _.Source(s: #seq<_>) : #seq<_> = s
-
-[<AutoOpen>]
-module LowPriority =
-
-    type AsyncValidationBuilder with
-
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(s: Validation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-            Async.retn s

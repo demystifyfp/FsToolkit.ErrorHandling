@@ -158,11 +158,12 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "let! Error Validation"
         <| async {
             let innerData = "Foo"
-            let expected = Error [ innerData ]
+            let error = Error innerData
+            let expected = Error [ [ innerData ] ]
 
             let! actual =
                 asyncValidation {
-                    let! f = validation { return! expected }
+                    let! f = validation { return! error }
                     return f
                 }
 
@@ -448,7 +449,7 @@ let ``AsyncValidationCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
-        testCaseAsync "Happy Path Result/Valiation"
+        testCaseAsync "Happy Path Result/Validation"
         <| async {
             let! actual =
                 asyncValidation {
@@ -485,6 +486,30 @@ let ``AsyncValidationCE applicative tests`` =
                 }
 
             Expect.equal actual (Ok 4) "Should be ok"
+        }
+
+        testCaseAsync "Happy Path Async Result/Async Result"
+        <| async {
+            let! actual =
+                asyncValidation {
+                    let! _ =
+                        async {
+                            do! Async.Sleep(1000)
+                            printfn "Hello"
+                            return Error "Hello"
+                        }
+
+                    and! _ =
+                        async {
+                            do! Async.Sleep(1000)
+                            printfn "World"
+                            return Error "World"
+                        }
+
+                    return ()
+                }
+
+            Expect.equal actual (Ok()) "Should be ok"
         }
 
         testCaseAsync "Fail Path Result"
