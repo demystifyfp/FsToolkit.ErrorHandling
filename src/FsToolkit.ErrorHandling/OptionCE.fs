@@ -184,3 +184,8 @@ module OptionExtensions =
         /// </summary>
         member inline _.Source(nullable: Nullable<'value>) : 'value option =
             Option.ofNullable nullable
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt

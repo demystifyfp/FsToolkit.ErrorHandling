@@ -438,16 +438,6 @@ let ``AsyncResultOptionCE try Tests`` =
         }
     ]
 
-let makeDisposable callback =
-    { new System.IDisposable with
-        member this.Dispose() = callback ()
-    }
-
-let makeAsyncDisposable (callback) =
-    { new System.IAsyncDisposable with
-        member this.DisposeAsync() = callback ()
-    }
-
 
 let ``AsyncResultOptionCE using Tests`` =
     testList "AsyncResultOptionCE using Tests" [
@@ -456,9 +446,10 @@ let ``AsyncResultOptionCE using Tests`` =
             let data = 42
             let mutable isFinished = false
 
+
             let! actual =
                 asyncResultOption {
-                    use d = makeDisposable (fun () -> isFinished <- true)
+                    use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                     return data
                 }
 
@@ -520,7 +511,7 @@ let ``AsyncResultOptionCE using Tests`` =
             let! actual =
                 asyncResultOption {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 task {
                                     do! Task.Yield()
@@ -547,7 +538,7 @@ let ``AsyncResultOptionCE using Tests`` =
             let! actual =
                 asyncResultOption {
                     use! d =
-                        makeDisposable (fun () -> isFinished <- true)
+                        TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         |> Result.Ok
 
                     return data
@@ -715,6 +706,19 @@ let ``AsyncResultOptionCE loop Tests`` =
         }
     ]
 
+
+let ``AsyncResultOptionCE inference checks`` =
+    testList "AsyncResultOptionCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncResultOption { return! res }
+
+            f (AsyncResultOption.retn ())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "AsyncResultCETests" [
         ``AsyncResultOptionCE return Tests``
@@ -724,4 +728,5 @@ let allTests =
         ``AsyncResultOptionCE try Tests``
         ``AsyncResultOptionCE using Tests``
         ``AsyncResultOptionCE loop Tests``
+        ``AsyncResultOptionCE inference checks``
     ]

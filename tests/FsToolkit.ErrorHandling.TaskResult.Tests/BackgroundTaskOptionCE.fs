@@ -479,3 +479,15 @@ let ceTestsApplicative =
                 Expect.equal actual None "Should be ok"
             }
     ]
+
+[<Tests>]
+let ``BackgroundTaskOptionCE inference checks`` =
+    testList "BackgroundTaskOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = backgroundTaskOption { return! res }
+
+            f (TaskOption.some ())
+            |> ignore
+    ]

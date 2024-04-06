@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
