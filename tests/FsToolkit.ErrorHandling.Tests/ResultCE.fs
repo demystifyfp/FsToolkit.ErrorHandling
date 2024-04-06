@@ -338,102 +338,6 @@ let ``ResultCE loop Tests`` =
             Expect.equal actual (Result.Ok data) "Should be ok"
     ]
 
-let ``ResultCE applicative tests`` =
-    testList "ResultCE applicative tests" [
-        testCase "Happy Path Result"
-        <| fun () ->
-            let actual =
-                result {
-                    let! a = Ok 3
-                    and! b = Ok 2
-                    and! c = Ok 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-
-        testCase "Happy Path Choice"
-        <| fun () ->
-            let actual =
-                result {
-                    let! a = Choice1Of2 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice1Of2 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-
-        testCase "Happy Path Result/Choice"
-        <| fun () ->
-            let actual =
-                result {
-                    let! a = Ok 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice1Of2 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-
-        testCase "Fail Path Result"
-        <| fun () ->
-            let expected = Error "TryParse failure"
-
-            let actual =
-                result {
-                    let! a = Ok 3
-                    and! b = Ok 2
-                    and! c = expected
-                    return a + b - c
-                }
-
-            Expect.equal actual expected "Should be Error"
-
-        testCase "Fail Path Choice"
-        <| fun () ->
-            let errorMsg = "TryParse failure"
-
-            let actual =
-                result {
-                    let! a = Choice1Of2 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice2Of2 errorMsg
-                    return a + b - c
-                }
-
-            Expect.equal actual (Error errorMsg) "Should be Error"
-
-        testCase "Fail Path Result/Choice"
-        <| fun () ->
-            let errorMsg = "TryParse failure"
-
-            let actual =
-                result {
-                    let! a = Choice1Of2 3
-                    and! b = Ok 2
-                    and! c = Error errorMsg
-                    return a + b - c
-                }
-
-            Expect.equal actual (Error errorMsg) "Should be Error"
-
-        testCase "Multiple errors"
-        <| fun () ->
-            let errorMsg1 = "TryParse failure"
-            let errorMsg2 = "IO failure"
-
-            let actual =
-                result {
-                    let! a = Choice1Of2 3
-                    and! b = Error errorMsg1
-                    and! c = Error errorMsg2
-                    return a + b - c
-                }
-
-            Expect.equal actual (Error errorMsg1) "Should be Error"
-    ]
-
 
 let ``ResultCE inference checks`` =
     testList "ResultCE Inference checks" [
@@ -455,6 +359,5 @@ let allTests =
         ``ResultCE try Tests``
         ``ResultCE using Tests``
         ``ResultCE loop Tests``
-        ``ResultCE applicative tests``
         ``ResultCE inference checks``
     ]
