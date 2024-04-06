@@ -438,30 +438,23 @@ let ``AsyncResultOptionCE try Tests`` =
         }
     ]
 
-let makeDisposable () =
-    { new System.IDisposable with
-        member this.Dispose() = ()
-    }
-
-let makeAsyncDisposable (callback) =
-    { new System.IAsyncDisposable with
-        member this.DisposeAsync() = callback ()
-    }
-
 
 let ``AsyncResultOptionCE using Tests`` =
     testList "AsyncResultOptionCE using Tests" [
         testCaseAsync "use normal disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
+
 
             let! actual =
                 asyncResultOption {
-                    use d = makeDisposable ()
+                    use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                     return data
                 }
 
             Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished ""
         }
 #if !FABLE_COMPILER
         testCaseAsync "use sync asyncdisposable"
@@ -493,7 +486,7 @@ let ``AsyncResultOptionCE using Tests`` =
             let! actual =
                 asyncResultOption {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 task {
                                     do! Task.Yield()
@@ -515,17 +508,19 @@ let ``AsyncResultOptionCE using Tests`` =
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncResultOption {
                     use! d =
-                        makeDisposable ()
+                        TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         |> Result.Ok
 
                     return data
                 }
 
             Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished ""
         }
 #if !FABLE_COMPILER
         // Fable can't handle null disposables you get
