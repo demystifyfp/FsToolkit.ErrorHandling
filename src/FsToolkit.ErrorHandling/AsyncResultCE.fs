@@ -112,14 +112,6 @@ module AsyncResultCE =
             ) : Async<Result<'okOutput, 'error>> =
             AsyncResult.map f x
 
-        member inline _.MergeSources
-            (
-                t1: Async<Result<'leftOk, 'error>>,
-                t2: Async<Result<'rightOk, 'error>>
-            ) : Async<Result<'leftOk * 'rightOk, 'error>> =
-            AsyncResult.zip t1 t2
-
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///

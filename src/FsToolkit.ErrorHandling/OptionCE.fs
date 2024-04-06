@@ -111,13 +111,6 @@ module OptionCE =
             ) : 'output option =
             Option.map f (Option.ofObj x)
 
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip option1 option2
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -144,29 +137,6 @@ module OptionExtensionsLower =
             Option.ofObj nullableObj
 
         member inline _.Source(m: string) : string option = Option.ofObj m
-
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (option1) (Option.ofObj nullableObj2)
-
-
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
 
 [<AutoOpen>]
 module OptionExtensions =

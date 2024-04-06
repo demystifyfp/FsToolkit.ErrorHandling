@@ -103,8 +103,6 @@ module ValueOptionCE =
             |> ValueOption.ofObj
             |> ValueOption.map f
 
-        member inline _.MergeSources(option1, option2) = ValueOption.zip option1 option2
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -126,17 +124,6 @@ module ValueOptionExtensionsLower =
         member inline _.Source(m: string) =
             m
             |> ValueOption.ofObj
-
-        member inline _.MergeSources(nullableObj1, option2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources(option1, nullableObj2) =
-            ValueOption.zip (option1) (ValueOption.ofObj nullableObj2)
-
-
-        member inline _.MergeSources(nullableObj1, nullableObj2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) (ValueOption.ofObj nullableObj2)
 
 [<AutoOpen>]
 module ValueOptionExtensions =
