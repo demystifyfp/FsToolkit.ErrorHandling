@@ -174,6 +174,12 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 
+module BuildParameters =
+    let common (defaults: MSBuild.CliArguments) = {
+        defaults with
+            DisableInternalBinLog = true
+    }
+
 let build ctx =
 
     let args = [ maxCpuMsBuild.Value ]
@@ -182,6 +188,7 @@ let build ctx =
         c with
             NoRestore = true
             Configuration = (configuration ctx.Context.AllExecutingTargets)
+            MSBuildParams = BuildParameters.common c.MSBuildParams
             Common =
                 c.Common
                 |> DotNet.Options.withAdditionalArgs args
@@ -196,7 +203,12 @@ let restore _ =
             ToolType = ToolType.CreateLocalTool()
     })
 
-    DotNet.restore id solutionFile
+    let setParams (c: DotNet.RestoreOptions) = {
+        c with
+            MSBuildParams = BuildParameters.common c.MSBuildParams
+    }
+
+    DotNet.restore setParams solutionFile
 
 let npmRestore _ = Npm.install id
 
@@ -217,6 +229,7 @@ let dotnetTest ctx =
                     Common =
                         c.Common
                         |> DotNet.Options.withAdditionalArgs args
+                    MSBuildParams = BuildParameters.common c.MSBuildParams
             })
         solutionFile
 
@@ -333,14 +346,16 @@ let dotnetPack ctx =
                 // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                 OutputPath = Some distDir
                 Configuration = configuration ctx.Context.AllExecutingTargets
-                MSBuildParams = {
-                    MSBuild.CliArguments.Create() with
-                        // "/p" (property) arguments to MSBuild.exe
-                        Properties = [
-                            ("Version", release.NugetVersion)
-                            ("PackageReleaseNotes", releaseNotes)
-                        ]
-                }
+                MSBuildParams =
+                    {
+                        MSBuild.CliArguments.Create() with
+                            // "/p" (property) arguments to MSBuild.exe
+                            Properties = [
+                                ("Version", release.NugetVersion)
+                                ("PackageReleaseNotes", releaseNotes)
+                            ]
+                    }
+                    |> BuildParameters.common
         })
     )
 
