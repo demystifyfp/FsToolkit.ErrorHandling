@@ -10,40 +10,43 @@ module FsToolkit.ErrorHandling.Seq
 /// <param name="state">The initial state</param>
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
-/// <returns>A result with the ok elements in a sequence or the first error occurring in the sequence</returns>
+/// <returns>A result with the ok elements in an array or the first error occurring in the sequence</returns>
 let inline traverseResultM'
-    state
+    (state: Result<'okOutput seq, 'error>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
     (xs: 'okInput seq)
-    =
+    : Result<'okOutput[], 'error> =
+    if isNull xs then
+        nullArg (nameof xs)
+
     match state with
-    | Error _ -> state
-    | Ok oks ->
+    | Error e -> Error e
+    | Ok initialSuccesses ->
+
         use enumerator = xs.GetEnumerator()
 
-        let rec loop oks =
-            if enumerator.MoveNext() then
-                match f enumerator.Current with
-                | Ok ok ->
-                    loop (
-                        seq {
-                            yield ok
-                            yield! oks
-                        }
-                    )
-                | Error e -> Error e
-            else
-                Ok(Seq.rev oks)
+        let acc = ResizeArray(initialSuccesses)
+        let mutable err = Unchecked.defaultof<'error>
+        let mutable ok = true
+        use e = xs.GetEnumerator()
 
-        loop oks
+        while ok
+              && e.MoveNext() do
+            match f e.Current with
+            | Ok r -> acc.Add r
+            | Error e ->
+                ok <- false
+                err <- e
+
+        if ok then Ok(acc.ToArray()) else Error err
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
 /// </summary>
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
-/// <returns>A result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-/// <remarks>This function is equivalent to <see cref="traverseResultM'"/> but applying and initial state of 'Seq.empty'</remarks>
+/// <returns>A result with the ok elements in an array, or the first error occurring in the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseResultM'"/> but applying an initial state of 'Seq.empty'</remarks>
 let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
 
 /// <summary>
@@ -60,45 +63,55 @@ let sequenceResultM xs = traverseResultM id xs
 /// <param name="state">The initial state</param>
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
-/// <returns>A result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
-let inline traverseResultA' state ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>) xs =
-    let folder state x =
-        match state, f x with
-        | Error errors, Error e ->
-            seq {
-                e
-                yield! Seq.rev errors
-            }
-            |> Seq.rev
-            |> Error
-        | Ok oks, Ok ok ->
-            seq {
-                ok
-                yield! Seq.rev oks
-            }
-            |> Seq.rev
-            |> Ok
-        | Ok _, Error e ->
-            Seq.singleton e
-            |> Error
-        | Error _, Ok _ -> state
+/// <returns>If no Errors encountered, an Ok result bearing an array of the ok elements from the 'state' followed by those gathered from the sequence, or an Error bearing an array of all errors from the 'state' and/or those in the sequence</returns>
+let inline traverseResultA'
+    (state: Result<'okOutput seq, 'error seq>)
+    ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+    xs
+    =
 
-    Seq.fold folder state xs
+    if isNull xs then
+        nullArg (nameof xs)
+
+    match state with
+    | Error failuresToDate ->
+        let errs = ResizeArray(failuresToDate)
+
+        for x in xs do
+            match f x with
+            | Ok _ -> () // as the initial state was failure, oks are irrelevant
+            | Error e -> errs.Add e
+
+        Error(errs.ToArray())
+    | Ok initialSuccesses ->
+
+        let oks = ResizeArray(initialSuccesses)
+        let errs = ResizeArray()
+
+        for x in xs do
+            match f x with
+            | Error e -> errs.Add e
+            | Ok r when errs.Count = 0 -> oks.Add r
+            | Ok _ -> () // no point saving results we won't use given the end result will be Error
+
+        match errs.ToArray() with
+        | [||] -> Ok(oks.ToArray())
+        | errs -> Error errs
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
 /// </summary>
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
-/// <returns>A result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
-/// <remarks>This function is equivalent to <see cref="traverseResultA'"/> but applying and initial state of 'Seq.empty'</remarks>
+/// <returns>A result with the ok elements in an array or an array of all errors from across the 'state' and the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseResultA'"/> but applying an initial state of Seq.empty'</remarks>
 let traverseResultA f xs = traverseResultA' (Ok Seq.empty) f xs
 
 /// <summary>
 /// Converts a sequence of results into a single result
 /// </summary>
 /// <param name="xs">The input sequence</param>
-/// <returns>A result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
+/// <returns>A result with the ok elements in an array or an array of all errors from across the 'state' and the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultA"/> but auto-applying the 'id' function</remarks>
 let sequenceResultA xs = traverseResultA id xs
 
@@ -146,7 +159,7 @@ let inline traverseAsyncResultM'
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
 /// <returns>An async result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-/// <remarks>This function is equivalent to <see cref="traverseAsyncResultM'"/> but applying and initial state of 'Seq.empty'</remarks>
+/// <remarks>This function is equivalent to <see cref="traverseAsyncResultM'"/> but applying an initial state of 'Seq.empty'</remarks>
 let traverseAsyncResultM f xs =
     traverseAsyncResultM' (async { return Ok Seq.empty }) f xs
 
@@ -205,7 +218,7 @@ let inline traverseAsyncResultA'
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
 /// <returns>An async result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
-/// <remarks>This function is equivalent to <see cref="traverseAsyncResultA'"/> but applying and initial state of 'Seq.empty'</remarks>
+/// <remarks>This function is equivalent to <see cref="traverseAsyncResultA'"/> but applying an initial state of 'Seq.empty'</remarks>
 let traverseAsyncResultA f xs =
     traverseAsyncResultA' (async { return Ok Seq.empty }) f xs
 
@@ -256,7 +269,7 @@ let inline traverseOptionM'
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
 /// <returns>An option containing Some sequence of elements or None if any of the function applications return None</returns>
-/// <remarks>This function is equivalent to <see cref="traverseOptionM'"/> but applying and initial state of 'Seq.empty'</remarks>
+/// <remarks>This function is equivalent to <see cref="traverseOptionM'"/> but applying an initial state of 'Seq.empty'</remarks>
 let traverseOptionM f xs = traverseOptionM' (Some Seq.empty) f xs
 
 /// <summary>
@@ -311,7 +324,7 @@ let inline traverseAsyncOptionM'
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
 /// <returns>An async option containing Some sequence of elements or None if any of the function applications return None</returns>
-/// <remarks>This function is equivalent to <see cref="traverseAsyncOptionM'"/> but applying and initial state of 'Async { return Some Seq.empty }'</remarks>
+/// <remarks>This function is equivalent to <see cref="traverseAsyncOptionM'"/> but applying an initial state of 'Async { return Some Seq.empty }'</remarks>
 let traverseAsyncOptionM f xs =
     traverseAsyncOptionM' (async { return Some Seq.empty }) f xs
 
@@ -364,7 +377,7 @@ let inline traverseVOptionM'
 /// <param name="f">The function to apply to each element</param>
 /// <param name="xs">The input sequence</param>
 /// <returns>A voption containing Some sequence of elements or None if any of the function applications return None</returns>
-/// <remarks>This function is equivalent to <see cref="traverseVOptionM'"/> but applying and initial state of 'ValueSome Seq.empty'</remarks>
+/// <remarks>This function is equivalent to <see cref="traverseVOptionM'"/> but applying an initial state of 'ValueSome Seq.empty'</remarks>
 let traverseVOptionM f xs =
     traverseVOptionM' (ValueSome Seq.empty) f xs
 
