@@ -41,19 +41,6 @@ type Result_BindvsAndCEBenchmarks() =
         }
         |> ignore
 
-    [<Benchmark>]
-    member this.All_Success_And() =
-        result {
-            let! r1 = successSlowSync this.delay
-            and! r2 = successSlowSync this.delay
-            and! r3 = successSlowSync this.delay
-
-            return
-                r1
-                + r2
-                + r3
-        }
-        |> ignore
 
     [<Benchmark>]
     member this.Fail_First_Bind() =
@@ -61,20 +48,6 @@ type Result_BindvsAndCEBenchmarks() =
             let! r1 = errorSlowSync this.delay
             let! r2 = successSlowSync this.delay
             let! r3 = successSlowSync this.delay
-
-            return
-                r1
-                + r2
-                + r3
-        }
-        |> ignore
-
-    [<Benchmark>]
-    member this.Fail_First_And() =
-        result {
-            let! r1 = errorSlowSync this.delay
-            and! r2 = successSlowSync this.delay
-            and! r3 = successSlowSync this.delay
 
             return
                 r1
@@ -98,39 +71,11 @@ type Result_BindvsAndCEBenchmarks() =
         |> ignore
 
     [<Benchmark>]
-    member this.Fail_Mid_And() =
-        result {
-            let! r1 = successSlowSync this.delay
-            and! r2 = errorSlowSync this.delay
-            and! r3 = successSlowSync this.delay
-
-            return
-                r1
-                + r2
-                + r3
-        }
-        |> ignore
-
-    [<Benchmark>]
     member this.Fail_Last_Bind() =
         result {
             let! r1 = successSlowSync this.delay
             let! r2 = successSlowSync this.delay
             let! r3 = errorSlowSync this.delay
-
-            return
-                r1
-                + r2
-                + r3
-        }
-        |> ignore
-
-    [<Benchmark>]
-    member this.Fail_Last_And() =
-        result {
-            let! r1 = successSlowSync this.delay
-            and! r2 = successSlowSync this.delay
-            and! r3 = errorSlowSync this.delay
 
             return
                 r1
