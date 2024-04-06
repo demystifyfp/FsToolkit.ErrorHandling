@@ -233,17 +233,6 @@ let ``AsyncOptionCE try Tests`` =
         }
     ]
 
-let makeDisposable (callback) =
-    { new System.IDisposable with
-        member this.Dispose() = callback ()
-    }
-
-
-let makeAsyncDisposable (callback) =
-    { new System.IAsyncDisposable with
-        member this.DisposeAsync() = callback ()
-    }
-
 
 let ``AsyncOptionCE using Tests`` =
     testList "AsyncOptionCE using Tests" [
@@ -254,7 +243,7 @@ let ``AsyncOptionCE using Tests`` =
 
             let! actual =
                 asyncOption {
-                    use d = makeDisposable ((fun () -> isFinished <- true))
+                    use d = TestHelpers.makeDisposable ((fun () -> isFinished <- true))
                     return data
                 }
 
@@ -270,7 +259,7 @@ let ``AsyncOptionCE using Tests`` =
             let! actual =
                 asyncOption {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 isFinished <- true
                                 ValueTask()
@@ -291,7 +280,7 @@ let ``AsyncOptionCE using Tests`` =
             let! actual =
                 asyncOption {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 task {
                                     do! Task.Yield()
@@ -316,7 +305,7 @@ let ``AsyncOptionCE using Tests`` =
             let! actual =
                 asyncOption {
                     use! d =
-                        makeDisposable (id)
+                        TestHelpers.makeDisposable (id)
                         |> Some
 
                     return data
@@ -542,8 +531,19 @@ let ``AsyncOptionCE Stack Trace Tests`` =
 
 #else
     testList "AsyncOptionCE Stack Trace Tests" []
-
 #endif
+
+
+let ``AsyncOptionCE inference checks`` =
+    testList "AsyncOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncOption { return! res }
+
+            f (AsyncOption.some ())
+            |> ignore
+    ]
 
 let allTests =
     testList "AsyncResultCETests" [
@@ -555,4 +555,5 @@ let allTests =
         ``AsyncOptionCE using Tests``
         ``AsyncOptionCE loop Tests``
         ``AsyncOptionCE Stack Trace Tests``
+        ``AsyncOptionCE inference checks``
     ]

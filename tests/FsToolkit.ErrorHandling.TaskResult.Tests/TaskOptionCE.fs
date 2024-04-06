@@ -12,10 +12,6 @@ module TestFuncs =
             System.Console.WriteLine(dto)
         }
 
-let makeDisposable () =
-    { new System.IDisposable with
-        member this.Dispose() = ()
-    }
 
 [<Tests>]
 let ceTests =
@@ -293,34 +289,101 @@ let ceTests =
 
                 Expect.equal actual (Some data) "Should be ok"
             }
-        testCaseTask "Using disposeable"
+
+        testCaseTask "use normal disposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskOption {
+                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+        testCaseTask "use! normal wrapped disposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskOption {
+                        use! d =
+                            TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                            |> Some
+
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+        testCaseTask "use null disposable"
         <| fun () ->
             task {
                 let data = 42
 
                 let! actual =
                     taskOption {
-                        use d = makeDisposable ()
+                        use d = null
                         return data
                     }
 
                 Expect.equal actual (Some data) "Should be ok"
             }
-        testCaseTask "Using bind disposeable"
+        testCaseTask "use sync asyncdisposable"
         <| fun () ->
             task {
                 let data = 42
+                let mutable isFinished = false
 
                 let! actual =
                     taskOption {
-                        use! d =
-                            (makeDisposable ()
-                             |> Some)
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    isFinished <- true
+                                    ValueTask()
+                                )
+                            )
 
                         return data
                     }
 
                 Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+
+        testCaseTask "use async asyncdisposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskOption {
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    task {
+                                        do! Task.Yield()
+                                        isFinished <- true
+                                    }
+                                    :> Task
+                                    |> ValueTask
+                                )
+                            )
+
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
             }
         yield! [
             let maxIndices = [
@@ -547,4 +610,17 @@ let ceTestsApplicative =
 
                 Expect.equal actual None "Should be ok"
             }
+    ]
+
+
+[<Tests>]
+let ``TaskOptionCE inference checks`` =
+    testList "TaskOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = taskOption { return! res }
+
+            f (TaskOption.some ())
+            |> ignore
     ]

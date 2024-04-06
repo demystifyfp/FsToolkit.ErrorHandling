@@ -253,18 +253,6 @@ let ``AsyncResultCE try Tests`` =
         }
     ]
 
-let makeDisposable (callback) =
-    { new System.IDisposable with
-        member this.Dispose() = callback ()
-    }
-
-
-let makeAsyncDisposable (callback) =
-    { new System.IAsyncDisposable with
-        member this.DisposeAsync() = callback ()
-    }
-
-
 let ``AsyncResultCE using Tests`` =
     testList "AsyncResultCE using Tests" [
         testCaseAsync "use normal disposable"
@@ -274,7 +262,7 @@ let ``AsyncResultCE using Tests`` =
 
             let! actual =
                 asyncResult {
-                    use d = makeDisposable ((fun () -> isFinished <- true))
+                    use d = TestHelpers.makeDisposable ((fun () -> isFinished <- true))
                     return data
                 }
 
@@ -290,7 +278,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 isFinished <- true
                                 ValueTask()
@@ -311,7 +299,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 task {
                                     do! Task.Yield()
@@ -337,7 +325,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use! d =
-                        makeDisposable (id)
+                        TestHelpers.makeDisposable (id)
                         |> Result.Ok
 
                     return data
@@ -733,6 +721,19 @@ let ``AsyncResultCE Stack Trace Tests`` =
 
 #endif
 
+
+let ``AsyncResultCE inference checks`` =
+    testList "AsyncResultCEInference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncResult { return! res }
+
+            f (AsyncResult.retn ())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "AsyncResultCETests" [
         ``AsyncResultCE return Tests``
@@ -744,4 +745,5 @@ let allTests =
         ``AsyncResultCE loop Tests``
         ``AsyncResultCE applicative tests``
         ``AsyncResultCE Stack Trace Tests``
+        ``AsyncResultCE inference checks``
     ]

@@ -538,9 +538,20 @@ let ``OptionCE applicative tests`` =
             Expect.equal actual (None) "Should be None"
     ]
 
+let ``OptionCE inference checks`` =
+    testList "OptionCE Inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = option { return! res }
+
+            f (Some())
+            |> ignore
+    ]
 
 let allTests =
     testList "Option CE tests" [
         ceTests
         ``OptionCE applicative tests``
+        ``OptionCE inference checks``
     ]
