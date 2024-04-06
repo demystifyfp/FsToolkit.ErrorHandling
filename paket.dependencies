@@ -51,7 +51,7 @@ group Build
     nuget Fake.JavaScript.Npm  5.22.0
     nuget Fake.Api.GitHub  5.22.0
     nuget Fake.BuildServer.GitHubActions 5.22.0
-    nuget MSBuild.StructuredLogger
+    nuget MSBuild.StructuredLogger 2.2.206
     nuget Octokit
     nuget Nuget.Common >= 6.6.1
     nuget NuGet.Protocol >= 6.6.1
