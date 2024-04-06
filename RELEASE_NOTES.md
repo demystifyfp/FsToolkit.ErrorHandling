@@ -1,3 +1,8 @@
+
+### 5.0.0-alpha.1
+- [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
+- [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
+
 ### 4.18.0 - October 23, 2024
 - [Add Array errorhandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/279) Credits @DashieTM
 

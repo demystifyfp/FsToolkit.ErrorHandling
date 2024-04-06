@@ -1,7 +1,5 @@
-namespace FsToolkit.ErrorHandling
-
 [<RequireQualifiedAccess>]
-module Seq =
+module FsToolkit.ErrorHandling.Seq
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single result
