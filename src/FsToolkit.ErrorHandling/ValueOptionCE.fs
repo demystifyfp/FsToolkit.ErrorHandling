@@ -125,17 +125,6 @@ module ValueOptionExtensionsLower =
             m
             |> ValueOption.ofObj
 
-        member inline _.MergeSources(nullableObj1, option2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources(option1, nullableObj2) =
-            ValueOption.zip (option1) (ValueOption.ofObj nullableObj2)
-
-
-        member inline _.MergeSources(nullableObj1, nullableObj2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) (ValueOption.ofObj nullableObj2)
-
 [<AutoOpen>]
 module ValueOptionExtensions =
     open System
