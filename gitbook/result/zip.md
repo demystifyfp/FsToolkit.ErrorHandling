@@ -14,7 +14,7 @@ Result<'leftOk, 'error> -> Result<'rightOk, 'error> -> Result<'leftOk * 'rightOk
 
 ```fsharp
 let result = Result.zip (Ok 1) (Ok 2)
-// Ok (Some(1, 2))
+// Ok (1, 2)
 ```
 
 ### Example 2
