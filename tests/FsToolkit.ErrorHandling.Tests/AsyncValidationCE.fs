@@ -23,7 +23,7 @@ let ``AsyncValidationCE return Tests`` =
         <| async {
             let data = "Foo"
             let! actual = asyncValidation { return data }
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
     ]
 
@@ -31,7 +31,7 @@ let ``AsyncValidationCE return! Tests`` =
     testList "AsyncValidationCE return! Tests" [
         testCaseAsync "Return Ok result"
         <| async {
-            let data = Result.Ok "Foo"
+            let data = Ok "Foo"
             let! actual = asyncValidation { return! data }
             Expect.equal actual (data) "Should be ok"
         }
@@ -48,7 +48,7 @@ let ``AsyncValidationCE return! Tests`` =
             let innerData = "Foo"
             let data = Choice1Of2 innerData
             let! actual = asyncValidation { return! data }
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
+            Expect.equal actual (Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Error Choice"
         <| async {
@@ -63,7 +63,7 @@ let ``AsyncValidationCE return! Tests`` =
             let innerData = "Foo"
             let data = Validation.ok innerData
             let! actual = asyncValidation { return! data }
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
+            Expect.equal actual (Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Error Validation"
         <| async {
@@ -92,7 +92,7 @@ let ``AsyncValidationCE bind Tests`` =
         }
         testCaseAsync "let! Ok result"
         <| async {
-            let data = Result.Ok "Foo"
+            let data = Ok "Foo"
 
             let! actual =
                 asyncValidation {
@@ -127,7 +127,7 @@ let ``AsyncValidationCE bind Tests`` =
                     return f
                 }
 
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
+            Expect.equal actual (Ok innerData) "Should be ok"
         }
         testCaseAsync "let! Error Choice"
         <| async {
@@ -153,16 +153,18 @@ let ``AsyncValidationCE bind Tests`` =
                     return f
                 }
 
-            Expect.equal actual (Result.Ok innerData) "Should be ok"
+            Expect.equal actual (Ok innerData) "Should be ok"
         }
         testCaseAsync "let! Error Validation"
         <| async {
             let innerData = "Foo"
+            let error = Error innerData
             let expected = Error [ innerData ]
 
             let! actual =
                 asyncValidation {
-                    let! f = validation { return! expected }
+                    let! f = validation { return! error }
+                    and! _ = validation { return! Ok innerData }
                     return f
                 }
 
@@ -170,7 +172,7 @@ let ``AsyncValidationCE bind Tests`` =
         }
         testCaseAsync "do! Ok result"
         <| async {
-            let data = Result.Ok()
+            let data = Ok()
             let! actual = asyncValidation { do! data }
             Expect.equal actual (data) "Should be ok"
         }
@@ -232,7 +234,7 @@ let ``AsyncValidationCE combine/zero/delay/run Tests`` =
                     return result
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
     ]
 
@@ -255,7 +257,7 @@ let ``AsyncValidationCE try Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
         testCaseAsync "Try Finally"
         <| async {
@@ -273,7 +275,7 @@ let ``AsyncValidationCE try Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
     ]
 
@@ -294,7 +296,7 @@ let ``AsyncValidationCE using Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
         testCaseAsync "use! normal wrapped disposable"
         <| async {
@@ -304,12 +306,12 @@ let ``AsyncValidationCE using Tests`` =
                 asyncValidation {
                     use! d =
                         makeDisposable ()
-                        |> Result.Ok
+                        |> Ok
 
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
         testCaseAsync "use null disposable"
         <| async {
@@ -321,7 +323,7 @@ let ``AsyncValidationCE using Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
     ]
 
@@ -403,7 +405,7 @@ let ``AsyncValidationCE loop Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
         testCaseAsync "for to"
         <| async {
@@ -417,7 +419,7 @@ let ``AsyncValidationCE loop Tests`` =
                     return data
                 }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.equal actual (Ok data) "Should be ok"
         }
     ]
 
@@ -448,7 +450,7 @@ let ``AsyncValidationCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
-        testCaseAsync "Happy Path Result/Valiation"
+        testCaseAsync "Happy Path Result/Validation"
         <| async {
             let! actual =
                 asyncValidation {
@@ -474,18 +476,59 @@ let ``AsyncValidationCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
-        testCaseAsync "Happy Path Result/Choice/Validation"
+        testCaseAsync "Happy Path Result/Choice/Task/Validation"
         <| async {
             let! actual =
                 asyncValidation {
                     let! a = Ok 3
                     and! b = Choice1Of2 2
                     and! c = AsyncValidation.ok 1
+
                     return a + b - c
                 }
 
             Expect.equal actual (Ok 4) "Should be ok"
         }
+
+        testCaseAsync "Sad Path Async Result/Async Result"
+        <| async {
+            let expected =
+                Error [
+                    "Hello"
+                    "World"
+                ]
+
+            let! actual =
+                asyncValidation {
+                    let! _ = async { return Error "Hello" }
+                    and! _ = async { return Error "World" }
+                    return ()
+                }
+
+            Expect.equal actual expected "Should be error"
+        }
+
+#if !FABLE_COMPILER
+
+        testCaseAsync "Sad Path Task Result/Task Result"
+        <| async {
+            let expected =
+                Error [
+                    "Hello"
+                    "World"
+                ]
+
+            let! actual =
+                asyncValidation {
+                    let! _ = task { return Error "Hello" }
+                    and! _ = task { return Error "World" }
+                    return ()
+                }
+
+            Expect.equal actual expected "Should be error"
+        }
+
+#endif
 
         testCaseAsync "Fail Path Result"
         <| async {
