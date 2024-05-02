@@ -490,7 +490,7 @@ let ``AsyncValidationCE applicative tests`` =
             Expect.equal actual (Ok 4) "Should be ok"
         }
 
-        testCaseAsync "Happy Path Async Result/Async Result"
+        testCaseAsync "Sad Path Async Result/Async Result"
         <| async {
             let expected =
                 Error [
@@ -500,20 +500,8 @@ let ``AsyncValidationCE applicative tests`` =
 
             let! actual =
                 asyncValidation {
-                    let! _ =
-                        async {
-                            do! Async.Sleep(1000)
-                            printfn "Hello"
-                            return Error "Hello"
-                        }
-
-                    and! _ =
-                        async {
-                            do! Async.Sleep(1000)
-                            printfn "World"
-                            return Error "World"
-                        }
-
+                    let! _ = async { return Error "Hello" }
+                    and! _ = async { return Error "World" }
                     return ()
                 }
 
@@ -522,7 +510,7 @@ let ``AsyncValidationCE applicative tests`` =
 
 #if !FABLE_COMPILER
 
-        testCaseAsync "Happy Path Task Result/Task Result"
+        testCaseAsync "Sad Path Task Result/Task Result"
         <| async {
             let expected =
                 Error [
@@ -532,20 +520,8 @@ let ``AsyncValidationCE applicative tests`` =
 
             let! actual =
                 asyncValidation {
-                    let! _ =
-                        task {
-                            do! Async.Sleep(1000)
-                            printfn "Hello"
-                            return Error "Hello"
-                        }
-
-                    and! _ =
-                        task {
-                            do! Async.Sleep(1000)
-                            printfn "World"
-                            return Error "World"
-                        }
-
+                    let! _ = task { return Error "Hello" }
+                    and! _ = task { return Error "World" }
                     return ()
                 }
 
