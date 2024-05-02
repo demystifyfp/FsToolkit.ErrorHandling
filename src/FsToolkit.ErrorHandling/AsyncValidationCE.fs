@@ -124,68 +124,100 @@ module AsyncValidationCE =
             ) : AsyncValidation<'left * 'right, 'error> =
             AsyncValidation.zip left right
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
-        ///
-        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
-        /// </summary>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        member inline _.Source
-            (result: AsyncValidation<'ok, 'error>)
-            : AsyncValidation<'ok, 'error> =
-            result
-
     let asyncValidation = AsyncValidationBuilder()
 
-[<AutoOpen>]
-module LowPriority =
+    [<AutoOpen>]
+    module LowPriority =
 
-    // Having members as extensions gives them lower priority in
-    // overload resolution and allows skipping more type annotations.
-    type AsyncValidationBuilder with
+        type AsyncValidationBuilder with
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(s: Async<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
-            AsyncResult.mapError List.singleton s
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            /// <returns></returns>
+            member inline _.Source(a: Async<'ok>) : AsyncValidation<'ok, 'error> =
+                async {
+                    let! result = a
+                    return! AsyncValidation.ok result
+                }
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(s: Result<'ok, 'error list>) : AsyncValidation<'ok, 'error> =
-            Async.retn s
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            member inline _.Source(s: Result<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+                AsyncValidation.ofResult s
 
-[<AutoOpen>]
-module HighPriority =
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            /// <returns></returns>
+            member inline _.Source(choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+                AsyncValidation.ofChoice choice
 
-    type AsyncValidationBuilder with
+            /// <summary>
+            /// Needed to allow `for..in` and `for..do` functionality
+            /// </summary>
+            member inline _.Source(s: #seq<_>) : #seq<_> = s
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        /// <returns></returns>
-        member inline _.Source(a: Async<'ok>) : AsyncValidation<'ok, 'error> =
-            async {
-                let! result = a
-                return! AsyncValidation.ok result
-            }
+    [<AutoOpen>]
+    module MediumPriority =
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(s: Result<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-            AsyncValidation.ofResult s
+        open System.Threading.Tasks
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        /// <returns></returns>
-        member inline _.Source(choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-            AsyncValidation.ofChoice choice
+        type AsyncValidationBuilder with
 
-        /// <summary>
-        /// Needed to allow `for..in` and `for..do` functionality
-        /// </summary>
-        member inline _.Source(s: #seq<_>) : #seq<_> = s
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            member inline _.Source(s: Async<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
+                AsyncResult.mapError List.singleton s
+
+#if !FABLE_COMPILER
+
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            member inline _.Source(s: Task<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
+                Async.AwaitTask s
+                |> AsyncResult.mapError List.singleton
+
+#endif
+
+    [<AutoOpen>]
+    module HighPriority =
+
+        open System.Threading.Tasks
+
+        // Having members as extensions gives them lower priority in
+        // overload resolution and allows skipping more type annotations.
+        type AsyncValidationBuilder with
+
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            member inline _.Source(s: Validation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
+                Async.retn s
+
+#if !FABLE_COMPILER
+
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.
+            /// </summary>
+            member inline _.Source
+                (result: Task<Validation<'ok, 'error>>)
+                : AsyncValidation<'ok, 'error> =
+                Async.AwaitTask result
+
+#endif
+
+            /// <summary>
+            /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+            ///
+            /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+            /// </summary>
+            /// <param name="result"></param>
+            /// <returns></returns>
+            member inline _.Source
+                (result: AsyncValidation<'ok, 'error>)
+                : AsyncValidation<'ok, 'error> =
+                result
