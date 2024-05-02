@@ -1,3 +1,6 @@
+### 4.15.2-beta001 - May 05, 2024
+- [Fix AsyncValidationCE binding against asyncResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/260) Credits @1eyewonder
+
 ### 4.15.1 - January 15, 2024
 - [Doc updates](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/247) Credits @1eyewonder
 
