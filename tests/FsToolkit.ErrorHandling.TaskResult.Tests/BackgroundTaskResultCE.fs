@@ -7,9 +7,6 @@ open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET6_0
-let backgroundTask = FSharp.Control.Tasks.NonAffine.task
-#endif
 
 [<Tests>]
 let ``BackgroundTaskResultCE return Tests`` =
@@ -703,4 +700,17 @@ let ``BackgroundTaskResultCE applicative tests`` =
 
                 Expect.equal actual (Error errorMsg) "Should be Error"
             }
+    ]
+
+
+[<Tests>]
+let ``BackgroundTaskResultCE inference checks`` =
+    testList "BackgroundTaskResultCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = backgroundTaskResult { return! res }
+
+            f (TaskResult.ok ())
+            |> ignore
     ]

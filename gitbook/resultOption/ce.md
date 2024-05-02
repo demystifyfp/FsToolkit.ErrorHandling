@@ -25,8 +25,8 @@ let add x y z = x + y + z
 
 let addResult : Result<int option, string> = resultOption {
   let! x = Ok (Some 30)
-  and! y = Error "Oops 1"
-  and! z = Error "Oops 2"
+  let! y = Error "Oops 1"
+  let! z = Error "Oops 2"
   return add x y z
 }
 // Error "Oops 1"

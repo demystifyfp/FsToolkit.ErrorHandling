@@ -21,7 +21,7 @@ module TaskResultOption =
     let inline map3 ([<InlineIfLambda>] f) xTRO yTRO zTRO =
         TaskResult.map3 (Option.map3 f) xTRO yTRO zTRO
 
-    let inline retn value = TaskResult.retn (Ok value)
+    let inline retn value = TaskResult.retn (Some value)
 
     let inline apply fTRO xTRO = map2 (fun f x -> f x) fTRO xTRO
 

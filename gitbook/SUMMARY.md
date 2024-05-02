@@ -25,6 +25,9 @@
       * [sequenceResultM](list/sequenceResultM.md)
       * [traverseResultA](list/traverseResultA.md)
       * [sequenceResultA](list/sequenceResultA.md)
+    * Seqs
+      * [sequenceResultM](seq/sequenceResultM.md)
+      * [sequenceResultA](seq/sequenceResultA.md)
     * Transforms
       * [ofChoice](result/ofChoice.md)
 

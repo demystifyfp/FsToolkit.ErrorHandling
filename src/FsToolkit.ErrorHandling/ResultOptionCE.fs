@@ -114,13 +114,6 @@ module ResultOptionCE =
             ) : Result<'U option, 'TError> =
             ResultOption.map binder resultOpt
 
-        member inline _.MergeSources
-            (
-                left: Result<'left option, 'error>,
-                right: Result<'right option, 'error>
-            ) : Result<('left * 'right) option, 'error> =
-            ResultOption.zip left right
-
         member inline _.Source(result: Result<'ok option, 'error>) : Result<'ok option, 'error> =
             result
 

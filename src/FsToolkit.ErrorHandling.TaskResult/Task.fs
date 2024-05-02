@@ -2,9 +2,6 @@ namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0
-open FSharp.Control.Tasks.Affine
-#endif
 
 [<RequireQualifiedAccess>]
 module Task =
@@ -17,6 +14,7 @@ module Task =
             let! x = x
             return! f x
         }
+
 
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {

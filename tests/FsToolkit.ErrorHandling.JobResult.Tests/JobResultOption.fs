@@ -255,3 +255,15 @@ let operatorTests =
                 }
             )
     ]
+
+[<Tests>]
+let ``JobResultOptionCE inference checks`` =
+    testList "JobResultOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = jobResultOption { return! res }
+
+            f (JobResult.retn ())
+            |> ignore
+    ]

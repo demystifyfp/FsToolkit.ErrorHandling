@@ -6,7 +6,7 @@ The library provides utility functions like `map`, `bind`, `apply`, `traverse`, 
 
 It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
-FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
+FsToolkit.ErrorHandling targets .NET Standard 2.0, .NET Standard2.1 and supports Fable.
 
 ## Documentation
 
@@ -47,6 +47,7 @@ This repository has a devcontainer setup for VSCode. For more infomation see:
 * [.NET Core SDK](https://www.microsoft.com/net/download/)
   * [v6.x](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
   * [v7.x](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+  * [v8.x](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 #### Optional 
 

@@ -596,3 +596,16 @@ let ``AsyncResultCE applicative tests`` =
             Expect.equal actual (Error errorMsg) "Should be Error"
         }
     ]
+
+
+[<Tests>]
+let ``JobResultCE inference checks`` =
+    testList "JobResultCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = jobResult { return! res }
+
+            f (JobResult.retn ())
+            |> ignore
+    ]

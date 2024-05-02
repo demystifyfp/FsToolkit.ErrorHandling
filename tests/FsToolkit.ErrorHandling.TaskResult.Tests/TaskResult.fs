@@ -10,10 +10,6 @@ open FsToolkit.ErrorHandling.Operator.TaskResult
 open System
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET6_0
-open FSharp.Control.Tasks
-#endif
-
 let runTaskSync (task: Task<_>) = task.Result
 
 let createPostSuccess =

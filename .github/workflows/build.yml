@@ -1,6 +1,14 @@
 name: Build master
 
-on: [push, pull_request]
+on:
+  # Runs only on pushes to the default branch or pull requests to the default branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
 
@@ -12,7 +20,7 @@ jobs:
         # Builds for Debug and Release configurations
         configuration: [Debug, Release]
         # Builds for Ubuntu, Windows, and macOS
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -22,6 +30,8 @@ jobs:
       with:
         global-json-file: global.json
         dotnet-version: |
+          8.x
+          7.x
           6.x
 
     - name: Build via Bash
@@ -44,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
         node-version: ['18', '20', 'latest' ]
     runs-on: ${{ matrix.os }}
 
@@ -61,6 +71,8 @@ jobs:
       with:
         global-json-file: global.json
         dotnet-version: |
+          8.x
+          7.x
           6.x
 
     - name: Build via Bash
@@ -82,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
         python-version: ['3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
 
@@ -99,8 +111,9 @@ jobs:
       with:
         global-json-file: global.json
         dotnet-version: |
+          8.x
+          7.x
           6.x
-
     - name: Build via Bash
       if: runner.os != 'Windows'
       run: |

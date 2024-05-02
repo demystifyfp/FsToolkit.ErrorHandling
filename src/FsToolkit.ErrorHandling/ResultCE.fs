@@ -109,13 +109,6 @@ module ResultCE =
             ) : Result<'okOutput, 'error> =
             Result.map f x
 
-        member inline _.MergeSources
-            (
-                left: Result<'left, 'error>,
-                right: Result<'right, 'error>
-            ) : Result<'left * 'right, 'error> =
-            Result.zip left right
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///

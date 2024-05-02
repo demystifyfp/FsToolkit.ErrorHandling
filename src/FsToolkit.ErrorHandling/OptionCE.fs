@@ -111,13 +111,6 @@ module OptionCE =
             ) : 'output option =
             Option.map f (Option.ofObj x)
 
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip option1 option2
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -125,11 +118,6 @@ module OptionCE =
         /// </summary>
         member inline _.Source(result: 'value option) : 'value option = result
 
-
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt
 
     let option = OptionBuilder()
 
@@ -142,29 +130,6 @@ module OptionExtensionsLower =
 
         member inline _.Source(m: string) : string option = Option.ofObj m
 
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (option1) (Option.ofObj nullableObj2)
-
-
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
-
 [<AutoOpen>]
 module OptionExtensions =
     open System
@@ -176,8 +141,13 @@ module OptionExtensions =
         /// </summary>
         member inline _.Source(s: #seq<'value>) : #seq<'value> = s
 
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
         member inline _.Source(nullable: Nullable<'value>) : 'value option =
             Option.ofNullable nullable
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt
