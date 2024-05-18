@@ -31,7 +31,7 @@ type Longitude = private Longitude of float with
     if lng >= -180. && lng <= 180. then
       Ok (Longitude lng)
     else
-      sprintf "%A is a invalid longitude value" lng |> Error
+      Error $"%A{lng} is a invalid longitude value"
 ```
 
 Let's assume that we have few more similar types as below
@@ -47,7 +47,7 @@ type Latitude = private Latitude of float with
     if lat >= -90. && lat <= 90. then
       Ok (Latitude lat)
     else
-      sprintf "%A is a invalid latitude value" lat |> Error
+      Error $"%A{lat} is a invalid latitude value"
 
 open System
 
