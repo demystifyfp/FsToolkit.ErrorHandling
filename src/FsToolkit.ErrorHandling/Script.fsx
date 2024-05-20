@@ -7,7 +7,6 @@
 open System
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.Validation
-open FsToolkit.ErrorHandling.CE.Result
 
 type Tweet =
     private

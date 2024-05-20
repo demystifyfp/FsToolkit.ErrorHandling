@@ -31,21 +31,25 @@ type Longitude = private Longitude of float with
     if lng >= -180. && lng <= 180. then
       Ok (Longitude lng)
     else
-      sprintf "%A is a invalid longitude value" lng |> Error
+      Error $"%A{lng} is a invalid longitude value"
 ```
 
 Let's assume that we have few more similar types as below
 
 ```fsharp
-type Longitude = private Longitude of float with
+type Latitude = private Latitude of float with
   member this.Value =
-    let (Longitude lng) = this
-    lng
-  static member TryCreate (lng : float) =
-    if lng > -180. && lng < 180. then
-      Ok (Longitude lng)
+    let (Latitude lat) = this
+    lat
+
+  // float -> Result<Latitude, string>
+  static member TryCreate (lat : float) =
+    if lat >= -90. && lat <= 90. then
+      Ok (Latitude lat)
     else
-      sprintf "%A is a invalid longitude value" lng |> Error
+      Error $"%A{lat} is a invalid latitude value"
+
+open System
 
 type Tweet = private Tweet of string with
   member this.Value =
@@ -100,7 +104,8 @@ type CreatePostRequestDto = {
 We can then do result using `Result.tryResult` and the [`Result` infix operators](../result/operators.md) as below:
 
 ```fsharp
-open FsToolkit.ErrorHandling.Operator.Result
+open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.Operator.Validation
 
 // CreatePostRequestDto -> Result<CreatePostRequest, (string * string) list>
 let validateCreatePostRequest (dto : CreatePostRequestDto) =
@@ -114,7 +119,7 @@ Here the types of the `Result.tryCreate` lines are inferred, and the types' `Try
 
 ```fsharp
 validateCreatePostRequest
-  {Tweet = ""; Location = {Latitude = 300.; Longitude = 400.}};;
+  {Tweet = ""; Location = {Latitude = 300.; Longitude = 400.}}
 // Error
 //   [("latitude", "300.0 is a invalid latitude value")
 //    ("longitude", "400.0 is a invalid longitude value")
@@ -124,7 +129,7 @@ validateCreatePostRequest
 These errors can then for example be returned in an API response:
 
 ```fsharp
-validateCreatePostRequest dto
+validateCreatePostRequest {Tweet = ""; Location = {Latitude = 300.; Longitude = 400.}}
 |> Result.mapError Map.ofList
 // Map<string, string>
 ```
@@ -144,7 +149,7 @@ When serialized:
 In Example 1, we collected all the error messages. But what if we wanted to stop on the first error? One way to do this is to make use of the `result` computation expression instead of using infix operators from `Result` module.
 
 ```fsharp
-// CreatePostRequestDto -> Result<CreatePostRequest, string>
+// CreatePostRequestDto -> Result<CreatePostRequest, string * string>
 let validateCreatePostRequest (dto : CreatePostRequestDto) = result {
   let! t = Result.tryCreate "tweet" dto.Tweet
   let! lat = Result.tryCreate "latitude" dto.Location.Latitude
@@ -158,14 +163,14 @@ let validateCreatePostRequest (dto : CreatePostRequestDto) = result {
 In the examples above, we assume that a location is always required for creating a post. Let's assume that the requirement is changed and now the location is optional:
 
 ```fsharp
-type CreatePostRequest = {
-  Tweet : Tweet
-  Location : Location option
-}
-
 type CreatePostRequestDto = {
   Tweet : string
   Location : LocationDto option
+}
+
+type CreatePostRequest = {
+  Tweet : Tweet
+  Location : Location option
 }
 
 let createPostRequest location tweet =
@@ -175,6 +180,9 @@ let createPostRequest location tweet =
 Then `validateCreatePostRequest` can be rewritten using the [Option.traverseResult](../option/traverseResult.md) function as below:
 
 ```fsharp
+open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling.Operator.Validation
+
 let validateLocation (dto : LocationDto) =
   location
   <!^> Result.tryCreate "latitude" dto.Latitude
