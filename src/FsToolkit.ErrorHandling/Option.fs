@@ -1,5 +1,8 @@
 namespace FsToolkit.ErrorHandling
 
+/// <summary>
+/// Operators for working with the <c>Option</c> type.
+/// </summary>
 [<RequireQualifiedAccess>]
 module Option =
 

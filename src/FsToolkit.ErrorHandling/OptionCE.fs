@@ -131,6 +131,9 @@ module OptionCE =
         /// </summary>
         member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt
 
+    /// <summary>
+    /// The default instance of the `OptionBuilder` type.
+    /// </summary>
     let option = OptionBuilder()
 
 [<AutoOpen>]
@@ -176,8 +179,8 @@ module OptionExtensions =
         /// </summary>
         member inline _.Source(s: #seq<'value>) : #seq<'value> = s
 
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
         member inline _.Source(nullable: Nullable<'value>) : 'value option =
             Option.ofNullable nullable

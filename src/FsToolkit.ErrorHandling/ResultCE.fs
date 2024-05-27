@@ -125,6 +125,9 @@ module ResultCE =
         /// <returns></returns>
         member inline _.Source(result: Result<'ok, 'error>) : Result<'ok, 'error> = result
 
+    /// <summary>
+    /// The <c>Result</c> computation expression.
+    /// </summary>
     let result = ResultBuilder()
 
 [<AutoOpen>]

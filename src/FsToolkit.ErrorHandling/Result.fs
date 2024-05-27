@@ -1,5 +1,8 @@
 namespace FsToolkit.ErrorHandling
 
+/// <summary>
+/// Helper functions for working with <c>Result</c> values.
+/// </summary>
 [<RequireQualifiedAccess>]
 module Result =
 
@@ -115,7 +118,7 @@ module Result =
         | Error err -> Error(onError err)
 
     /// <summary>
-    /// Combines two <c>Result</c> values and returns a new <c>Result</c> value.
+    /// Applies a function to the value within a <c>Result</c> and returns a new <c>Result</c> with the output of the function.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/apply</href>
     /// </summary>
