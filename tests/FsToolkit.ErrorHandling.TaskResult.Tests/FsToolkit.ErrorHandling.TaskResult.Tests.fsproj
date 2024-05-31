@@ -28,6 +28,8 @@
     <Compile Include="TaskOption.fs" />
     <Compile Include="TaskOptionCE.fs" />
     <Compile Include="BackgroundTaskOptionCE.fs" />
+    <Compile Include="TaskValidation.fs" />
+    <Compile Include="TaskValidationCE.fs" />
     <Compile Include="List.fs" />
     <Compile Include="TaskResultOption.fs" />
     <Compile Include="Main.fs" />
