@@ -24,81 +24,52 @@ module AsyncValidationCE =
 
         member inline _.Delay
             ([<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>)
-            : unit -> AsyncValidation<'ok, 'error> =
-            generator
-
-        member inline _.Run
-            ([<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>)
             : AsyncValidation<'ok, 'error> =
-            generator ()
+            async.Delay generator
 
         member inline this.Combine
             (
-                result: AsyncValidation<unit, 'error>,
-                [<InlineIfLambda>] binder: unit -> AsyncValidation<'ok, 'error>
+                validation1: AsyncValidation<unit, 'error>,
+                validation2: AsyncValidation<'ok, 'error>
             ) : AsyncValidation<'ok, 'error> =
-            this.Bind(result, binder)
+            this.Bind(validation1, (fun () -> validation2))
 
-        member inline this.TryWith
+        member inline _.TryWith
             (
-                [<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>,
+                computation: AsyncValidation<'ok, 'error>,
                 [<InlineIfLambda>] handler: exn -> AsyncValidation<'ok, 'error>
             ) : AsyncValidation<'ok, 'error> =
-            async {
-                return!
-                    try
-                        this.Run generator
-                    with e ->
-                        handler e
-            }
+            async.TryWith(computation, handler)
 
-        member inline this.TryFinally
+        member inline _.TryFinally
             (
-                [<InlineIfLambda>] generator: unit -> AsyncValidation<'ok, 'error>,
+                computation: AsyncValidation<'ok, 'error>,
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : AsyncValidation<'ok, 'error> =
-            async {
-                return!
-                    try
-                        this.Run generator
-                    finally
-                        compensation ()
-            }
+            async.TryFinally(computation, compensation)
 
-        member inline this.Using
+        member inline _.Using
             (
                 resource: 'disposable :> IDisposable,
                 [<InlineIfLambda>] binder: 'disposable -> AsyncValidation<'okOutput, 'error>
             ) : AsyncValidation<'okOutput, 'error> =
-            this.TryFinally(
-                (fun () -> binder resource),
-                (fun () ->
-                    if not (obj.ReferenceEquals(resource, null)) then
-                        resource.Dispose()
-                )
-            )
+            async.Using(resource, binder)
 
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,
-                [<InlineIfLambda>] generator: unit -> AsyncValidation<unit, 'error>
+                computation: AsyncValidation<unit, 'error>
             ) : AsyncValidation<unit, 'error> =
-            let mutable doContinue = true
-            let mutable result = Ok()
+            if guard () then
+                let mutable whileAsync = Unchecked.defaultof<_>
 
-            async {
-                while doContinue
-                      && guard () do
-                    let! x = generator ()
+                whileAsync <-
+                    this.Bind(computation, (fun () -> if guard () then whileAsync else this.Zero()))
 
-                    match x with
-                    | Ok() -> ()
-                    | Error e ->
-                        doContinue <- false
-                        result <- Error e
+                whileAsync
+            else
+                this.Zero()
 
-                return result
-            }
 
         member inline this.For
             (

@@ -279,9 +279,9 @@ let ``AsyncValidationCE try Tests`` =
         }
     ]
 
-let makeDisposable () =
+let makeDisposable callback =
     { new System.IDisposable with
-        member this.Dispose() = ()
+        member _.Dispose() = callback ()
     }
 
 let ``AsyncValidationCE using Tests`` =
@@ -289,30 +289,39 @@ let ``AsyncValidationCE using Tests`` =
         testCaseAsync "use normal disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncValidation {
-                    use d = makeDisposable ()
+                    use d = makeDisposable (fun () -> isFinished <- true)
                     return data
                 }
 
-            Expect.equal actual (Ok data) "Should be ok"
+            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.isTrue isFinished ""
         }
+
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncValidation {
                     use! d =
-                        makeDisposable ()
+                        makeDisposable (fun () -> isFinished <- true)
                         |> Ok
 
                     return data
                 }
 
             Expect.equal actual (Ok data) "Should be ok"
+            Expect.isTrue isFinished ""
         }
+
+#if !FABLE_COMPILER && NETSTANDARD2_1
+        // Fable can't handle null disposables you get
+        // TypeError: Cannot read property 'Dispose' of null
         testCaseAsync "use null disposable"
         <| async {
             let data = 42
@@ -325,6 +334,7 @@ let ``AsyncValidationCE using Tests`` =
 
             Expect.equal actual (Ok data) "Should be ok"
         }
+#endif
     ]
 
 let ``AsyncValidationCE loop Tests`` =
