@@ -45,6 +45,10 @@ module Task =
 
     let inline map3 ([<InlineIfLambda>] f) x y z = apply (map2 f x y) z
 
+    /// Allows us to call `do!` syntax inside a computation expression
+    let inline ignore (x: Task<'a>) =
+        x
+        |> map ignore
 
     /// Takes two tasks and returns a tuple of the pair
     let zip (a1: Task<_>) (a2: Task<_>) =
