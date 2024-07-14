@@ -298,7 +298,7 @@ let ``AsyncValidationCE using Tests`` =
                 }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 
         testCaseAsync "use! normal wrapped disposable"
@@ -316,7 +316,32 @@ let ``AsyncValidationCE using Tests`` =
                 }
 
             Expect.equal actual (Ok data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
+        }
+
+        testCaseAsync "disposable not disposed too early"
+        <| async {
+            let mutable disposed = false
+            let mutable finished = false
+            let f1 _ = AsyncResult.ok 42
+
+            let! actual =
+                asyncValidation {
+                    use d =
+                        makeDisposable (fun () ->
+                            disposed <- true
+
+                            if not finished then
+                                failwith "Should not be disposed too early"
+                        )
+
+                    let! data = f1 d
+                    finished <- true
+                    return data
+                }
+
+            Expect.equal actual (Ok 42) "Should be ok"
+            Expect.isTrue disposed "Should be disposed"
         }
 
 #if !FABLE_COMPILER && NETSTANDARD2_1

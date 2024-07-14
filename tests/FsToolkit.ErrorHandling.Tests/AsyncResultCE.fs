@@ -279,7 +279,7 @@ let ``AsyncResultCE using Tests`` =
                 }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 #if NET7_0
         testCaseAsync "use sync asyncdisposable"
@@ -301,7 +301,7 @@ let ``AsyncResultCE using Tests`` =
                 }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
         testCaseAsync "use async asyncdisposable"
         <| async {
@@ -326,7 +326,7 @@ let ``AsyncResultCE using Tests`` =
                 }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 #endif
         testCaseAsync "use! normal wrapped disposable"
@@ -344,6 +344,32 @@ let ``AsyncResultCE using Tests`` =
 
             Expect.equal actual (Result.Ok data) "Should be ok"
         }
+
+        testCaseAsync "disposable not disposed too early"
+        <| async {
+            let mutable disposed = false
+            let mutable finished = false
+            let f1 _ = AsyncResult.ok 42
+
+            let! actual =
+                asyncResult {
+                    use d =
+                        makeDisposable (fun () ->
+                            disposed <- true
+
+                            if not finished then
+                                failwith "Should not be disposed too early"
+                        )
+
+                    let! data = f1 d
+                    finished <- true
+                    return data
+                }
+
+            Expect.equal actual (Ok 42) "Should be ok"
+            Expect.isTrue disposed "Should be disposed"
+        }
+
 #if !FABLE_COMPILER && NETSTANDARD2_1
         // Fable can't handle null disposables you get
         // TypeError: Cannot read property 'Dispose' of null

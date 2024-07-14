@@ -438,9 +438,9 @@ let ``AsyncResultOptionCE try Tests`` =
         }
     ]
 
-let makeDisposable () =
+let makeDisposable callback =
     { new System.IDisposable with
-        member this.Dispose() = ()
+        member this.Dispose() = callback ()
     }
 
 let makeAsyncDisposable (callback) =
@@ -454,14 +454,41 @@ let ``AsyncResultOptionCE using Tests`` =
         testCaseAsync "use normal disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncResultOption {
-                    use d = makeDisposable ()
+                    use d = makeDisposable (fun () -> isFinished <- true)
                     return data
                 }
 
             Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished "Expected disposable to be disposed"
+        }
+
+        testCaseAsync "disposable not disposed too early"
+        <| async {
+            let mutable disposed = false
+            let mutable finished = false
+            let f1 _ = AsyncResult.ok 42
+
+            let! actual =
+                asyncResultOption {
+                    use d =
+                        makeDisposable (fun () ->
+                            disposed <- true
+
+                            if not finished then
+                                failwith "Should not be disposed too early"
+                        )
+
+                    let! data = f1 d
+                    finished <- true
+                    return data
+                }
+
+            Expect.equal actual (Ok(Some 42)) "Should be ok"
+            Expect.isTrue disposed "Should be disposed"
         }
 
 #if NET7_0
@@ -509,24 +536,26 @@ let ``AsyncResultOptionCE using Tests`` =
                 }
 
             Expect.equal actual (OkSome data) "Should be ok"
-            Expect.isTrue isFinished ""
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 #endif
 
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncResultOption {
                     use! d =
-                        makeDisposable ()
+                        makeDisposable (fun () -> isFinished <- true)
                         |> Result.Ok
 
                     return data
                 }
 
             Expect.equal actual (OkSome data) "Should be ok"
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 #if !FABLE_COMPILER
         // Fable can't handle null disposables you get
