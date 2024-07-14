@@ -1,3 +1,7 @@
+### [4.15.3-beta001] - July 13, 2024
+- [Added XML Comments](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/268) Credits @1eyewonder
+- [Fix Using/TryFinally asyncValidation CE](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/271) Credits @1eyewonder
+
 ### 4.15.2 - May 05, 2024
 - [Fix AsyncValidationCE binding against asyncResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/260) Credits @1eyewonder
 
