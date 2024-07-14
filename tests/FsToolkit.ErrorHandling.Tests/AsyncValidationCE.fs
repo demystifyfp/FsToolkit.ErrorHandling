@@ -279,9 +279,9 @@ let ``AsyncValidationCE try Tests`` =
         }
     ]
 
-let makeDisposable () =
+let makeDisposable callback =
     { new System.IDisposable with
-        member this.Dispose() = ()
+        member _.Dispose() = callback ()
     }
 
 let ``AsyncValidationCE using Tests`` =
@@ -289,30 +289,64 @@ let ``AsyncValidationCE using Tests`` =
         testCaseAsync "use normal disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncValidation {
-                    use d = makeDisposable ()
+                    use d = makeDisposable (fun () -> isFinished <- true)
                     return data
                 }
 
-            Expect.equal actual (Ok data) "Should be ok"
+            Expect.equal actual (Result.Ok data) "Should be ok"
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
+
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
+            let mutable isFinished = false
 
             let! actual =
                 asyncValidation {
                     use! d =
-                        makeDisposable ()
+                        makeDisposable (fun () -> isFinished <- true)
                         |> Ok
 
                     return data
                 }
 
             Expect.equal actual (Ok data) "Should be ok"
+            Expect.isTrue isFinished "Expected disposable to be disposed"
         }
+
+        testCaseAsync "disposable not disposed too early"
+        <| async {
+            let mutable disposed = false
+            let mutable finished = false
+            let f1 _ = AsyncResult.ok 42
+
+            let! actual =
+                asyncValidation {
+                    use d =
+                        makeDisposable (fun () ->
+                            disposed <- true
+
+                            if not finished then
+                                failwith "Should not be disposed too early"
+                        )
+
+                    let! data = f1 d
+                    finished <- true
+                    return data
+                }
+
+            Expect.equal actual (Ok 42) "Should be ok"
+            Expect.isTrue disposed "Should be disposed"
+        }
+
+#if !FABLE_COMPILER && NETSTANDARD2_1
+        // Fable can't handle null disposables you get
+        // TypeError: Cannot read property 'Dispose' of null
         testCaseAsync "use null disposable"
         <| async {
             let data = 42
@@ -325,6 +359,7 @@ let ``AsyncValidationCE using Tests`` =
 
             Expect.equal actual (Ok data) "Should be ok"
         }
+#endif
     ]
 
 let ``AsyncValidationCE loop Tests`` =

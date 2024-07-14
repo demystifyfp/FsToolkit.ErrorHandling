@@ -261,6 +261,32 @@ let ``AsyncOptionCE using Tests`` =
             Expect.equal actual (Some data) "Should be ok"
             Expect.isTrue isFinished ""
         }
+
+        testCaseAsync "disposable not disposed too early"
+        <| async {
+            let mutable disposed = false
+            let mutable finished = false
+            let f1 _ = Async.retn (Some 42)
+
+            let! actual =
+                asyncOption {
+                    use d =
+                        makeDisposable (fun () ->
+                            disposed <- true
+
+                            if not finished then
+                                failwith "Should not be disposed too early"
+                        )
+
+                    let! data = f1 d
+                    finished <- true
+                    return data
+                }
+
+            Expect.equal actual (Some 42) "Should be some"
+            Expect.isTrue disposed "Should be disposed"
+        }
+
 #if NET7_0
         testCaseAsync "use sync asyncdisposable"
         <| async {
