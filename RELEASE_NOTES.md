@@ -1,3 +1,6 @@
+### [4.16.0] - July 15, 2024
+- [Add Task.ignore](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/272) Credits @odytrice
+
 ### [4.15.3] - July 13, 2024
 - [Added XML Comments](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/268) Credits @1eyewonder
 - [Fix Using/TryFinally asyncValidation CE](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/271) Credits @1eyewonder
