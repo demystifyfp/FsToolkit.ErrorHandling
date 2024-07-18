@@ -128,6 +128,11 @@ module Option =
             binder v
             |> Result.map Some
 
+    /// <summary>
+    /// Flips around the option and result structures of an option that contains a result.
+    /// </summary>
+    /// <param name="opt">The option containing a result.</param>
+    /// <returns>A result containing an option.</returns>
     let inline sequenceResult (opt: Result<'ok, 'error> option) : Result<'ok option, 'error> =
         traverseResult id opt
 

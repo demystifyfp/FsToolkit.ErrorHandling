@@ -26,7 +26,7 @@ And an another function that converts a string to an integer:
 
 ```fsharp
 // string -> Result<int, string>
-let tryParseInt str =
+let tryParseInt (str: string) =
   match System.Int32.TryParse str with
   | true, x -> Ok x
   | false, _ ->
