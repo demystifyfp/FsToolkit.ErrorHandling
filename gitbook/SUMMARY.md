@@ -36,7 +36,9 @@
     * [map](option/map.md)
     * [map2](option/map2.md)
     * [map3](option/map3.md)
+    * [sequenceResult](option/sequenceResult.md)
     * [tee Functions](option/teeFunctions.md)
+    * [traverseResult](option/traverseResult.md)
     * [zip](option/zip.md)
     * Lists
         * [traverseOptionM](option/traverseOptionM.md)
@@ -62,9 +64,6 @@
     * [Operators](resultOption/operators.md)
     * [zip](resultOption/zip.md)
     * [zipError](resultOption/zipError.md)
-    * Lists
-      * [traverseResult](resultOption/traverseResult.md)
-      * [sequenceResult](resultOption/sequenceResult.md)
     * Transforms
       * [ofChoice](resultOption/ofChoice.md)
       * [ofOption](resultOption/ofOption.md)
