@@ -453,6 +453,38 @@ let requireHeadTests =
             |> Expect.hasErrorValue err
     ]
 
+module ConvertError =
+    type SrcErr = SrcErr
+
+    type DstErr = DstErr
+        with
+
+            static member From(err: SrcErr) = DstErr
+
+let convertErrorTests =
+    testList "convertError Tests" [
+        testCase "convertError converts the error value"
+        <| fun _ ->
+            let r1: Result<_, ConvertError.SrcErr> = Error ConvertError.SrcErr
+
+            let r2: Result<_, ConvertError.DstErr> =
+                r1
+                |> Result.convertError
+
+            r2
+            |> Expect.hasErrorValue ConvertError.DstErr
+        testCase "convertError does not change an ok value"
+        <| fun _ ->
+            let r1: Result<_, ConvertError.SrcErr> = Ok 42
+
+            let r2: Result<_, ConvertError.DstErr> =
+                r1
+                |> Result.convertError
+
+            r2
+            |> Expect.hasOkValue 42
+    ]
+
 
 let setErrorTests =
     testList "setError Tests" [
@@ -850,6 +882,7 @@ let allTests =
         requireEmptyTests
         requireNotEmptyTests
         requireHeadTests
+        convertErrorTests
         setErrorTests
         withErrorTests
         defaultValueTests

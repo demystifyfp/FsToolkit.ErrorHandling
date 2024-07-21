@@ -26,6 +26,7 @@
       * [traverseResultA](list/traverseResultA.md)
       * [sequenceResultA](list/sequenceResultA.md)
     * Transforms
+      * [convertError](result/convertError.md)
       * [ofChoice](result/ofChoice.md)
 
   * Option

@@ -424,6 +424,20 @@ module Result =
         | None -> Error error
 
     /// <summary>
+    /// Converts the error value of a <c>Result</c> to a new error value using the <c>From</c> member function of the error type to be produced.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/converterror</href>
+    /// </summary>
+    /// <param name="input">The value to create a result from.</param>
+    /// <returns>A new <c>Result</c> with the same Ok value and the converted error value.</returns>
+    let inline convertError<'a, 'error1, ^error2
+        when ^error2: (static member From: 'error1 -> ^error2)>
+        (input: Result<'a, 'error1>)
+        : Result<'a, ^error2> =
+        input
+        |> Result.mapError (fun e -> 'error2.From(e))
+
+    /// <summary>
     /// Replaces an error value with a custom error value.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#seterror</href>
