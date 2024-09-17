@@ -1,7 +1,7 @@
 module SeqTests
 
 open BenchmarkDotNet.Attributes
-open FsToolkit.ErrorHandling
+//open FsToolkit.ErrorHandling
 open System.Threading
 open System
 open BenchmarkDotNet.Attributes
@@ -48,7 +48,7 @@ module sequenceResultMTests =
 [<MemoryDiagnoser>]
 type SeqBenchmarks() =
 
-    member _.GetOkSeq size =
+    member _.GetOkSeq size : Result<int, string> seq =
         seq {
             for i in 1..size do
                 yield Ok i
@@ -60,7 +60,9 @@ type SeqBenchmarks() =
     [<Benchmark(Baseline = true, Description = "v1")>]
     member this.test1() =
         sequenceResultMTests.v1.sequenceResultM (this.GetOkSeq this.Size)
+        |> ignore
 
     [<Benchmark(Description = "v2")>]
     member this.test2() =
         sequenceResultMTests.v2.sequenceResultM (this.GetOkSeq this.Size)
+        |> ignore
