@@ -9,17 +9,17 @@ open ApplicativeTests
 
 [<EntryPoint>]
 let main argv =
+
     let cfg =
         DefaultConfig
             .Instance
             // .AddJob(Job.Default.WithRuntime(CoreRuntime.Core50))
-            .AddJob(Job.Default.WithRuntime(CoreRuntime.Core60))
+            .AddJob(Job.Default.WithRuntime(CoreRuntime.Core70))
     // BenchmarkRunner.Run<EitherMapBenchmarks>() |> ignore
     // BenchmarkRunner.Run<TaskResult_BindCEBenchmarks>(cfg) |> ignore
     // BenchmarkRunner.Run<BindSameBenchmarks>() |> ignore
 
-    BenchmarkRunner.Run<Result_BindvsAndCEBenchmarks>(cfg)
+    BenchmarkRunner.Run<SeqTests.SeqBenchmarks>(cfg, argv)
     |> ignore
-    //
 
     0 // return an integer exit code

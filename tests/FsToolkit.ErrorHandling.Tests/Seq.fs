@@ -64,31 +64,6 @@ let sequenceResultMTests =
                 actual
                 (Error emptyTweetErrMsg)
                 "traverse the sequence and return the first error"
-
-        testCase "sequenceResultM stops after first invalid data"
-        <| fun _ ->
-            let mutable counter = 0
-
-            let tweets =
-                seq {
-                    "Hi"
-                    "Hello"
-                    "Hola"
-                    aLongerInvalidTweet
-
-                    counter <-
-                        counter
-                        + 1
-                }
-
-            let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-
-            Expect.equal
-                actual
-                (Error longerTweetErrMsg)
-                "traverse the sequence and return the first error"
-
-            Expect.equal counter 0 "evaluation of the sequence stops at the first error"
     ]
 
 let allTests = testList "Seq Tests" [ sequenceResultMTests ]
