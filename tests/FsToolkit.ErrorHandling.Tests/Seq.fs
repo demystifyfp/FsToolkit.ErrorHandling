@@ -27,12 +27,17 @@ let traverseResultMTests =
                     "Hola"
                 }
 
-            let expected = Seq.map tweet tweets
+            let expected =
+                Seq.map tweet tweets
+                |> Seq.toList
 
             let actual = Seq.traverseResultM Tweet.TryCreate tweets
-            let actual = Expect.wantOk actual "Expected result to be Ok"
 
-            Expect.sequenceEqual actual expected "Should have a sequence of valid tweets"
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "traverseResultM with few invalid data"
         <| fun _ ->
@@ -67,10 +72,14 @@ let traverseOptionMTests =
                     "Hola"
                 }
 
+            let expected = Seq.toList tweets
             let actual = Seq.traverseOptionM tryTweetOption tweets
-            let actual = Expect.wantSome actual "Expected result to be Some"
 
-            Expect.sequenceEqual actual tweets "Should have a sequence of valid tweets"
+            let actual =
+                Expect.wantSome actual "Expected result to be Some"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "traverseOption with few invalid data"
         <| fun _ ->
@@ -98,11 +107,17 @@ let sequenceResultMTests =
                     "Hola"
                 }
 
-            let expected = Seq.map tweet tweets
-            let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
-            let actual = Expect.wantOk actual "Expected result to be Ok"
+            let expected =
+                Seq.map tweet tweets
+                |> Seq.toList
 
-            Expect.sequenceEqual actual expected "Should have a sequence of valid tweets"
+            let actual = Seq.sequenceResultM (Seq.map Tweet.TryCreate tweets)
+
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "sequenceResultM with few invalid data"
         <| fun _ ->
@@ -137,10 +152,14 @@ let sequenceOptionMTests =
                     "Hola"
                 }
 
+            let expected = Seq.toList tweets
             let actual = Seq.sequenceOptionM (Seq.map tryTweetOption tweets)
-            let actual = Expect.wantSome actual "Expected result to be Some"
 
-            Expect.sequenceEqual actual tweets "Should have a sequence of valid tweets"
+            let actual =
+                Expect.wantSome actual "Expected result to be Some"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "sequenceOptionM with few invalid data"
         <| fun _ ->
@@ -167,11 +186,17 @@ let traverseResultATests =
                     "Hola"
                 }
 
-            let expected = Seq.map tweet tweets
-            let actual = Seq.traverseResultA Tweet.TryCreate tweets
-            let actual = Expect.wantOk actual "Expected result to be Ok"
+            let expected =
+                Seq.map tweet tweets
+                |> Seq.toList
 
-            Expect.sequenceEqual actual expected "Should have a sequence of valid tweets"
+            let actual = Seq.traverseResultA Tweet.TryCreate tweets
+
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "traverseResultA with few invalid data"
         <| fun _ ->
@@ -183,15 +208,17 @@ let traverseResultATests =
                 }
 
             let actual = Seq.traverseResultA Tweet.TryCreate tweets
-            let actual = Expect.wantError actual "Expected result to be Error"
 
-            let expected =
-                seq {
-                    emptyTweetErrMsg
-                    longerTweetErrMsg
-                }
+            let actual =
+                Expect.wantError actual "Expected result to be Error"
+                |> Seq.toList
 
-            Expect.sequenceEqual actual expected "traverse the sequence and return all the errors"
+            let expected = [
+                emptyTweetErrMsg
+                longerTweetErrMsg
+            ]
+
+            Expect.equal actual expected "traverse the sequence and return all the errors"
     ]
 
 let sequenceResultATests =
@@ -205,11 +232,17 @@ let sequenceResultATests =
                     "Hola"
                 }
 
-            let expected = Seq.map tweet tweets
-            let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
-            let actual = Expect.wantOk actual "Expected result to be Ok"
+            let expected =
+                Seq.map tweet tweets
+                |> Seq.toList
 
-            Expect.sequenceEqual actual expected "Should have a sequence of valid tweets"
+            let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
+
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid tweets"
 
         testCase "sequenceResultM with few invalid data"
         <| fun _ ->
@@ -221,15 +254,17 @@ let sequenceResultATests =
                 }
 
             let actual = Seq.sequenceResultA (Seq.map Tweet.TryCreate tweets)
-            let actual = Expect.wantError actual "Expected result to be Error"
 
-            let expected =
-                seq {
-                    emptyTweetErrMsg
-                    longerTweetErrMsg
-                }
+            let actual =
+                Expect.wantError actual "Expected result to be Error"
+                |> Seq.toList
 
-            Expect.sequenceEqual actual expected "traverse the sequence and return all the errors"
+            let expected = [
+                emptyTweetErrMsg
+                longerTweetErrMsg
+            ]
+
+            Expect.equal actual expected "traverse the sequence and return all the errors"
     ]
 
 let userId1 = Guid.NewGuid()
@@ -253,11 +288,15 @@ let traverseAsyncResultMTests =
             let expected =
                 userIds
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toList
 
             let! actual = Seq.traverseAsyncResultM (notifyNewPostSuccess (PostId newPostId)) userIds
 
-            let actual = Expect.wantOk actual "Expected result to be Ok"
-            Expect.sequenceEqual actual expected "Should have a sequence of valid data"
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid data"
         }
 
         testCaseAsync "traverseResultA with few invalid data"
@@ -283,12 +322,19 @@ let traverseAsyncOptionMTests =
     testList "Seq.traverseAsyncOptionM Tests" [
         testCaseAsync "traverseAsyncOptionM with a sequence of valid data"
         <| async {
-            let expected = Some userIds
+            let expected =
+                userIds
+                |> Seq.toList
+                |> Some
+
             let f x = async { return Some x }
-            let actual = Seq.traverseAsyncOptionM f userIds
+
+            let actual =
+                Seq.traverseAsyncOptionM f userIds
+                |> AsyncOption.map Seq.toList
 
             match expected with
-            | Some e -> do! Expect.hasAsyncSomeSeqValue e actual
+            | Some e -> do! Expect.hasAsyncSomeValue e actual
             | None -> failwith "Error in the test case code"
         }
 
@@ -334,24 +380,31 @@ let traverseAsyncResultATests =
             let expected =
                 userIds
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toList
 
             let! actual = Seq.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
-            let actual = Expect.wantOk actual "Expected result to be Ok"
 
-            Expect.sequenceEqual actual expected "Should have a sequence of valid data"
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid data"
         }
 
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
-            let expected =
-                seq {
-                    sprintf "error: %s" (userId1.ToString())
-                    sprintf "error: %s" (userId3.ToString())
-                }
+            let expected = [
+                sprintf "error: %s" (userId1.ToString())
+                sprintf "error: %s" (userId3.ToString())
+            ]
 
             let! actual = Seq.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
-            let actual = Expect.wantError actual "Expected result to be Error"
-            Expect.sequenceEqual actual expected "Should have a sequence of errors"
+
+            let actual =
+                Expect.wantError actual "Expected result to be Error"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of errors"
         }
     ]
 
@@ -372,13 +425,17 @@ let sequenceAsyncResultMTests =
             let expected =
                 userIds
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toList
 
             let! actual =
                 Seq.map (notifyNewPostSuccess (PostId newPostId)) userIds
                 |> Seq.sequenceAsyncResultM
 
-            let actual = Expect.wantOk actual "Expected result to be Ok"
-            Expect.sequenceEqual actual expected "Should have a sequence of valid data"
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid data"
         }
 
         testCaseAsync "sequenceAsyncResultM with few invalid data"
@@ -405,15 +462,19 @@ let sequenceAsyncOptionMTests =
     testList "Seq.sequenceAsyncOptionM Tests" [
         testCaseAsync "sequenceAsyncOptionM with a sequence of valid data"
         <| async {
-            let expected = Some userIds
+            let expected =
+                Seq.toList userIds
+                |> Some
+
             let f x = async { return Some x }
 
             let actual =
                 Seq.map f userIds
                 |> Seq.sequenceAsyncOptionM
+                |> AsyncOption.map Seq.toList
 
             match expected with
-            | Some e -> do! Expect.hasAsyncSomeSeqValue e actual
+            | Some e -> do! Expect.hasAsyncSomeValue e actual
             | None -> failwith "Error in the test case code"
         }
 
@@ -448,28 +509,30 @@ let sequenceAsyncResultATests =
             let expected =
                 userIds
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toList
 
             let actual =
                 Seq.map (notifyNewPostSuccess (PostId newPostId)) userIds
                 |> Seq.sequenceAsyncResultA
+                |> AsyncResult.map Seq.toList
 
-            do! Expect.hasAsyncOkSeqValue expected actual
+            do! Expect.hasAsyncOkValue expected actual
         }
 
         testCaseAsync "sequenceAsyncResultA with few invalid data"
         <| async {
-            let expected =
-                seq {
-                    sprintf "error: %s" (userId1.ToString())
-                    sprintf "error: %s" (userId3.ToString())
-                }
+            let expected = [
+                sprintf "error: %s" (userId1.ToString())
+                sprintf "error: %s" (userId3.ToString())
+            ]
 
             let! actual =
                 Seq.map (notifyFailure (PostId newPostId)) userIds
                 |> Seq.sequenceAsyncResultA
+                |> AsyncResult.mapError Seq.toList
 
             let actual = Expect.wantError actual "Expected result to be Error"
-            Expect.sequenceEqual actual expected "Should have a sequence of errors"
+            Expect.equal actual expected "Should have a sequence of errors"
         }
     ]
 
@@ -490,11 +553,15 @@ let traverseVOptionMTests =
                     "Hola"
                 }
 
-            let actual = Seq.traverseVOptionM tryTweetVOption tweets
+            let expected = Seq.toList tweets
+
+            let actual =
+                Seq.traverseVOptionM tryTweetVOption tweets
+                |> ValueOption.map Seq.toList
 
             match actual with
             | ValueSome actual ->
-                Expect.sequenceEqual actual tweets "Should have a sequence of valid tweets"
+                Expect.equal actual expected "Should have a sequence of valid tweets"
             | ValueNone -> failwith "Expected a value some"
 
         testCase "traverseVOption with few invalid data"
@@ -526,11 +593,15 @@ let sequenceVOptionMTests =
                     "Hola"
                 }
 
-            let actual = Seq.sequenceVOptionM (Seq.map tryTweetOption tweets)
+            let expected = Seq.toList tweets
+
+            let actual =
+                Seq.sequenceVOptionM (Seq.map tryTweetOption tweets)
+                |> ValueOption.map Seq.toList
 
             match actual with
             | ValueSome actual ->
-                Expect.sequenceEqual actual tweets "Should have a sequence of valid tweets"
+                Expect.equal actual expected "Should have a sequence of valid tweets"
             | ValueNone -> failwith "Expected a value some"
 
         testCase "sequenceVOptionM with few invalid data"
