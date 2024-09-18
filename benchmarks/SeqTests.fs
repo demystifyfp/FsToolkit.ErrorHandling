@@ -1,7 +1,6 @@
 module SeqTests
 
 open BenchmarkDotNet.Attributes
-//open FsToolkit.ErrorHandling
 open System.Threading
 open System
 open BenchmarkDotNet.Attributes
@@ -45,6 +44,30 @@ module sequenceResultMTests =
 
         let sequenceResultM xs = traverseResultM id xs
 
+    module v3 =
+
+        let inline traverseResultM'
+            state
+            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+            xs
+            =
+            let folder state x =
+                match state, f x with
+                | Error e, _ -> Error e
+                | Ok oks, Ok ok ->
+                    Seq.singleton ok
+                    |> Seq.append oks
+                    |> Ok
+                | Ok _, Error e -> Error e
+
+            Seq.fold folder state xs
+            |> Result.map Seq.rev
+
+        let traverseResultM (f: 'okInput -> Result<'okOutput, 'error>) xs =
+            traverseResultM' (Ok Seq.empty) f xs
+
+        let sequenceResultM xs = traverseResultM id xs
+
 [<MemoryDiagnoser>]
 type SeqBenchmarks() =
 
@@ -65,4 +88,9 @@ type SeqBenchmarks() =
     [<Benchmark(Description = "v2")>]
     member this.test2() =
         sequenceResultMTests.v2.sequenceResultM (this.GetOkSeq this.Size)
+        |> ignore
+
+    [<Benchmark(Description = "v3")>]
+    member this.test3() =
+        sequenceResultMTests.v3.sequenceResultM (this.GetOkSeq this.Size)
         |> ignore
