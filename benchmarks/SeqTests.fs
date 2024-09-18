@@ -1,9 +1,9 @@
 module SeqTests
 
 open BenchmarkDotNet.Attributes
-open System.Threading
-open System
-open BenchmarkDotNet.Attributes
+open BenchmarkDotNet.Order
+open BenchmarkDotNet.Mathematics
+open BenchmarkDotNet.Configs
 
 module sequenceResultMTests =
 
@@ -68,29 +68,146 @@ module sequenceResultMTests =
 
         let sequenceResultM xs = traverseResultM id xs
 
+    module v4 =
+
+        let traverseResultM' initialState (f: 'okInput -> Result<'okOutput, 'error>) xs =
+            (initialState, 0)
+            |> Seq.unfold (fun (state, i) ->
+                xs
+                |> Seq.tryItem i
+                |> Option.bind (fun x ->
+                    match state, f x with
+                    | Error _, _ -> None
+                    | Ok oks, Ok ok ->
+                        let newState =
+                            Seq.singleton ok
+                            |> Seq.append oks
+                            |> Ok
+
+                        Some(newState, (newState, i + 1))
+                    | Ok _, Error e -> Some(Error e, (Error e, i + 1))
+                )
+            )
+            |> Seq.last
+
+        let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
+        let sequenceResultM xs = traverseResultM id xs
+
+    module v5 =
+
+        let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) (xs: seq<'okInput>) =
+            let mutable state = state
+
+            let enumerator = xs.GetEnumerator()
+
+            while enumerator.MoveNext() do
+                match state, f enumerator.Current with
+                | Error _, _ -> ()
+                | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
+                | Ok _, Error e -> state <- Error e
+
+            state
+
+        let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
+        let sequenceResultM xs = traverseResultM id xs
+
+    module v6 =
+
+        let inline traverseResultM'
+            state
+            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+            (xs: seq<'okInput>)
+            =
+            let mutable state = state
+
+            let enumerator = xs.GetEnumerator()
+
+            while enumerator.MoveNext() do
+                match state, f enumerator.Current with
+                | Error _, _ -> ()
+                | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
+                | Ok _, Error e -> state <- Error e
+
+            state
+
+        let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
+        let sequenceResultM xs = traverseResultM id xs
+
+
 [<MemoryDiagnoser>]
+[<Orderer(SummaryOrderPolicy.FastestToSlowest)>]
+[<RankColumn(NumeralSystem.Stars)>]
+[<MinColumn; MaxColumn; MedianColumn; MeanColumn; CategoriesColumn>]
+[<GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)>]
 type SeqBenchmarks() =
 
-    member _.GetOkSeq size : Result<int, string> seq =
+    member _.GetPartialOkSeq size =
         seq {
-            for i in 1..size do
-                yield Ok i
+            for i in 1u .. size do
+                if i = size / 2u then Error "error" else Ok i
         }
 
-    [<Params(1_000)>]
-    member val Size = 0 with get, set
+    member _.SmallSize = 1000u
 
-    [<Benchmark(Baseline = true, Description = "v1")>]
-    member this.test1() =
-        sequenceResultMTests.v1.sequenceResultM (this.GetOkSeq this.Size)
+    member _.LargeSize = 500_000u
+
+    [<Benchmark(Baseline = true, Description = "original")>]
+    [<BenchmarkCategory("Small")>]
+    member this.original() =
+        sequenceResultMTests.v1.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
         |> ignore
 
-    [<Benchmark(Description = "v2")>]
-    member this.test2() =
-        sequenceResultMTests.v2.sequenceResultM (this.GetOkSeq this.Size)
+    [<Benchmark(Description = "Seq.fold")>]
+    [<BenchmarkCategory("Small")>]
+    member this.seqFoldSmall() =
+        sequenceResultMTests.v2.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
         |> ignore
 
-    [<Benchmark(Description = "v3")>]
-    member this.test3() =
-        sequenceResultMTests.v3.sequenceResultM (this.GetOkSeq this.Size)
+    [<Benchmark(Description = "inlined Seq.fold")>]
+    [<BenchmarkCategory("Small")>]
+    member this.inlineSeqFoldSmall() =
+        sequenceResultMTests.v3.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
+        |> ignore
+
+    [<Benchmark(Description = "Seq.unfold")>]
+    [<BenchmarkCategory("Small")>]
+    member this.seqUnfoldSmall() =
+        sequenceResultMTests.v4.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
+        |> ignore
+
+    [<Benchmark(Description = "GetEnumerator w/ mutability")>]
+    [<BenchmarkCategory("Small")>]
+    member this.getEnumeratorSmall() =
+        sequenceResultMTests.v5.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
+        |> ignore
+
+    [<Benchmark(Description = "inlined GetEnumerator w/ mutability")>]
+    [<BenchmarkCategory("Small")>]
+    member this.inlineGetEnumeratorSmall() =
+        sequenceResultMTests.v6.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
+        |> ignore
+
+    // made this baseline for this category since unfold and original were so unperformant for this size of data
+    [<Benchmark(Baseline = true, Description = "Seq.fold")>]
+    [<BenchmarkCategory("Large")>]
+    member this.seqFoldLarge() =
+        sequenceResultMTests.v2.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
+        |> ignore
+
+    [<Benchmark(Description = "inlined Seq.fold")>]
+    [<BenchmarkCategory("Large")>]
+    member this.inlineSeqFoldLarge() =
+        sequenceResultMTests.v3.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
+        |> ignore
+
+    [<Benchmark(Description = "GetEnumerator w/ mutability")>]
+    [<BenchmarkCategory("Large")>]
+    member this.getEnumeratorLarge() =
+        sequenceResultMTests.v5.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
+        |> ignore
+
+    [<Benchmark(Description = "inlined GetEnumerator w/ mutability")>]
+    [<BenchmarkCategory("Large")>]
+    member this.inlineGetEnumeratorLarge() =
+        sequenceResultMTests.v6.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
         |> ignore
