@@ -15,21 +15,26 @@ module Seq =
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
         (xs: 'okInput seq)
         =
-        let mutable state = state
-        let enumerator = xs.GetEnumerator()
+        match state with
+        | Error _ -> state
+        | Ok oks ->
+            use enumerator = xs.GetEnumerator()
 
-        while Result.isOk state
-              && enumerator.MoveNext() do
-            match state, f enumerator.Current with
-            | Error e, _ -> state <- Error e
-            | Ok oks, Ok ok ->
-                state <-
-                    Seq.singleton ok
-                    |> Seq.append oks
-                    |> Ok
-            | Ok _, Error e -> state <- Error e
+            let rec loop oks =
+                if enumerator.MoveNext() then
+                    match f enumerator.Current with
+                    | Ok ok ->
+                        loop (
+                            seq {
+                                yield ok
+                                yield! oks
+                            }
+                        )
+                    | Error e -> Error e
+                else
+                    Ok(Seq.rev oks)
 
-        state
+            loop oks
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single result
@@ -105,20 +110,29 @@ module Seq =
         (xs: 'okInput seq)
         =
         async {
-            let! state' = state
-            let mutable state = state'
-            let enumerator = xs.GetEnumerator()
+            match! state with
+            | Error _ -> return! state
+            | Ok oks ->
+                use enumerator = xs.GetEnumerator()
 
-            while Result.isOk state
-                  && enumerator.MoveNext() do
-                let! result = f enumerator.Current
+                let rec loop oks =
+                    async {
+                        if enumerator.MoveNext() then
+                            match! f enumerator.Current with
+                            | Ok ok ->
+                                return!
+                                    loop (
+                                        seq {
+                                            yield ok
+                                            yield! oks
+                                        }
+                                    )
+                            | Error e -> return Error e
+                        else
+                            return Ok(Seq.rev oks)
+                    }
 
-                match state, result with
-                | Error _, _ -> ()
-                | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
-                | Ok _, Error e -> state <- Error e
-
-            return state
+                return! loop oks
         }
 
     /// <summary>
@@ -202,21 +216,26 @@ module Seq =
         ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
         (xs: 'okInput seq)
         =
-        let mutable state = state
-        let enumerator = xs.GetEnumerator()
+        match state with
+        | None -> state
+        | Some values ->
+            use enumerator = xs.GetEnumerator()
 
-        while Option.isSome state
-              && enumerator.MoveNext() do
-            match state, f enumerator.Current with
-            | None, _ -> state <- None
-            | Some values, Some value ->
-                state <-
-                    Seq.singleton value
-                    |> Seq.append values
-                    |> Some
-            | Some _, None -> state <- None
+            let rec loop values =
+                if enumerator.MoveNext() then
+                    match f enumerator.Current with
+                    | Some value ->
+                        loop (
+                            seq {
+                                yield value
+                                yield! values
+                            }
+                        )
+                    | None -> None
+                else
+                    Some(Seq.rev values)
 
-        state
+            loop values
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single option
@@ -248,24 +267,29 @@ module Seq =
         (xs: 'okInput seq)
         =
         async {
-            let! state' = state
-            let mutable state = state'
-            let enumerator = xs.GetEnumerator()
+            match! state with
+            | None -> return! state
+            | Some values ->
+                use enumerator = xs.GetEnumerator()
 
-            while Option.isSome state
-                  && enumerator.MoveNext() do
-                let! result = f enumerator.Current
+                let rec loop values =
+                    async {
+                        if enumerator.MoveNext() then
+                            match! f enumerator.Current with
+                            | Some value ->
+                                return!
+                                    loop (
+                                        seq {
+                                            yield value
+                                            yield! values
+                                        }
+                                    )
+                            | None -> return None
+                        else
+                            return Some(Seq.rev values)
+                    }
 
-                match state, result with
-                | None, _ -> state <- None
-                | Some values, Some value ->
-                    state <-
-                        Seq.singleton value
-                        |> Seq.append values
-                        |> Some
-                | Some _, None -> state <- None
-
-            return state
+                return! loop values
         }
 
     /// <summary>
@@ -300,21 +324,26 @@ module Seq =
         ([<InlineIfLambda>] f: 'okInput -> 'okOutput voption)
         (xs: 'okInput seq)
         =
-        let mutable state = state
-        let enumerator = xs.GetEnumerator()
+        match state with
+        | ValueNone -> state
+        | ValueSome values ->
+            use enumerator = xs.GetEnumerator()
 
-        while ValueOption.isSome state
-              && enumerator.MoveNext() do
-            match state, f enumerator.Current with
-            | ValueNone, _ -> state <- ValueNone
-            | ValueSome values, ValueSome value ->
-                state <-
-                    Seq.singleton value
-                    |> Seq.append values
-                    |> ValueSome
-            | ValueSome _, ValueNone -> state <- ValueNone
+            let rec loop values =
+                if enumerator.MoveNext() then
+                    match f enumerator.Current with
+                    | ValueSome value ->
+                        loop (
+                            seq {
+                                yield value
+                                yield! values
+                            }
+                        )
+                    | ValueNone -> ValueNone
+                else
+                    ValueSome(Seq.rev values)
 
-        state
+            loop values
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single voption

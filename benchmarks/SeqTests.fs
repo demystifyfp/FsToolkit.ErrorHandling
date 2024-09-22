@@ -9,7 +9,8 @@ open System
 
 module sequenceResultMTests =
 
-    module v1 =
+    // original used in v4.16.0
+    module SeqCache =
 
         let sequenceResultM (xs: seq<Result<'t, 'e>>) : Result<'t seq, 'e> =
             let rec loop xs ts =
@@ -26,7 +27,7 @@ module sequenceResultMTests =
             // Seq.cache prevents double evaluation in Seq.tail
             loop (Seq.cache xs) []
 
-    module v2 =
+    module SeqFold =
 
         let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) xs =
             let folder state x =
@@ -46,7 +47,7 @@ module sequenceResultMTests =
 
         let sequenceResultM xs = traverseResultM id xs
 
-    module v3 =
+    module InlinedSeqFold =
 
         let inline traverseResultM'
             state
@@ -70,7 +71,7 @@ module sequenceResultMTests =
 
         let sequenceResultM xs = traverseResultM id xs
 
-    module v4 =
+    module SeqUnfold =
 
         let traverseResultM' initialState (f: 'okInput -> Result<'okOutput, 'error>) xs =
             (initialState, 0)
@@ -95,7 +96,7 @@ module sequenceResultMTests =
         let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
         let sequenceResultM xs = traverseResultM id xs
 
-    module v5 =
+    module GetEnumerator =
 
         let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) (xs: seq<'okInput>) =
             let mutable state = state
@@ -114,7 +115,7 @@ module sequenceResultMTests =
         let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
         let sequenceResultM xs = traverseResultM id xs
 
-    module v6 =
+    module InlinedGetEnumerator =
 
         // adds an early exit upon encountering an error
         let inline traverseResultM'
@@ -141,6 +142,37 @@ module sequenceResultMTests =
         let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
         let sequenceResultM xs = traverseResultM id xs
 
+    module SeqExpr =
+
+        let inline traverseResultM'
+            state
+            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+            (xs: 'okInput seq)
+            =
+            match state with
+            | Error _ -> state
+            | Ok oks ->
+                use enumerator = xs.GetEnumerator()
+
+                let rec loop oks =
+                    if enumerator.MoveNext() then
+                        match f enumerator.Current with
+                        | Ok ok ->
+                            loop (
+                                seq {
+                                    yield ok
+                                    yield! oks
+                                }
+                            )
+                        | Error e -> Error e
+                    else
+                        Ok(Seq.rev oks)
+
+                loop oks
+
+        let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
+        let sequenceResultM xs = traverseResultM id xs
+
 
 [<MemoryDiagnoser>]
 [<Orderer(SummaryOrderPolicy.FastestToSlowest)>]
@@ -149,74 +181,161 @@ module sequenceResultMTests =
 [<GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)>]
 type SeqBenchmarks() =
 
-    member _.GetPartialOkSeq size =
+    member _.thousandWithSleep = 1000u
+
+    member _.fiveThousandWithSleep = 5_000u
+
+    // for testing early escape performance
+    member _.GetPartialOkSeqWithSleep size =
         seq {
             for i in 1u .. size do
                 Thread.Sleep(TimeSpan.FromMicroseconds(1.0))
                 if i = size / 2u then Error "error" else Ok i
         }
 
-    member _.SmallSize = 100u
+    member _.thousand = 1_000u
 
-    member _.LargeSize = 5_000u
+    member _.million = 1_000_000u
+
+    member _.GetPartialOkSeq size =
+        seq {
+            for i in 1u .. size do
+                if i = size / 2u then Error "error" else Ok i
+        }
 
     [<Benchmark(Baseline = true, Description = "original")>]
-    [<BenchmarkCategory("Small")>]
-    member this.original() =
-        sequenceResultMTests.v1.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+    [<BenchmarkCategory("1000", "sleep")>]
+    member this.seqCache() =
+        sequenceResultMTests.SeqCache.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     [<Benchmark(Description = "Seq.fold")>]
-    [<BenchmarkCategory("Small")>]
+    [<BenchmarkCategory("1000", "sleep")>]
     member this.seqFoldSmall() =
-        sequenceResultMTests.v2.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+        sequenceResultMTests.SeqFold.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     [<Benchmark(Description = "inlined Seq.fold")>]
-    [<BenchmarkCategory("Small")>]
+    [<BenchmarkCategory("1000", "sleep")>]
     member this.inlineSeqFoldSmall() =
-        sequenceResultMTests.v3.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+        sequenceResultMTests.InlinedSeqFold.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     [<Benchmark(Description = "Seq.unfold")>]
-    [<BenchmarkCategory("Small")>]
+    [<BenchmarkCategory("1000", "sleep")>]
     member this.seqUnfoldSmall() =
-        sequenceResultMTests.v4.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+        sequenceResultMTests.SeqUnfold.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     [<Benchmark(Description = "GetEnumerator w/ mutability")>]
-    [<BenchmarkCategory("Small")>]
+    [<BenchmarkCategory("1000", "sleep")>]
     member this.getEnumeratorSmall() =
-        sequenceResultMTests.v5.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+        sequenceResultMTests.GetEnumerator.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     [<Benchmark(Description = "inlined GetEnumerator w/ mutability")>]
-    [<BenchmarkCategory("Small")>]
+    [<BenchmarkCategory("1000", "sleep")>]
     member this.inlineGetEnumeratorSmall() =
-        sequenceResultMTests.v6.sequenceResultM (this.GetPartialOkSeq this.SmallSize)
-        |> ignore
+        sequenceResultMTests.InlinedGetEnumerator.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
+
+    [<Benchmark(Description = "Seq expression")>]
+    [<BenchmarkCategory("1000", "sleep")>]
+    member this.seqExpressionSmall() =
+        sequenceResultMTests.SeqExpr.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.thousandWithSleep
+        )
 
     // made this baseline for this category since unfold and original were so unperformant for this size of data
     [<Benchmark(Baseline = true, Description = "Seq.fold")>]
-    [<BenchmarkCategory("Large")>]
+    [<BenchmarkCategory("5000", "sleep")>]
     member this.seqFoldLarge() =
-        sequenceResultMTests.v2.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
-        |> ignore
+        sequenceResultMTests.SeqFold.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.fiveThousandWithSleep
+        )
 
     [<Benchmark(Description = "inlined Seq.fold")>]
-    [<BenchmarkCategory("Large")>]
+    [<BenchmarkCategory("5000", "sleep")>]
     member this.inlineSeqFoldLarge() =
-        sequenceResultMTests.v3.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
-        |> ignore
+        sequenceResultMTests.InlinedSeqFold.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.fiveThousandWithSleep
+        )
 
     [<Benchmark(Description = "GetEnumerator w/ mutability")>]
-    [<BenchmarkCategory("Large")>]
+    [<BenchmarkCategory("5000", "sleep")>]
     member this.getEnumeratorLarge() =
-        sequenceResultMTests.v5.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
-        |> ignore
+        sequenceResultMTests.GetEnumerator.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.fiveThousandWithSleep
+        )
 
     [<Benchmark(Description = "inlined GetEnumerator w/ mutability")>]
-    [<BenchmarkCategory("Large")>]
+    [<BenchmarkCategory("5000", "sleep")>]
     member this.inlineGetEnumeratorLarge() =
-        sequenceResultMTests.v6.sequenceResultM (this.GetPartialOkSeq this.LargeSize)
-        |> ignore
+        sequenceResultMTests.InlinedGetEnumerator.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.fiveThousandWithSleep
+        )
+
+    [<Benchmark(Description = "Seq expression")>]
+    [<BenchmarkCategory("5000", "sleep")>]
+    member this.seqExpressionLarge() =
+        sequenceResultMTests.SeqExpr.sequenceResultM (
+            this.GetPartialOkSeqWithSleep this.fiveThousandWithSleep
+        )
+
+    [<Benchmark(Baseline = true)>]
+    [<BenchmarkCategory("1,000", "func vs expr")>]
+    member this.SeqFuncsSmall() =
+        this.GetPartialOkSeq this.thousand
+        |> sequenceResultMTests.InlinedGetEnumerator.sequenceResultM
+
+    [<Benchmark>]
+    [<BenchmarkCategory("1,000", "func vs expr")>]
+    member this.SeqExprSmall() =
+        this.GetPartialOkSeq this.thousand
+        |> sequenceResultMTests.SeqExpr.sequenceResultM
+
+    [<Benchmark(Baseline = true)>]
+    [<BenchmarkCategory("1,000", "func vs expr", "iter")>]
+    member this.SeqFuncsSmallIter() =
+        this.GetPartialOkSeq this.thousand
+        |> sequenceResultMTests.GetEnumerator.sequenceResultM
+        |> Result.map (Seq.iter ignore)
+
+    [<Benchmark>]
+    [<BenchmarkCategory("1,000", "func vs expr", "iter")>]
+    member this.SeqExprSmallIter() =
+        this.GetPartialOkSeq this.thousand
+        |> sequenceResultMTests.SeqExpr.sequenceResultM
+        |> Result.map (Seq.iter ignore)
+
+    [<Benchmark(Baseline = true)>]
+    [<BenchmarkCategory("1,000,000", "func vs expr")>]
+    member this.SeqFuncsLarge() =
+        this.GetPartialOkSeq this.million
+        |> sequenceResultMTests.InlinedGetEnumerator.sequenceResultM
+
+    [<Benchmark>]
+    [<BenchmarkCategory("1,000,000", "func vs expr")>]
+    member this.SeqExprLarge() =
+        this.GetPartialOkSeq this.million
+        |> sequenceResultMTests.SeqExpr.sequenceResultM
+
+    [<Benchmark(Baseline = true)>]
+    [<BenchmarkCategory("1,000,000", "func vs expr", "iter")>]
+    member this.SeqFuncsLargeIter() =
+        this.GetPartialOkSeq this.million
+        |> sequenceResultMTests.GetEnumerator.sequenceResultM
+        |> Result.map (Seq.iter ignore)
+
+    [<Benchmark>]
+    [<BenchmarkCategory("1,000,000", "func vs expr", "iter")>]
+    member this.SeqExprLargeIter() =
+        this.GetPartialOkSeq this.million
+        |> sequenceResultMTests.SeqExpr.sequenceResultM
+        |> Result.map (Seq.iter ignore)
