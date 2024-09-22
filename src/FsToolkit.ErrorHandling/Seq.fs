@@ -10,17 +10,22 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>A result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-    let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) xs =
-        let folder state x =
-            match state, f x with
-            | Error e, _ -> Error e
-            | Ok oks, Ok ok ->
-                Seq.singleton ok
-                |> Seq.append oks
-                |> Ok
-            | Ok _, Error e -> Error e
+    let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) (xs: 'okInput seq) =
+        let mutable state = state
+        let enumerator = xs.GetEnumerator()
 
-        Seq.fold folder state xs
+        while Result.isOk state
+              && enumerator.MoveNext() do
+            match state, f enumerator.Current with
+            | Error e, _ -> state <- Error e
+            | Ok oks, Ok ok ->
+                state <-
+                    Seq.singleton ok
+                    |> Seq.append oks
+                    |> Ok
+            | Ok _, Error e -> state <- Error e
+
+        state
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single result
@@ -86,23 +91,27 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An async result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-    let traverseAsyncResultM' state (f: 'okInput -> Async<Result<'okOutput, 'error>>) xs =
-        let folder state x =
-            async {
-                let! state = state
-                let! result = f x
+    let traverseAsyncResultM'
+        state
+        (f: 'okInput -> Async<Result<'okOutput, 'error>>)
+        (xs: 'okInput seq)
+        =
+        async {
+            let! state' = state
+            let mutable state = state'
+            let enumerator = xs.GetEnumerator()
 
-                return
-                    match state, result with
-                    | Error e, _ -> Error e
-                    | Ok oks, Ok ok ->
-                        Seq.singleton ok
-                        |> Seq.append oks
-                        |> Ok
-                    | Ok _, Error e -> Error e
-            }
+            while Result.isOk state
+                  && enumerator.MoveNext() do
+                let! result = f enumerator.Current
 
-        Seq.fold folder state xs
+                match state, result with
+                | Error _, _ -> ()
+                | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
+                | Ok _, Error e -> state <- Error e
+
+            return state
+        }
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single async result
@@ -176,17 +185,22 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An option containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseOptionM' state (f: 'okInput -> 'okOutput option) xs =
-        let folder state x =
-            match state, f x with
-            | None, _ -> None
-            | Some oks, Some ok ->
-                Seq.singleton ok
-                |> Seq.append oks
-                |> Some
-            | Some _, None -> None
+    let traverseOptionM' state (f: 'okInput -> 'okOutput option) (xs: 'okInput seq) =
+        let mutable state = state
+        let enumerator = xs.GetEnumerator()
 
-        Seq.fold folder state xs
+        while Option.isSome state
+              && enumerator.MoveNext() do
+            match state, f enumerator.Current with
+            | None, _ -> state <- None
+            | Some values, Some value ->
+                state <-
+                    Seq.singleton value
+                    |> Seq.append values
+                    |> Some
+            | Some _, None -> state <- None
+
+        state
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single option
@@ -212,23 +226,27 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An async option containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseAsyncOptionM' state (f: 'okInput -> Async<'okOutput option>) xs =
-        let folder state x =
-            async {
-                let! state = state
-                let! result = f x
+    let traverseAsyncOptionM' state (f: 'okInput -> Async<'okOutput option>) (xs: 'okInput seq) =
+        async {
+            let! state' = state
+            let mutable state = state'
+            let enumerator = xs.GetEnumerator()
 
-                return
-                    match state, result with
-                    | None, _ -> None
-                    | Some oks, Some ok ->
-                        Seq.singleton ok
-                        |> Seq.append oks
+            while Option.isSome state
+                  && enumerator.MoveNext() do
+                let! result = f enumerator.Current
+
+                match state, result with
+                | None, _ -> state <- None
+                | Some values, Some value ->
+                    state <-
+                        Seq.singleton value
+                        |> Seq.append values
                         |> Some
-                    | Some _, None -> None
-            }
+                | Some _, None -> state <- None
 
-        Seq.fold folder state xs
+            return state
+        }
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single async option
@@ -257,17 +275,22 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>A voption containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseVOptionM' state (f: 'okInput -> 'okOutput voption) xs =
-        let folder state x =
-            match state, f x with
-            | ValueNone, _ -> ValueNone
-            | ValueSome oks, ValueSome ok ->
-                Seq.singleton ok
-                |> Seq.append oks
-                |> ValueSome
-            | ValueSome _, ValueNone -> ValueNone
+    let traverseVOptionM' state (f: 'okInput -> 'okOutput voption) (xs: 'okInput seq) =
+        let mutable state = state
+        let enumerator = xs.GetEnumerator()
 
-        Seq.fold folder state xs
+        while ValueOption.isSome state
+              && enumerator.MoveNext() do
+            match state, f enumerator.Current with
+            | ValueNone, _ -> state <- ValueNone
+            | ValueSome values, ValueSome value ->
+                state <-
+                    Seq.singleton value
+                    |> Seq.append values
+                    |> ValueSome
+            | ValueSome _, ValueNone -> state <- ValueNone
+
+        state
 
     /// <summary>
     /// Applies a function to each element of a sequence and returns a single voption

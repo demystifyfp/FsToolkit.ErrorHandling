@@ -4,6 +4,8 @@ open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Order
 open BenchmarkDotNet.Mathematics
 open BenchmarkDotNet.Configs
+open System.Threading
+open System
 
 module sequenceResultMTests =
 
@@ -113,19 +115,24 @@ module sequenceResultMTests =
 
     module v6 =
 
+        // adds an early exit upon encountering an error
         let inline traverseResultM'
             state
             ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
             (xs: seq<'okInput>)
             =
             let mutable state = state
-
             let enumerator = xs.GetEnumerator()
 
-            while enumerator.MoveNext() do
+            while Result.isOk state
+                  && enumerator.MoveNext() do
                 match state, f enumerator.Current with
-                | Error _, _ -> ()
-                | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
+                | Error e, _ -> state <- Error e
+                | Ok oks, Ok ok ->
+                    state <-
+                        Seq.singleton ok
+                        |> Seq.append oks
+                        |> Ok
                 | Ok _, Error e -> state <- Error e
 
             state
@@ -144,12 +151,13 @@ type SeqBenchmarks() =
     member _.GetPartialOkSeq size =
         seq {
             for i in 1u .. size do
+                Thread.Sleep(TimeSpan.FromMicroseconds(1.0))
                 if i = size / 2u then Error "error" else Ok i
         }
 
-    member _.SmallSize = 1000u
+    member _.SmallSize = 100u
 
-    member _.LargeSize = 500_000u
+    member _.LargeSize = 1_000u
 
     [<Benchmark(Baseline = true, Description = "original")>]
     [<BenchmarkCategory("Small")>]

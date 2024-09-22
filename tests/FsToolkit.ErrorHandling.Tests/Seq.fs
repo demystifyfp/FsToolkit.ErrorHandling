@@ -134,6 +134,39 @@ let sequenceResultMTests =
                 actual
                 (Error emptyTweetErrMsg)
                 "traverse the sequence and return the first error"
+
+        testCase "sequenceResultM with few invalid data should exit early"
+        <| fun _ ->
+
+            let mutable lastValue = null
+            let mutable callCount = 0
+
+            let tweets =
+                seq {
+                    ""
+                    "Hello"
+                    aLongerInvalidTweet
+                }
+
+            let tryCreate tweet =
+                callCount <-
+                    callCount
+                    + 1
+
+                match tweet with
+                | x when String.IsNullOrEmpty x -> Error "Tweet shouldn't be empty"
+                | x when x.Length > 280 -> Error "Tweet shouldn't contain more than 280 characters"
+                | x -> Ok(x)
+
+            let actual = Seq.sequenceResultM (Seq.map tryCreate tweets)
+
+            Expect.equal callCount 1 "Should have called the function only 1 time"
+            Expect.equal lastValue null ""
+
+            Expect.equal
+                actual
+                (Error emptyTweetErrMsg)
+                "traverse the sequence and return the first error"
     ]
 
 let sequenceOptionMTests =
@@ -171,6 +204,35 @@ let sequenceOptionMTests =
                 }
 
             let actual = Seq.sequenceOptionM (Seq.map tryTweetOption tweets)
+
+            Expect.equal actual None "traverse the sequence and return none"
+
+        testCase "sequenceOptionM with few invalid data should exit early"
+        <| fun _ ->
+
+            let mutable lastValue = null
+            let mutable callCount = 0
+
+            let tweets =
+                seq {
+                    ""
+                    "Hello"
+                    aLongerInvalidTweet
+                }
+
+            let tryCreate tweet =
+                callCount <-
+                    callCount
+                    + 1
+
+                match tweet with
+                | x when String.IsNullOrEmpty x -> None
+                | x -> Some x
+
+            let actual = Seq.sequenceOptionM (Seq.map tryCreate tweets)
+
+            Expect.equal callCount 1 "Should have called the function only 1 time"
+            Expect.equal lastValue null ""
 
             Expect.equal actual None "traverse the sequence and return none"
     ]
@@ -615,6 +677,37 @@ let sequenceVOptionMTests =
 
             let actual = Seq.sequenceVOptionM (Seq.map tryTweetOption tweets)
             Expect.equal actual ValueNone "traverse the sequence and return value none"
+
+        testCase "sequenceVOptionM with few invalid data should exit early"
+        <| fun _ ->
+
+            let mutable lastValue = null
+            let mutable callCount = 0
+
+            let tweets =
+                seq {
+                    ""
+                    "Hello"
+                    aLongerInvalidTweet
+                }
+
+            let tryCreate tweet =
+                callCount <-
+                    callCount
+                    + 1
+
+                match tweet with
+                | x when String.IsNullOrEmpty x -> ValueNone
+                | x -> ValueSome x
+
+            let actual = Seq.sequenceVOptionM (Seq.map tryCreate tweets)
+
+            match actual with
+            | ValueNone -> ()
+            | ValueSome _ -> failwith "Expected a value none"
+
+            Expect.equal callCount 1 "Should have called the function only 1 time"
+            Expect.equal lastValue null ""
     ]
 
 #endif
