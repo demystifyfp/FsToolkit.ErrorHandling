@@ -102,7 +102,8 @@ module sequenceResultMTests =
 
             let enumerator = xs.GetEnumerator()
 
-            while enumerator.MoveNext() do
+            while Result.isOk state
+                  && enumerator.MoveNext() do
                 match state, f enumerator.Current with
                 | Error _, _ -> ()
                 | Ok oks, Ok ok -> state <- Ok(Seq.append oks (Seq.singleton ok))
@@ -157,7 +158,7 @@ type SeqBenchmarks() =
 
     member _.SmallSize = 100u
 
-    member _.LargeSize = 1_000u
+    member _.LargeSize = 5_000u
 
     [<Benchmark(Baseline = true, Description = "original")>]
     [<BenchmarkCategory("Small")>]
