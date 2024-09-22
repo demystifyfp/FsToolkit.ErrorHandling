@@ -10,7 +10,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>A result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-    let traverseResultM' state (f: 'okInput -> Result<'okOutput, 'error>) (xs: 'okInput seq) =
+    let inline traverseResultM'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput seq)
+        =
         let mutable state = state
         let enumerator = xs.GetEnumerator()
 
@@ -51,7 +55,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>A result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
-    let traverseResultA' state (f: 'okInput -> Result<'okOutput, 'error>) xs =
+    let inline traverseResultA'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        xs
+        =
         let folder state x =
             match state, f x with
             | Error errors, Error e ->
@@ -91,9 +99,9 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An async result with the ok elements in a sequence or the first error occurring in the sequence</returns>
-    let traverseAsyncResultM'
+    let inline traverseAsyncResultM'
         state
-        (f: 'okInput -> Async<Result<'okOutput, 'error>>)
+        ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
         (xs: 'okInput seq)
         =
         async {
@@ -138,7 +146,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An async result with the ok elements in a sequence or a sequence of all errors occuring in the original sequence</returns>
-    let traverseAsyncResultA' state (f: 'okInput -> Async<Result<'okOutput, 'error>>) xs =
+    let inline traverseAsyncResultA'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
+        xs
+        =
         let folder state x =
             async {
                 let! state = state
@@ -185,7 +197,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An option containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseOptionM' state (f: 'okInput -> 'okOutput option) (xs: 'okInput seq) =
+    let inline traverseOptionM'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
+        (xs: 'okInput seq)
+        =
         let mutable state = state
         let enumerator = xs.GetEnumerator()
 
@@ -226,7 +242,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>An async option containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseAsyncOptionM' state (f: 'okInput -> Async<'okOutput option>) (xs: 'okInput seq) =
+    let inline traverseAsyncOptionM'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput option>)
+        (xs: 'okInput seq)
+        =
         async {
             let! state' = state
             let mutable state = state'
@@ -275,7 +295,11 @@ module Seq =
     /// <param name="f">The function to apply to each element</param>
     /// <param name="xs">The input sequence</param>
     /// <returns>A voption containing Some sequence of elements or None if any of the function applications return None</returns>
-    let traverseVOptionM' state (f: 'okInput -> 'okOutput voption) (xs: 'okInput seq) =
+    let inline traverseVOptionM'
+        state
+        ([<InlineIfLambda>] f: 'okInput -> 'okOutput voption)
+        (xs: 'okInput seq)
+        =
         let mutable state = state
         let enumerator = xs.GetEnumerator()
 
