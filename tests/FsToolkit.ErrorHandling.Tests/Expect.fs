@@ -42,10 +42,28 @@ module Expect =
         | Ok x -> Tests.failtestf "Expected Ok(%A), was Ok(%A)." v x
         | Error x -> Tests.failtestf "Expected Ok, was Error(%A)." x
 
+    let hasOkSeqValue v x =
+        match x with
+        | Ok x ->
+            if Seq.forall2 (fun a b -> a = b) v x then
+                ()
+            else
+                Tests.failtestf "Expected Ok(%A), was Ok(%A)." v x
+        | Error x -> Tests.failtestf "Expected Ok, was Error(%A)." x
+
     let hasSomeValue v x =
         match x with
         | Some x when x = v -> ()
         | Some x -> Tests.failtestf "Expected Some(%A), was Some(%A)." v x
+        | None -> Tests.failtestf "Expected Some, was None."
+
+    let hasSomeSeqValue v x =
+        match x with
+        | Some x ->
+            if Seq.forall2 (fun a b -> a = b) v x then
+                ()
+            else
+                Tests.failtestf "Expected Some(%A), was Some(%A)." v x
         | None -> Tests.failtestf "Expected Some, was None."
 
     let hasNoneValue x =
@@ -69,6 +87,12 @@ module Expect =
             hasOkValue v x
         }
 
+    let hasAsyncOkSeqValue v asyncX =
+        async {
+            let! x = asyncX
+            hasOkSeqValue v x
+        }
+
     let hasAsyncErrorValue v asyncX =
         async {
             let! x = asyncX
@@ -79,6 +103,12 @@ module Expect =
         async {
             let! x = asyncX
             hasSomeValue v x
+        }
+
+    let hasAsyncSomeSeqValue v asyncX =
+        async {
+            let! x = asyncX
+            hasSomeSeqValue v x
         }
 
     let hasAsyncNoneValue asyncX =

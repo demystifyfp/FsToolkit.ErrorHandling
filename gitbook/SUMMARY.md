@@ -25,6 +25,11 @@
       * [sequenceResultM](list/sequenceResultM.md)
       * [traverseResultA](list/traverseResultA.md)
       * [sequenceResultA](list/sequenceResultA.md)
+    * Sequences
+      * [traverseResultM](seq/traverseResultM.md)
+      * [sequenceResultM](seq/sequenceResultM.md)
+      * [traverseResultA](seq/traverseResultA.md)
+      * [sequenceResultA](seq/sequenceResultA.md)
     * Transforms
       * [ofChoice](result/ofChoice.md)
 
@@ -45,6 +50,11 @@
         * [sequenceOptionM](option/sequenceOptionM.md)
         * [traverseVOptionM](option/traverseVOptionM.md)
         * [sequenceVOptionM](option/sequenceVOptionM.md)
+    * Sequences
+        * [traverseOptionM](seq/traverseOptionM.md)
+        * [sequenceOptionM](seq/sequenceOptionM.md)
+        * [traverseVOptionM](seq/traverseVOptionM.md)
+        * [sequenceVOptionM](seq/sequenceVOptionM.md)
     * Transforms
       * [ofNull](option/ofNull.md)
       * [ofPair](option/ofPair.md)
@@ -89,6 +99,11 @@
       * [sequenceAsyncResultM](list/sequenceAsyncResultM.md)
       * [traverseAsyncResultA](list/traverseAsyncResultA.md)
       * [sequenceAsyncResultA](list/sequenceAsyncResultA.md)
+    * Sequences
+      * [traverseAsyncResultM](seq/traverseAsyncResultM.md)
+      * [sequenceAsyncResultM](seq/sequenceAsyncResultM.md)
+      * [traverseAsyncResultA](seq/traverseAsyncResultA.md)
+      * [sequenceAsyncResultA](seq/sequenceAsyncResultA.md)
     * Transforms
       * [ofAsync](asyncResult/ofAsync.md)
       * [ofResult](asyncResult/ofResult.md)

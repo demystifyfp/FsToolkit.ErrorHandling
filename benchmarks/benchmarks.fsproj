@@ -18,6 +18,7 @@
     <Tailcalls>true</Tailcalls>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SeqTests.fs" />
     <Compile Include="ApplicativeTests.fs" />
     <Compile Include="Benchmarks.fs" />
     <Compile Include="AsyncResultCE.fs" />

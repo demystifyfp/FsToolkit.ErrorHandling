@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "benchmarks",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/benchmarks/bin/Release/net7.0/benchmarks.exe",
+            "args": [],
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "integratedTerminal",
+            "preLaunchTask": "build release",
+            "cwd": "${workspaceFolder}/benchmarks/bin/Release/net7.0/"
+        }
+    ]
+}

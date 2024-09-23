@@ -55,10 +55,10 @@ nuget Ply
 group Benchmarks
 source https://api.nuget.org/v3/index.json
 storage: none
-nuget FSharp.Core ~> 7
-nuget BenchmarkDotNet 0.13.1
-nuget BenchmarkDotNet.Annotations 0.13.1
-nuget BenchmarkDotNet.Diagnostics.Windows 0.13.1
+nuget FSharp.Core
+nuget BenchmarkDotNet
+nuget BenchmarkDotNet.Annotations
+nuget BenchmarkDotNet.Diagnostics.Windows
 
 
 // [ FAKE GROUP ]
