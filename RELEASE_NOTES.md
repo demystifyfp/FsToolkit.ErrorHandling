@@ -1,3 +1,6 @@
+### 4.17.0-beta001 - September 23, 2024
+- [Adding Seq.traverse & sequence functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/277) Credits @1eyewonder
+
 ### [4.16.0] - July 15, 2024
 - [Add Task.ignore](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/272) Credits @odytrice
 
