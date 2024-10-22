@@ -38,6 +38,7 @@
     <Compile Include="AsyncResultOptionCE.fs" />
     <Compile Include="AsyncResultOptionOp.fs" />
     <Compile Include="List.fs" />
+    <Compile Include="Array.fs" />
     <Compile Include="Seq.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
