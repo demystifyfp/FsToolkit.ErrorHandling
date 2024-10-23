@@ -1,3 +1,6 @@
+### 4.18.0-beta001 - October 23, 2024
+- [Add Array errorhandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/279) Credits @DashieTM
+
 ### 4.17.0 - September 23, 2024
 - [Adding Seq.traverse & sequence functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/277) Credits @1eyewonder
 
