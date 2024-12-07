@@ -4,6 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFrameworks>net8.0</TargetFrameworks>
         <LangVersion>preview</LangVersion>
+        <NoWarn>$(NoWarn); FS3511</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="SampleDomain.fs" />
