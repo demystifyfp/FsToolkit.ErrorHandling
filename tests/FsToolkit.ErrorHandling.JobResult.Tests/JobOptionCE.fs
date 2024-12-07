@@ -332,3 +332,16 @@ let ceTests =
             Expect.equal actual (Some data) "Should be ok"
         }
     ]
+
+
+[<Tests>]
+let ``JobOptionCE inference checks`` =
+    testList "JobOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = jobOption { return! res }
+
+            f (JobOption.retn ())
+            |> ignore
+    ]

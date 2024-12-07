@@ -1,9 +1,6 @@
-﻿namespace FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
-#if NETSTANDARD2_0
-open FSharp.Control.Tasks.Affine
-#endif
 
 [<RequireQualifiedAccess>]
 module TaskResult =

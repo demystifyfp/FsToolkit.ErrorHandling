@@ -43,10 +43,7 @@ module AsyncResultOptionCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : AsyncResultOption<'ok, 'error> =
             async.TryFinally(computation, compensation)
-
-
-#if NETSTANDARD2_1
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: AsyncResultOption<'ok, 'error>,
@@ -66,7 +63,6 @@ module AsyncResultOptionCE =
 
             Async.TryFinallyAsync(computation, compensation)
 
-
         member inline this.Using
             (
                 resource: 'ok :> IAsyncDisposable,
@@ -82,7 +78,6 @@ module AsyncResultOptionCE =
                 )
             )
 #endif
-
 
         member inline this.While
             (
@@ -108,19 +103,7 @@ module AsyncResultOptionCE =
             (result: AsyncResultOption<'ok, 'error>)
             : AsyncResultOption<'ok, 'error> =
             result
-#if !FABLE_COMPILER
 
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
-        ///
-        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
-        /// </summary>
-        member inline _.Source
-            (result: Task<Result<Option<'ok>, 'error>>)
-            : AsyncResultOption<'ok, 'error> =
-            result
-            |> Async.AwaitTask
-#endif
     let asyncResultOption = new AsyncResultOptionBuilder()
 
 
@@ -235,4 +218,23 @@ module AsyncResultOptionCEExtensionsHighPriority =
             result
             |> Async.AwaitTask
             |> AsyncResultOption.ofAsyncOption
+#endif
+
+#if !FABLE_COMPILER
+[<AutoOpen>]
+module AsyncResultOptionCEExtensionsHighPriority2 =
+
+    type AsyncResultOptionBuilder with
+
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+        ///
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source
+            (result: Task<Result<Option<'ok>, 'error>>)
+            : AsyncResultOption<'ok, 'error> =
+            result
+            |> Async.AwaitTask
 #endif

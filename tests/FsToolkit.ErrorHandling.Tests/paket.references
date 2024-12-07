@@ -1,9 +1,9 @@
 group Test
   FSharp.Core
-  Ply
   Expecto
   Expecto.Hopac
   Microsoft.NET.Test.Sdk
   YoloDev.Expecto.TestSdk
   Fable.Mocha
   Fable.Pyxpecto
+  Microsoft.Bcl.AsyncInterfaces

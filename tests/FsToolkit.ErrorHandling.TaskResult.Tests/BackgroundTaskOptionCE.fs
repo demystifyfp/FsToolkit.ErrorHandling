@@ -4,10 +4,6 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-#if NETSTANDARD2_0 || NET6_0
-let backgroundTask = FSharp.Control.Tasks.NonAffine.task
-#endif
-
 let makeDisposable () =
     { new System.IDisposable with
         member this.Dispose() = ()
@@ -482,4 +478,16 @@ let ceTestsApplicative =
 
                 Expect.equal actual None "Should be ok"
             }
+    ]
+
+[<Tests>]
+let ``BackgroundTaskOptionCE inference checks`` =
+    testList "BackgroundTaskOptionCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = backgroundTaskOption { return! res }
+
+            f (TaskOption.some ())
+            |> ignore
     ]

@@ -1,41 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
-      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-    </ProjectReference>
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.TaskResult/FsToolkit.ErrorHandling.TaskResult.fsproj">
-      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-    </ProjectReference>
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
-      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
-    <ProjectReference Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
-    <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
-    <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
-    <Compile Include="Expect.JobOption.fs" />
-    <Compile Include="Expect.JobResult.fs" />
-    <Compile Include="Result.fs" />
-    <Compile Include="JobResult.fs" />
-    <Compile Include="JobOption.fs" />
-    <Compile Include="JobOptionCE.fs" />
-    <Compile Include="JobResultCE.fs" />
-    <Compile Include="List.fs" />
-    <Compile Include="JobResultOption.fs" />
-    <Compile Include="Main.fs" />
-    <None Include="paket.references" />
-    <Watch Include="@(None)" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net8.0</TargetFrameworks>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference
+            Include="../../src/FsToolkit.ErrorHandling.JobResult/FsToolkit.ErrorHandling.JobResult.fsproj">
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+        <Compile Include="Expect.JobOption.fs" />
+        <Compile Include="Expect.JobResult.fs" />
+        <Compile Include="Result.fs" />
+        <Compile Include="JobResult.fs" />
+        <Compile Include="JobOption.fs" />
+        <Compile Include="JobOptionCE.fs" />
+        <Compile Include="JobResultCE.fs" />
+        <Compile Include="List.fs" />
+        <Compile Include="JobResultOption.fs" />
+        <Compile Include="Main.fs" />
+        <None Include="paket.references" />
+        <Watch Include="@(None)" />
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

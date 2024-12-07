@@ -13,10 +13,29 @@ open System.IO
 open Fake.BuildServer
 open FsToolkit.Build
 
+let environVarAsBoolOrDefault varName defaultValue =
+    let truthyConsts = [
+        "1"
+        "Y"
+        "YES"
+        "T"
+        "TRUE"
+    ]
+
+    try
+        let envvar = (Environment.environVar varName).ToUpper()
+
+        truthyConsts
+        |> List.exists ((=) envvar)
+    with _ ->
+        defaultValue
+
 let project = "FsToolkit.ErrorHandling"
 
 let summary =
     "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
+
+let isCI = lazy (environVarAsBoolOrDefault "CI" false)
 
 let isRelease (targets: Target list) =
     targets
@@ -93,6 +112,18 @@ let failOnBadExitAndPrint (p: ProcessResult) =
 
         failwithf "failed with exitcode %d" p.ExitCode
 
+// github actions are terrible and will cancel runner operations if using too much CPU
+// https://github.com/actions/runner-images/discussions/7188#discussioncomment-6672934
+let maxCpuCount = lazy (if isCI.Value then Some(Some 2) else None)
+
+/// MaxCpu not used on unix https://github.com/fsprojects/FAKE/blob/82e38df01e4b31e5daa3623abff57e6462430395/src/app/Fake.DotNet.MSBuild/MSBuild.fs#L858-L861
+let maxCpuMsBuild =
+    lazy
+        (match maxCpuCount.Value with
+         | None -> ""
+         | Some None -> "/m"
+         | Some(Some x) -> $"/m:%d{x}")
+
 module dotnet =
     let watch cmdParam program args =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
@@ -143,11 +174,24 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 
-let build ctx =
-    let setParams (defaults: DotNet.BuildOptions) = {
+module BuildParameters =
+    let common (defaults: MSBuild.CliArguments) = {
         defaults with
+            DisableInternalBinLog = true
+    }
+
+let build ctx =
+
+    let args = [ maxCpuMsBuild.Value ]
+
+    let setParams (c: DotNet.BuildOptions) = {
+        c with
             NoRestore = true
             Configuration = (configuration ctx.Context.AllExecutingTargets)
+            MSBuildParams = BuildParameters.common c.MSBuildParams
+            Common =
+                c.Common
+                |> DotNet.Options.withAdditionalArgs args
     }
 
     DotNet.build setParams solutionFile
@@ -159,14 +203,22 @@ let restore _ =
             ToolType = ToolType.CreateLocalTool()
     })
 
-    DotNet.restore id solutionFile
+    let setParams (c: DotNet.RestoreOptions) = {
+        c with
+            MSBuildParams = BuildParameters.common c.MSBuildParams
+    }
+
+    DotNet.restore setParams solutionFile
 
 let npmRestore _ = Npm.install id
 
 
 let dotnetTest ctx =
 
-    let args = [ "--no-build" ]
+    let args = [
+        "--no-build"
+        maxCpuMsBuild.Value
+    ]
 
     DotNet.test
         (fun c ->
@@ -177,6 +229,7 @@ let dotnetTest ctx =
                     Common =
                         c.Common
                         |> DotNet.Options.withAdditionalArgs args
+                    MSBuildParams = BuildParameters.common c.MSBuildParams
             })
         solutionFile
 
@@ -293,14 +346,16 @@ let dotnetPack ctx =
                 // ./bin from the solution root matching the "PublishNuget" target WorkingDir
                 OutputPath = Some distDir
                 Configuration = configuration ctx.Context.AllExecutingTargets
-                MSBuildParams = {
-                    MSBuild.CliArguments.Create() with
-                        // "/p" (property) arguments to MSBuild.exe
-                        Properties = [
-                            ("Version", release.NugetVersion)
-                            ("PackageReleaseNotes", releaseNotes)
-                        ]
-                }
+                MSBuildParams =
+                    {
+                        p.MSBuildParams with
+                            // "/p" (property) arguments to MSBuild.exe
+                            Properties = [
+                                ("Version", release.NugetVersion)
+                                ("PackageReleaseNotes", releaseNotes)
+                            ]
+                    }
+                    |> BuildParameters.common
         })
     )
 
@@ -370,8 +425,8 @@ let initTargets () =
     BuildServer.install [ GitHubActions.Installer ]
 
     Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken.Value
-    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") githubToken.Value
-    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") nugetToken.Value
+    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") nugetToken.Value
 
 
     Target.create "Clean" clean

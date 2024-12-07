@@ -45,10 +45,7 @@ module AsyncOptionCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : Async<'value option> =
             async.TryFinally(computation, compensation)
-
-
-#if NETSTANDARD2_1
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: Async<'value option>,
@@ -103,15 +100,6 @@ module AsyncOptionCE =
         /// </summary>
         member inline _.Source(async: Async<'value option>) : Async<'value option> = async
 
-#if !FABLE_COMPILER
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(task: Task<'value option>) : Async<'value option> =
-            task
-            |> Async.AwaitTask
-
-#endif
 
     let asyncOption = AsyncOptionBuilder()
 
@@ -180,4 +168,17 @@ module AsyncOptionCEExtensions =
             a
             |> Async.AwaitTask
             |> Async.map Some
+
+[<AutoOpen>]
+module AsyncOptionCEExtensionsHigher =
+
+    type AsyncOptionBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(task: Task<'value option>) : Async<'value option> =
+            task
+            |> Async.AwaitTask
+
 #endif

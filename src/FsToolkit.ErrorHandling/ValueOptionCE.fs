@@ -103,8 +103,6 @@ module ValueOptionCE =
             |> ValueOption.ofObj
             |> ValueOption.map f
 
-        member inline _.MergeSources(option1, option2) = ValueOption.zip option1 option2
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -112,13 +110,6 @@ module ValueOptionCE =
         /// </summary>
         member inline _.Source(result: _ voption) : _ voption = result
 
-
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
-        member inline _.Source(vopt: _ option) : _ voption =
-            vopt
-            |> ValueOption.ofOption
 
     let voption = ValueOptionBuilder()
 
@@ -134,17 +125,6 @@ module ValueOptionExtensionsLower =
             m
             |> ValueOption.ofObj
 
-        member inline _.MergeSources(nullableObj1, option2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources(option1, nullableObj2) =
-            ValueOption.zip (option1) (ValueOption.ofObj nullableObj2)
-
-
-        member inline _.MergeSources(nullableObj1, nullableObj2) =
-            ValueOption.zip (ValueOption.ofObj nullableObj1) (ValueOption.ofObj nullableObj2)
-
 [<AutoOpen>]
 module ValueOptionExtensions =
     open System
@@ -156,10 +136,18 @@ module ValueOptionExtensions =
         /// </summary>
         member inline _.Source(s: #seq<_>) = s
 
-        // /// <summary>
-        // /// Method lets us transform data types into our internal representation.
-        // /// </summary>
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
         member inline _.Source(nullable: Nullable<'a>) : 'a voption =
             nullable
             |> ValueOption.ofNullable
+
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(vopt: _ option) : _ voption =
+            vopt
+            |> ValueOption.ofOption
 #endif

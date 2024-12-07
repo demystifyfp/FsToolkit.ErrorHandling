@@ -53,9 +53,7 @@ module AsyncResultCE =
                 [<InlineIfLambda>] compensation: unit -> unit
             ) : Async<Result<'ok, 'error>> =
             async.TryFinally(computation, compensation)
-
-#if NETSTANDARD2_1
-
+#if !FABLE_COMPILER
         member inline _.TryFinallyAsync
             (
                 computation: Async<Result<'ok, 'error>>,
@@ -91,8 +89,6 @@ module AsyncResultCE =
                 )
             )
 #endif
-
-
         member inline this.While
             (
                 [<InlineIfLambda>] guard: unit -> bool,
@@ -116,14 +112,6 @@ module AsyncResultCE =
             ) : Async<Result<'okOutput, 'error>> =
             AsyncResult.map f x
 
-        member inline _.MergeSources
-            (
-                t1: Async<Result<'leftOk, 'error>>,
-                t2: Async<Result<'rightOk, 'error>>
-            ) : Async<Result<'leftOk * 'rightOk, 'error>> =
-            AsyncResult.zip t1 t2
-
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -132,14 +120,6 @@ module AsyncResultCE =
         member inline _.Source(result: Async<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
             result
 
-#if !FABLE_COMPILER
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(task: Task<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
-            task
-            |> Async.AwaitTask
-#endif
 
     let asyncResult = AsyncResultBuilder()
 
@@ -214,4 +194,18 @@ module AsyncResultCEExtensions =
             task
             |> Async.AwaitTask
             |> Async.map Ok
+#endif
+
+#if !FABLE_COMPILER
+[<AutoOpen>]
+module AsyncResultCEExtensions2 =
+
+    type AsyncResultBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(task: Task<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
+            task
+            |> Async.AwaitTask
 #endif

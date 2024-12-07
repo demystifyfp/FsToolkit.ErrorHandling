@@ -111,25 +111,12 @@ module OptionCE =
             ) : 'output option =
             Option.map f (Option.ofObj x)
 
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip option1 option2
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
         member inline _.Source(result: 'value option) : 'value option = result
-
-
-        /// <summary>
-        /// Method lets us transform data types into our internal representation.
-        /// </summary>
-        member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt
 
     /// <summary>
     /// The default instance of the `OptionBuilder` type.
@@ -144,29 +131,6 @@ module OptionExtensionsLower =
             Option.ofObj nullableObj
 
         member inline _.Source(m: string) : string option = Option.ofObj m
-
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                option2: 'right option
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) option2
-
-
-        member inline _.MergeSources
-            (
-                option1: 'left option,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (option1) (Option.ofObj nullableObj2)
-
-
-        member inline _.MergeSources
-            (
-                nullableObj1: 'left,
-                nullableObj2: 'right
-            ) : ('left * 'right) option =
-            Option.zip (Option.ofObj nullableObj1) (Option.ofObj nullableObj2)
 
 [<AutoOpen>]
 module OptionExtensions =
@@ -184,3 +148,8 @@ module OptionExtensions =
         /// </summary>
         member inline _.Source(nullable: Nullable<'value>) : 'value option =
             Option.ofNullable nullable
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(vopt: 'value voption) : 'value option = Option.ofValueOption vopt

@@ -1,8 +1,8 @@
 <Project>
-    <PropertyGroup>
-        <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
-        <NoWarn>$(NoWarn);FS2003</NoWarn>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-    </PropertyGroup>
+  <PropertyGroup>
+    <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
+    <NoWarn>$(NoWarn);FS2003; NU1903; NU1904</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
 </Project>

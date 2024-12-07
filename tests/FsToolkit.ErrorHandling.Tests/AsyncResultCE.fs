@@ -253,18 +253,6 @@ let ``AsyncResultCE try Tests`` =
         }
     ]
 
-let makeDisposable (callback) =
-    { new System.IDisposable with
-        member this.Dispose() = callback ()
-    }
-
-
-let makeAsyncDisposable (callback) =
-    { new System.IAsyncDisposable with
-        member this.DisposeAsync() = callback ()
-    }
-
-
 let ``AsyncResultCE using Tests`` =
     testList "AsyncResultCE using Tests" [
         testCaseAsync "use normal disposable"
@@ -274,14 +262,14 @@ let ``AsyncResultCE using Tests`` =
 
             let! actual =
                 asyncResult {
-                    use d = makeDisposable ((fun () -> isFinished <- true))
+                    use d = TestHelpers.makeDisposable ((fun () -> isFinished <- true))
                     return data
                 }
 
             Expect.equal actual (Result.Ok data) "Should be ok"
             Expect.isTrue isFinished "Expected disposable to be disposed"
         }
-#if NET7_0
+#if !FABLE_COMPILER
         testCaseAsync "use sync asyncdisposable"
         <| async {
             let data = 42
@@ -290,7 +278,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 isFinished <- true
                                 ValueTask()
@@ -311,7 +299,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeAsyncDisposable (
+                        TestHelpers.makeAsyncDisposable (
                             (fun () ->
                                 task {
                                     do! Task.Yield()
@@ -329,6 +317,7 @@ let ``AsyncResultCE using Tests`` =
             Expect.isTrue isFinished "Expected disposable to be disposed"
         }
 #endif
+
         testCaseAsync "use! normal wrapped disposable"
         <| async {
             let data = 42
@@ -336,7 +325,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use! d =
-                        makeDisposable (id)
+                        TestHelpers.makeDisposable (id)
                         |> Result.Ok
 
                     return data
@@ -354,7 +343,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeDisposable (fun () ->
+                        TestHelpers.makeDisposable (fun () ->
                             disposed <- true
 
                             if not finished then
@@ -537,173 +526,6 @@ let toTaskResult v =
     |> Task.FromResult
 #endif
 
-let ``AsyncResultCE applicative tests`` =
-    testList "AsyncResultCE applicative tests" [
-        testCaseAsync "Happy Path AsyncResult"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = AsyncResult.retn 3
-                    and! b = AsyncResult.retn 2
-                    and! c = AsyncResult.retn 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-#if !FABLE_COMPILER
-
-        testCaseAsync "Happy Path TaskResult"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = toTaskResult 3
-                    and! b = toTaskResult 2
-                    and! c = toTaskResult 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-#endif
-
-        testCaseAsync "Happy Path Result"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Result.Ok 3
-                    and! b = Result.Ok 2
-                    and! c = Result.Ok 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-        testCaseAsync "Happy Path Choice"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Choice1Of2 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice1Of2 1
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-        // Cannot get this to compile properly
-        testCaseAsync "Happy Path Async"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
-                    and! c = Async.singleton 1 //: Async<int>
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-        testCaseAsync "Happy Path 2 Async"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
-                    return a + b
-                }
-
-            Expect.equal actual (Ok 5) "Should be ok"
-        }
-
-#if !FABLE_COMPILER
-
-        testCaseAsync "Happy Path 2 Task"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Task.FromResult 3
-                    and! b = Task.FromResult 2
-                    return a + b
-                }
-
-            Expect.equal actual (Ok 5) "Should be ok"
-        }
-
-#endif
-
-        testCaseAsync "Happy Path Result/Choice/AsyncResult"
-        <| async {
-            let! actual =
-                asyncResult {
-                    let! a = Ok 3
-                    and! b = Choice1Of2 2
-
-                    and! c =
-                        Ok 1
-                        |> Async.singleton
-
-                    return a + b - c
-                }
-
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-
-        testCaseAsync "Fail Path Result"
-        <| async {
-            let expected = Error "TryParse failure"
-
-            let! actual =
-                asyncResult {
-                    let! a = Ok 3
-                    and! b = Ok 2
-                    and! c = expected
-                    return a + b - c
-                }
-
-            Expect.equal actual expected "Should be Error"
-        }
-
-        testCaseAsync "Fail Path Choice"
-        <| async {
-            let errorMsg = "TryParse failure"
-
-            let! actual =
-                asyncResult {
-                    let! a = Choice1Of2 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice2Of2 errorMsg
-                    return a + b - c
-                }
-
-            Expect.equal actual (Error errorMsg) "Should be Error"
-        }
-
-        testCaseAsync "Fail Path Result/Choice/AsyncResult"
-        <| async {
-            let errorMsg = "TryParse failure"
-
-            let! actual =
-                asyncResult {
-                    let! a = Choice1Of2 3
-
-                    and! b =
-                        Ok 2
-                        |> Async.singleton
-
-                    and! c = Error errorMsg
-                    return a + b - c
-                }
-
-            Expect.equal actual (Error errorMsg) "Should be Error"
-        }
-    ]
-
 
 let ``AsyncResultCE Stack Trace Tests`` =
 
@@ -758,6 +580,19 @@ let ``AsyncResultCE Stack Trace Tests`` =
 
 #endif
 
+
+let ``AsyncResultCE inference checks`` =
+    testList "AsyncResultCEInference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = asyncResult { return! res }
+
+            f (AsyncResult.retn ())
+            |> ignore
+    ]
+
+
 let allTests =
     testList "AsyncResultCETests" [
         ``AsyncResultCE return Tests``
@@ -767,6 +602,6 @@ let allTests =
         ``AsyncResultCE try Tests``
         ``AsyncResultCE using Tests``
         ``AsyncResultCE loop Tests``
-        ``AsyncResultCE applicative tests``
         ``AsyncResultCE Stack Trace Tests``
+        ``AsyncResultCE inference checks``
     ]
