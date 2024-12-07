@@ -7,7 +7,7 @@ nuget FSharp.Core >= 6.0.1
 nuget Hopac >=  0.5.1
 nuget FSharp.Control.AsyncSeq >= 3.2.1
 nuget Fable.Core >= 4.2.0
-nuget IcedTasks >= 0.11.0
+nuget IcedTasks >= 0.11.4
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 nuget Microsoft.Bcl.AsyncInterfaces >= 6.0.0 framework:netstandard2.0
 

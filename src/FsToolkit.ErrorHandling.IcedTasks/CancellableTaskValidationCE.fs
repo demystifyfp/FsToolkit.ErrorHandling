@@ -79,16 +79,18 @@ module CancellableTaskValidationCE =
         /// </summary>
         static member inline RunDynamic
             (code:
-                CancellableTaskResultBuilderBaseCode<'T, 'T, _, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>)
+                CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error list, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>)
             : CancellableTaskValidation<'T, 'Error> =
 
-            let mutable sm = CancellableTaskResultBuilderBaseStateMachine<'T, _, _>()
+            let mutable sm = CancellableTaskResultBuilderBaseStateMachine<'T, 'Error list, _>()
 
             let initialResumptionFunc =
-                CancellableTaskResultBuilderBaseResumptionFunc<'T, _, _>(fun sm -> code.Invoke(&sm))
+                CancellableTaskResultBuilderBaseResumptionFunc<'T, 'Error list, _>(fun sm ->
+                    code.Invoke(&sm)
+                )
 
             let resumptionInfo =
-                { new CancellableTaskResultBuilderBaseResumptionDynamicInfo<'T, _, _>(initialResumptionFunc) with
+                { new CancellableTaskResultBuilderBaseResumptionDynamicInfo<'T, 'Error list, _>(initialResumptionFunc) with
                     member info.MoveNext(sm) =
                         let mutable savedExn = null
 
@@ -97,14 +99,12 @@ module CancellableTaskValidationCE =
                             let step = info.ResumptionFunc.Invoke(&sm)
 
                             if step then
-                                sm.Data.MethodBuilder.SetResult sm.Data.Result
-                            // MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
+                                // sm.Data.MethodBuilder.SetResult sm.Data.Result
+                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                             else
                                 let mutable awaiter =
                                     sm.ResumptionDynamicInfo.ResumptionData
                                     :?> ICriticalNotifyCompletion
-
-                                assert not (isNull awaiter)
 
                                 MethodBuilder.AwaitUnsafeOnCompleted(
                                     &sm.Data.MethodBuilder,
@@ -136,10 +136,10 @@ module CancellableTaskValidationCE =
 
         /// Hosts the task code in a state machine and starts the task.
         member inline _.Run
-            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, _, _>)
+            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error list, _>)
             : CancellableTaskValidation<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, _, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>, CancellableTaskValidation<'T, 'Error>>
+                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error list, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>, CancellableTaskValidation<'T, 'Error>>
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -149,8 +149,8 @@ module CancellableTaskValidationCE =
                             let __stack_code_fin = code.Invoke(&sm)
 
                             if __stack_code_fin then
-                                sm.Data.MethodBuilder.SetResult sm.Data.Result
-                        // MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
+                                // sm.Data.MethodBuilder.SetResult sm.Data.Result
+                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                         with exn ->
                             __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
@@ -179,115 +179,12 @@ module CancellableTaskValidationCE =
                                 sm.Data.MethodBuilder.Task
                     ))
             else
-                failwith "LOL"
-        // CancellableTaskResultBuilder.RunDynamic(code)
+                CancellableTaskResultBuilder.RunDynamic(code)
 
         /// Specify a Source of CancellationToken -> Task<_> on the real type to allow type inference to work
-        member inline _.Source
-            (x: CancellableTaskValidation<_, _>)
-            : CancellationToken -> Awaiter<TaskAwaiter<_>, _> =
-            fun ct -> Awaitable.GetTaskAwaiter(x ct)
+        member inline this.Source(cancellableTaskValidation: CancellableTaskValidation<_, _>) =
+            this.Source(fun ct -> Awaitable.GetTaskAwaiter(cancellableTaskValidation ct))
 
-
-    /// Contains methods to build CancellableTasks using the F# computation expression syntax
-    type BackgroundCancellableTaskResultBuilder() =
-
-        inherit CancellableTaskResultBuilderBase()
-
-        /// <summary>
-        /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
-        /// </summary>
-        static member inline RunDynamic
-            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
-            : CancellableTaskResult<'T, 'Error> =
-            // backgroundTask { .. } escapes to a background thread where necessary
-            // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
-            if
-                isNull SynchronizationContext.Current
-                && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
-            then
-                CancellableTaskResultBuilder.RunDynamic(code)
-            else
-                fun (ct) ->
-                    Task.Run<Result<'T, 'Error>>(
-                        (fun () -> CancellableTaskResultBuilder.RunDynamic (code) (ct)),
-                        ct
-                    )
-
-        /// <summary>
-        /// Hosts the task code in a state machine and starts the task, executing in the ThreadPool using Task.Run
-        /// </summary>
-        member inline _.Run
-            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
-            : CancellableTaskResult<'T, 'Error> =
-            if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>, CancellableTaskResult<'T, 'Error>>
-                    (MoveNextMethodImpl<_>(fun sm ->
-                        //-- RESUMABLE CODE START
-                        __resumeAt sm.ResumptionPoint
-                        let mutable __stack_exn: Exception = null
-
-                        try
-                            let __stack_code_fin = code.Invoke(&sm)
-
-                            if __stack_code_fin then
-                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
-                        with exn ->
-                            __stack_exn <- exn
-                        // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
-                        match __stack_exn with
-                        | null -> ()
-                        | exn -> MethodBuilder.SetException(&sm.Data.MethodBuilder, exn)
-                    //-- RESUMABLE CODE END
-                    ))
-                    (SetStateMachineMethodImpl<_>(fun sm state ->
-                        MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
-                    ))
-                    (AfterCode<_, CancellableTaskResult<'T, 'Error>>(fun sm ->
-                        // backgroundTask { .. } escapes to a background thread where necessary
-                        // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
-                        if
-                            isNull SynchronizationContext.Current
-                            && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
-                        then
-                            let mutable sm = sm
-
-                            fun (ct) ->
-                                if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct)
-                                else
-                                    sm.Data.CancellationToken <- ct
-
-                                    sm.Data.MethodBuilder <-
-                                        AsyncTaskMethodBuilder<Result<'T, 'Error>>.Create()
-
-                                    sm.Data.MethodBuilder.Start(&sm)
-                                    sm.Data.MethodBuilder.Task
-                        else
-                            let sm = sm // copy contents of state machine so we can capture it
-
-                            fun (ct) ->
-                                if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct)
-                                else
-                                    Task.Run<Result<'T, 'Error>>(
-                                        (fun () ->
-                                            let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-                                            sm.Data.CancellationToken <- ct
-
-                                            sm.Data.MethodBuilder <-
-                                                AsyncTaskMethodBuilder<Result<'T, 'Error>>
-                                                    .Create()
-
-                                            sm.Data.MethodBuilder.Start(&sm)
-                                            sm.Data.MethodBuilder.Task
-                                        ),
-                                        ct
-                                    )
-                    ))
-
-            else
-                BackgroundCancellableTaskResultBuilder.RunDynamic(code)
 
     /// Contains the cancellableTask computation expression builder.
     [<AutoOpen>]
@@ -297,11 +194,6 @@ module CancellableTaskValidationCE =
         /// Builds a cancellableTask using computation expression syntax.
         /// </summary>
         let cancellableTaskValidation = CancellableTaskValidationBuilder()
-
-        /// <summary>
-        /// Builds a cancellableTask using computation expression syntax which switches to execute on a background thread if not already doing so.
-        /// </summary>
-        let backgroundCancellableTaskResult = BackgroundCancellableTaskResultBuilder()
 
 
 /// <summary>
@@ -629,39 +521,11 @@ module CancellableTaskValidation =
         ([<InlineIfLambda>] right: CancellableTaskValidation<'right, 'error>)
         : CancellableTaskValidation<('left * 'right), 'error> =
         cancellableTask {
-            let! ct = CancellableTask.getCancellationToken ()
-            let left = left ct
-            let right = right ct
             let! r1 = left
-            let! r2 = right
-
+            and! r2 = right
             return Validation.zip r1 r2
-
         }
 
-
-[<AutoOpen>]
-module CancellableTaskResultBuilderPriority1 =
-    open System.Threading.Tasks
-
-    type CancellableTaskValidationBuilder with
-
-        member inline this.Source(result: Result<'T, 'Error>) =
-            this.Source(ValueTask<_>(Validation.ofResult result))
-
-
-        member inline this.Source(choice: Choice<'T, 'Error>) =
-            this.Source(ValueTask<_>(Validation.ofChoice choice))
-
-
-[<AutoOpen>]
-module CancellableTaskResultBuilderPriority2 =
-    open System.Threading.Tasks
-
-    type CancellableTaskValidationBuilder with
-
-        member inline this.Source(result: Validation<'T, 'Error>) =
-            this.Source(ValueTask<_>(result))
 
 open IcedTasks
 open System.Threading
@@ -681,23 +545,27 @@ module CTVMergeSourcesExtensionsCT1CT2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) (Ok r1)
+                }
             )
 
 [<AutoOpen>]
@@ -712,23 +580,27 @@ module CTVMergeSourcesExtensionsCV1CT2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 (Ok r1)
+                }
             )
 
 
@@ -744,23 +616,27 @@ module CTVMergeSourcesExtensionsCT1CV2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) rightR)
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) rightR)
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) r1
+                }
             )
 
 
@@ -776,23 +652,27 @@ module CTVMergeSourcesExtensionsCV1CV2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR rightR)
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR rightR)
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 r1
+                }
             )
 
 
@@ -808,22 +688,26 @@ module CTVMergeSourcesExtensionsCT1T2 =
                 right: 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) (Ok r1)
+                }
             )
 
 [<AutoOpen>]
@@ -838,22 +722,26 @@ module CTVMergeSourcesExtensionsCV1T2 =
                 right: 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 (Ok r1)
+                }
             )
 
 
@@ -869,22 +757,26 @@ module CTVMergeSourcesExtensionsCT1TV2 =
                 right: 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) rightR)
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) rightR)
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) r1
+                }
             )
 
 
@@ -900,22 +792,26 @@ module CTVMergeSourcesExtensionsCV1TV2 =
                 right: 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let left = left ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let left = left ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR (rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR (rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 r1
+                }
             )
 
 [<AutoOpen>]
@@ -930,22 +826,26 @@ module CTVMergeSourcesExtensionsT1CT2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) (Ok r1)
+                }
             )
 
 [<AutoOpen>]
@@ -960,22 +860,26 @@ module CTVMergeSourcesExtensionsTV1CT2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 (Ok r1)
+                }
             )
 
 
@@ -991,26 +895,31 @@ module CTVMergeSourcesExtensionsT1CV2 =
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let right = right ct
+                // cancellableTask.Run(
+                // cancellableTask.Bind(
+                //     (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //     fun ct ->
+                //         let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) rightR)
-                                    )
-                            ))
-                    )
-                )
+                //         (cancellableTask.Bind(
+                //             left,
+                //             fun leftR ->
+                //                 cancellableTask.BindReturn(
+                //                     right,
+                //                     (fun rightR -> Validation.zip (Ok leftR) rightR)
+                //                 )
+                //         ))
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) r1
+                }
+            // )
             )
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsTV1CV2 =
+    open System.Runtime.CompilerServices
 
     type CancellableTaskValidationBuilder with
 
@@ -1019,24 +928,39 @@ module CTVMergeSourcesExtensionsTV1CV2 =
             (
                 left: 'Awaiter1,
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-            ) =
+            )  =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            let right = right ct
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             let right = right ct
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR rightR)
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR rightR)
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 r1
+                }
+                // fun ct -> Awaitable.GetTaskAwaiter(IcedTasks.Polyfill.Task.Tasks.TaskBuilder.task {
+                //     let r1 = right ct
+                //     let l1 = left
+                //     let! struct (l1, r1) = IcedTasks.Polyfill.Task.Tasks.TaskBuilder.task.MergeSources(l1, r1)
+
+                //     // let foo  = cancellableTask.MergeSources(left, right) ct
+                //     return Validation.zip l1 r1
+                // })
+                // |> ignore
+
+                // Unchecked.defaultof<_>
             )
 
 
@@ -1048,20 +972,24 @@ module CTVMergeSourcesExtensionsT1T2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) (Ok r1)
+                }
             )
 
 [<AutoOpen>]
@@ -1072,21 +1000,25 @@ module CTVMergeSourcesExtensionsTV1T2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
 
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR (Ok rightR))
-                                    )
-                            ))
-                    )
-                )
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip leftR (Ok rightR))
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 (Ok r1)
+                }
             )
 
 
@@ -1098,20 +1030,24 @@ module CTVMergeSourcesExtensionsT1TV2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip (Ok leftR) rightR)
-                                    )
-                            ))
-                    )
-                )
+                // cancellableTask.Run(
+                //     cancellableTask.Bind(
+                //         (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
+                //         fun ct ->
+                //             (cancellableTask.Bind(
+                //                 left,
+                //                 fun leftR ->
+                //                     cancellableTask.BindReturn(
+                //                         right,
+                //                         (fun rightR -> Validation.zip (Ok leftR) rightR)
+                //                     )
+                //             ))
+                //     )
+                // )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip (Ok l1) r1
+                }
             )
 
 [<AutoOpen>]
@@ -1122,19 +1058,31 @@ module CTVMergeSourcesExtensionsTV1TV2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
             this.Source(
-                cancellableTask.Run(
-                    cancellableTask.Bind(
-                        (fun ct -> cancellableTask.Source(ValueTask<_> ct)),
-                        fun ct ->
-
-                            (cancellableTask.Bind(
-                                left,
-                                fun leftR ->
-                                    cancellableTask.BindReturn(
-                                        right,
-                                        (fun rightR -> Validation.zip leftR rightR)
-                                    )
-                            ))
-                    )
-                )
+                cancellableTask {
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    return Validation.zip l1 r1
+                }
             )
+
+[<AutoOpen>]
+module CancellableTaskResultBuilderPriority1 =
+    open System.Threading.Tasks
+
+    type CancellableTaskValidationBuilder with
+
+        member inline this.Source(result: Result<'T, 'Error>) =
+            this.Source(ValueTask<_>(Validation.ofResult result))
+
+
+        member inline this.Source(choice: Choice<'T, 'Error>) =
+            this.Source(ValueTask<_>(Validation.ofChoice choice))
+
+
+[<AutoOpen>]
+module CancellableTaskResultBuilderPriority3 =
+    open System.Threading.Tasks
+
+    type CancellableTaskValidationBuilder with
+
+        member inline this.Source(result: Validation<'T, 'Error>) =
+            this.Source(ValueTask<_>(result))

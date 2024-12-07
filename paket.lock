@@ -10,7 +10,7 @@ NUGET
     FSharp.Core (6.0.1)
     Hopac (0.5.1)
       FSharp.Core (>= 4.5.2) - restriction: >= netstandard2.0
-    IcedTasks (0.11)
+    IcedTasks (0.11.4)
       FSharp.Core (>= 6.0.1) - restriction: >= netstandard2.0
       Microsoft.Bcl.AsyncInterfaces (>= 6.0) - restriction: && (>= netstandard2.0) (< netstandard2.1)
     Microsoft.Bcl.AsyncInterfaces (6.0) - restriction: == netstandard2.0

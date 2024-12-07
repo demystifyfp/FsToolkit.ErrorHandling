@@ -348,7 +348,7 @@ let dotnetPack ctx =
                 Configuration = configuration ctx.Context.AllExecutingTargets
                 MSBuildParams =
                     {
-                        MSBuild.CliArguments.Create() with
+                        p.MSBuildParams with
                             // "/p" (property) arguments to MSBuild.exe
                             Properties = [
                                 ("Version", release.NugetVersion)
@@ -425,8 +425,8 @@ let initTargets () =
     BuildServer.install [ GitHubActions.Installer ]
 
     Option.iter (TraceSecrets.register "<GITHUB_TOKEN>") githubToken.Value
-    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") githubToken.Value
-    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") githubToken.Value
+    Option.iter (TraceSecrets.register "<NUGET_TOKEN>") nugetToken.Value
+    Option.iter (TraceSecrets.register "<FSTK_NUGET_TOKEN>") nugetToken.Value
 
 
     Target.create "Clean" clean

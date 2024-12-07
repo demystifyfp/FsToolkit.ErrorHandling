@@ -39,4 +39,43 @@
         <Watch Include="@(None)" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="TestHelpers.fs" />
+    <Compile Include="SampleDomain.fs" />
+    <Compile Include="TestData.fs" />
+    <Compile Include="Expect.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="ResultCE.fs" />
+    <Compile Include="ResultOption.fs" />
+    <Compile Include="ResultOptionCE.fs" />
+    <Compile Include="Option.fs" />
+    <Compile Include="OptionCE.fs" />
+    <Compile Include="ValueOption.fs" />
+    <Compile Include="ValueOptionCE.fs" />
+    <Compile Include="AsyncOption.fs" />
+    <Compile Include="AsyncOptionCE.fs" />
+    <Compile Include="List.fs" />
+    <Compile Include="Seq.fs" />
+    <Compile Include="AsyncResult.fs" />
+    <Compile Include="AsyncResultCE.fs" />
+    <Compile Include="AsyncResultOption.fs" />
+    <Compile Include="AsyncResultOptionCE.fs" />
+    <Compile Include="Validation.fs" />
+    <Compile Include="ValidationCE.fs" />
+    <Compile Include="AsyncValidation.fs" />
+    <Compile Include="AsyncValidationCE.fs" />
+    <Compile Include="Main.fs" />
+    <None Include="paket.references" />
+    <Watch Include="@(None)" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

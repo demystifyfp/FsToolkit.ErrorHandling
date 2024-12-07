@@ -1,7 +1,12 @@
+### 5.0.0-beta001
+- BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
+- BREAKING: [Remove MergeSources (and!) from some implementations](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
+- [Use Microsoft.Bcl.AsyncInterfaces in netstandard2.0 (Allows IAsyncDisposable and IAsyncEnumerable)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/250) Credits @TheAngryByrd
+- [Build against Net8](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/251) Credits @TheAngryByrd
+- [Fix Overload Resolution to Align to Computation Expression used](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/252) Credits @TheAngryByrd
+- [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) Credits @bartelink
+- [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) Credits @bartelink
 
-### 5.0.0-alpha.1
-- [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
-- [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) [@bartelink](https://github.com/bartelink)
 
 ### 4.18.0 - October 23, 2024
 - [Add Array errorhandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/279) Credits @DashieTM

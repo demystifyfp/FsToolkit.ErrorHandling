@@ -914,9 +914,22 @@ module CancellableTaskResultBuilderBase =
             [<NoEagerConstraintApplication>]
             member inline _.Source<'Awaitable, 'TResult1, 'Awaiter, 'TOverall
                 when Awaitable<'Awaitable, 'Awaiter, 'TResult1>>
-                ([<InlineIfLambda>] task: CancellationToken -> 'Awaitable)
+                ([<InlineIfLambda>] cancellableAwaiter: CancellationToken -> 'Awaiter)
                 : CancellationToken -> 'Awaiter =
-                (fun ct -> Awaitable.GetAwaiter(task ct))
+                (fun ct -> cancellableAwaiter ct)
+
+
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a CancellationToken -> 'Awaitable into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
+            [<NoEagerConstraintApplication>]
+            member inline _.Source<'Awaitable, 'TResult1, 'Awaiter, 'TOverall
+                when Awaitable<'Awaitable, 'Awaiter, 'TResult1>>
+                ([<InlineIfLambda>] cancellableAwaitable: CancellationToken -> 'Awaitable)
+                : CancellationToken -> 'Awaiter =
+                (fun ct -> Awaitable.GetAwaiter(cancellableAwaitable ct))
 
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -927,9 +940,9 @@ module CancellableTaskResultBuilderBase =
             [<NoEagerConstraintApplication>]
             member inline _.Source<'Awaitable, 'TResult1, 'Awaiter, 'TOverall
                 when Awaitable<'Awaitable, 'Awaiter, 'TResult1>>
-                ([<InlineIfLambda>] task: unit -> 'Awaitable)
+                ([<InlineIfLambda>] coldAwaitable: unit -> 'Awaitable)
                 : CancellationToken -> 'Awaiter =
-                (fun ct -> Awaitable.GetAwaiter(task ()))
+                (fun ct -> Awaitable.GetAwaiter(coldAwaitable ()))
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -1128,21 +1141,22 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>This turns a Task&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(task: TaskAwaiter<'T>) : Awaiter<TaskAwaiter<'T>, 'T> = task
+            member inline _.Source(taskAwaiter: TaskAwaiter<'T>) : Awaiter<TaskAwaiter<'T>, 'T> =
+                taskAwaiter
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a Task&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(task: Task<'T>) : Awaiter<TaskAwaiter<'T>, 'T> =
-                Awaitable.GetTaskAwaiter task
+            member inline _.Source(taskT: Task<'T>) : Awaiter<TaskAwaiter<'T>, 'T> =
+                Awaitable.GetTaskAwaiter taskT
 
 
             member inline _.Source
-                (x: CancellationToken -> Task<_>)
+                (cancellableTask: CancellationToken -> Task<_>)
                 : CancellationToken -> Awaiter<TaskAwaiter<_>, _> =
-                fun ct -> Awaitable.GetTaskAwaiter(x ct)
+                fun ct -> Awaitable.GetTaskAwaiter(cancellableTask ct)
 
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1301,9 +1315,9 @@ module CancellableTaskResultBuilderBase =
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
-                ([<InlineIfLambda>] task: CancellationToken -> TaskAwaiter<'T>)
+                ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun ct -> (task ct))
+                (fun ct -> (cancellableTaskAwaiter ct))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1361,5 +1375,5 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>This turns a ColdTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
-            member inline this.Source(result: Choice<'T, 'Error>) =
-                this.Source(ValueTask<_>(Result.ofChoice result))
+            member inline this.Source(choice: Choice<'T, 'Error>) =
+                this.Source(ValueTask<_>(Result.ofChoice choice))

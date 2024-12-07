@@ -353,6 +353,7 @@ module CancellableTaskResultCE =
 module CancellableTaskResult =
     open System.Threading.Tasks
     open System.Threading
+    open IcedTasks
 
     /// <summary>Gets the default cancellation token for executing computations.</summary>
     ///
@@ -451,11 +452,11 @@ module CancellableTaskResult =
         ([<InlineIfLambda>] left: CancellableTaskResult<'left, 'Error>)
         ([<InlineIfLambda>] right: CancellableTaskResult<'right, 'Error>)
         =
-        cancellableTaskResult {
+        cancellableTask {
             let! ct = getCancellationToken ()
             let r1 = left ct
             let r2 = right ct
             let! r1 = r1
             let! r2 = r2
-            return r1, r2
+            return Result.zip r1 r2
         }
