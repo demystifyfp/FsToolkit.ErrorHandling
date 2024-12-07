@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Result.fs" />
-    <Compile Include="Job.fs" />
-    <Compile Include="JobResult.fs" />
-    <Compile Include="JobResultCE.fs" />
-    <Compile Include="JobResultOp.fs" />
-    <Compile Include="JobOption.fs" />
-    <Compile Include="JobOptionCE.fs" />
-    <Compile Include="JobOptionOp.fs" />
-    <Compile Include="List.fs" />
-    <Compile Include="JobResultOption.fs" />
-    <Compile Include="JobResultOptionCE.fs" />
-    <Compile Include="JobResultOptionOp.fs" />
-    <None Include="paket.references" />
-    <Watch Include="@(None)" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Result.fs" />
+        <Compile Include="Job.fs" />
+        <Compile Include="JobResult.fs" />
+        <Compile Include="JobResultCE.fs" />
+        <Compile Include="JobResultOp.fs" />
+        <Compile Include="JobOption.fs" />
+        <Compile Include="JobOptionCE.fs" />
+        <Compile Include="JobOptionOp.fs" />
+        <Compile Include="List.fs" />
+        <Compile Include="JobResultOption.fs" />
+        <Compile Include="JobResultOptionCE.fs" />
+        <Compile Include="JobResultOptionOp.fs" />
+        <None Include="paket.references" />
+        <Watch Include="@(None)" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

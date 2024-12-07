@@ -1,4 +1,4 @@
-﻿namespace FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
 open System
 open System.Threading.Tasks

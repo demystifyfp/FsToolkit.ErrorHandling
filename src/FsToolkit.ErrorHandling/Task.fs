@@ -1,7 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
-open System.Threading.Tasks
 
+open System.Threading.Tasks
 
 [<RequireQualifiedAccess>]
 module Task =

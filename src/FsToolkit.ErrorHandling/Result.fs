@@ -1,5 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
+
 /// <summary>
 /// Helper functions for working with <c>Result</c> values.
 /// </summary>
@@ -595,6 +596,19 @@ module Result =
         : Async<Result<'okOutput, 'error>> =
         sequenceAsync ((map f) res)
 
+#if !FABLE_COMPILER
+    open System.Threading.Tasks
+
+    /// Converts a Result<Async<_>,_> to an Async<Result<_,_>>
+    let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
+        task {
+            match resTask with
+            | Ok task ->
+                let! x = task
+                return Ok x
+            | Error err -> return Error err
+        }
+#endif
 
     /// <summary>
     /// Returns the <c>Ok</c> value or runs the specified function over the error value.
