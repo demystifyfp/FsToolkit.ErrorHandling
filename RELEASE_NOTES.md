@@ -1,11 +1,14 @@
-### 5.0.0-beta001
+### 5.0.0-beta001 - December 7, 2024
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
+- BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
+    - This means FsToolkit.ErrorHandling.TaskResult is no longer a separate package and will not be updated. It is now part of the core library.
 - [Use Microsoft.Bcl.AsyncInterfaces in netstandard2.0 (Allows IAsyncDisposable and IAsyncEnumerable)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/250) Credits @TheAngryByrd
 - [Build against Net8](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/251) Credits @TheAngryByrd
 - [Fix Overload Resolution to Align to Computation Expression used](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/252) Credits @TheAngryByrd
 - [refactor!: Seq.sequenceResultM returns Array instead of seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) Credits @bartelink
 - [feat(Seq): sequenceResultA](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/255) Credits @bartelink
+- 
 
 
 ### 4.18.0 - October 23, 2024
