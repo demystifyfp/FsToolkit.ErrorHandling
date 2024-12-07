@@ -16,7 +16,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference
-            Include="..\FsToolkit.ErrorHandling.TaskResult\FsToolkit.ErrorHandling.TaskResult.fsproj" />
+            Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

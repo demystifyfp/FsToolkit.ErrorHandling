@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Library</OutputType>
         <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
         <LangVersion>preview</LangVersion>
         <DebugType>portable</DebugType>
-
+        <NoWarn>FS1204;FS3511;FS3513</NoWarn>
         <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
     </PropertyGroup>
     <ItemGroup>
@@ -19,9 +18,16 @@
         <Compile Include="ResultOptionCE.fs" />
         <Compile Include="ResultOptionOp.fs" />
         <Compile Include="Async.fs" />
+        <Compile Include="Task.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="AsyncResult.fs" />
         <Compile Include="AsyncResultCE.fs" />
         <Compile Include="AsyncResultOp.fs" />
+        <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultCE.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultOp.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="Validation.fs" />
         <Compile Include="ValidationOp.fs" />
         <Compile Include="ValidationCE.fs" />
@@ -33,9 +39,20 @@
         <Compile Include="AsyncOption.fs" />
         <Compile Include="AsyncOptionCE.fs" />
         <Compile Include="AsyncOptionOp.fs" />
+        <Compile Include="TaskOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskOptionCE.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskOptionOp.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="AsyncResultOption.fs" />
         <Compile Include="AsyncResultOptionCE.fs" />
         <Compile Include="AsyncResultOptionOp.fs" />
+        <Compile Include="TaskResultOption.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultOptionCE.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultOptionOp.fs"
+            Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="List.fs" />
         <Compile Include="Array.fs" />
         <Compile Include="Seq.fs" />
@@ -45,7 +62,7 @@
     </ItemGroup>
     <!-- Add source files to "fable" folder in Nuget package -->
     <ItemGroup>
-        <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
+        <Content Include="*.fsproj; **\*.fs" Exclude="Task.fs; **\Task*.fs" PackagePath="fable\" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
