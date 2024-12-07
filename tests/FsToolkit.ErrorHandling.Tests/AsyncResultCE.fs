@@ -343,7 +343,7 @@ let ``AsyncResultCE using Tests`` =
             let! actual =
                 asyncResult {
                     use d =
-                        makeDisposable (fun () ->
+                        TestHelpers.makeDisposable (fun () ->
                             disposed <- true
 
                             if not finished then

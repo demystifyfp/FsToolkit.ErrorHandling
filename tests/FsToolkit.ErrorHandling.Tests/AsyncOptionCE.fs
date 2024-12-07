@@ -260,7 +260,7 @@ let ``AsyncOptionCE using Tests`` =
             let! actual =
                 asyncOption {
                     use d =
-                        makeDisposable (fun () ->
+                        TestHelpers.makeDisposable (fun () ->
                             disposed <- true
 
                             if not finished then
