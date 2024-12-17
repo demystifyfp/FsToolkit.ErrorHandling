@@ -232,10 +232,6 @@ type ValueTaskValueOptionBuilderBase() =
         : CancellableValueTaskValueOption<'T> =
         taskOption
 
-// member inline this.Source(taskOption: ValueTask<'T option>) : CancellableTaskOption<'T> =
-//     taskOption.AsTask()
-
-
 type ValueTaskValueOptionBuilder() =
 
     inherit ValueTaskValueOptionBuilderBase()
@@ -354,76 +350,6 @@ type TaskOptionBuilder() =
             let! r = vTask_vOption.Run(code)
             return ValueOption.toOption r
         }
-
-
-// type BackgroundTaskOptionBuilder() =
-
-//     inherit TaskOptionBuilderBase()
-
-//     static member RunDynamic(code: TaskOptionCode<'T, 'T>) : CancellableTaskOption<'T> =
-//         // backgroundTask { .. } escapes to a background thread where necessary
-//         // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
-//         if
-//             isNull SynchronizationContext.Current
-//             && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
-//         then
-//             TaskOptionBuilder.RunDynamic(code)
-//         else
-//             Task.Run<'T option>(fun () -> TaskOptionBuilder.RunDynamic(code))
-
-
-//     //// Same as TaskBuilder.Run except the start is inside Task.Run if necessary
-//     member inline _.Run(code: TaskOptionCode<'T, 'T>) : CancellableTaskOption<'T> =
-//         if __useResumableCode then
-//             __stateMachine<TaskOptionStateMachineData<'T>, CancellableTaskOption<'T>>
-//                 (MoveNextMethodImpl<_>(fun sm ->
-//                     //-- RESUMABLE CODE START
-//                     __resumeAt sm.ResumptionPoint
-
-//                     try
-//                         let __stack_code_fin = code.Invoke(&sm)
-
-//                         if
-//                             __stack_code_fin
-//                             && not sm.Data.IsTaskCompleted
-//                         then
-//                             sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
-//                     with exn ->
-//                         sm.Data.MethodBuilder.SetException exn
-//                 //-- RESUMABLE CODE END
-//                 ))
-//                 (SetStateMachineMethodImpl<_>(fun sm state ->
-//                     sm.Data.MethodBuilder.SetStateMachine(state)
-//                 ))
-//                 (AfterCode<_, CancellableTaskOption<'T>>(fun sm ->
-//                     // backgroundTask { .. } escapes to a background thread where necessary
-//                     // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
-//                     if
-//                         isNull SynchronizationContext.Current
-//                         && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
-//                     then
-//                         sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
-//                         sm.Data.MethodBuilder.Start(&sm)
-//                         sm.Data.MethodBuilder.Task
-//                     else
-//                         let sm = sm // copy contents of state machine so we can capture it
-
-//                         Task.Run<'T option>(fun () ->
-//                             let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-//                             sm.Data.MethodBuilder <- AsyncTaskOptionMethodBuilder<'T>.Create()
-//                             sm.Data.MethodBuilder.Start(&sm)
-//                             sm.Data.MethodBuilder.Task
-//                         )
-//                 ))
-//         else
-//             BackgroundTaskOptionBuilder.RunDynamic(code)
-
-// [<AutoOpen>]
-// module TaskOptionBuilder =
-
-//     let taskOption = ValueTaskValueOptionBuilder()
-// let backgroundTaskOption = BackgroundTaskOptionBuilder()
-
 
 [<AutoOpen>]
 module TaskOptionCEExtensionsLowPriority =
@@ -626,36 +552,3 @@ module TaskOptionCEExtensionsHighPriority =
             this.Bind(task, (fun v -> this.Return v))
 
         member inline _.Source(s: #seq<_>) = s
-
-// [<AutoOpen>]
-// module TaskOptionCEExtensionsMediumPriority =
-
-//     // Medium priority extensions
-//     type TaskOptionBuilderBase with
-
-//         member inline this.Source(t: Task<'T>) : CancellableTaskOption<'T> =
-//             t
-//             |> Task.map Some
-
-//         member inline this.Source(t: Task) : CancellableTaskOption<unit> =
-//             task {
-//                 do! t
-//                 return Some()
-//             }
-
-//         member inline this.Source(t: ValueTask<'T>) : CancellableTaskOption<'T> =
-//             t
-//             |> Task.mapV Some
-
-//         member inline this.Source(t: ValueTask) : CancellableTaskOption<unit> =
-//             task {
-//                 do! t
-//                 return Some()
-//             }
-
-//         member inline this.Source(opt: Option<'T>) : CancellableTaskOption<'T> = Task.FromResult opt
-
-//         member inline this.Source(computation: Async<'T>) : CancellableTaskOption<'T> =
-//             computation
-//             |> Async.map Some
-//             |> Async.StartImmediateAsTask
