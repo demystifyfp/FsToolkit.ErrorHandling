@@ -21,16 +21,13 @@ module AsyncOption =
             )
             input
 
-    let inline retn (value: 'value) : Async<'value option> = Async.singleton (Some value)
-
-
-    let inline some (value: 'value) : Async<'value option> = Async.singleton (Some value)
+    let inline singleton (value: 'value) : Async<'value option> = Async.singleton (Some value)
 
     let inline apply
         (applier: Async<('input -> 'output) option>)
         (input: Async<'input option>)
         : Async<'output option> =
-        bind (fun f' -> bind (fun x' -> retn (f' x')) input) applier
+        bind (fun f' -> bind (fun x' -> singleton (f' x')) input) applier
 
     /// <summary>
     /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>

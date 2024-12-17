@@ -6,7 +6,8 @@ open System
 module AsyncValidationCE =
 
     type AsyncValidationBuilder() =
-        member inline _.Return(value: 'ok) : AsyncValidation<'ok, 'error> = AsyncValidation.ok value
+        member inline _.Return(value: 'ok) : AsyncValidation<'ok, 'error> =
+            AsyncValidation.singleton value
 
         member inline _.ReturnFrom
             (result: AsyncValidation<'ok, 'error>)
@@ -109,7 +110,7 @@ module AsyncValidationCE =
             member inline _.Source(a: Async<'ok>) : AsyncValidation<'ok, 'error> =
                 async {
                     let! result = a
-                    return! AsyncValidation.ok result
+                    return! AsyncValidation.singleton result
                 }
 
             /// <summary>
@@ -167,7 +168,7 @@ module AsyncValidationCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Validation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-                Async.retn s
+                Async.singleton s
 
 #if !FABLE_COMPILER
 

@@ -132,7 +132,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                return! ValueTask.FromResult(Validation.ok data)
+                                return! ValueTask.FromResult(Validation.singleton data)
                             }
 
                         let! (actual: Validation<int, obj>) = ctr CancellationToken.None
@@ -1036,7 +1036,7 @@ module CancellableTaskValidationCE =
                         let actual =
                             cancellableTaskValidation {
                                 let! a = cancellableTaskValidation { return 3 }
-                                and! b = task { return Validation.ok 3 }
+                                and! b = task { return Validation.singleton 3 }
                                 return a + b
                             }
 
@@ -1209,7 +1209,7 @@ module CancellableTaskValidationCE =
                         let actual =
                             cancellableTaskValidation {
                                 let! b = taskResult { return 3 }
-                                and! a = task { return Validation.ok 3 }
+                                and! a = task { return Validation.singleton 3 }
                                 return a + b
                             }
 
@@ -1325,7 +1325,7 @@ module CancellableTaskValidationCE =
                             cancellableTaskValidation {
                                 let! a = Ok 3
                                 and! b = Choice1Of2 2
-                                and! c = CancellableTaskValidation.ok 1
+                                and! c = CancellableTaskValidation.singleton 1
                                 return a + b - c
                             }
 
@@ -1399,8 +1399,8 @@ module CancellableTaskValidationCE =
 
                         let actual =
                             cancellableTaskValidation {
-                                let! a = CancellableTaskValidation.ok 3
-                                and! b = CancellableTaskValidation.ok 2
+                                let! a = CancellableTaskValidation.singleton 3
+                                and! b = CancellableTaskValidation.singleton 2
                                 and! c = expected
                                 return a + b - c
                             }
@@ -1612,7 +1612,7 @@ module CancellableTaskValidationCE =
             testList "singleton" [
                 testCaseAsync "Simple"
                 <| async {
-                    let innerCall = CancellableTaskValidation.ok "lol"
+                    let innerCall = CancellableTaskValidation.singleton "lol"
 
                     let! someTask = innerCall
 
@@ -2089,7 +2089,7 @@ module CancellableTaskValidationCE =
                 let f res =
                     cancellableTaskValidation { return! res }
 
-                f (CancellableTaskValidation.ok (()))
+                f (CancellableTaskValidation.singleton (()))
                 |> ignore
         ]
 

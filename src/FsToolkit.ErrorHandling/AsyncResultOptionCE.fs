@@ -8,7 +8,7 @@ module AsyncResultOptionCE =
 
     type AsyncResultOptionBuilder() =
         member inline _.Return(value: 'ok) : AsyncResultOption<'ok, 'error> =
-            AsyncResultOption.retn value
+            AsyncResultOption.singleton value
 
         member inline _.ReturnFrom
             (value: Async<Result<'ok option, 'error>>)

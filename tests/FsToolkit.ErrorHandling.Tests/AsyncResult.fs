@@ -166,14 +166,14 @@ let orElseTests =
         testCaseAsync "Ok Ok takes first Ok"
         <| async {
             return!
-                AsyncResult.ok "First"
-                |> AsyncResult.orElse (AsyncResult.ok "Second")
+                AsyncResult.singleton "First"
+                |> AsyncResult.orElse (AsyncResult.singleton "Second")
                 |> Expect.hasAsyncOkValue "First"
         }
         testCaseAsync "Ok Error takes first Ok"
         <| async {
             return!
-                AsyncResult.ok "First"
+                AsyncResult.singleton "First"
                 |> AsyncResult.orElse (AsyncResult.error "Second")
                 |> Expect.hasAsyncOkValue "First"
         }
@@ -181,7 +181,7 @@ let orElseTests =
         <| async {
             return!
                 AsyncResult.error "First"
-                |> AsyncResult.orElse (AsyncResult.ok "Second")
+                |> AsyncResult.orElse (AsyncResult.singleton "Second")
                 |> Expect.hasAsyncOkValue "Second"
         }
         testCaseAsync "Error Error takes second error"
@@ -198,14 +198,14 @@ let orElseWithTests =
         testCaseAsync "Ok Ok takes first Ok"
         <| async {
             return!
-                AsyncResult.ok "First"
-                |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second")
+                AsyncResult.singleton "First"
+                |> AsyncResult.orElseWith (fun _ -> AsyncResult.singleton "Second")
                 |> Expect.hasAsyncOkValue "First"
         }
         testCaseAsync "Ok Error takes first Ok"
         <| async {
             return!
-                AsyncResult.ok "First"
+                AsyncResult.singleton "First"
                 |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second")
                 |> Expect.hasAsyncOkValue "First"
         }
@@ -213,7 +213,7 @@ let orElseWithTests =
         <| async {
             return!
                 AsyncResult.error "First"
-                |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second")
+                |> AsyncResult.orElseWith (fun _ -> AsyncResult.singleton "Second")
                 |> Expect.hasAsyncOkValue "Second"
         }
         testCaseAsync "Error Error takes second error"
@@ -814,7 +814,7 @@ let asyncResultBindRequireTests =
         <| async {
             do!
                 Some "john_doe"
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireNone "User exists"
                 |> Expect.hasAsyncErrorValue "User exists"
         }
@@ -823,7 +823,7 @@ let asyncResultBindRequireTests =
         <| async {
             do!
                 Some "john_doe"
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireSome "User doesn't exist"
                 |> Expect.hasAsyncOkValue "john_doe"
         }
@@ -836,7 +836,7 @@ let asyncResultBindRequireValueOptionTests =
         <| async {
             do!
                 ValueSome "john_doe"
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireValueNone "User exists"
                 |> Expect.hasAsyncErrorValue "User exists"
         }
@@ -845,7 +845,7 @@ let asyncResultBindRequireValueOptionTests =
         <| async {
             do!
                 ValueSome "john_doe"
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireValueSome "User doesn't exist"
                 |> Expect.hasAsyncOkValue "john_doe"
         }
@@ -857,7 +857,7 @@ let asyncResultBindRequireTrueTests =
         <| async {
             do!
                 true
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireTrue "Should be true"
                 |> Expect.hasAsyncOkValue ()
         }
@@ -866,7 +866,7 @@ let asyncResultBindRequireTrueTests =
         <| async {
             do!
                 false
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireFalse "Should be false"
                 |> Expect.hasAsyncOkValue ()
         }
@@ -878,7 +878,7 @@ let asyncResultBindRequireNotNullTests =
         <| async {
             do!
                 "Test"
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireNotNull "Should not be null"
                 |> Expect.hasAsyncOkValue "Test"
         }
@@ -890,7 +890,7 @@ let asyncResultBindRequireEqualTests =
         <| async {
             do!
                 2
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireEqual 2 "Should be equal"
                 |> Expect.hasAsyncOkValue ()
         }
@@ -902,7 +902,7 @@ let asyncResultBindRequireEmptyTests =
         <| async {
             do!
                 []
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireEmpty "Should be empty"
                 |> Expect.hasAsyncOkValue ()
         }
@@ -914,7 +914,7 @@ let asyncResultBindRequireNotEmptyTests =
         <| async {
             do!
                 [ 1 ]
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireNotEmpty "Should not be empty"
                 |> Expect.hasAsyncOkValue ()
         }
@@ -926,7 +926,7 @@ let asyncResultBindRequireHeadTests =
         <| async {
             do!
                 [ 1 ]
-                |> AsyncResult.ok
+                |> AsyncResult.singleton
                 |> AsyncResult.bindRequireHead "Should not be empty"
                 |> Expect.hasAsyncOkValue 1
         }

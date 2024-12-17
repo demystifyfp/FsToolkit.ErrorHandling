@@ -20,11 +20,10 @@ module TaskOption =
             return! t
         }
 
-    let inline retn x = task { return Some x }
-    let inline some x = task { return Some x }
+    let inline singleton x = task { return Some x }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> retn (f' x')) x) f
+        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
     let inline zip x1 x2 =
         Task.zip x1 x2

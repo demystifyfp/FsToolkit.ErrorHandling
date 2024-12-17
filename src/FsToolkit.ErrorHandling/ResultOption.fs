@@ -11,7 +11,7 @@ module ResultOption =
     /// </summary>
     /// <param name="x">The value to convert.</param>
     /// <returns>The value wrapped in an <c>Option</c> and then wrapped in a <c>Result</c>.</returns>
-    let inline retn x = Ok(Some x)
+    let inline singleton x = Ok(Some x)
 
     /// <summary>
     /// Applies a transformation function to a <c>Result</c> value that contains an <c>Option</c> value.

@@ -9,7 +9,7 @@ module JobResultOption =
         let binder opt =
             match opt with
             | Some x -> f x
-            | None -> JobResult.retn None
+            | None -> JobResult.singleton None
 
         JobResult.bind binder jro
 
@@ -19,7 +19,7 @@ module JobResultOption =
     let inline map3 ([<InlineIfLambda>] f) xJRO yJRO zJRO =
         JobResult.map3 (Option.map3 f) xJRO yJRO zJRO
 
-    let inline retn value =
+    let inline singleton value =
         Some value
         |> Ok
         |> Job.result

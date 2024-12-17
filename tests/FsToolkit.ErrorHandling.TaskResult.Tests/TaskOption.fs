@@ -97,7 +97,7 @@ let retnTests =
     testList "TaskOption.retn Tests" [
         testCase "retn with x"
         <| fun _ ->
-            TaskOption.retn 267
+            TaskOption.singleton 267
             |> Expect.hasTaskSomeValue (267)
     ]
 
@@ -134,7 +134,7 @@ let eitherTests =
         testCaseTask "Some"
         <| fun () ->
             task {
-                let value1 = TaskOption.retn 5
+                let value1 = TaskOption.singleton 5
                 let f () = Task.FromResult 42
                 let add2 x = task { return x + 2 }
                 let! result = (TaskOption.either add2 f value1)
@@ -159,7 +159,7 @@ let defaultValueTests =
                 let defaultValue = 10
                 let expectedValue = 5
 
-                let taskOption = TaskOption.retn expectedValue
+                let taskOption = TaskOption.singleton expectedValue
                 let! result = TaskOption.defaultValue defaultValue taskOption
                 Expect.equal result expectedValue ""
             }
@@ -182,7 +182,7 @@ let defaultWithTests =
                 let defaultValue = 10
                 let expectedValue = 5
 
-                let taskOption = TaskOption.retn expectedValue
+                let taskOption = TaskOption.singleton expectedValue
                 let! result = TaskOption.defaultWith (fun () -> defaultValue) taskOption
                 Expect.equal result expectedValue ""
             }
