@@ -416,8 +416,8 @@ let ceTests =
         <| fun () ->
             task {
                 let items = [
-                    TaskOption.some 3
-                    TaskOption.some 4
+                    TaskOption.singleton 3
+                    TaskOption.singleton 4
                     Task.singleton (None)
                 ]
 
@@ -621,6 +621,6 @@ let ``TaskOptionCE inference checks`` =
             // Compilation is success
             let f res = taskOption { return! res }
 
-            f (TaskOption.some ())
+            f (TaskOption.singleton ())
             |> ignore
     ]

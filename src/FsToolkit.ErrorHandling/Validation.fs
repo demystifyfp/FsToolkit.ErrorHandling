@@ -6,7 +6,7 @@ type Validation<'ok, 'error> = Result<'ok, 'error list>
 [<RequireQualifiedAccess>]
 module Validation =
 
-    let inline ok (value: 'ok) : Validation<'ok, 'error> = Ok value
+    let inline singleton (value: 'ok) : Validation<'ok, 'error> = Ok value
     let inline error (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
     let inline ofResult (result: Result<'ok, 'error>) : Validation<'ok, 'error> =
@@ -14,7 +14,7 @@ module Validation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : Validation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> ok x
+        | Choice1Of2 x -> singleton x
         | Choice2Of2 e -> error e
 
     let inline apply
@@ -30,8 +30,6 @@ module Validation =
                 errs1
                 @ errs2
             )
-
-    let inline retn (value: 'ok) : Validation<'ok, 'error> = ok value
 
     let inline returnError (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
@@ -59,7 +57,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok (fun _ -> ifError)
+        |> Result.either singleton (fun _ -> ifError)
 
 
     /// <summary>
@@ -86,7 +84,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok ifErrorFunc
+        |> Result.either singleton ifErrorFunc
 
 
     let inline map

@@ -5,7 +5,7 @@ open System
 [<AutoOpen>]
 module ValidationCE =
     type ValidationBuilder() =
-        member inline _.Return(value: 'ok) : Validation<'ok, 'error> = Validation.ok value
+        member inline _.Return(value: 'ok) : Validation<'ok, 'error> = Validation.singleton value
 
         member inline _.ReturnFrom(result: Validation<'ok, 'error>) : Validation<'ok, 'error> =
             result

@@ -432,9 +432,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = JobResult.retn 3
-                    and! b = JobResult.retn 2
-                    and! c = JobResult.retn 1
+                    let! a = JobResult.singleton 3
+                    and! b = JobResult.singleton 2
+                    and! c = JobResult.singleton 1
                     return a + b - c
                 }
 
@@ -444,9 +444,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = AsyncResult.retn 3
-                    and! b = AsyncResult.retn 2
-                    and! c = AsyncResult.retn 1
+                    let! a = AsyncResult.singleton 3
+                    and! b = AsyncResult.singleton 2
+                    and! c = AsyncResult.singleton 1
                     return a + b - c
                 }
 
@@ -457,9 +457,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = TaskResult.retn 3
-                    and! b = TaskResult.retn 2
-                    and! c = TaskResult.retn 1
+                    let! a = TaskResult.singleton 3
+                    and! b = TaskResult.singleton 2
+                    and! c = TaskResult.singleton 1
                     return a + b - c
                 }
 
@@ -606,6 +606,6 @@ let ``JobResultCE inference checks`` =
             // Compilation is success
             let f res = jobResult { return! res }
 
-            f (JobResult.retn ())
+            f (JobResult.singleton ())
             |> ignore
     ]

@@ -526,9 +526,9 @@ let ``BackgroundTaskResultCE applicative tests`` =
             backgroundTask {
                 let! actual =
                     backgroundTaskResult {
-                        let! a = TaskResult.retn 3
-                        and! b = TaskResult.retn 2
-                        and! c = TaskResult.retn 1
+                        let! a = TaskResult.singleton 3
+                        and! b = TaskResult.singleton 2
+                        and! c = TaskResult.singleton 1
                         return a + b - c
                     }
 
@@ -540,9 +540,9 @@ let ``BackgroundTaskResultCE applicative tests`` =
             backgroundTask {
                 let! actual =
                     backgroundTaskResult {
-                        let! a = AsyncResult.retn 3
-                        and! b = AsyncResult.retn 2
-                        and! c = AsyncResult.retn 1
+                        let! a = AsyncResult.singleton 3
+                        and! b = AsyncResult.singleton 2
+                        and! c = AsyncResult.singleton 1
                         return a + b - c
                     }
 
@@ -711,6 +711,6 @@ let ``BackgroundTaskResultCE inference checks`` =
             // Compilation is success
             let f res = backgroundTaskResult { return! res }
 
-            f (TaskResult.ok ())
+            f (TaskResult.singleton ())
             |> ignore
     ]
