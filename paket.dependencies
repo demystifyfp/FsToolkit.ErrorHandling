@@ -56,3 +56,9 @@ group Build
     nuget Nuget.Common >= 6.6.1
     nuget NuGet.Protocol >= 6.6.1
     nuget System.Security.Cryptography.Pkcs >= 7.0.2
+
+group analyzers
+    source https://api.nuget.org/v3/index.json
+
+    nuget Ionide.Analyzers
+    nuget G-Research.FSharp.Analyzers

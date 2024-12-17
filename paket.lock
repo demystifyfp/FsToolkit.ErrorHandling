@@ -24,6 +24,12 @@ NUGET
     System.Threading.Tasks.Extensions (4.5.4) - restriction: == netstandard2.0
       System.Runtime.CompilerServices.Unsafe (>= 4.5.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.0) (< netstandard2.0) (< win8) (< wpa81) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< win8)) (&& (>= net45) (< netstandard2.0)) (&& (< net45) (< netcoreapp2.1) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net461) (&& (< netstandard1.0) (>= win8)) (&& (< netstandard2.0) (>= wpa81)) (>= wp8)
 
+GROUP analyzers
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    G-Research.FSharp.Analyzers (0.12)
+    Ionide.Analyzers (0.13)
+
 GROUP Benchmarks
 STORAGE: NONE
 NUGET

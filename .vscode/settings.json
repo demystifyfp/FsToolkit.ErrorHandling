@@ -7,5 +7,7 @@
         "BoundModel.TypeCheck",
         "BackgroundCompiler."
     ],
-    "FSharp.fsac.parallelReferenceResolution": false
+    "FSharp.fsac.parallelReferenceResolution": false,
+    "FSharp.enableAnalyzers": true,
+    "FSharp.analyzersPath": ["packages/analyzers"]
 }
