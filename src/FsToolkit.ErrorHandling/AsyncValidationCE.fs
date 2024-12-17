@@ -28,10 +28,11 @@ module AsyncValidationCE =
             async.Delay generator
 
         member inline this.Combine
-            (
-                validation1: AsyncValidation<unit, 'error>,
-                validation2: AsyncValidation<'ok, 'error>
-            ) : AsyncValidation<'ok, 'error> =
+            (validation1: AsyncValidation<unit, 'error>, validation2: AsyncValidation<'ok, 'error>) : AsyncValidation<
+                                                                                                          'ok,
+                                                                                                          'error
+                                                                                                       >
+            =
             this.Bind(validation1, (fun () -> validation2))
 
         member inline _.TryWith
@@ -56,10 +57,8 @@ module AsyncValidationCE =
             async.Using(resource, binder)
 
         member inline this.While
-            (
-                [<InlineIfLambda>] guard: unit -> bool,
-                computation: AsyncValidation<unit, 'error>
-            ) : AsyncValidation<unit, 'error> =
+            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncValidation<unit, 'error>)
+            : AsyncValidation<unit, 'error> =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
@@ -72,10 +71,11 @@ module AsyncValidationCE =
 
 
         member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> AsyncValidation<unit, 'error>
-            ) : AsyncValidation<unit, 'error> =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncValidation<unit, 'error>) : AsyncValidation<
+                                                                                                         unit,
+                                                                                                         'error
+                                                                                                      >
+            =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
@@ -89,10 +89,8 @@ module AsyncValidationCE =
             AsyncValidation.map mapper input
 
         member inline _.MergeSources
-            (
-                left: AsyncValidation<'left, 'error>,
-                right: AsyncValidation<'right, 'error>
-            ) : AsyncValidation<'left * 'right, 'error> =
+            (left: AsyncValidation<'left, 'error>, right: AsyncValidation<'right, 'error>)
+            : AsyncValidation<'left * 'right, 'error> =
             AsyncValidation.zip left right
 
     let asyncValidation = AsyncValidationBuilder()

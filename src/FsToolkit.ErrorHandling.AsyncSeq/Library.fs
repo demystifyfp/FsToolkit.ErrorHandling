@@ -41,17 +41,13 @@ module AsyncSeqCE =
 
 
         member this.For
-            (
-                xs: AsyncSeq<Result<'T, 'TError>>,
-                binder: 'T -> Async<Result<unit, 'TError>>
-            ) : Async<Result<unit, 'TError>> =
+            (xs: AsyncSeq<Result<'T, 'TError>>, binder: 'T -> Async<Result<unit, 'TError>>)
+            : Async<Result<unit, 'TError>> =
             this.Using(xs.GetEnumerator(), (fun enum -> this.While(enum.MoveNext, binder)))
 
         member this.For
-            (
-                xs: AsyncSeq<'T>,
-                binder: 'T -> Async<Result<unit, 'TError>>
-            ) : Async<Result<unit, 'TError>> =
+            (xs: AsyncSeq<'T>, binder: 'T -> Async<Result<unit, 'TError>>)
+            : Async<Result<unit, 'TError>> =
             this.Using(
                 xs.GetEnumerator(),
                 fun enum ->
