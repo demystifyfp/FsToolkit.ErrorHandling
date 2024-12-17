@@ -34,10 +34,8 @@ module AsyncResultCE =
             async.Delay generator
 
         member inline this.Combine
-            (
-                computation1: Async<Result<unit, 'error>>,
-                computation2: Async<Result<'ok, 'error>>
-            ) : Async<Result<'ok, 'error>> =
+            (computation1: Async<Result<unit, 'error>>, computation2: Async<Result<'ok, 'error>>)
+            : Async<Result<'ok, 'error>> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -48,10 +46,13 @@ module AsyncResultCE =
             async.TryWith(computation, handler)
 
         member inline _.TryFinally
-            (
-                computation: Async<Result<'ok, 'error>>,
-                [<InlineIfLambda>] compensation: unit -> unit
-            ) : Async<Result<'ok, 'error>> =
+            (computation: Async<Result<'ok, 'error>>, [<InlineIfLambda>] compensation: unit -> unit) : Async<
+                                                                                                           Result<
+                                                                                                               'ok,
+                                                                                                               'error
+                                                                                                            >
+                                                                                                        >
+            =
             async.TryFinally(computation, compensation)
 #if !FABLE_COMPILER
         member inline _.TryFinallyAsync
@@ -90,10 +91,8 @@ module AsyncResultCE =
             )
 #endif
         member inline this.While
-            (
-                [<InlineIfLambda>] guard: unit -> bool,
-                computation: Async<Result<unit, 'error>>
-            ) : Async<Result<unit, 'error>> =
+            ([<InlineIfLambda>] guard: unit -> bool, computation: Async<Result<unit, 'error>>)
+            : Async<Result<unit, 'error>> =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
@@ -106,10 +105,8 @@ module AsyncResultCE =
 
 
         member inline _.BindReturn
-            (
-                x: Async<Result<'okInput, 'error>>,
-                [<InlineIfLambda>] f: 'okInput -> 'okOutput
-            ) : Async<Result<'okOutput, 'error>> =
+            (x: Async<Result<'okInput, 'error>>, [<InlineIfLambda>] f: 'okInput -> 'okOutput)
+            : Async<Result<'okOutput, 'error>> =
             AsyncResult.map f x
 
         /// <summary>
@@ -164,10 +161,8 @@ module AsyncResultCEExtensions =
 
 
         member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> Async<Result<unit, 'error>>
-            ) : Async<Result<unit, 'error>> =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> Async<Result<unit, 'error>>)
+            : Async<Result<unit, 'error>> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->

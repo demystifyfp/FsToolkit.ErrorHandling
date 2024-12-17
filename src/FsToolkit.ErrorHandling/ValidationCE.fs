@@ -88,27 +88,24 @@ module ValidationCE =
             result
 
         member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> Validation<unit, 'error>
-            ) : Validation<unit, 'error> =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> Validation<unit, 'error>)
+            : Validation<unit, 'error> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
         member inline _.BindReturn
-            (
-                input: Validation<'okInput, 'error>,
-                [<InlineIfLambda>] mapper: 'okInput -> 'okOutput
-            ) : Validation<'okOutput, 'error> =
+            (input: Validation<'okInput, 'error>, [<InlineIfLambda>] mapper: 'okInput -> 'okOutput) : Validation<
+                                                                                                          'okOutput,
+                                                                                                          'error
+                                                                                                       >
+            =
             Validation.map mapper input
 
         member inline _.MergeSources
-            (
-                left: Validation<'left, 'error>,
-                right: Validation<'right, 'error>
-            ) : Validation<'left * 'right, 'error> =
+            (left: Validation<'left, 'error>, right: Validation<'right, 'error>)
+            : Validation<'left * 'right, 'error> =
             Validation.zip left right
 
         /// <summary>

@@ -5,6 +5,7 @@ let inline id x = x
 open FsToolkit.ErrorHandling
 
 Result.ofChoice
+
 module Operators =
 
     let inline bindM builder m ([<InlineIfLambda>] f) =
@@ -167,7 +168,6 @@ module AsyncResult =
         }
 
 
-
 module DisposableOptionThings =
     open System
     open System.Threading.Tasks
@@ -177,16 +177,23 @@ module DisposableOptionThings =
     [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
     [<StructuralEquality; StructuralComparison>]
     type DisposableOption<'a when 'a :> IDisposable> =
-    | None
-    | Some of 'a
+        | None
+        | Some of 'a
+
         interface IDisposable with
             member this.Dispose() =
                 match this with
                 | None -> ()
                 | Some x -> x.Dispose()
 
-        static member inline OfObj<'a when 'a :> IDisposable> (x: 'a) =
-            if box x |> isNull then None else Some x
+        static member inline OfObj<'a when 'a :> IDisposable>(x: 'a) =
+            if
+                box x
+                |> isNull
+            then
+                None
+            else
+                Some x
 
         static member inline ToOption(x: DisposableOption<'a>) =
             match x with
@@ -198,30 +205,25 @@ module DisposableOptionThings =
             | None -> ValueOption.None
             | Some x -> ValueOption.Some x
 
-        static member inline OfOption (x: 'a Option) =
+        static member inline OfOption(x: 'a Option) =
             match x with
             | Option.None -> None
             | Option.Some x -> Some x
 
-        static member inline OfValueOption (x: 'a ValueOption) =
+        static member inline OfValueOption(x: 'a ValueOption) =
             match x with
             | ValueNone -> None
             | ValueSome x -> Some x
 
-        static member inline op_Implicit (x: 'a) =
-            DisposableOption.OfObj x
+        static member inline op_Implicit(x: 'a) = DisposableOption.OfObj x
 
-        static member inline op_Implicit (x: 'a DisposableOption) =
-            DisposableOption.ToOption x
+        static member inline op_Implicit(x: 'a DisposableOption) = DisposableOption.ToOption x
 
-        static member inline op_Implicit (x: 'a DisposableOption) =
-            DisposableOption.ToValueOption x
+        static member inline op_Implicit(x: 'a DisposableOption) = DisposableOption.ToValueOption x
 
-        static member inline op_Implicit (x: 'a Option) =
-            DisposableOption.OfOption x
+        static member inline op_Implicit(x: 'a Option) = DisposableOption.OfOption x
 
-        static member inline op_Imp licit (x: 'a ValueOption) =
-            DisposableOption.OfValueOption x
+        static member inline op_Imp licit (x: 'a ValueOption) = DisposableOption.OfValueOption x
 
 
     [<RequireQualifiedAccess>]
@@ -230,10 +232,12 @@ module DisposableOptionThings =
             match x with
             | DisposableOption.Some x -> f x
             | DisposableOption.None -> None
+
         let inline map f x =
             match x with
-            | DisposableOption.Some x -> Some (f x)
+            | DisposableOption.Some x -> Some(f x)
             | DisposableOption.None -> None
+
         let inline iter f x =
             match x with
             | DisposableOption.Some x -> f x
@@ -242,16 +246,23 @@ module DisposableOptionThings =
 
     [<RequireQualifiedAccess>]
     type AsyncDisposableOption<'a when 'a :> IAsyncDisposable> =
-    | Some of 'a
-    | None
+        | Some of 'a
+        | None
+
         interface IAsyncDisposable with
             member this.DisposeAsync() =
                 match this with
                 | Some x -> x.DisposeAsync()
                 | None -> ValueTask()
 
-        static member inline ofObj (x: 'a) =
-            if box x |> isNull then None else Some x
+        static member inline ofObj(x: 'a) =
+            if
+                box x
+                |> isNull
+            then
+                None
+            else
+                Some x
 
         member inline x.toOption() =
             match x with
@@ -263,43 +274,47 @@ module DisposableOptionThings =
             | Some x -> ValueOption.Some x
             | None -> ValueOption.None
 
-        static member inline ofOption (x: 'a Option) =
+        static member inline ofOption(x: 'a Option) =
             match x with
             | Option.Some x -> Some x
             | Option.None -> None
 
-        static member inline ofValueOption (x: 'a ValueOption) =
+        static member inline ofValueOption(x: 'a ValueOption) =
             match x with
             | ValueOption.ValueSome x -> Some x
             | ValueOption.ValueNone -> None
 
-        static member inline op_Implicit (x: 'a) =
-            AsyncDisposableOption.ofObj x
+        static member inline op_Implicit(x: 'a) = AsyncDisposableOption.ofObj x
 
-        static member inline op_Implicit (x: 'a AsyncDisposableOption) =
-            x.toOption()
+        static member inline op_Implicit(x: 'a AsyncDisposableOption) = x.toOption ()
 
-        static member inline op_Implicit (x: 'a AsyncDisposableOption) =
-            x.toValueOption()
+        static member inline op_Implicit(x: 'a AsyncDisposableOption) = x.toValueOption ()
 
-        static member inline op_Implicit (x: 'a Option) =
-            AsyncDisposableOption.ofOption x
+        static member inline op_Implicit(x: 'a Option) = AsyncDisposableOption.ofOption x
 
-        static member inline op_Implicit (x: 'a ValueOption) =
-            AsyncDisposableOption.ofValueOption x
+        static member inline op_Implicit(x: 'a ValueOption) = AsyncDisposableOption.ofValueOption x
 
 module Examples =
     open DisposableOptionThings
     open System.Diagnostics
 
-    let inline implicitConv (x: ^T) : ^U = ((^T or ^U) : (static member op_Implicit : ^T -> ^U) (x))
+    let inline implicitConv (x: ^T) : ^U =
+        ((^T or ^U): (static member op_Implicit: ^T -> ^U) (x))
+
     let inline (!>) x = implicitConv x
-    let inline (|!>) x f = f (!> x)
+    let inline (|!>) x f = f (!>x)
 
     let activitySource = new ActivitySource("Playground.App")
 
     let example () =
-        use a  = activitySource.StartActivity("lol") |> DisposableOption.OfObj
-        a |!> Option.iter(fun a -> a.AddTag("hello", "world") |> ignore)
-        ()
+        use a =
+            activitySource.StartActivity("lol")
+            |> DisposableOption.OfObj
 
+        a
+        |!> Option.iter (fun a ->
+            a.AddTag("hello", "world")
+            |> ignore
+        )
+
+        ()

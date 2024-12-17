@@ -30,10 +30,11 @@ module ResultCE =
             generator ()
 
         member inline this.Combine
-            (
-                result: Result<unit, 'error>,
-                [<InlineIfLambda>] binder: unit -> Result<'ok, 'error>
-            ) : Result<'ok, 'error> =
+            (result: Result<unit, 'error>, [<InlineIfLambda>] binder: unit -> Result<'ok, 'error>) : Result<
+                                                                                                         'ok,
+                                                                                                         'error
+                                                                                                      >
+            =
             this.Bind(result, binder)
 
         member inline this.TryWith
@@ -57,10 +58,8 @@ module ResultCE =
                 compensation ()
 
         member inline this.Using
-            (
-                resource: 'disposable :> IDisposable,
-                binder: 'disposable -> Result<'ok, 'error>
-            ) : Result<'ok, 'error> =
+            (resource: 'disposable :> IDisposable, binder: 'disposable -> Result<'ok, 'error>)
+            : Result<'ok, 'error> =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -89,10 +88,8 @@ module ResultCE =
             result
 
         member inline this.For
-            (
-                sequence: #seq<'T>,
-                [<InlineIfLambda>] binder: 'T -> Result<unit, 'TError>
-            ) : Result<unit, 'TError> =
+            (sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Result<unit, 'TError>)
+            : Result<unit, 'TError> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->
@@ -103,10 +100,8 @@ module ResultCE =
             )
 
         member inline _.BindReturn
-            (
-                x: Result<'okInput, 'error>,
-                [<InlineIfLambda>] f: 'okInput -> 'okOutput
-            ) : Result<'okOutput, 'error> =
+            (x: Result<'okInput, 'error>, [<InlineIfLambda>] f: 'okInput -> 'okOutput)
+            : Result<'okOutput, 'error> =
             Result.map f x
 
         /// <summary>

@@ -76,10 +76,8 @@ type TaskOptionBuilderBase() =
     /// Note that this requires that the first step has no result.
     /// This prevents constructs like `task { return 1; return 2; }`.
     member inline _.Combine
-        (
-            task1: TaskOptionCode<'TOverall, unit>,
-            task2: TaskOptionCode<'TOverall, 'T>
-        ) : TaskOptionCode<'TOverall, 'T> =
+        (task1: TaskOptionCode<'TOverall, unit>, task2: TaskOptionCode<'TOverall, 'T>)
+        : TaskOptionCode<'TOverall, 'T> =
 
         ResumableCode.Combine(
             task1,
@@ -90,10 +88,8 @@ type TaskOptionBuilderBase() =
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
-        (
-            [<InlineIfLambda>] condition: unit -> bool,
-            body: TaskOptionCode<'TOverall, unit>
-        ) : TaskOptionCode<'TOverall, unit> =
+        ([<InlineIfLambda>] condition: unit -> bool, body: TaskOptionCode<'TOverall, unit>)
+        : TaskOptionCode<'TOverall, unit> =
         let mutable keepGoing = true
 
         ResumableCode.While(
@@ -115,19 +111,15 @@ type TaskOptionBuilderBase() =
     /// Wraps a step in a try/with. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryWith
-        (
-            body: TaskOptionCode<'TOverall, 'T>,
-            catch: exn -> TaskOptionCode<'TOverall, 'T>
-        ) : TaskOptionCode<'TOverall, 'T> =
+        (body: TaskOptionCode<'TOverall, 'T>, catch: exn -> TaskOptionCode<'TOverall, 'T>)
+        : TaskOptionCode<'TOverall, 'T> =
         ResumableCode.TryWith(body, catch)
 
     /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryFinally
-        (
-            body: TaskOptionCode<'TOverall, 'T>,
-            [<InlineIfLambda>] compensation: unit -> unit
-        ) : TaskOptionCode<'TOverall, 'T> =
+        (body: TaskOptionCode<'TOverall, 'T>, [<InlineIfLambda>] compensation: unit -> unit)
+        : TaskOptionCode<'TOverall, 'T> =
         ResumableCode.TryFinally(
             body,
             ResumableCode<_, _>(fun _sm ->
@@ -137,10 +129,8 @@ type TaskOptionBuilderBase() =
         )
 
     member inline this.For
-        (
-            sequence: seq<'T>,
-            body: 'T -> TaskOptionCode<'TOverall, unit>
-        ) : TaskOptionCode<'TOverall, unit> =
+        (sequence: seq<'T>, body: 'T -> TaskOptionCode<'TOverall, unit>)
+        : TaskOptionCode<'TOverall, unit> =
         ResumableCode.Using(
             sequence.GetEnumerator(),
             // ... and its body is a while loop that advances the enumerator and runs the body on each element.
@@ -153,10 +143,8 @@ type TaskOptionBuilderBase() =
         )
 
     member inline internal this.TryFinallyAsync
-        (
-            body: TaskOptionCode<'TOverall, 'T>,
-            compensation: unit -> ValueTask
-        ) : TaskOptionCode<'TOverall, 'T> =
+        (body: TaskOptionCode<'TOverall, 'T>, compensation: unit -> ValueTask)
+        : TaskOptionCode<'TOverall, 'T> =
         ResumableCode.TryFinallyAsync(
             body,
             ResumableCode<_, _>(fun sm ->
@@ -198,10 +186,8 @@ type TaskOptionBuilderBase() =
         )
 
     member inline this.Using<'Resource, 'TOverall, 'T when 'Resource :> IAsyncDisposable>
-        (
-            resource: 'Resource,
-            body: 'Resource -> TaskOptionCode<'TOverall, 'T>
-        ) : TaskOptionCode<'TOverall, 'T> =
+        (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
+        : TaskOptionCode<'TOverall, 'T> =
         this.TryFinallyAsync(
             (fun sm -> (body resource).Invoke(&sm)),
             (fun () ->
@@ -425,10 +411,8 @@ module TaskOptionCEExtensionsLowPriority =
             and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'TResult1 option)>
-            (
-                task: ^TaskLike,
-                continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>)
-            ) : TaskOptionCode<'TOverall, 'TResult2> =
+            (task: ^TaskLike, continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>))
+            : TaskOptionCode<'TOverall, 'TResult2> =
 
             TaskOptionCode<'TOverall, _>(fun sm ->
                 if __useResumableCode then
@@ -457,7 +441,13 @@ module TaskOptionCEExtensionsLowPriority =
                         sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
                         false
                 else
-                    TaskOptionBuilderBase.BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall>(
+                    TaskOptionBuilderBase.BindDynamic<
+                        ^TaskLike,
+                        'TResult1,
+                        'TResult2,
+                        ^Awaiter,
+                        'TOverall
+                     >(
                         &sm,
                         task,
                         continuation
@@ -491,10 +481,8 @@ module TaskOptionCEExtensionsLowPriority =
             }
 
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposable>
-            (
-                resource: 'Resource,
-                body: 'Resource -> TaskOptionCode<'TOverall, 'T>
-            ) =
+            (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
+            =
             ResumableCode.Using(resource, body)
 
 [<AutoOpen>]

@@ -152,7 +152,9 @@ let checkFormatCode _ =
     elif result.ExitCode = 99 then
         failwith "Some files need formatting, check output for more info"
     else
-        Trace.logf "Errors while formatting: %A" result.Errors
+        let msg = sprintf "Errors while formatting: %A" result.Errors
+        Trace.log msg
+        failwith msg
 
 
 let clean _ =

@@ -12,27 +12,20 @@ module ValueOptionCE =
         member inline _.ReturnFrom(m: 'value voption) : 'value voption = m
 
         member inline _.Bind
-            (
-                input: 'input voption,
-                [<InlineIfLambda>] binder: 'input -> 'output voption
-            ) : 'output voption =
+            (input: 'input voption, [<InlineIfLambda>] binder: 'input -> 'output voption)
+            : 'output voption =
             ValueOption.bind binder input
 
         // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
         member inline this.Bind
-            (
-                input: 'input when 'input: null,
-                [<InlineIfLambda>] binder: 'input -> 'output voption
-            ) : 'output voption =
+            (input: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output voption) : 'output voption =
             this.Bind(ValueOption.ofObj input, binder)
 
         member inline this.Zero() : unit voption = this.Return()
 
         member inline _.Combine
-            (
-                input: 'input voption,
-                [<InlineIfLambda>] binder: 'input -> 'output voption
-            ) : 'output voption =
+            (input: 'input voption, [<InlineIfLambda>] binder: 'input -> 'output voption)
+            : 'output voption =
             ValueOption.bind binder input
 
         member inline this.Combine(input: unit voption, output: 'output voption) : 'output voption =
@@ -55,10 +48,8 @@ module ValueOptionCE =
                 compensation ()
 
         member inline this.Using
-            (
-                resource: 'T :> IDisposable,
-                [<InlineIfLambda>] binder
-            ) : _ voption =
+            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder)
+            : _ voption =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -68,10 +59,7 @@ module ValueOptionCE =
             )
 
         member inline this.While
-            (
-                [<InlineIfLambda>] guard: unit -> bool,
-                [<InlineIfLambda>] generator: unit -> _ voption
-            ) : _ voption =
+            ([<InlineIfLambda>] guard: unit -> bool, [<InlineIfLambda>] generator: unit -> _ voption) : _ voption =
 
             let mutable doContinue = true
             let mutable result = ValueSome()
@@ -87,10 +75,8 @@ module ValueOptionCE =
             result
 
         member inline this.For
-            (
-                sequence: #seq<'T>,
-                [<InlineIfLambda>] binder: 'T -> _ voption
-            ) : _ voption =
+            (sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> _ voption)
+            : _ voption =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))

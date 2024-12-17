@@ -304,10 +304,8 @@ type ResultBuilder() =
     member this.Zero() : Result<unit, 'TError> = this.Return()
 
     member _.Bind
-        (
-            result: Result<'T, 'TError>,
-            binder: 'T -> Result<'U, 'TError>
-        ) : Result<'U, 'TError> =
+        (result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
+        : Result<'U, 'TError> =
         Result.bind binder result
 
 
@@ -319,10 +317,8 @@ type ResultBuilderInlined() =
     member inline this.Zero() : Result<unit, 'TError> = this.Return()
 
     member inline _.Bind
-        (
-            result: Result<'T, 'TError>,
-            binder: 'T -> Result<'U, 'TError>
-        ) : Result<'U, 'TError> =
+        (result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
+        : Result<'U, 'TError> =
         Result.Inlined.bind binder result
 
 type ResultBuilderInlinedLambda() =
@@ -331,10 +327,8 @@ type ResultBuilderInlinedLambda() =
     member inline this.Zero() : Result<unit, 'TError> = this.Return()
 
     member inline _.Bind
-        (
-            result: Result<'T, 'TError>,
-            [<InlineIfLambda>] binder: 'T -> Result<'U, 'TError>
-        ) : Result<'U, 'TError> =
+        (result: Result<'T, 'TError>, [<InlineIfLambda>] binder: 'T -> Result<'U, 'TError>)
+        : Result<'U, 'TError> =
         Result.Alt.InlinedLambda.bind binder result
 
 
