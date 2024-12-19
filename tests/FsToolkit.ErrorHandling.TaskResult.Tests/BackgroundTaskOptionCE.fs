@@ -488,6 +488,6 @@ let ``BackgroundTaskOptionCE inference checks`` =
             // Compilation is success
             let f res = backgroundTaskOption { return! res }
 
-            f (TaskOption.singleton ())
+            f (TaskOption.some ())
             |> ignore
     ]

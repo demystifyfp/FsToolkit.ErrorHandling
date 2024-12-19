@@ -567,7 +567,7 @@ let ``AsyncOptionCE inference checks`` =
             // Compilation is success
             let f res = asyncOption { return! res }
 
-            f (AsyncOption.singleton ())
+            f (AsyncOption.some ())
             |> ignore
     ]
 

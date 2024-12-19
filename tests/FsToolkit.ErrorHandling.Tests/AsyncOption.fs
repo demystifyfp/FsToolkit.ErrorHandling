@@ -72,7 +72,7 @@ let applyTests =
 let retnTests =
     testList "AsyncOption.retn Tests" [
         testCaseAsync "retn with x"
-        <| (AsyncOption.singleton 267
+        <| (AsyncOption.some 267
             |> Expect.hasAsyncSomeValue (267))
     ]
 
@@ -111,7 +111,7 @@ let eitherTests =
     testList "AsyncOption.either Tests" [
         testCaseAsync "Some"
         <| async {
-            let value1 = AsyncOption.singleton 5
+            let value1 = AsyncOption.some 5
             let f = async.Return 42
             let add2 x = async { return x + 2 }
             let! result = (AsyncOption.either add2 f value1)
@@ -134,7 +134,7 @@ let defaultValueTests =
             let defaultValue = 10
             let expectedValue = 5
 
-            let asyncOption = AsyncOption.singleton expectedValue
+            let asyncOption = AsyncOption.some expectedValue
             let! result = AsyncOption.defaultValue defaultValue asyncOption
             Expect.equal result expectedValue ""
         }
@@ -155,7 +155,7 @@ let defaultWithTests =
             let defaultValue = 10
             let expectedValue = 5
 
-            let asyncOption = AsyncOption.singleton expectedValue
+            let asyncOption = AsyncOption.some expectedValue
             let! result = AsyncOption.defaultWith (fun () -> defaultValue) asyncOption
             Expect.equal result expectedValue ""
         }

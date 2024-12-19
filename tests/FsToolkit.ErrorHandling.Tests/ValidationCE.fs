@@ -56,7 +56,7 @@ let ``ValidationCE return! Tests`` =
         testCase "Return Ok Validation"
         <| fun _ ->
             let innerData = "Foo"
-            let data = Validation.singleton innerData
+            let data = Validation.ok innerData
             let actual = validation { return! data }
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         testCase "Return Error Validation"
@@ -123,7 +123,7 @@ let ``ValidationCE bind Tests`` =
         testCase "let! Ok Validation"
         <| fun _ ->
             let innerData = "Foo"
-            let data = Validation.singleton innerData
+            let data = Validation.ok innerData
 
             let actual =
                 validation {
@@ -162,7 +162,7 @@ let ``ValidationCE bind Tests`` =
             let innerData = ()
             let data = Choice1Of2 innerData
             let actual = validation { do! data }
-            Expect.equal actual (Validation.singleton innerData) "Should be ok"
+            Expect.equal actual (Validation.ok innerData) "Should be ok"
         testCase "do! Error Choice"
         <| fun _ ->
             let innerData = ()
@@ -173,9 +173,9 @@ let ``ValidationCE bind Tests`` =
         testCase "do! Ok Validation"
         <| fun _ ->
             let innerData = ()
-            let data = Validation.singleton innerData
+            let data = Validation.ok innerData
             let actual = validation { do! data }
-            Expect.equal actual (Validation.singleton innerData) "Should be ok"
+            Expect.equal actual (Validation.ok innerData) "Should be ok"
         testCase "do! Error Validation"
         <| fun _ ->
             let innerData = ()
@@ -400,9 +400,9 @@ let ``ValidationCE applicative tests`` =
         <| fun () ->
             let actual: Validation<int, string> =
                 validation {
-                    let! a = Validation.singleton 3
-                    and! b = Validation.singleton 2
-                    and! c = Validation.singleton 1
+                    let! a = Validation.ok 3
+                    and! b = Validation.ok 2
+                    and! c = Validation.ok 1
                     return a + b - c
                 }
 
@@ -412,9 +412,9 @@ let ``ValidationCE applicative tests`` =
         <| fun () ->
             let actual: Validation<int, string> =
                 validation {
-                    let! a = Validation.singleton 3
+                    let! a = Validation.ok 3
                     and! b = Ok 2
-                    and! c = Validation.singleton 1
+                    and! c = Validation.ok 1
                     return a + b - c
                 }
 
@@ -438,7 +438,7 @@ let ``ValidationCE applicative tests`` =
                 validation {
                     let! a = Ok 3
                     and! b = Choice1Of2 2
-                    and! c = Validation.singleton 1
+                    and! c = Validation.ok 1
                     return a + b - c
                 }
 
@@ -474,8 +474,8 @@ let ``ValidationCE applicative tests`` =
 
             let actual =
                 validation {
-                    let! a = Validation.singleton 3
-                    and! b = Validation.singleton 2
+                    let! a = Validation.ok 3
+                    and! b = Validation.ok 2
                     and! c = expected
                     return a + b - c
                 }

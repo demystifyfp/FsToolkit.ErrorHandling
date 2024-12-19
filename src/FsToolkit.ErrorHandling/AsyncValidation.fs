@@ -6,7 +6,7 @@ type AsyncValidation<'ok, 'error> = Async<Result<'ok, 'error list>>
 [<RequireQualifiedAccess>]
 module AsyncValidation =
 
-    let inline singleton (value: 'ok) : AsyncValidation<'ok, 'error> =
+    let inline ok (value: 'ok) : AsyncValidation<'ok, 'error> =
         Ok value
         |> async.Return
 
@@ -20,7 +20,7 @@ module AsyncValidation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> singleton x
+        | Choice1Of2 x -> ok x
         | Choice2Of2 e -> error e
 
     let inline apply
@@ -56,7 +56,7 @@ module AsyncValidation =
 
             return!
                 result
-                |> Result.either singleton (fun _ -> ifError)
+                |> Result.either ok (fun _ -> ifError)
         }
 
     let inline orElseWith
@@ -68,7 +68,7 @@ module AsyncValidation =
 
             return!
                 match result with
-                | Ok x -> singleton x
+                | Ok x -> ok x
                 | Error err -> ifErrorFunc err
         }
 

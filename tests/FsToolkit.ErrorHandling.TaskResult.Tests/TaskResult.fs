@@ -147,15 +147,15 @@ let orElseTests =
         <| fun () ->
             task {
                 do!
-                    TaskResult.singleton "First"
-                    |> TaskResult.orElse (TaskResult.singleton "Second")
+                    TaskResult.ok "First"
+                    |> TaskResult.orElse (TaskResult.ok "Second")
                     |> Expect.hasTaskOkValue "First"
             }
         testCaseTask "Ok Error takes first Ok"
         <| fun () ->
             task {
                 return!
-                    TaskResult.singleton "First"
+                    TaskResult.ok "First"
                     |> TaskResult.orElse (TaskResult.error "Second")
                     |> Expect.hasTaskOkValue "First"
             }
@@ -164,7 +164,7 @@ let orElseTests =
             task {
                 return!
                     TaskResult.error "First"
-                    |> TaskResult.orElse (TaskResult.singleton "Second")
+                    |> TaskResult.orElse (TaskResult.ok "Second")
                     |> Expect.hasTaskOkValue "Second"
             }
         testCaseTask "Error Error takes second error"
@@ -184,15 +184,15 @@ let orElseWithTests =
         <| fun () ->
             task {
                 return!
-                    TaskResult.singleton "First"
-                    |> TaskResult.orElseWith (fun _ -> TaskResult.singleton "Second")
+                    TaskResult.ok "First"
+                    |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
                     |> Expect.hasTaskOkValue "First"
             }
         testCaseTask "Ok Error takes first Ok"
         <| fun () ->
             task {
                 return!
-                    TaskResult.singleton "First"
+                    TaskResult.ok "First"
                     |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second")
                     |> Expect.hasTaskOkValue "First"
             }
@@ -201,7 +201,7 @@ let orElseWithTests =
             task {
                 return!
                     TaskResult.error "First"
-                    |> TaskResult.orElseWith (fun _ -> TaskResult.singleton "Second")
+                    |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second")
                     |> Expect.hasTaskOkValue "Second"
             }
         testCaseTask "Error Error takes second error"
@@ -828,7 +828,7 @@ let TaskResultBindRequireTests =
             task {
                 do!
                     Some "john_doe"
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireNone "User exists"
                     |> Expect.hasTaskErrorValue "User exists"
             }
@@ -838,7 +838,7 @@ let TaskResultBindRequireTests =
             task {
                 do!
                     Some "john_doe"
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireSome "User doesn't exist"
                     |> Expect.hasTaskOkValue "john_doe"
             }
@@ -852,7 +852,7 @@ let TaskResultBindRequireValueOptionTests =
             task {
                 do!
                     ValueSome "john_doe"
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireValueNone "User exists"
                     |> Expect.hasTaskErrorValue "User exists"
             }
@@ -862,7 +862,7 @@ let TaskResultBindRequireValueOptionTests =
             task {
                 do!
                     ValueSome "john_doe"
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireValueSome "User doesn't exist"
                     |> Expect.hasTaskOkValue "john_doe"
             }
@@ -901,7 +901,7 @@ let taskResultBindRequireTrueTests =
             task {
                 do!
                     true
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireTrue "Should be true"
                     |> Expect.hasTaskOkValue ()
             }
@@ -911,7 +911,7 @@ let taskResultBindRequireTrueTests =
             task {
                 do!
                     false
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireFalse "Should be false"
                     |> Expect.hasTaskOkValue ()
             }
@@ -925,7 +925,7 @@ let taskResultBindRequireNotNullTests =
             task {
                 do!
                     "Test"
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireNotNull "Should not be null"
                     |> Expect.hasTaskOkValue "Test"
             }
@@ -939,7 +939,7 @@ let taskResultBindRequireEqualTests =
             task {
                 do!
                     2
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireEqual 2 "Should be equal"
                     |> Expect.hasTaskOkValue ()
             }
@@ -953,7 +953,7 @@ let taskResultBindRequireEmptyTests =
             task {
                 do!
                     []
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireEmpty "Should be empty"
                     |> Expect.hasTaskOkValue ()
             }
@@ -967,7 +967,7 @@ let taskResultBindRequireNotEmptyTests =
             task {
                 do!
                     [ 1 ]
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireNotEmpty "Should not be empty"
                     |> Expect.hasTaskOkValue ()
             }
@@ -981,7 +981,7 @@ let taskResultBindRequireHeadTests =
             task {
                 do!
                     [ 1 ]
-                    |> TaskResult.singleton
+                    |> TaskResult.ok
                     |> TaskResult.bindRequireHead "Should not be empty"
                     |> Expect.hasTaskOkValue 1
             }

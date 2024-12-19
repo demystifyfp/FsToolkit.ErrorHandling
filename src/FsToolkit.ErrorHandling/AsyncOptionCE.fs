@@ -7,7 +7,7 @@ open System
 module AsyncOptionCE =
     type AsyncOptionBuilder() =
 
-        member inline _.Return(value: 'value) : Async<'value option> = AsyncOption.singleton value
+        member inline _.Return(value: 'value) : Async<'value option> = AsyncOption.some value
 
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 

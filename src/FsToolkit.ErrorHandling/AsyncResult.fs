@@ -5,7 +5,7 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-    let inline singleton (value: 'ok) : Async<Result<'ok, 'error>> =
+    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
         Ok value
         |> Async.singleton
 
@@ -96,9 +96,9 @@ module AsyncResult =
     /// <example>
     /// <code>
     ///     AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.error "Second") // evaluates to Error ("Second")
-    ///     AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     AsyncResult.singleton "First" |> AsyncResult.orElse (AsyncResult.error "Second") // evaluates to Ok ("First")
-    ///     AsyncResult.singleton "First" |> AsyncResult.orElse (AsyncResult.singleton "Second") // evaluates to Ok ("First")
+    ///     AsyncResult.error "First" |> AsyncResult.orElse (AsyncResult.ok "Second") // evaluates to Ok ("Second")
+    ///     AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.error "Second") // evaluates to Ok ("First")
+    ///     AsyncResult.ok "First" |> AsyncResult.orElse (AsyncResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -108,7 +108,7 @@ module AsyncResult =
         (ifError: Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either singleton (fun _ -> ifError)) input
+        Async.bind (Result.either ok (fun _ -> ifError)) input
 
     /// <summary>
     /// Returns <paramref name="input"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -121,9 +121,9 @@ module AsyncResult =
     /// <example>
     /// <code>
     ///     AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second") // evaluates to Error ("Second")
-    ///     AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     AsyncResult.singleton "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second") // evaluates to Ok ("First")
-    ///     AsyncResult.singleton "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.singleton "Second") // evaluates to Ok ("First")
+    ///     AsyncResult.error "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second") // evaluates to Ok ("Second")
+    ///     AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.error "Second") // evaluates to Ok ("First")
+    ///     AsyncResult.ok "First" |> AsyncResult.orElseWith (fun _ -> AsyncResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -133,7 +133,7 @@ module AsyncResult =
         ([<InlineIfLambda>] ifErrorFunc: 'errorInput -> Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either singleton ifErrorFunc) input
+        Async.bind (Result.either ok ifErrorFunc) input
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error>

@@ -444,9 +444,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = AsyncResult.singleton 3
-                    and! b = AsyncResult.singleton 2
-                    and! c = AsyncResult.singleton 1
+                    let! a = AsyncResult.ok 3
+                    and! b = AsyncResult.ok 2
+                    and! c = AsyncResult.ok 1
                     return a + b - c
                 }
 
@@ -457,9 +457,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = TaskResult.singleton 3
-                    and! b = TaskResult.singleton 2
-                    and! c = TaskResult.singleton 1
+                    let! a = TaskResult.ok 3
+                    and! b = TaskResult.ok 2
+                    and! c = TaskResult.ok 1
                     return a + b - c
                 }
 

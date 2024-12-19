@@ -24,7 +24,7 @@ module TaskResult =
         |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
-    let inline singleton x =
+    let inline ok x =
         Ok x
         |> Task.singleton
 
@@ -51,9 +51,9 @@ module TaskResult =
     /// <example>
     /// <code>
     ///     TaskResult.error "First" |> TaskResult.orElse (TaskResult.error "Second") // evaluates to Error ("Second")
-    ///     TaskResult.error "First" |> TaskResult.orElse (TaskResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     TaskResult.singleton "First" |> TaskResult.orElse (TaskResult.error "Second") // evaluates to Ok ("First")
-    ///     TaskResult.singleton "First" |> TaskResult.orElse (TaskResult.singleton "Second") // evaluates to Ok ("First")
+    ///     TaskResult.error "First" |> TaskResult.orElse (TaskResult.ok "Second") // evaluates to Ok ("Second")
+    ///     TaskResult.ok "First" |> TaskResult.orElse (TaskResult.error "Second") // evaluates to Ok ("First")
+    ///     TaskResult.ok "First" |> TaskResult.orElse (TaskResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -61,7 +61,7 @@ module TaskResult =
     /// </returns>
     let inline orElse (ifError: Task<Result<'ok, 'error2>>) (result: Task<Result<'ok, 'error>>) =
         result
-        |> Task.bind (Result.either singleton (fun _ -> ifError))
+        |> Task.bind (Result.either ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -74,9 +74,9 @@ module TaskResult =
     /// <example>
     /// <code>
     ///     TaskResult.error "First" |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second") // evaluates to Error ("Second")
-    ///     TaskResult.error "First" |> TaskResult.orElseWith (fun _ -> TaskResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     TaskResult.singleton "First" |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second") // evaluates to Ok ("First")
-    ///     TaskResult.singleton "First" |> TaskResult.orElseWith (fun _ -> TaskResult.singleton "Second") // evaluates to Ok ("First")
+    ///     TaskResult.error "First" |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second") // evaluates to Ok ("Second")
+    ///     TaskResult.ok "First" |> TaskResult.orElseWith (fun _ -> TaskResult.error "Second") // evaluates to Ok ("First")
+    ///     TaskResult.ok "First" |> TaskResult.orElseWith (fun _ -> TaskResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -87,7 +87,7 @@ module TaskResult =
         (result: Task<Result<'ok, 'error>>)
         =
         result
-        |> Task.bind (Result.either singleton ifErrorFunc)
+        |> Task.bind (Result.either ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error> (tr: Task<Result<'ok, 'error>>) =

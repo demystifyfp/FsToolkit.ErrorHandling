@@ -53,7 +53,7 @@ module Array =
     let sequenceResultM xs = traverseResultM id xs
 
     let traverseAsyncResultM f xs =
-        traverseAsyncResultM' (AsyncResult.singleton [||]) f xs
+        traverseAsyncResultM' (AsyncResult.ok [||]) f xs
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
@@ -88,8 +88,7 @@ module Array =
 
                 match s, fR with
                 | Ok ys, Ok y ->
-                    return!
-                        traverseAsyncResultA' (AsyncResult.singleton (Array.append [| y |] ys)) f xs
+                    return! traverseAsyncResultA' (AsyncResult.ok (Array.append [| y |] ys)) f xs
                 | Error errs, Error e ->
                     return!
                         traverseAsyncResultA'
@@ -128,7 +127,7 @@ module Array =
     let sequenceValidationA xs = traverseValidationA id xs
 
     let traverseAsyncResultA f xs =
-        traverseAsyncResultA' (AsyncResult.singleton [||]) f xs
+        traverseAsyncResultA' (AsyncResult.ok [||]) f xs
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
@@ -194,7 +193,7 @@ module Array =
     let sequenceOptionM xs = traverseOptionM id xs
 
     let traverseAsyncOptionM f xs =
-        traverseAsyncOptionM' (AsyncOption.singleton [||]) f xs
+        traverseAsyncOptionM' (AsyncOption.some [||]) f xs
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 

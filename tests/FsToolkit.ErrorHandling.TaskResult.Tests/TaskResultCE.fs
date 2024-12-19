@@ -568,9 +568,9 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = TaskResult.singleton 3
-                        and! b = TaskResult.singleton 2
-                        and! c = TaskResult.singleton 1
+                        let! a = TaskResult.ok 3
+                        and! b = TaskResult.ok 2
+                        and! c = TaskResult.ok 1
                         return a + b - c
                     }
 
@@ -582,9 +582,9 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = AsyncResult.singleton 3
-                        and! b = AsyncResult.singleton 2
-                        and! c = AsyncResult.singleton 1
+                        let! a = AsyncResult.ok 3
+                        and! b = AsyncResult.ok 2
+                        and! c = AsyncResult.ok 1
                         return a + b - c
                     }
 
@@ -748,6 +748,6 @@ let ``TaskResultCE inference checks`` =
             // Compilation is success
             let f res = taskResult { return! res () }
 
-            f (TaskResult.singleton)
+            f (TaskResult.ok)
             |> ignore
     ]

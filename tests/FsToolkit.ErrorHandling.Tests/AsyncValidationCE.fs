@@ -61,7 +61,7 @@ let ``AsyncValidationCE return! Tests`` =
         testCaseAsync "Return Ok Validation"
         <| async {
             let innerData = "Foo"
-            let data = Validation.singleton innerData
+            let data = Validation.ok innerData
             let! actual = asyncValidation { return! data }
             Expect.equal actual (Ok innerData) "Should be ok"
         }
@@ -187,7 +187,7 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "do! Ok Choice"
         <| async {
             let innerData = ()
-            let! expected = AsyncValidation.singleton innerData
+            let! expected = AsyncValidation.ok innerData
             let data = Choice1Of2 innerData
             let! actual = asyncValidation { do! data }
             Expect.equal actual expected "Should be ok"
@@ -203,8 +203,8 @@ let ``AsyncValidationCE bind Tests`` =
         testCaseAsync "do! Ok Validation"
         <| async {
             let innerData = ()
-            let! expected = AsyncValidation.singleton innerData
-            let data = AsyncValidation.singleton innerData
+            let! expected = AsyncValidation.ok innerData
+            let data = AsyncValidation.ok innerData
             let! actual = asyncValidation { do! data }
             Expect.equal actual expected "Should be ok"
         }
@@ -323,7 +323,7 @@ let ``AsyncValidationCE using Tests`` =
         <| async {
             let mutable disposed = false
             let mutable finished = false
-            let f1 _ = AsyncResult.singleton 42
+            let f1 _ = AsyncResult.ok 42
 
             let! actual =
                 asyncValidation {
@@ -476,9 +476,9 @@ let ``AsyncValidationCE applicative tests`` =
         <| async {
             let! actual =
                 asyncValidation {
-                    let! a = AsyncValidation.singleton 3
-                    and! b = AsyncValidation.singleton 2
-                    and! c = AsyncValidation.singleton 1
+                    let! a = AsyncValidation.ok 3
+                    and! b = AsyncValidation.ok 2
+                    and! c = AsyncValidation.ok 1
                     return a + b - c
                 }
 
@@ -489,9 +489,9 @@ let ``AsyncValidationCE applicative tests`` =
         <| async {
             let! actual =
                 asyncValidation {
-                    let! a = AsyncValidation.singleton 3
+                    let! a = AsyncValidation.ok 3
                     and! b = Ok 2
-                    and! c = AsyncValidation.singleton 1
+                    and! c = AsyncValidation.ok 1
                     return a + b - c
                 }
 
@@ -517,7 +517,7 @@ let ``AsyncValidationCE applicative tests`` =
                 asyncValidation {
                     let! a = Ok 3
                     and! b = Choice1Of2 2
-                    and! c = AsyncValidation.singleton 1
+                    and! c = AsyncValidation.ok 1
 
                     return a + b - c
                 }
@@ -596,8 +596,8 @@ let ``AsyncValidationCE applicative tests`` =
 
             let! actual =
                 asyncValidation {
-                    let! a = AsyncValidation.singleton 3
-                    and! b = AsyncValidation.singleton 2
+                    let! a = AsyncValidation.ok 3
+                    and! b = AsyncValidation.ok 2
                     and! c = expected
                     return a + b - c
                 }

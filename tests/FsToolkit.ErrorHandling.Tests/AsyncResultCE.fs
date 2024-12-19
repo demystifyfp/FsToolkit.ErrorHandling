@@ -338,7 +338,7 @@ let ``AsyncResultCE using Tests`` =
         <| async {
             let mutable disposed = false
             let mutable finished = false
-            let f1 _ = AsyncResult.singleton 42
+            let f1 _ = AsyncResult.ok 42
 
             let! actual =
                 asyncResult {
@@ -588,7 +588,7 @@ let ``AsyncResultCE inference checks`` =
             // Compilation is success
             let f res = asyncResult { return! res }
 
-            f (AsyncResult.singleton ())
+            f (AsyncResult.ok ())
             |> ignore
     ]
 
