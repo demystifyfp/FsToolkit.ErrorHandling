@@ -5,6 +5,7 @@ type AsyncValidation<'ok, 'error> = Async<Result<'ok, 'error list>>
 
 [<RequireQualifiedAccess>]
 module AsyncValidation =
+
     let inline ok (value: 'ok) : AsyncValidation<'ok, 'error> =
         Ok value
         |> async.Return
@@ -41,8 +42,6 @@ module AsyncValidation =
                         @ errs2
                     )
         }
-
-    let inline retn (value: 'ok) : AsyncValidation<'ok, 'error> = ok value
 
     let inline returnError (error: 'error) : AsyncValidation<'ok, 'error> =
         Error [ error ]

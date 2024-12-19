@@ -16,15 +16,6 @@ module Async =
         |> async.Return
 
     /// <summary>
-    /// Converts a value to an <c>Async</c> value
-    /// </summary>
-    /// <param name="value">The value to convert to an <c>Async</c> value.</param>
-    /// <returns>The <c>Async</c> value.</returns>
-    let inline retn (value: 'value) : Async<'value> =
-        value
-        |> async.Return
-
-    /// <summary>
     /// Takes a transformation function and applies it to the value of an <c>Async</c> value.
     /// </summary>
     /// <param name="binder">The function to bind over the <c>Async</c> value.</param>

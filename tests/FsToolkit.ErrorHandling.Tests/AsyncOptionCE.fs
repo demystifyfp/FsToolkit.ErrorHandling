@@ -255,7 +255,7 @@ let ``AsyncOptionCE using Tests`` =
         <| async {
             let mutable disposed = false
             let mutable finished = false
-            let f1 _ = Async.retn (Some 42)
+            let f1 _ = Async.singleton (Some 42)
 
             let! actual =
                 asyncOption {

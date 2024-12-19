@@ -39,11 +39,9 @@ module JobResult =
         |> Job.catch
         |> Job.map Result.ofChoice
 
-    let inline retn x =
+    let inline singleton x =
         Ok x
         |> Job.result
-
-    let inline ok x = retn x
 
     let inline returnError x =
         Error x
@@ -68,9 +66,9 @@ module JobResult =
     /// <example>
     /// <code>
     ///     JobResult.error "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Error ("Second")
-    ///     JobResult.error "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("Second")
-    ///     JobResult.ok "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Ok ("First")
-    ///     JobResult.ok "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("First")
+    ///     JobResult.error "First" |> JobResult.orElse (JobResult.singleton "Second") // evaluates to Ok ("Second")
+    ///     JobResult.singleton "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Ok ("First")
+    ///     JobResult.singleton "First" |> JobResult.orElse (JobResult.singleton "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -78,7 +76,7 @@ module JobResult =
     /// </returns>
     let inline orElse (ifError: Job<Result<'ok, 'error2>>) (result: Job<Result<'ok, 'error>>) =
         result
-        |> Job.bind (Result.either ok (fun _ -> ifError))
+        |> Job.bind (Result.either singleton (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -91,9 +89,9 @@ module JobResult =
     /// <example>
     /// <code>
     ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Error ("Second")
-    ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("Second")
-    ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Ok ("First")
-    ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("First")
+    ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second") // evaluates to Ok ("Second")
+    ///     JobResult.singleton "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Ok ("First")
+    ///     JobResult.singleton "First" |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -104,7 +102,7 @@ module JobResult =
         (result: Job<Result<'ok, 'error>>)
         =
         result
-        |> Job.bind (Result.either ok ifErrorFunc)
+        |> Job.bind (Result.either singleton ifErrorFunc)
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error> (jr: Job<Result<'ok, 'error>>) =

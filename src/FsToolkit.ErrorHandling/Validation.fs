@@ -31,8 +31,6 @@ module Validation =
                 @ errs2
             )
 
-    let inline retn (value: 'ok) : Validation<'ok, 'error> = ok value
-
     let inline returnError (error: 'error) : Validation<'ok, 'error> = Error [ error ]
 
 

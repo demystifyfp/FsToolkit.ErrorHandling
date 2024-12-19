@@ -20,7 +20,7 @@ module AsyncResultOption =
             (fun opt ->
                 match opt with
                 | Some x -> binder x
-                | None -> AsyncResult.retn None
+                | None -> AsyncResult.ok None
             )
             input
 
@@ -40,7 +40,8 @@ module AsyncResultOption =
         : Async<Result<'okOutput option, 'error>> =
         AsyncResult.map3 (Option.map3 mapper) input1 input2 input3
 
-    let inline retn (value: 'ok) : Async<Result<'ok option, 'error>> = AsyncResult.retn (Some value)
+    let inline singleton (value: 'ok) : Async<Result<'ok option, 'error>> =
+        AsyncResult.ok (Some value)
 
     let apply
         (applier: Async<Result<('okInput -> 'okOutput) option, 'error>>)

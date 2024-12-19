@@ -5,12 +5,9 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-
-    let inline retn (value: 'ok) : Async<Result<'ok, 'error>> =
+    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
         Ok value
         |> Async.singleton
-
-    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> = retn value
 
     let inline returnError (error: 'error) : Async<Result<'ok, 'error>> =
         Error error
