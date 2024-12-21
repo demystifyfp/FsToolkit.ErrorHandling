@@ -8,7 +8,7 @@ module AsyncResultOptionCE =
 
     type AsyncResultOptionBuilder() =
         member inline _.Return(value: 'ok) : AsyncResultOption<'ok, 'error> =
-            AsyncResultOption.retn value
+            AsyncResultOption.singleton value
 
         member inline _.ReturnFrom
             (value: Async<Result<'ok option, 'error>>)
@@ -80,10 +80,11 @@ module AsyncResultOptionCE =
 #endif
 
         member inline this.While
-            (
-                [<InlineIfLambda>] guard: unit -> bool,
-                computation: AsyncResultOption<unit, 'error>
-            ) : AsyncResultOption<unit, 'error> =
+            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncResultOption<unit, 'error>) : AsyncResultOption<
+                                                                                                         unit,
+                                                                                                         'error
+                                                                                                      >
+            =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
@@ -151,10 +152,11 @@ module AsyncResultOptionCEExtensions =
 
 
         member inline this.For
-            (
-                sequence: #seq<'ok>,
-                [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>
-            ) : AsyncResultOption<unit, 'error> =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>) : AsyncResultOption<
+                                                                                                           unit,
+                                                                                                           'error
+                                                                                                        >
+            =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->

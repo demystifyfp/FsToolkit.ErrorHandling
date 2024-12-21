@@ -148,14 +148,14 @@ let orElseTests =
         testCaseJob "Ok Ok takes first Ok"
         <| job {
             return!
-                JobResult.ok "First"
-                |> JobResult.orElse (JobResult.ok "Second")
+                JobResult.singleton "First"
+                |> JobResult.orElse (JobResult.singleton "Second")
                 |> Expect.hasJobOkValue "First"
         }
         testCaseJob "Ok Error takes first Ok"
         <| job {
             return!
-                JobResult.ok "First"
+                JobResult.singleton "First"
                 |> JobResult.orElse (JobResult.error "Second")
                 |> Expect.hasJobOkValue "First"
         }
@@ -163,7 +163,7 @@ let orElseTests =
         <| job {
             return!
                 JobResult.error "First"
-                |> JobResult.orElse (JobResult.ok "Second")
+                |> JobResult.orElse (JobResult.singleton "Second")
                 |> Expect.hasJobOkValue "Second"
         }
         testCaseJob "Error Error takes second error"
@@ -181,14 +181,14 @@ let orElseWithTests =
         testCaseJob "Ok Ok takes first Ok"
         <| job {
             return!
-                JobResult.ok "First"
-                |> JobResult.orElseWith (fun _ -> JobResult.ok "Second")
+                JobResult.singleton "First"
+                |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second")
                 |> Expect.hasJobOkValue "First"
         }
         testCaseJob "Ok Error takes first Ok"
         <| job {
             return!
-                JobResult.ok "First"
+                JobResult.singleton "First"
                 |> JobResult.orElseWith (fun _ -> JobResult.error "Second")
                 |> Expect.hasJobOkValue "First"
         }
@@ -196,7 +196,7 @@ let orElseWithTests =
         <| job {
             return!
                 JobResult.error "First"
-                |> JobResult.orElseWith (fun _ -> JobResult.ok "Second")
+                |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second")
                 |> Expect.hasJobOkValue "Second"
         }
         testCaseJob "Error Error takes second error"
@@ -755,7 +755,7 @@ let bindRequireTests =
         <| job {
             return!
                 Some "john_doe"
-                |> JobResult.ok
+                |> JobResult.singleton
                 |> JobResult.bindRequireNone "user exists"
                 |> Expect.hasJobErrorValue "user exists"
         }
@@ -764,7 +764,7 @@ let bindRequireTests =
         <| job {
             return!
                 Some "john_doe"
-                |> JobResult.ok
+                |> JobResult.singleton
                 |> JobResult.bindRequireSome "user doesn't exists"
                 |> Expect.hasJobOkValue "john_doe"
         }
@@ -777,7 +777,7 @@ let bindRequireValueOptionTests =
         <| job {
             return!
                 ValueSome "john_doe"
-                |> JobResult.ok
+                |> JobResult.singleton
                 |> JobResult.bindRequireValueNone "user exists"
                 |> Expect.hasJobErrorValue "user exists"
         }
@@ -786,7 +786,7 @@ let bindRequireValueOptionTests =
         <| job {
             return!
                 ValueSome "john_doe"
-                |> JobResult.ok
+                |> JobResult.singleton
                 |> JobResult.bindRequireValueSome "user doesn't exists"
                 |> Expect.hasJobOkValue "john_doe"
         }

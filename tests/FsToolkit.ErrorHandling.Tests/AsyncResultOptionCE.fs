@@ -72,7 +72,7 @@ let ``AsyncResultOptionCE return! Tests`` =
         testCaseAsync "Return Ok AsyncResultOption"
         <| async {
             let innerData = "Foo"
-            let data = AsyncResultOption.retn innerData
+            let data = AsyncResultOption.singleton innerData
             let! actual = asyncResultOption { return! data }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -81,7 +81,7 @@ let ``AsyncResultOptionCE return! Tests`` =
         testCaseAsync "Return Ok AsyncResult"
         <| async {
             let innerData = "Foo"
-            let data = AsyncResult.retn innerData
+            let data = AsyncResult.ok innerData
             let! actual = asyncResultOption { return! data }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -89,7 +89,7 @@ let ``AsyncResultOptionCE return! Tests`` =
         testCaseAsync "Return Ok AsyncOption"
         <| async {
             let innerData = "Foo"
-            let data = AsyncOption.retn innerData
+            let data = AsyncOption.some innerData
             let! actual = asyncResultOption { return! data }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -274,7 +274,7 @@ let ``AsyncResultOptionCE bind Tests`` =
         <| async {
             let innerData = "Foo"
 
-            let data = AsyncResultOption.retn innerData
+            let data = AsyncResultOption.singleton innerData
 
             let! actual =
                 asyncResultOption {
@@ -714,7 +714,7 @@ let ``AsyncResultOptionCE inference checks`` =
             // Compilation is success
             let f res = asyncResultOption { return! res }
 
-            f (AsyncResultOption.retn ())
+            f (AsyncResultOption.singleton ())
             |> ignore
     ]
 

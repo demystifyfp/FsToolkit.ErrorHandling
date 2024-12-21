@@ -5,14 +5,14 @@
             "name": "benchmarks",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/benchmarks/bin/Release/net7.0/benchmarks.exe",
-            "args": [],
+            "program": "${workspaceFolder}/benchmarks/bin/Release/net8.0/benchmarks.exe",
+            "args": ["-m", "--runtimes", "net8.0", "--filter", "*"],
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "console": "integratedTerminal",
             "preLaunchTask": "build release",
-            "cwd": "${workspaceFolder}/benchmarks/bin/Release/net7.0/"
+            "cwd": "${workspaceFolder}/benchmarks/bin/Release/net8.0/"
         }
     ]
 }

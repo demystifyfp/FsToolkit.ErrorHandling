@@ -92,7 +92,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableTaskResult<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -139,58 +142,6 @@ module CancellableTaskResultCE =
             : CancellationToken -> Awaiter<TaskAwaiter<_>, _> =
             fun ct -> Awaitable.GetTaskAwaiter(x ct)
 
-    // member inline this.MergeSources
-    //     (
-    //         [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-    //         [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-    //     ) =
-    //     this.Run(
-    //         this.Bind(
-    //             left,
-    //             fun leftR -> this.BindReturn(right, (fun rightR -> struct (leftR, rightR)))
-    //         )
-    //     )
-    //     >> Awaitable.GetTaskAwaiter
-
-
-    // member inline this.MergeSources
-    //     (
-    //         left: 'Awaiter1,
-    //         [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-    //     ) =
-    //     this.Run(
-    //         this.Bind(
-    //             left,
-    //             fun leftR -> this.BindReturn(right, (fun rightR -> struct (leftR, rightR)))
-    //         )
-    //     )
-    //     >> Awaitable.GetTaskAwaiter
-
-
-    // member inline this.MergeSources
-    //     (
-    //         [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-    //         right: 'Awaiter2
-    //     ) =
-    //     this.Run(
-    //         this.Bind(
-    //             left,
-    //             fun leftR -> this.BindReturn(right, (fun rightR -> struct (leftR, rightR)))
-    //         )
-    //     )
-    //     >> Awaitable.GetTaskAwaiter
-
-
-    // member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
-    //     this.Run(
-    //         this.Bind(
-    //             left,
-    //             fun leftR -> this.BindReturn(right, (fun rightR -> struct (leftR, rightR)))
-    //         )
-    //     )
-    //     >> Awaitable.GetTaskAwaiter
-
-
     /// Contains methods to build CancellableTasks using the F# computation expression syntax
     type BackgroundCancellableTaskResultBuilder() =
 
@@ -223,7 +174,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableTaskResult<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -305,49 +259,6 @@ module CancellableTaskResultCE =
         /// </summary>
         let backgroundCancellableTaskResult = BackgroundCancellableTaskResultBuilder()
 
-
-// /// <summary>
-// /// A set of extension methods making it possible to bind against <see cref='T:IcedTasks.CancellableTasks.CancellableTask`1'/> in async computations.
-// /// </summary>
-// [<AutoOpen>]
-// module AsyncExtensions =
-
-//     type AsyncExBuilder with
-
-//         member inline this.Source([<InlineIfLambda>] t: CancellableTask<'T>) : Async<'T> =
-//             AsyncEx.AwaitCancellableTask t
-
-//         member inline this.Source([<InlineIfLambda>] t: CancellableTask) : Async<unit> =
-//             AsyncEx.AwaitCancellableTask t
-
-//     type Microsoft.FSharp.Control.AsyncBuilder with
-
-//         member inline this.Bind
-//             (
-//                 [<InlineIfLambda>] t: CancellableTask<'T>,
-//                 [<InlineIfLambda>] binder: ('T -> Async<'U>)
-//             ) : Async<'U> =
-//             this.Bind(Async.AwaitCancellableTask t, binder)
-
-//         member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTask<'T>) : Async<'T> =
-//             this.ReturnFrom(Async.AwaitCancellableTask t)
-
-//         member inline this.Bind
-//             (
-//                 [<InlineIfLambda>] t: CancellableTask,
-//                 [<InlineIfLambda>] binder: (unit -> Async<'U>)
-//             ) : Async<'U> =
-//             this.Bind(Async.AwaitCancellableTask t, binder)
-
-//         member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTask) : Async<unit> =
-//             this.ReturnFrom(Async.AwaitCancellableTask t)
-
-// // There is explicitly no Binds for `CancellableTasks` in `Microsoft.FSharp.Control.TaskBuilderBase`.
-// // You need to explicitly pass in a `CancellationToken`to start it, you can use `CancellationToken.None`.
-// // Reason is I don't want people to assume cancellation is happening without the caller being explicit about where the CancellationToken came from.
-// // Similar reasoning for `IcedTasks.ColdTasks.ColdTaskBuilderBase`.
-
-// // Contains a set of standard functional helper function
 
 [<RequireQualifiedAccess>]
 module CancellableTaskResult =
