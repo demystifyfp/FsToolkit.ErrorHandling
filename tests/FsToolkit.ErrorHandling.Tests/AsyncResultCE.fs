@@ -588,7 +588,7 @@ let ``AsyncResultCE inference checks`` =
             // Compilation is success
             let f res = asyncResult { return! res }
 
-            f (AsyncResult.retn ())
+            f (AsyncResult.ok ())
             |> ignore
     ]
 

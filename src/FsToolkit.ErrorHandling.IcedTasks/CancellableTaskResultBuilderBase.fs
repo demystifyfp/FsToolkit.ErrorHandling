@@ -43,7 +43,9 @@ module CancellableTaskResultBuilderBase =
 
     /// This is used by the compiler as a template for creating state machine structs
     and CancellableTaskResultBuilderBaseStateMachine<'TOverall, 'Error, 'Builder> =
-        ResumableStateMachine<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>
+        ResumableStateMachine<
+            CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>
+         >
 
     /// Represents the runtime continuation of a cancellableTasks state machine created dynamically
     and CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, 'Builder> =
@@ -51,11 +53,16 @@ module CancellableTaskResultBuilderBase =
 
     /// Represents the runtime continuation of a cancellableTasks state machine created dynamically
     and CancellableTaskResultBuilderBaseResumptionDynamicInfo<'TOverall, 'Error, 'Builder> =
-        ResumptionDynamicInfo<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>
+        ResumptionDynamicInfo<
+            CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>
+         >
 
     /// A special compiler-recognised delegate type for specifying blocks of cancellableTasks code with access to the state machine
     and CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder> =
-        ResumableCode<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>, 'T>
+        ResumableCode<
+            CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>,
+            'T
+         >
 
     /// <summary>
     /// Contains methods to build TaskLikes using the F# computation expression syntax
@@ -215,11 +222,24 @@ module CancellableTaskResultBuilderBase =
         static member inline BindDynamic
             (
                 sm:
-                    byref<ResumableStateMachine<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>>,
+                    byref<
+                        ResumableStateMachine<
+                            CancellableTaskResultBuilderBaseStateMachineData<
+                                'TOverall,
+                                'Error,
+                                'Builder
+                             >
+                         >
+                     >,
                 [<InlineIfLambda>] getAwaiter: CancellationToken -> 'Awaiter,
                 continuation:
                     ('TResult1
-                        -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                        -> CancellableTaskResultBuilderBaseCode<
+                            'TOverall,
+                            'TResult2,
+                            'Error,
+                            'Builder
+                         >)
             ) : bool =
             sm.Data.ThrowIfCancellationRequested()
 
@@ -264,7 +284,12 @@ module CancellableTaskResultBuilderBase =
                 [<InlineIfLambda>] getAwaiterTResult: CancellationToken -> 'Awaiter,
                 continuation:
                     ('TResult1
-                        -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                        -> CancellableTaskResultBuilderBaseCode<
+                            'TOverall,
+                            'TResult2,
+                            'Error,
+                            'Builder
+                         >)
             ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
             CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>(fun sm ->
@@ -388,8 +413,11 @@ module CancellableTaskResultBuilderBase =
                         let mutable awaiter = compensation ()
 
                         let cont =
-                            CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, 'Builder>(fun
-                                                                                                            sm ->
+                            CancellableTaskResultBuilderBaseResumptionFunc<
+                                'TOverall,
+                                'Error,
+                                'Builder
+                             >(fun sm ->
                                 Awaiter.GetResult awaiter
                                 true
                             )
@@ -490,8 +518,11 @@ module CancellableTaskResultBuilderBase =
                         let mutable awaiter = condition ()
 
                         let cont =
-                            CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, 'Builder>(fun
-                                                                                                            sm ->
+                            CancellableTaskResultBuilderBaseResumptionFunc<
+                                'TOverall,
+                                'Error,
+                                'Builder
+                             >(fun sm ->
                                 condition_res <- Awaiter.GetResult awaiter
                                 if condition_res then body.Invoke(&sm) else true
                             )
@@ -543,11 +574,24 @@ module CancellableTaskResultBuilderBase =
             static member inline BindDynamic
                 (
                     sm:
-                        byref<ResumableStateMachine<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>>,
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultBuilderBaseStateMachineData<
+                                    'TOverall,
+                                    'Error,
+                                    'Builder
+                                 >
+                             >
+                         >,
                     [<InlineIfLambda>] getAwaiter: CancellationToken -> 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
 
@@ -589,7 +633,12 @@ module CancellableTaskResultBuilderBase =
                     [<InlineIfLambda>] getAwaiterT: CancellationToken -> 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>(fun sm ->
@@ -655,11 +704,24 @@ module CancellableTaskResultBuilderBase =
             static member inline BindDynamic
                 (
                     sm:
-                        byref<ResumableStateMachine<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>>,
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultBuilderBaseStateMachineData<
+                                    'TOverall,
+                                    'Error,
+                                    'Builder
+                                 >
+                             >
+                         >,
                     awaiter: 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
                 let mutable awaiter = awaiter
@@ -701,7 +763,12 @@ module CancellableTaskResultBuilderBase =
                     awaiterT: 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>(fun sm ->
@@ -820,11 +887,24 @@ module CancellableTaskResultBuilderBase =
             static member inline BindDynamic
                 (
                     sm:
-                        byref<ResumableStateMachine<CancellableTaskResultBuilderBaseStateMachineData<'TOverall, 'Error, 'Builder>>>,
+                        byref<
+                            ResumableStateMachine<
+                                CancellableTaskResultBuilderBaseStateMachineData<
+                                    'TOverall,
+                                    'Error,
+                                    'Builder
+                                 >
+                             >
+                         >,
                     awaiter: 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
                 let mutable awaiter = awaiter
@@ -870,7 +950,12 @@ module CancellableTaskResultBuilderBase =
                     awaiterTResult: 'Awaiter,
                     continuation:
                         ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>)
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                             >)
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>(fun sm ->

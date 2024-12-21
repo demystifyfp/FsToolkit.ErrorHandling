@@ -20,10 +20,8 @@ module JobOptionCE =
             |> job.Return
 
         member inline _.Bind
-            (
-                jobResult: Job<_ option>,
-                [<InlineIfLambda>] binder: 'T -> Job<_ option>
-            ) : Job<_ option> =
+            (jobResult: Job<_ option>, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
+            : Job<_ option> =
             job {
                 let! result = jobResult
 
@@ -43,10 +41,8 @@ module JobOptionCE =
             Job.delay generator
 
         member inline this.Combine
-            (
-                computation1: Job<_ option>,
-                computation2: Job<_ option>
-            ) : Job<_ option> =
+            (computation1: Job<_ option>, computation2: Job<_ option>)
+            : Job<_ option> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -64,24 +60,18 @@ module JobOptionCE =
             Job.tryWithDelay computation handler
 
         member inline _.TryFinally
-            (
-                computation: Job<_ option>,
-                [<InlineIfLambda>] compensation: unit -> unit
-            ) : Job<_ option> =
+            (computation: Job<_ option>, [<InlineIfLambda>] compensation: unit -> unit)
+            : Job<_ option> =
             Job.tryFinallyFun computation compensation
 
         member inline _.TryFinally
-            (
-                computation: unit -> Job<_ option>,
-                [<InlineIfLambda>] compensation: unit -> unit
-            ) : Job<_ option> =
+            (computation: unit -> Job<_ option>, [<InlineIfLambda>] compensation: unit -> unit)
+            : Job<_ option> =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (
-                resource: 'T :> IDisposable,
-                [<InlineIfLambda>] binder: 'T -> Job<_ option>
-            ) : Job<_ option> =
+            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
+            : Job<_ option> =
             job.Using(resource, binder)
 
         member this.While(guard: unit -> bool, computation: Job<_ option>) : Job<_ option> =
@@ -102,10 +92,8 @@ module JobOptionCE =
             }
 
         member inline this.For
-            (
-                sequence: #seq<'T>,
-                [<InlineIfLambda>] binder: 'T -> Job<_ option>
-            ) : Job<_ option> =
+            (sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
+            : Job<_ option> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
