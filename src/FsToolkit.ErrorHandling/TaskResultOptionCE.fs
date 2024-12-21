@@ -207,7 +207,10 @@ module TaskResultOptionCE =
             (code: TaskResultOptionCode<'T, 'Error, 'T>)
             : TaskResultOption<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<TaskResultOptionStateMachineData<'T, 'Error>, TaskResultOption<'T, 'Error>>
+                __stateMachine<
+                    TaskResultOptionStateMachineData<'T, 'Error>,
+                    TaskResultOption<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint

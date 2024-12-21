@@ -79,7 +79,12 @@ module CancellableTaskValidationCE =
         /// </summary>
         static member inline RunDynamic
             (code:
-                CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error list, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>)
+                CancellableTaskResultBuilderBaseCode<
+                    'T,
+                    'T,
+                    'Error list,
+                    AsyncTaskMethodBuilder<Validation<'T, 'Error>>
+                 >)
             : CancellableTaskValidation<'T, 'Error> =
 
             let mutable sm = CancellableTaskResultBuilderBaseStateMachine<'T, 'Error list, _>()
@@ -139,7 +144,14 @@ module CancellableTaskValidationCE =
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error list, _>)
             : CancellableTaskValidation<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error list, AsyncTaskMethodBuilder<Validation<'T, 'Error>>>, CancellableTaskValidation<'T, 'Error>>
+                __stateMachine<
+                    CancellableTaskResultBuilderBaseStateMachineData<
+                        'T,
+                        'Error list,
+                        AsyncTaskMethodBuilder<Validation<'T, 'Error>>
+                     >,
+                    CancellableTaskValidation<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -214,20 +226,20 @@ module AsyncExtensions =
     type Microsoft.FSharp.Control.AsyncBuilder with
 
         member inline this.Bind
-            (
-                [<InlineIfLambda>] t: CancellableTask<'T>,
-                [<InlineIfLambda>] binder: ('T -> Async<'U>)
-            ) : Async<'U> =
+            ([<InlineIfLambda>] t: CancellableTask<'T>, [<InlineIfLambda>] binder: ('T -> Async<'U>)) : Async<
+                                                                                                            'U
+                                                                                                         >
+            =
             this.Bind(Async.AwaitCancellableTask t, binder)
 
         member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTask<'T>) : Async<'T> =
             this.ReturnFrom(Async.AwaitCancellableTask t)
 
         member inline this.Bind
-            (
-                [<InlineIfLambda>] t: CancellableTask,
-                [<InlineIfLambda>] binder: (unit -> Async<'U>)
-            ) : Async<'U> =
+            ([<InlineIfLambda>] t: CancellableTask, [<InlineIfLambda>] binder: (unit -> Async<'U>)) : Async<
+                                                                                                          'U
+                                                                                                       >
+            =
             this.Bind(Async.AwaitCancellableTask t, binder)
 
         member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTask) : Async<unit> =
@@ -675,10 +687,8 @@ module CTVMergeSourcesExtensionsCT1T2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                right: 'Awaiter2
-            ) =
+            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -709,10 +719,8 @@ module CTVMergeSourcesExtensionsCV1T2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                right: 'Awaiter2
-            ) =
+            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -744,10 +752,8 @@ module CTVMergeSourcesExtensionsCT1TV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                right: 'Awaiter2
-            ) =
+            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -779,10 +785,8 @@ module CTVMergeSourcesExtensionsCV1TV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                right: 'Awaiter2
-            ) =
+            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -813,10 +817,8 @@ module CTVMergeSourcesExtensionsT1CT2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                left: 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-            ) =
+            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -847,10 +849,8 @@ module CTVMergeSourcesExtensionsTV1CT2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                left: 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-            ) =
+            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(
@@ -882,10 +882,8 @@ module CTVMergeSourcesExtensionsT1CV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                left: 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-            ) =
+            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 // cancellableTask.Bind(
@@ -917,10 +915,8 @@ module CTVMergeSourcesExtensionsTV1CV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (
-                left: 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
-            ) =
+            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
+            =
             this.Source(
                 // cancellableTask.Run(
                 //     cancellableTask.Bind(

@@ -85,10 +85,12 @@ type TaskResultBuilderBase() =
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
-        (
-            [<InlineIfLambda>] condition: unit -> bool,
-            body: TaskResultCode<'TOverall, 'Error, unit>
-        ) : TaskResultCode<'TOverall, 'Error, unit> =
+        ([<InlineIfLambda>] condition: unit -> bool, body: TaskResultCode<'TOverall, 'Error, unit>) : TaskResultCode<
+                                                                                                          'TOverall,
+                                                                                                          'Error,
+                                                                                                          unit
+                                                                                                       >
+        =
         let mutable keepGoing = true
 
         ResumableCode.While(
@@ -120,10 +122,12 @@ type TaskResultBuilderBase() =
     /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryFinally
-        (
-            body: TaskResultCode<'TOverall, 'Error, 'T>,
-            [<InlineIfLambda>] compensation: unit -> unit
-        ) : TaskResultCode<'TOverall, 'Error, 'T> =
+        (body: TaskResultCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit) : TaskResultCode<
+                                                                                                           'TOverall,
+                                                                                                           'Error,
+                                                                                                           'T
+                                                                                                        >
+        =
 
         // printfn "TryFinally Called --> "
 
@@ -136,10 +140,8 @@ type TaskResultBuilderBase() =
         )
 
     member inline this.For
-        (
-            sequence: seq<'T>,
-            body: 'T -> TaskResultCode<'TOverall, 'Error, unit>
-        ) : TaskResultCode<'TOverall, 'Error, unit> =
+        (sequence: seq<'T>, body: 'T -> TaskResultCode<'TOverall, 'Error, unit>)
+        : TaskResultCode<'TOverall, 'Error, unit> =
         // A for loop is just a using statement on the sequence's enumerator...
         ResumableCode.Using(
             sequence.GetEnumerator(),
@@ -153,10 +155,8 @@ type TaskResultBuilderBase() =
         )
 
     member inline internal this.TryFinallyAsync
-        (
-            body: TaskResultCode<'TOverall, 'Error, 'T>,
-            compensation: unit -> ValueTask
-        ) : TaskResultCode<'TOverall, 'Error, 'T> =
+        (body: TaskResultCode<'TOverall, 'Error, 'T>, compensation: unit -> ValueTask)
+        : TaskResultCode<'TOverall, 'Error, 'T> =
         ResumableCode.TryFinallyAsync(
             body,
             ResumableCode<_, _>(fun sm ->
@@ -200,10 +200,8 @@ type TaskResultBuilderBase() =
         )
 
     member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposable>
-        (
-            resource: 'Resource,
-            body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>
-        ) : TaskResultCode<'TOverall, 'Error, 'T> =
+        (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
+        : TaskResultCode<'TOverall, 'Error, 'T> =
         this.TryFinallyAsync(
             (fun sm -> (body resource).Invoke(&sm)),
             (fun () ->
@@ -479,7 +477,13 @@ module TaskResultCEExtensionsLowPriority =
                         sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
                         false
                 else
-                    TaskResultBuilderBase.BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error>(
+                    TaskResultBuilderBase.BindDynamic<
+                        'TResult1,
+                        'TResult2,
+                        ^Awaiter,
+                        'TOverall,
+                        'Error
+                     >(
                         &sm,
                         awaiter,
                         continuation
@@ -532,10 +536,8 @@ module TaskResultCEExtensionsLowPriority =
             }
 
         member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposable>
-            (
-                resource: 'Resource,
-                body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>
-            ) =
+            (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
+            =
             ResumableCode.Using(resource, body)
 
 [<AutoOpen>]

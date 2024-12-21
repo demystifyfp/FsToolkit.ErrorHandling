@@ -39,10 +39,8 @@ module JobResultCE =
             Job.delay generator
 
         member inline this.Combine
-            (
-                computation1: Job<Result<unit, 'TError>>,
-                computation2: Job<Result<'U, 'TError>>
-            ) : Job<Result<'U, 'TError>> =
+            (computation1: Job<Result<unit, 'TError>>, computation2: Job<Result<'U, 'TError>>)
+            : Job<Result<'U, 'TError>> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -60,10 +58,13 @@ module JobResultCE =
             Job.tryWithDelay computation handler
 
         member inline _.TryFinally
-            (
-                computation: Job<Result<'T, 'TError>>,
-                [<InlineIfLambda>] compensation: unit -> unit
-            ) : Job<Result<'T, 'TError>> =
+            (computation: Job<Result<'T, 'TError>>, [<InlineIfLambda>] compensation: unit -> unit) : Job<
+                                                                                                         Result<
+                                                                                                             'T,
+                                                                                                             'TError
+                                                                                                          >
+                                                                                                      >
+            =
             Job.tryFinallyFun computation compensation
 
         member inline _.TryFinally
@@ -74,17 +75,18 @@ module JobResultCE =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (
-                resource: 'T :> IDisposable,
-                [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
-            ) : Job<Result<'U, 'TError>> =
+            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>) : Job<
+                                                                                                           Result<
+                                                                                                               'U,
+                                                                                                               'TError
+                                                                                                            >
+                                                                                                        >
+            =
             job.Using(resource, binder)
 
         member this.While
-            (
-                guard: unit -> bool,
-                computation: Job<Result<unit, 'TError>>
-            ) : Job<Result<unit, 'TError>> =
+            (guard: unit -> bool, computation: Job<Result<unit, 'TError>>)
+            : Job<Result<unit, 'TError>> =
             job {
                 let mutable doContinue = true
                 let mutable result = Ok()
@@ -102,10 +104,8 @@ module JobResultCE =
             }
 
         member inline this.For
-            (
-                sequence: #seq<'T>,
-                [<InlineIfLambda>] binder: 'T -> Job<Result<unit, 'TError>>
-            ) : Job<Result<unit, 'TError>> =
+            (sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Job<Result<unit, 'TError>>)
+            : Job<Result<unit, 'TError>> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))

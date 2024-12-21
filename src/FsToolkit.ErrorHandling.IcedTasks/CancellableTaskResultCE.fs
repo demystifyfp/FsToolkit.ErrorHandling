@@ -92,7 +92,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableTaskResult<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
@@ -223,7 +226,10 @@ module CancellableTaskResultCE =
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
             : CancellableTaskResult<'T, 'Error> =
             if __useResumableCode then
-                __stateMachine<CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>, CancellableTaskResult<'T, 'Error>>
+                __stateMachine<
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableTaskResult<'T, 'Error>
+                 >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
