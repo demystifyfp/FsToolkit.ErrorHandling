@@ -336,12 +336,6 @@ module CancellableTaskValidation =
         fun _ -> Task.FromResult(x)
 
     /// <summary>Lifts an item to a CancellableTaskValidation.</summary>
-    /// <param name="item">The item to be the ok result of the CancellableTaskValidation.</param>
-    /// <returns>A CancellableTaskValidation with the item as the result.</returns>
-    let inline ok (item: 'ok) : CancellableTaskValidation<'ok, 'error> =
-        fun _ -> Task.FromResult(Ok item)
-
-    /// <summary>Lifts an item to a CancellableTaskValidation.</summary>
     /// <param name="error">The item to be the error result of the CancellableTaskValidation.</param>
     /// <returns>A CancellableTaskValidation with the item as the result.</returns>
     let inline error (error: 'error) : CancellableTaskValidation<'ok, 'error> =
@@ -350,10 +344,8 @@ module CancellableTaskValidation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> ok x
+        | Choice1Of2 x -> singleton x
         | Choice2Of2 x -> error x
-
-    let inline retn (value: 'ok) : CancellableTaskValidation<'ok, 'error> = ok value
 
 
     let inline mapError
@@ -492,7 +484,7 @@ module CancellableTaskValidation =
 
             return!
                 result
-                |> Result.either ok (fun _ -> ifError)
+                |> Result.either singleton (fun _ -> ifError)
         }
 
     let inline orElseWith
@@ -505,7 +497,7 @@ module CancellableTaskValidation =
 
             return!
                 match result with
-                | Ok x -> ok x
+                | Ok x -> singleton x
                 | Error err -> ifErrorFunc err
         }
 
