@@ -1,3 +1,6 @@
+// See here for previous design disccusions:
+// 1. https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/277
+
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Seq
 
@@ -62,10 +65,18 @@ let inline traverseResultA' state ([<InlineIfLambda>] f: 'okInput -> Result<'okO
     let folder state x =
         match state, f x with
         | Error errors, Error e ->
-            Seq.append errors (Seq.singleton e)
+            seq {
+                e
+                yield! Seq.rev errors
+            }
+            |> Seq.rev
             |> Error
         | Ok oks, Ok ok ->
-            Seq.append oks (Seq.singleton ok)
+            seq {
+                ok
+                yield! Seq.rev oks
+            }
+            |> Seq.rev
             |> Ok
         | Ok _, Error e ->
             Seq.singleton e
@@ -167,10 +178,18 @@ let inline traverseAsyncResultA'
             return
                 match state, result with
                 | Error errors, Error e ->
-                    Seq.append errors (Seq.singleton e)
+                    seq {
+                        e
+                        yield! Seq.rev errors
+                    }
+                    |> Seq.rev
                     |> Error
                 | Ok oks, Ok ok ->
-                    Seq.append oks (Seq.singleton ok)
+                    seq {
+                        ok
+                        yield! Seq.rev oks
+                    }
+                    |> Seq.rev
                     |> Ok
                 | Ok _, Error e ->
                     Seq.singleton e
