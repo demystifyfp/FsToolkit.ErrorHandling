@@ -29,6 +29,13 @@
         "femto"
       ],
       "rollForward": false
+    },
+    "fsharp-analyzers": {
+      "version": "0.28.0",
+      "commands": [
+        "fsharp-analyzers"
+      ],
+      "rollForward": false
     }
   }
 }

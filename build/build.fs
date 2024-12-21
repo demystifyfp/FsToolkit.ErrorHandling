@@ -136,12 +136,41 @@ module dotnet =
 
     let fantomas args = DotNet.exec id "fantomas" args
 
+    let analyzers args = DotNet.exec id "fsharp-analyzers" args
+
 
 let formatCode _ =
     let result = dotnet.fantomas "."
 
     if not result.OK then
         Trace.traceErrorfn "Errors while formatting all files: %A" result.Messages
+
+let analyze _ =
+    let analyzerPaths = !! "packages/analyzers/**/analyzers/dotnet/fs"
+
+    let createArgsForProject (project: string) analyzerPaths =
+        let projectName = Path.GetFileNameWithoutExtension project
+
+        [
+            yield "--project"
+            yield project
+            yield "--analyzers-path"
+            yield! analyzerPaths
+            if isCI.Value then
+                yield "--report"
+                yield $"analysisreports/{projectName}-analysis.sarif"
+        ]
+        |> String.concat " "
+
+    !! "src/**/*.fsproj"
+    |> Seq.iter (fun fsproj ->
+        let result =
+            createArgsForProject fsproj analyzerPaths
+            |> dotnet.analyzers
+
+        result.Errors
+        |> Seq.iter Trace.traceError
+    )
 
 
 let checkFormatCode _ =
@@ -445,6 +474,7 @@ let initTargets () =
     Target.create "DotnetPack" dotnetPack
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
+    Target.create "Analyzers" analyze
     Target.create "PublishToNuGet" publishNuget
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
@@ -467,6 +497,9 @@ let initTargets () =
 
     "DotnetRestore"
     ==>! "CheckFormatCode"
+
+    "DotnetRestore"
+    ==>! "Analyzers"
 
     //*** Dotnet Build ***//
     "DotnetRestore"
