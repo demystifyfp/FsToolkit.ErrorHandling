@@ -148,12 +148,17 @@ let formatCode _ =
 let analyze _ =
     let analyzerPaths = !! "packages/analyzers/**/analyzers/dotnet/fs"
 
-    let createArgsForProject project analyzerPaths =
+    let createArgsForProject (project: string) analyzerPaths =
+        let projectName = Path.GetFileNameWithoutExtension project
+
         [
             yield "--project"
             yield project
             yield "--analyzers-path"
             yield! analyzerPaths
+            if isCI.Value then
+                yield "--report"
+                yield $"analysisreports/{projectName}-analysis.sarif"
         ]
         |> String.concat " "
 

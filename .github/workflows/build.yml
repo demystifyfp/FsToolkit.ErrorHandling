@@ -143,3 +143,26 @@ jobs:
           runCmd: |
             chmod +x ./build.sh
             ./build.sh RunTests
+
+  analyze:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Setup necessary dotnet SDKs
+          uses: actions/setup-dotnet@v3
+          with:
+            global-json-file: global.json
+            dotnet-version: |
+              8.x
+        - name: Analyze
+          run: |
+            chmod +x ./build.sh
+            ./build.sh Analyzers
+          # This is important, you want to continue your Action even if you found problems.
+          # As you always want the report to upload
+          continue-on-error: true
+        - name: Upload SARIF file
+          uses: github/codeql-action/upload-sarif@v2
+          with:
+            # You can also specify the path to a folder for `sarif_file`
+            sarif_file: analysisreports

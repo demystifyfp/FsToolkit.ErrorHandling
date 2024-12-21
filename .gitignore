@@ -395,3 +395,6 @@ benchmarks/BenchmarkDotNet.Artifacts/
 
 # Python Tests Output
 .python-tests/
+
+#FSharp Analyzers
+analysisreports/
