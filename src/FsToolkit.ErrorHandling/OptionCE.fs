@@ -10,27 +10,21 @@ module OptionCE =
         member inline _.ReturnFrom(m: 'value option) : 'value option = m
 
         member inline _.Bind
-            (
-                input: 'input option,
-                [<InlineIfLambda>] binder: 'input -> 'output option
-            ) : 'output option =
+            (input: 'input option, [<InlineIfLambda>] binder: 'input -> 'output option)
+            : 'output option =
             Option.bind binder input
 
         // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
         member inline this.Bind
-            (
-                m: 'input when 'input: null,
-                [<InlineIfLambda>] binder: 'input -> 'output option
-            ) : 'output option =
+            (m: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output option)
+            : 'output option =
             this.Bind(Option.ofObj m, binder)
 
         member inline this.Zero() : unit option = this.Return()
 
         member inline _.Combine
-            (
-                m: 'input option,
-                [<InlineIfLambda>] binder: 'input -> 'output option
-            ) : 'output option =
+            (m: 'input option, [<InlineIfLambda>] binder: 'input -> 'output option)
+            : 'output option =
             Option.bind binder m
 
         member inline this.Combine(m1: unit option, m2: 'output option) : 'output option =
@@ -88,27 +82,21 @@ module OptionCE =
             result
 
         member inline this.For
-            (
-                sequence: #seq<'value>,
-                [<InlineIfLambda>] binder: 'value -> unit option
-            ) : unit option =
+            (sequence: #seq<'value>, [<InlineIfLambda>] binder: 'value -> unit option)
+            : unit option =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
             )
 
         member inline _.BindReturn
-            (
-                input: 'input option,
-                [<InlineIfLambda>] mapper: 'input -> 'output
-            ) : 'output option =
+            (input: 'input option, [<InlineIfLambda>] mapper: 'input -> 'output)
+            : 'output option =
             Option.map mapper input
 
         member inline _.BindReturn
-            (
-                x: 'input,
-                [<InlineIfLambda>] f: 'input -> 'output
-            ) : 'output option =
+            (x: 'input, [<InlineIfLambda>] f: 'input -> 'output)
+            : 'output option =
             Option.map f (Option.ofObj x)
 
         /// <summary>

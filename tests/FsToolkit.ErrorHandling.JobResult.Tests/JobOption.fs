@@ -87,7 +87,7 @@ let retnTests =
     testList "JobOption.retn Tests" [
         testCase "retn with x"
         <| fun _ ->
-            JobOption.retn 267
+            JobOption.singleton 267
             |> Expect.hasJobSomeValue (267)
     ]
 
@@ -123,7 +123,7 @@ let eitherTests =
     testList "JobOption.either Tests" [
         testCaseJob "Some"
         <| job {
-            let value1 = JobOption.retn 5
+            let value1 = JobOption.singleton 5
             let f = job.Return 42
             let add2 x = job { return x + 2 }
             let! result = (JobOption.either add2 f value1)

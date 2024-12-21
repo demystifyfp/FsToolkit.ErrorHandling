@@ -24,11 +24,9 @@ module TaskResult =
         |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
-    let inline retn x =
+    let inline ok x =
         Ok x
         |> Task.singleton
-
-    let inline ok x = retn x
 
     let inline returnError x =
         Error x

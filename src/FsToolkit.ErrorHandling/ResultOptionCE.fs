@@ -6,7 +6,7 @@ open System
 module ResultOptionCE =
 
     type ResultOptionBuilder() =
-        member inline _.Return value = ResultOption.retn value
+        member inline _.Return value = ResultOption.singleton value
 
         member inline _.ReturnFrom value : Result<'ok option, 'error> = value
 
@@ -57,10 +57,11 @@ module ResultOptionCE =
                 compensation ()
 
         member inline this.Using
-            (
-                resource: 'disposable :> IDisposable,
-                binder: 'disposable -> Result<'ok option, 'error>
-            ) : Result<'ok option, 'error> =
+            (resource: 'disposable :> IDisposable, binder: 'disposable -> Result<'ok option, 'error>) : Result<
+                                                                                                            'ok option,
+                                                                                                            'error
+                                                                                                         >
+            =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
@@ -94,10 +95,8 @@ module ResultOptionCE =
             result
 
         member inline this.For
-            (
-                sequence: #seq<'T>,
-                [<InlineIfLambda>] binder: 'T -> Result<unit option, 'TError>
-            ) : Result<unit option, 'TError> =
+            (sequence: #seq<'T>, [<InlineIfLambda>] binder: 'T -> Result<unit option, 'TError>)
+            : Result<unit option, 'TError> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->
@@ -108,10 +107,8 @@ module ResultOptionCE =
             )
 
         member inline _.BindReturn
-            (
-                resultOpt: Result<'T option, 'TError>,
-                [<InlineIfLambda>] binder: 'T -> 'U
-            ) : Result<'U option, 'TError> =
+            (resultOpt: Result<'T option, 'TError>, [<InlineIfLambda>] binder: 'T -> 'U)
+            : Result<'U option, 'TError> =
             ResultOption.map binder resultOpt
 
         member inline _.Source(result: Result<'ok option, 'error>) : Result<'ok option, 'error> =

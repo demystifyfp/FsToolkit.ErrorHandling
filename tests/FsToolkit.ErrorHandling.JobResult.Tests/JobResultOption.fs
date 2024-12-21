@@ -264,6 +264,6 @@ let ``JobResultOptionCE inference checks`` =
             // Compilation is success
             let f res = jobResultOption { return! res }
 
-            f (JobResult.retn ())
+            f (JobResult.singleton ())
             |> ignore
     ]

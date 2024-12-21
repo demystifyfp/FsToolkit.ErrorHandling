@@ -7,7 +7,7 @@ open System
 module AsyncOptionCE =
     type AsyncOptionBuilder() =
 
-        member inline _.Return(value: 'value) : Async<'value option> = AsyncOption.retn value
+        member inline _.Return(value: 'value) : Async<'value option> = AsyncOption.some value
 
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
@@ -16,20 +16,18 @@ module AsyncOptionCE =
             |> async.Return
 
         member inline _.Bind
-            (
-                input: Async<'input option>,
-                [<InlineIfLambda>] binder: 'input -> Async<'output option>
-            ) : Async<'output option> =
+            (input: Async<'input option>, [<InlineIfLambda>] binder: 'input -> Async<'output option>) : Async<
+                                                                                                            'output option
+                                                                                                         >
+            =
             AsyncOption.bind binder input
 
         member inline _.Delay(generator: unit -> Async<'value option>) : Async<'value option> =
             async.Delay generator
 
         member inline this.Combine
-            (
-                computation1: Async<_ option>,
-                computation2: Async<_ option>
-            ) : Async<_ option> =
+            (computation1: Async<_ option>, computation2: Async<_ option>)
+            : Async<_ option> =
             this.Bind(computation1, (fun () -> computation2))
 
         member inline _.TryWith
@@ -40,17 +38,15 @@ module AsyncOptionCE =
             async.TryWith(computation, handler)
 
         member inline _.TryFinally
-            (
-                computation: Async<'value option>,
-                [<InlineIfLambda>] compensation: unit -> unit
-            ) : Async<'value option> =
+            (computation: Async<'value option>, [<InlineIfLambda>] compensation: unit -> unit)
+            : Async<'value option> =
             async.TryFinally(computation, compensation)
 #if !FABLE_COMPILER
         member inline _.TryFinallyAsync
-            (
-                computation: Async<'value option>,
-                [<InlineIfLambda>] compensation: unit -> ValueTask
-            ) : Async<'value option> =
+            (computation: Async<'value option>, [<InlineIfLambda>] compensation: unit -> ValueTask) : Async<
+                                                                                                          'value option
+                                                                                                       >
+            =
             let compensation =
                 async {
                     let vTask = compensation ()
@@ -83,10 +79,8 @@ module AsyncOptionCE =
 #endif
 
         member this.While
-            (
-                guard: unit -> bool,
-                computation: Async<unit option>
-            ) : Async<unit option> =
+            (guard: unit -> bool, computation: Async<unit option>)
+            : Async<unit option> =
             if not (guard ()) then
                 this.Zero()
             else
@@ -142,10 +136,8 @@ module AsyncOptionCEExtensions =
             )
 
         member inline this.For
-            (
-                sequence: #seq<'input>,
-                binder: 'input -> Async<unit option>
-            ) : Async<unit option> =
+            (sequence: #seq<'input>, binder: 'input -> Async<unit option>)
+            : Async<unit option> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))
