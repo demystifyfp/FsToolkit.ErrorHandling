@@ -20,7 +20,7 @@ jobs:
         # Builds for Debug and Release configurations
         configuration: [Debug, Release]
         # Builds for Ubuntu, Windows, and macOS
-        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -31,8 +31,7 @@ jobs:
         global-json-file: global.json
         dotnet-version: |
           8.x
-          7.x
-          6.x
+          9.x
 
     - name: Build via Bash
       if: runner.os != 'Windows'
@@ -54,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
         node-version: ['18', '20', 'latest' ]
     runs-on: ${{ matrix.os }}
 
@@ -72,8 +71,7 @@ jobs:
         global-json-file: global.json
         dotnet-version: |
           8.x
-          7.x
-          6.x
+          9.x
 
     - name: Build via Bash
       if: runner.os != 'Windows'
@@ -94,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest, macos-14]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
         python-version: ['3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
 
@@ -112,8 +110,7 @@ jobs:
         global-json-file: global.json
         dotnet-version: |
           8.x
-          7.x
-          6.x
+          9.x
     - name: Build via Bash
       if: runner.os != 'Windows'
       run: |
@@ -154,6 +151,7 @@ jobs:
             global-json-file: global.json
             dotnet-version: |
               8.x
+              9.x
         - name: Analyze
           run: |
             chmod +x ./build.sh
