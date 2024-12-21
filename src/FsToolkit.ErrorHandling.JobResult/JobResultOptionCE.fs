@@ -5,7 +5,7 @@ module JobResultOptionCE =
     open Hopac
 
     type JobResultOptionBuilder() =
-        member inline _.Return value = JobResultOption.retn value
+        member inline _.Return value = JobResultOption.singleton value
         member inline _.ReturnFrom value = value
         member inline _.Bind(result, [<InlineIfLambda>] binder) = JobResultOption.bind binder result
 

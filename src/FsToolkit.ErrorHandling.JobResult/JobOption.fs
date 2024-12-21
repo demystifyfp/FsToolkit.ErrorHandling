@@ -20,10 +20,10 @@ module JobOption =
             return! t
         }
 
-    let inline retn x = job { return Some x }
+    let inline singleton x = job { return Some x }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> retn (f' x')) x) f
+        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
 
     /// <summary>

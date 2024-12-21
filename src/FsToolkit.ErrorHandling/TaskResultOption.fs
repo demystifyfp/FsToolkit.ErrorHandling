@@ -11,7 +11,7 @@ module TaskResultOption =
         let binder opt =
             match opt with
             | Some x -> f x
-            | None -> TaskResult.retn None
+            | None -> TaskResult.ok None
 
         TaskResult.bind binder tro
 
@@ -21,7 +21,7 @@ module TaskResultOption =
     let inline map3 ([<InlineIfLambda>] f) xTRO yTRO zTRO =
         TaskResult.map3 (Option.map3 f) xTRO yTRO zTRO
 
-    let inline retn value = TaskResult.retn (Some value)
+    let inline singleton value = TaskResult.ok (Some value)
 
     let inline apply fTRO xTRO = map2 (fun f x -> f x) fTRO xTRO
 
