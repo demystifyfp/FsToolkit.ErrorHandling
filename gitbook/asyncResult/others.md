@@ -84,6 +84,14 @@ Returns the first item of the sequence if it exists, or the specified error if t
 'a -> Async<'b> -> Async<Result<'c, 'a>>
 ```
 
+### require
+
+Returns the provided async-wrapped result if it is Ok and the predicate is true, or if the async-wrapped result is Error.
+If the predicate is false, returns a new async-wrapped Error result with the error value.
+
+```fsharp
+('a -> bool) -> 'b -> Async<Result<'a,'b>> -> Async<Result<'a,'b>>
+```
 
 ### setError
 

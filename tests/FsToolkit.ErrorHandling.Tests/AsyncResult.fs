@@ -408,6 +408,36 @@ let requireHeadTests =
             |> Expect.hasAsyncErrorValue err)
     ]
 
+let requireTests =
+    testList "AsyncResult.require Tests" [
+        testCaseAsync "True, Ok"
+        <| async {
+            do!
+                AsyncResult.require (fun _ -> true) ("Error!") (AsyncResult.ok (1))
+                |> Expect.hasAsyncOkValue (1)
+        }
+
+        testCaseAsync "True, Error"
+        <| async {
+            do!
+                AsyncResult.require (fun _ -> true) ("Error!") (AsyncResult.error ("AHH"))
+                |> Expect.hasAsyncErrorValue ("AHH")
+        }
+
+        testCaseAsync "False, Ok"
+        <| async {
+            do!
+                AsyncResult.require (fun _ -> false) ("Error!") (AsyncResult.ok (1))
+                |> Expect.hasAsyncErrorValue ("Error!")
+        }
+
+        testCaseAsync "False, Error"
+        <| async {
+            do!
+                AsyncResult.require (fun _ -> false) ("Error!") (AsyncResult.error ("Ahh"))
+                |> Expect.hasAsyncErrorValue ("Ahh")
+        }
+    ]
 
 let setErrorTests =
     testList "AsyncResult.setError Tests" [
@@ -932,6 +962,37 @@ let asyncResultBindRequireHeadTests =
         }
     ]
 
+let checkTests =
+    testList "AsyncResult.check Tests" [
+        testCaseAsync "Ok, Ok"
+        <| async {
+            do!
+                AsyncResult.check (fun number -> AsyncResult.ok ()) (AsyncResult.ok (1))
+                |> Expect.hasAsyncOkValue (1)
+        }
+
+        testCaseAsync "Ok, Error"
+        <| async {
+            do!
+                AsyncResult.check (fun number -> AsyncResult.ok ()) (AsyncResult.error (2))
+                |> Expect.hasAsyncErrorValue (2)
+        }
+
+        testCaseAsync "Error, OK"
+        <| async {
+            do!
+                AsyncResult.check (fun number -> AsyncResult.error ()) (AsyncResult.ok (2))
+                |> Expect.hasAsyncErrorValue (())
+        }
+
+        testCaseAsync "Error, Error"
+        <| async {
+            do!
+                AsyncResult.check (fun number -> AsyncResult.error (1)) (AsyncResult.error (2))
+                |> Expect.hasAsyncErrorValue (2)
+        }
+    ]
+
 let allTests =
     testList "Async Result tests" [
         mapTests
@@ -953,6 +1014,7 @@ let allTests =
         requireEmptyTests
         requireNotEmptyTests
         requireHeadTests
+        requireTests
         setErrorTests
         withErrorTests
         defaultValueTests
@@ -976,4 +1038,5 @@ let allTests =
         asyncResultBindRequireEmptyTests
         asyncResultBindRequireNotEmptyTests
         asyncResultBindRequireHeadTests
+        checkTests
     ]

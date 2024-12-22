@@ -83,6 +83,14 @@ Returns the first item of the sequence if it exists, or the specified error if t
 'a -> Task<'b> -> Task<Result<'c, 'a>>
 ```
 
+### require
+
+Returns the provided task-wrapped result if it is Ok and the predicate is true, or if the task-wrapped result is Error.
+If the predicate is false, returns a new task-wrapped Error result with the error value.
+
+```fsharp
+('a -> bool) -> 'b -> Task<Result<'a,'b>> -> Task<Result<'a,'b>>
+```
 
 ### setError
 

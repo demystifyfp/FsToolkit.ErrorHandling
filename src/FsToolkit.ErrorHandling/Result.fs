@@ -425,6 +425,28 @@ module Result =
         | None -> Error error
 
     /// <summary>
+    /// If the input result is <c>Ok</c>, applies a predicate to the <c>Ok</c> value.
+    /// If the predicate returns true, then returns the original <c>Ok</c> Result.
+    /// Otherwise, returns a new <c>Error</c> result with the provided error.
+    ///
+    /// If the input result is <c>Error</c>, just returns the input result.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#require</href>
+    /// </summary>
+    /// <param name="predicate">Predicate applied to the <c>Ok</c> value of the result. </param>
+    /// <param name="error">The error to return if the predicate returns false.</param>
+    /// <param name="result">The input result.</param>
+    /// <returns> The input <paramref name="result"/> if it is <c>Error</c> or if the provided <paramref name="predicate"/> returns true. Otherwise returns a new <c>Error</c> result with the value <paramref name="error"/>.</returns>
+    let inline require
+        ([<InlineIfLambda>] predicate: 'ok -> bool)
+        (error: 'error)
+        (result: Result<'ok, 'error>)
+        : Result<'ok, 'error> =
+        match result with
+        | Error err -> Error err
+        | Ok ok -> if predicate ok then Ok ok else Error(error)
+
+    /// <summary>
     /// Replaces an error value with a custom error value.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#seterror</href>
@@ -656,3 +678,26 @@ module Result =
         | Error x1res, Error x2res -> Error(x1res, x2res)
         | Ok e, _ -> Ok e
         | _, Ok e -> Ok e
+
+
+    /// <summary>
+    /// When <paramref name="result"/> is <c>Ok</c>, applies <paramref name="checkFunc"/> to the <c>Ok</c> value.
+    /// If <paramref name="checkFunc"/> returns an <c>Ok</c> unit value, returns <paramref name="result"/>.
+    /// Otherwise, returns the <c>Error</c> value from the <paramref name="checkFunc"/> as a new result.
+    ///
+    /// When <paramref name="result"/> is <c>Error</c>, returns <paramref name="result"/>.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/check</href>
+    /// </summary>
+    /// <param name="checkFunc">The function that performs a check against the <c>Ok</c> value of <paramref name="result"/>. Returns <c>Error</c> value from the function if error.</param>
+    /// <param name="result">The input result.</param>
+    /// <returns>The input <paramref name="result"/> if <c>Error</c> or <paramref name="checkFunc"/> returns a <c>Ok</c> result. Returns the <c>Error</c> value from <paramref name="checkFunc"/> if it returns an <c>Error</c> result.</returns>
+    let inline check
+        ([<InlineIfLambda>] checkFunc: 'ok -> Result<unit, 'error>)
+        (result: Result<'ok, 'error>)
+        : Result<'ok, 'error> =
+        match result with
+        | Error err -> Error err
+        | Ok ok ->
+            checkFunc ok
+            |> Result.map (fun _ -> ok)
