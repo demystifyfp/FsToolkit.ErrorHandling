@@ -416,6 +416,42 @@ let requireHeadTests =
     ]
 
 [<Tests>]
+let taskResultRequireTests =
+    testList "TaskResult.require Tests" [
+        testCaseTask "True, Ok"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.ok (1))
+                    |> Expect.hasTaskOkValue (1)
+            }
+
+        testCaseTask "True, Error"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.error ("AHH"))
+                    |> Expect.hasTaskErrorValue ("AHH")
+            }
+
+        testCaseTask "False, Ok"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.ok (1))
+                    |> Expect.hasTaskErrorValue ("Error!")
+            }
+
+        testCaseTask "False, Error"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.error ("Ahh"))
+                    |> Expect.hasTaskErrorValue ("Ahh")
+            }
+    ]
+
+[<Tests>]
 let setErrorTests =
     testList "TaskResult.setError Tests" [
         testCase "setError replaces a any error value with a custom error value"
@@ -984,5 +1020,42 @@ let taskResultBindRequireHeadTests =
                     |> TaskResult.ok
                     |> TaskResult.bindRequireHead "Should not be empty"
                     |> Expect.hasTaskOkValue 1
+            }
+    ]
+
+
+[<Tests>]
+let taskResultCheckTests =
+    testList "TaskResult.check Tests" [
+        testCaseTask "Ok, Ok"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.ok (1))
+                    |> Expect.hasTaskOkValue (1)
+            }
+
+        testCaseTask "Ok, Error"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.error (2))
+                    |> Expect.hasTaskErrorValue (2)
+            }
+
+        testCaseTask "Error, OK"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.check (fun number -> TaskResult.error ()) (TaskResult.ok (2))
+                    |> Expect.hasTaskErrorValue (())
+            }
+
+        testCaseTask "Error, Error"
+        <| fun _ ->
+            task {
+                do!
+                    TaskResult.check (fun number -> TaskResult.error (1)) (TaskResult.error (2))
+                    |> Expect.hasTaskErrorValue (2)
             }
     ]

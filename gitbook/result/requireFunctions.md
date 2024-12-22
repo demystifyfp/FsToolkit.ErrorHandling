@@ -381,3 +381,43 @@ let result : Result<int, string> =
 
 // Error "Seq must have head"
 ```
+
+## require
+
+### Function Signature
+
+If the input result is `Ok`, applies a predicate to the `Ok` value.
+If the predicate returns true, then returns the original `Ok` Result.
+Otherwise, returns a new `Error` result with the provided error.
+
+```fsharp
+('ok -> bool) -> 'error -> Result<'ok,'error> -> Result<'ok,'error>
+```
+Note: 
+If you find that you need the Ok value to produce an appropriate error, use the `check` method instead.
+
+#### Example 1
+
+```fsharp
+let result: Result<string, string> = 
+    Result.Ok "F#"
+    |> Result.require 
+        (_.Contains("#")) 
+        "Provided input does not contain #"
+
+// Ok "F#"
+```
+
+#### Example 2
+
+```fsharp
+let result: Result<string, string> = 
+    Result.Ok "Hello World!"
+    |> Result.require 
+        (_.Contains("#")) 
+        "Provided input does not contain #"
+
+// Error "Provided input does not contain #"
+```
+
+
