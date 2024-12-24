@@ -160,7 +160,7 @@ jobs:
           # As you always want the report to upload
           continue-on-error: true
         - name: Upload SARIF file
-          uses: github/codeql-action/upload-sarif@v2
+          uses: github/codeql-action/upload-sarif@v3
           with:
             # You can also specify the path to a folder for `sarif_file`
             sarif_file: analysisreports
