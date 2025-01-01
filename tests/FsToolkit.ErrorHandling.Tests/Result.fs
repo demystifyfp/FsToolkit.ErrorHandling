@@ -893,15 +893,6 @@ let checkTests =
 
             Expect.equal output (Error(2)) "Should be Error"
         )
-
-
-        testCase "Using the result value in the predicate"
-        <| (fun () ->
-            let output =
-                Result.check (fun number -> if number = 1 then Error(2) else Ok()) (Ok(1))
-
-            Expect.equal output (Error(2)) "Should be Error"
-        )
     ]
 
 let allTests =
