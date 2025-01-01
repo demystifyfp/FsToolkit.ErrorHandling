@@ -15,12 +15,12 @@ If the async-wrapped result is `Ok x` then the validation function is applied, a
 
 ## Examples
 
-### Example 1
-
 Given the following function that returns true for the id `123`
 ```fsharp
 checkEnabled : int -> Async<bool>
 ```
+
+### Example 1
 
 ```fsharp
 AsyncResult.ok (

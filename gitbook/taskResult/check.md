@@ -15,12 +15,12 @@ If the task-wrapped result is `Ok x` then the validation function is applied, an
 
 ## Examples
 
-### Example 1
-
 Given the following function that returns true for the id `123`
 ```fsharp
 checkEnabled : int -> Task<bool>
 ```
+
+### Example 1
 
 ```fsharp
 TaskResult.ok (
