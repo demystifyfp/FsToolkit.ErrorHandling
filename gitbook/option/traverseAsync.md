@@ -1,4 +1,4 @@
-## Option.traverseResult
+## Option.traverseAsync
 
 Namespace: `FsToolkit.ErrorHandling`
 
