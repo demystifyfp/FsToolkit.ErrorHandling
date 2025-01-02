@@ -40,6 +40,6 @@ If we have a value of type `string option` and want to call the `getCustomerByEm
 Some "test@test.com" |> Option.traverseAsync getCustomerByEmail
 // async { return Some { Id = 1; Email = "test@test.com" } }
 
-None |> Option.traverseResult tryParseInt
+None |> Option.traverseAsync getCustomerByEmail
 // async { return None }
 ```
