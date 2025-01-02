@@ -18,7 +18,7 @@ See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpfo
 
 ```fsharp
 let a1 : Async<int option> =
-  Option.sequenceResult (Some (Async.singleton 42))
+  Option.sequenceAsync (Some (Async.singleton 42))
 // async { return Some 42 }
 
 let a2 : Async<int option> =
