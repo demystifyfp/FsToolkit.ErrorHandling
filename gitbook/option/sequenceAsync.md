@@ -8,7 +8,7 @@ Function Signature:
 Async<'a> option -> Async<'a option>
 ```
 
-Note that `sequence` is the same as `traverse id`. See also [Option.traverseAsyc](traverseAsync.md).
+Note that `sequence` is the same as `traverse id`. See also [Option.traverseAsync](traverseAsync.md).
 
 See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpforfunandprofit.com/posts/elevated-world-4/).
 
