@@ -321,6 +321,28 @@ module Option =
 
         opt
 
+    /// Converts a Option<Async<_>> to an Async<Option<_>>
+    let inline sequenceAsync (optAsync: Option<Async<'T>>) : Async<Option<'T>> =
+        async {
+            match optAsync with
+            | Some asnc ->
+                let! x = asnc
+                return Some x
+            | None -> return None
+        }
+
+    /// <summary>
+    /// Maps an Async function over an Option, returning an Async Option.
+    /// </summary>
+    /// <param name="f">The function to map over the Option.</param>
+    /// <param name="opt">The Option to map over.</param>
+    /// <returns>An Async Option with the mapped value.</returns>
+    let inline traverseAsync
+        ([<InlineIfLambda>] f: 'T -> Async<'T>)
+        (opt: Option<'T>)
+        : Async<Option<'T>> =
+        sequenceAsync ((map f) opt)
+
     /// <summary>
     /// Creates an option from a boolean value and a value of type 'a.
     /// If the boolean value is true, returns <c>Some</c> value.

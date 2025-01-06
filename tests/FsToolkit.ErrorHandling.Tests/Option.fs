@@ -184,6 +184,66 @@ let teeIfTests =
             Expect.equal foo "foo" ""
     ]
 
+let sequenceAsyncTests =
+    testList "Option.sequenceAsync Tests" [
+        testCaseAsync "sequenceAsync returns the async value if Some"
+        <| async {
+            let optAsync =
+                async { return "foo" }
+                |> Some
+
+            let! value =
+                optAsync
+                |> Option.sequenceAsync
+
+            Expect.equal value (Some "foo") ""
+        }
+
+        testCaseAsync "sequenceAsync returns None if None"
+        <| async {
+            let optAsync = None
+
+            let! value =
+                optAsync
+                |> Option.sequenceAsync
+
+            Expect.equal value None ""
+        }
+    ]
+
+let traverseAsyncTests =
+    testList "Option.traverseAsync Tests" [
+        testCaseAsync "traverseAsync returns the async value if Some"
+        <| async {
+            let optAsync = Some "foo"
+
+            let optFunc =
+                id
+                >> Async.singleton
+
+            let! value =
+                (optFunc, optAsync)
+                ||> Option.traverseAsync
+
+            Expect.equal value (Some "foo") ""
+        }
+
+        testCaseAsync "traverseAsync returns None if None"
+        <| async {
+            let optAsync = None
+
+            let optFunc =
+                id
+                >> Async.singleton
+
+            let! value =
+                (optFunc, optAsync)
+                ||> Option.traverseAsync
+
+            Expect.equal value None ""
+        }
+    ]
+
 let traverseResultTests =
     testList "Option.traverseResult Tests" [
         testCase "traverseResult with Some of valid data"
@@ -366,6 +426,8 @@ let optionOperatorsTests =
 
 let allTests =
     testList "Option Tests" [
+        sequenceAsyncTests
+        traverseAsyncTests
         traverseResultTests
         tryParseTests
         tryGetValueTests
