@@ -150,6 +150,12 @@ module TaskResult =
         xs
         |> Task.map (Result.requireHead error)
 
+    /// Returns the task-wrapped result if it is Ok and the predicate is true, or if the task-wrapped result is Error.
+    /// If the predicate is false, returns a new task-wrapped Error result with the error value.
+    let inline require predicate error result =
+        result
+        |> Task.map (Result.require predicate error)
+
     /// Replaces an error value of an task-wrapped result with a custom error
     /// value.
     let inline setError error taskResult =
@@ -334,3 +340,12 @@ module TaskResult =
         (input: Task<Result<'input, 'inputError>>)
         : Task<'output> =
         Task.map (Result.either onSuccess onError) input
+
+    /// Returns the task-wrapped result if it is Ok and the checkFunc returns an task-wrapped Ok result or if the task-wrapped result is Error.
+    /// If the checkFunc returns an task-wrapped Error result, returns the task-wrapped Error result.
+    let inline check ([<InlineIfLambda>] checkFunc) (result) =
+        result
+        |> bind (fun o ->
+            checkFunc o
+            |> map (fun _ -> o)
+        )

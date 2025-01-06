@@ -453,6 +453,44 @@ let requireHeadTests =
             |> Expect.hasErrorValue err
     ]
 
+let requireTests =
+    testList "require tests" [
+        testCase "False, Error"
+        <| fun () ->
+            let output =
+                Result.require (fun _ -> false) ("Error") (Error("Something went wrong"))
+
+            Expect.equal output (Error("Something went wrong")) "Should be Error"
+
+        testCase "True, Ok"
+        <| fun () ->
+            let output = Result.require (fun _ -> true) ("Error") (Ok 1)
+            Expect.equal output (Ok(1)) "Should be Ok"
+
+        testCase "False, Ok"
+        <| fun () ->
+            let output = Result.require (fun _ -> false) ("Error") (Ok 1)
+            Expect.equal output (Error("Error")) "Should be Error"
+
+        testCase "True, Ok using Ok value in predicate"
+        <| fun () ->
+            let output = Result.require (fun number -> number = 1) ("Error") (Ok 1)
+            Expect.equal output (Ok(1)) "Should be Ok"
+
+        testCase "False, Ok using Ok value in predicate"
+        <| fun () ->
+            let output =
+                Result.require
+                    (fun number ->
+                        number
+                        <> 1
+                    )
+                    ("Error")
+                    (Ok 1)
+
+            Expect.equal output (Error("Error")) "Should be Error"
+    ]
+
 
 let setErrorTests =
     testList "setError Tests" [
@@ -822,6 +860,41 @@ let zipErrorTests =
             Expect.equal actual (Error("Bad1", "Bad2")) "Should be Error"
     ]
 
+let checkTests =
+    testList "check tests" [
+        testCase "Ok, Error"
+        <| (fun () ->
+            let output = Result.check (fun _ -> Ok()) (Error(1))
+            Expect.equal output (Error(1)) "Should be error"
+        )
+
+        testCase "OK, Ok"
+        <| (fun () ->
+            let output = Result.check (fun _ -> Ok()) (Ok(1))
+            Expect.equal output (Ok(1)) "Should be Ok"
+        )
+
+        testCase "Error, Error"
+        <| (fun () ->
+            let output = Result.check (fun _ -> Error(2)) (Error(1))
+            Expect.equal output (Error(1)) "Should be Error"
+        )
+
+        testCase "Error, Ok"
+        <| (fun () ->
+            let output = Result.check (fun _ -> Error(2)) (Ok(1))
+            Expect.equal output (Error(2)) "Should be Error"
+        )
+
+        testCase "Using the result value in the predicate"
+        <| (fun () ->
+            let output =
+                Result.check (fun number -> if number = 1 then Error(2) else Ok()) (Ok(1))
+
+            Expect.equal output (Error(2)) "Should be Error"
+        )
+    ]
+
 let allTests =
     testList "Result Tests" [
         resultIsOk
@@ -850,6 +923,7 @@ let allTests =
         requireEmptyTests
         requireNotEmptyTests
         requireHeadTests
+        requireTests
         setErrorTests
         withErrorTests
         defaultValueTests
@@ -865,4 +939,5 @@ let allTests =
         valueOrTests
         zipTests
         zipErrorTests
+        checkTests
     ]

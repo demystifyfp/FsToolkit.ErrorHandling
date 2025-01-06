@@ -221,6 +221,13 @@ module AsyncResult =
         values
         |> Async.map (Result.requireHead error)
 
+
+    /// Returns the async-wrapped result if it is Ok and the predicate is true, or if the async wrapped result is Error.
+    /// If the predicate is false, returns a new async-wrapped Error result with the error value.
+    let inline require predicate error result =
+        result
+        |> Async.map (Result.require predicate error)
+
     /// Replaces an error value of an async-wrapped result with a custom error
     /// value.
     let inline setError
@@ -433,4 +440,13 @@ module AsyncResult =
         |> bind (
             Result.requireHead error
             >> Async.singleton
+        )
+
+    /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.
+    /// If the checkFunc returns an async-wrapped Error result, returns the async-wrapped Error result.
+    let inline check ([<InlineIfLambda>] checkFunc) (result) =
+        result
+        |> bind (fun o ->
+            checkFunc o
+            |> map (fun _ -> o)
         )
