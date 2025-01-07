@@ -83,7 +83,7 @@ module Option =
     /// </summary>
     /// <param name="opt">The option to ignore.</param>
     /// <returns>A unit option.</returns>
-    let inline ignore (opt: 'T option) : unit option =
+    let inline ignore<'T> (opt: 'T option) : unit option =
         match opt with
         | Some _ -> Some()
         | None -> None
