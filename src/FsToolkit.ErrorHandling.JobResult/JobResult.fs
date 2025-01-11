@@ -124,9 +124,9 @@ module JobResult =
         option
         |> Job.map (Result.requireSome error)
 
-    let inline requireSomeWith error option =
+    let inline requireSomeWith ifErrorThunk option =
         option
-        |> Job.map (Result.requireSomeWith error)
+        |> Job.map (Result.requireSomeWith ifErrorThunk)
 
     // Converts an job-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =
