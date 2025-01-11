@@ -1,4 +1,4 @@
-﻿namespace FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
 open Hopac
 open Hopac.Infixes
@@ -123,6 +123,10 @@ module JobResult =
     let inline requireSome error option =
         option
         |> Job.map (Result.requireSome error)
+
+    let inline requireSomeWith error option =
+        option
+        |> Job.map (Result.requireSomeWith error)
 
     // Converts an job-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =

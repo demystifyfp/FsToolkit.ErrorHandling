@@ -307,6 +307,14 @@ module Result =
         | Some x -> Ok x
         | None -> Error error
 
+    let inline requireSomeWith
+        (ifErrorThunk: unit -> 'error)
+        (option: 'ok option)
+        : Result<'ok, 'error> =
+        match option with
+        | Some x -> Ok x
+        | None -> Error(ifErrorThunk ())
+
     /// <summary>
     /// Requires a value to be <c>None</c>, otherwise returns an error result.
     ///

@@ -157,6 +157,13 @@ module AsyncResult =
         value
         |> Async.map (Result.requireSome error)
 
+    let inline requireSomeWith
+        (ifErrorThunk: unit -> 'error)
+        (value: Async<'ok option>)
+        : Async<Result<'ok, 'error>> =
+        value
+        |> Async.map (Result.requireSomeWith ifErrorThunk)
+
     // Converts an async-wrapped Option to a Result, using the given error if Some.
     let inline requireNone
         (error: 'error)
