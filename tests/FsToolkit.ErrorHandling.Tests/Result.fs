@@ -332,6 +332,19 @@ let requireSomeTests =
             |> Expect.hasErrorValue err
     ]
 
+let requireSomeWithTests =
+    testList "requireSomeWith Tests" [
+        testCase "requireSomeWith happy path"
+        <| fun _ ->
+            Result.requireSomeWith (fun () -> err) (Some 42)
+            |> Expect.hasOkValue 42
+
+        testCase "requireSomeWith error path"
+        <| fun _ ->
+            Result.requireSomeWith (fun () -> err) None
+            |> Expect.hasErrorValue err
+    ]
+
 let requireNotNullTests =
     testList "requireNotNull Tests" [
         testCase "requireNotNull happy path"
@@ -914,6 +927,7 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
+        requireSomeWithTests
         requireNoneTests
         requireValueSomeTests
         requireValueNoneTests
