@@ -307,6 +307,14 @@ module Result =
         | Some x -> Ok x
         | None -> Error error
 
+    /// <summary>
+    /// Returns the contained value if <c>Some</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#requireSomeWith</href>
+    /// </summary>
+    /// <param name="ifErrorThunk">The function to evaluate if the result is <c>Error</c>.</param>
+    /// <param name="option">The input result.</param>
+    /// <returns>The contained value if <c>Some</c>, otherwise the result of evaluating <paramref name="ifErrorThunk"/>.</returns>
     let inline requireSomeWith
         (ifErrorThunk: unit -> 'error)
         (option: 'ok option)
