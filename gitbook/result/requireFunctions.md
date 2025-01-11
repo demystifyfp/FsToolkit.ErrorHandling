@@ -64,6 +64,38 @@ let result : Result<unit, string> =
 // Error "Value must be false"
 ```
 
+## requireSome
+
+Converts an Option to a Result, using the given function to supply an error if None.
+
+### Function Signature
+
+```fsharp
+'a -> 'b option -> Result<'b, 'a>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Result<unit, string> =
+    Some 1
+    |> Result.requireSome "Value must be Some"
+    
+// Ok ()
+```
+
+#### Example 2
+
+```fsharp
+let result : Result<unit, string> =
+    None
+    |> Result.requireSome "Value must be Some"
+    
+// Error "Value must be Some"
+```
+
 ## requireSomeWith
 
 Converts an Option to a Result, using the given function to supply an error if None.
