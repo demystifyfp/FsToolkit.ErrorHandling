@@ -4,6 +4,7 @@
   * Result
     * [apply](result/apply.md)
     * [bind](result/bind.md)
+    * [check](result/check.md)
     * [Computation Expression](result/ce.md)
     * [either Functions](result/eitherFunctions.md)
     * [fold](result/fold.md)
@@ -82,6 +83,7 @@
   * AsyncResult
     * [apply](asyncResult/apply.md)
     * [bind](asyncResult/bind.md)
+    * [check](asyncResult/check.md)
     * [Computation Expression](asyncResult/ce.md)
     * [error](pr.md)
     * [foldResult](asyncResult/foldResult.md)
@@ -124,6 +126,67 @@
       * [ofAsyncResult](asyncResultOption/ofAsyncResult.md)
       * [ofOption](asyncResultOption/ofOption.md)
       * [ofResult](asyncResultOption/ofResult.md)
+
+  * Task
+    * [apply](pr.md)
+    * [bind](pr.md)
+    * [bindV](pr.md)
+    * [catch](pr.md)
+    * [Computation Expression](pr.md)
+    * [ignore](pr.md)
+    * [map](pr.md)
+    * [mapV](pr.md)
+    * [map2](pr.md)
+    * [map3](pr.md)
+    * [ofUnit](pr.md)
+    * [zip](pr.md)
+    * Transforms
+      * [ofUnit](task/ofUnit.md)
+
+  * TaskOption
+    * [apply](pr.md)
+    * [bind](pr.md)
+    * [Computation Expression](taskOption/ce.md)
+    * [either](pr.md)
+    * [map](pr.md)
+    * [some](pr.md)
+    * [zip](pr.md)
+
+  * TaskResult
+    * [apply](taskResult/apply.md)
+    * [bind](taskResult/bind.md)
+    * [check](taskResult/check.md)
+    * [catch](pr.md)
+    * [Computation Expression](taskResult/ce.md)
+    * [ignore](taskResult/ignore.md)
+    * [map](taskResult/map.md)
+    * [map2](taskResult/map2.md)
+    * [map3](taskResult/map3.md)
+    * [mapError](taskResult/mapError.md)
+    * [Operators](taskResult/operators.md)
+    * [Other Functions](taskResult/others.md)
+    * [returnError](pr.md)
+    * [zip](pr.md)
+    * [zipError](pr.md)
+    * Lists
+      * [traverseTaskResultM](list/traverseTaskResultM.md)
+      * [sequenceTaskResultM](list/sequenceTaskResultM.md)
+      * [traverseTaskResultA](list/traverseTaskResultA.md)
+      * [sequenceTaskResultA](list/sequenceTaskResultA.md)
+    * Transforms
+      * [ofAsync](taskResult/ofAsync.md)
+      * [ofResult](taskResult/ofResult.md)
+      * [ofTask](taskResult/ofTask.md)
+
+  * TaskResultOption
+    * [apply](taskResultOption/apply.md)
+    * [bind](taskResultOption/bind.md)
+    * [Computation Expression](taskResultOption/ce.md)
+    * [ignore](taskResultOption/ignore.md)
+    * [map](taskResultOption/map.md)
+    * [map2](taskResultOption/map2.md)
+    * [map3](taskResultOption/map3.md)
+    * [Operators](taskResultOption/operators.md)
 
   * [Validation](validation/index.md)
     * [apply](validation/apply.md)
@@ -244,67 +307,6 @@
     * [map](pr.md)
     * [map2](pr.md)
     * [map3](pr.md)
-
-* FsToolkit.ErrorHandling.TaskResult
-  * Task
-    * [apply](pr.md)
-    * [bind](pr.md)
-    * [bindV](pr.md)
-    * [catch](pr.md)
-    * [Computation Expression](pr.md)
-    * [ignore](pr.md)
-    * [map](pr.md)
-    * [mapV](pr.md)
-    * [map2](pr.md)
-    * [map3](pr.md)
-    * [ofUnit](pr.md)
-    * [zip](pr.md)
-    * Transforms
-      * [ofUnit](task/ofUnit.md)
-
-  * TaskOption
-    * [apply](pr.md)
-    * [bind](pr.md)
-    * [Computation Expression](taskOption/ce.md)
-    * [either](pr.md)
-    * [map](pr.md)
-    * [some](pr.md)
-    * [zip](pr.md)
-
-  * TaskResult
-    * [apply](taskResult/apply.md)
-    * [bind](taskResult/bind.md)
-    * [catch](pr.md)
-    * [Computation Expression](taskResult/ce.md)
-    * [ignore](taskResult/ignore.md)
-    * [map](taskResult/map.md)
-    * [map2](taskResult/map2.md)
-    * [map3](taskResult/map3.md)
-    * [mapError](taskResult/mapError.md)
-    * [Operators](taskResult/operators.md)
-    * [Other Functions](taskResult/others.md)
-    * [returnError](pr.md)
-    * [zip](pr.md)
-    * [zipError](pr.md)
-    * Lists
-      * [traverseTaskResultM](list/traverseTaskResultM.md)
-      * [sequenceTaskResultM](list/sequenceTaskResultM.md)
-      * [traverseTaskResultA](list/traverseTaskResultA.md)
-      * [sequenceTaskResultA](list/sequenceTaskResultA.md)
-    * Transforms
-      * [ofAsync](taskResult/ofAsync.md)
-      * [ofResult](taskResult/ofResult.md)
-      * [ofTask](taskResult/ofTask.md)
-
-  * TaskResultOption
-    * [apply](taskResultOption/apply.md)
-    * [bind](taskResultOption/bind.md)
-    * [Computation Expression](taskResultOption/ce.md)
-    * [ignore](taskResultOption/ignore.md)
-    * [map](taskResultOption/map.md)
-    * [map2](taskResultOption/map2.md)
-    * [map3](taskResultOption/map3.md)
-    * [Operators](taskResultOption/operators.md)
 
 * General Docs
   * [Bind Mappings](bindMappings.md)
