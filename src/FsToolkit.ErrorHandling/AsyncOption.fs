@@ -76,3 +76,52 @@ module AsyncOption =
         : Async<'value> =
         asyncOption
         |> Async.map (Option.defaultWith defThunk)
+
+    /// <summary>
+    /// Returns <paramref name="input"/> if it is <c>Some</c>, otherwise returns <paramref name="ifNone"/>
+    /// </summary>
+    /// <param name="ifNone">The value to use if <paramref name="input"/> is <c>None</c></param>
+    /// <param name="input">The input option.</param>
+    /// <remarks>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    ///     None |> Async.singleton |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     None |> Async.singleton |> AsyncOption.orElse (None |> Async.singleton) // evaluates to None
+    ///     AsyncOption.some "First" |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElse (None |> Async.singleton) // evaluates to Some ("First")
+    /// </code>
+    /// </example>
+    /// <returns>
+    /// The option if the option is Some, else returns <paramref name="ifNone"/>.
+    /// </returns>
+    let inline orElse
+        (ifNone: Async<Option<'value>>)
+        (input: Async<Option<'value>>)
+        : Async<Option<'value>> =
+        Async.bind (Option.either some (fun _ -> ifNone)) input
+
+    /// <summary>
+    /// Returns <paramref name="input"/> if it is <c>Some</c>, otherwise executes <paramref name="ifNoneFunc"/> and returns the result.
+    /// </summary>
+    /// <param name="ifNoneFunc">A function that provides an alternate option when evaluated.</param>
+    /// <param name="input">The input option.</param>
+    /// <remarks>
+    /// <paramref name="ifNoneFunc"/>  is not executed unless <paramref name="input"/> is a <c>None</c>.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    ///     None |> Async.singleton |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     None |> Async.singleton |> AsyncOption.orElseWith (fun _ -> None |> Async.singleton) // evaluates to None
+    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> None |> Async.singleton) // evaluates to Ok ("First")
+    /// </code>
+    /// </example>
+    /// <returns>
+    /// The option if the option is Some, else the result of executing <paramref name="ifNoneFunc"/>.
+    /// </returns>
+    let inline orElseWith
+        ([<InlineIfLambda>] ifNoneFunc: unit -> Async<Option<'value>>)
+        (input: Async<Option<'value>>)
+        : Async<Option<'value>> =
+        Async.bind (Option.either some ifNoneFunc) input

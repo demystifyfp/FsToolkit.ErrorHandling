@@ -42,8 +42,10 @@
     * [map](option/map.md)
     * [map2](option/map2.md)
     * [map3](option/map3.md)
+    * [sequenceAsync](option/sequenceAsync.md)
     * [sequenceResult](option/sequenceResult.md)
     * [tee Functions](option/teeFunctions.md)
+    * [traverseAsync](option/traverseAsync.md)
     * [traverseResult](option/traverseResult.md)
     * [zip](option/zip.md)
     * Lists
@@ -111,6 +113,15 @@
       * [ofResult](asyncResult/ofResult.md)
       * [ofTask](asyncResult/ofTask.md)
       * [ofTaskAction](asyncResult/ofTaskAction.md)
+
+  * AsyncOption
+    * [apply](asyncOption/apply.md)
+    * [bind](asyncOption/bind.md)
+    * [Computation Expression](asyncOption/ce.md)
+    * [either](asyncOption/either.md)
+    * [map](asyncOption/map.md)
+    * [orElse Functions](asyncOption/orElseFunctions.md)
+    * [Other Functions](asyncOption/others.md)
 
   * AsyncResultOption
     * [apply](asyncResultOption/apply.md)

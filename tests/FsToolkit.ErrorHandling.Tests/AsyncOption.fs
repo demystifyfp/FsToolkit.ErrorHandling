@@ -169,6 +169,70 @@ let defaultWithTests =
         }
     ]
 
+let orElseTests =
+    testList "AsyncOption.orElse Tests" [
+        testCaseAsync "Some Some takes first Some"
+        <| async {
+            return!
+                AsyncOption.some "First"
+                |> AsyncOption.orElse (AsyncOption.some "Second")
+                |> Expect.hasAsyncSomeValue "First"
+        }
+        testCaseAsync "Some None takes first Some"
+        <| async {
+            return!
+                AsyncOption.some "First"
+                |> AsyncOption.orElse (Async.singleton None)
+                |> Expect.hasAsyncSomeValue "First"
+        }
+        testCaseAsync "None Some takes second Some"
+        <| async {
+            return!
+                Async.singleton None
+                |> AsyncOption.orElse (AsyncOption.some "Second")
+                |> Expect.hasAsyncSomeValue "Second"
+        }
+        testCaseAsync "None None returns None"
+        <| async {
+            return!
+                Async.singleton None
+                |> AsyncOption.orElse (Async.singleton None)
+                |> Expect.hasAsyncNoneValue
+        }
+    ]
+
+let orElseWithTests =
+    testList "AsyncOption.orElseWith Tests" [
+        testCaseAsync "Some Some takes first Some"
+        <| async {
+            return!
+                AsyncOption.some "First"
+                |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second")
+                |> Expect.hasAsyncSomeValue "First"
+        }
+        testCaseAsync "Some None takes first Some"
+        <| async {
+            return!
+                AsyncOption.some "First"
+                |> AsyncOption.orElseWith (fun _ -> Async.singleton None)
+                |> Expect.hasAsyncSomeValue "First"
+        }
+        testCaseAsync "None Some takes second Some"
+        <| async {
+            return!
+                Async.singleton None
+                |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second")
+                |> Expect.hasAsyncSomeValue "Second"
+        }
+        testCaseAsync "None None returns None"
+        <| async {
+            return!
+                Async.singleton None
+                |> AsyncOption.orElseWith (fun _ -> Async.singleton None)
+                |> Expect.hasAsyncNoneValue
+        }
+    ]
+
 let allTests =
     testList "Async Option Tests" [
         mapTests
@@ -179,4 +243,6 @@ let allTests =
         eitherTests
         defaultValueTests
         defaultWithTests
+        orElseTests
+        orElseWithTests
     ]
