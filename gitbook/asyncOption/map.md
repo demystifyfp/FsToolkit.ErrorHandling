@@ -7,7 +7,7 @@ Apply a function to the value of an async option if it is `Some`. If the option 
 ## Function Signature
 
 ```fsharp
-('TInput -> 'TOutput) -> AsyncOption<'TInput> -> AsyncOption<'TOutput>
+('TInput -> 'TOutput) -> Async<'TInput option> -> Async<'TOutput option>
 ```
 
 ## Examples

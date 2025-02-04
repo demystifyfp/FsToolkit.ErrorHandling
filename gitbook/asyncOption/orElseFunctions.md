@@ -9,8 +9,8 @@ Returns the option if the option is Some, otherwise returns the given option
 ### Function Signature
 
 ```fsharp
-(ifNone : Option<'value>) -> (input : Option<'value>) 
-    -> Option<'value>
+(ifNone : Async<'value option>) -> (input : Async<'value option>) 
+    -> Async<'value option>
 ```
 
 ### Examples
@@ -18,7 +18,7 @@ Returns the option if the option is Some, otherwise returns the given option
 #### Example 1
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     AsyncOption.some 1
     |> AsyncOption.orElse (AsyncOption.some 2)
     
@@ -28,7 +28,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 2
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     AsyncOption.some 1
     |> AsyncOption.orElse (Async.singleton None)
     
@@ -38,7 +38,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 3
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     Async.singleton None
     |> AsyncOption.orElse (Some 2)
     
@@ -48,7 +48,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 4
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     Async.singleton None
     |> AsyncOption.orElse (Async.singleton None)
 
@@ -64,8 +64,8 @@ Returns the option if the option is Some, otherwise evaluates the given function
 ### Function Signature
 
 ```fsharp
-(ifNoneFunc : unit -> AsyncOption<'value>) -> (input : AsyncOption<'value>)
-    -> AsyncOption<'value>
+(ifNoneFunc : unit -> Async<'value option>) -> (input : Async<'value option>)
+    -> Async<'value option>
 ```
 
 ### Examples
@@ -73,7 +73,7 @@ Returns the option if the option is Some, otherwise evaluates the given function
 #### Example 1
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     AsyncOption.some 1
     |> AsyncOption.orElseWith (fun () -> AsyncOption.some 2)
 
@@ -83,7 +83,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 2
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     AsyncOption.some 1
     |> AsyncOption.orElseWith (fun () -> None)
 
@@ -93,7 +93,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 3
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     Async.singleton None
     |> AsyncOption.orElseWith (fun () -> AsyncOption.some 2)
 
@@ -103,7 +103,7 @@ let asyncOption : AsyncOption<int> =
 #### Example 4
 
 ```fsharp
-let asyncOption : AsyncOption<int> =
+let asyncOption : Async<int option> =
     Async.singleton None
     |> AsyncOption.orElseWith (fun () -> Async.singleton None)
 
