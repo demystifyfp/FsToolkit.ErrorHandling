@@ -1,4 +1,4 @@
-### 5.0.0-beta003 - January 06, 2025
+### 5.0.0-beta004 - February 4, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations like Result](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
 - BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
@@ -12,6 +12,7 @@
 - [Updated uses of Seq.append](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/290) Credits @1eyewonder
 - [Add Option.traverseAsync and Option.sequenceAsync](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/298#event-15827853276) Credits @tw0po1nt 
 - [Add Require and Check helper methods](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/295) Credits @PI-Gorbo
+- [Add new AsyncOption APIs and document all its other functions; minor fixes to documentation for Option module](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/307) Credits @tw0po1nt
 
 
 ### 4.18.0 - October 23, 2024
