@@ -1,3 +1,5 @@
 AssemblyInfo.fs
+src/FsToolkit.ErrorHandling/Nullness.fs
 tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.fs
 tests/FsToolkit.ErrorHandling.Tests/Main.fs
+tests/FsToolkit.ErrorHandling.Tests/TestHelpers.fs
