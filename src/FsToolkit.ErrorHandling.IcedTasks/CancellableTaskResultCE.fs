@@ -57,8 +57,6 @@ module CancellableTaskResultCE =
                                     sm.ResumptionDynamicInfo.ResumptionData
                                     :?> ICriticalNotifyCompletion
 
-                                assert not (isNull awaiter)
-
                                 MethodBuilder.AwaitUnsafeOnCompleted(
                                     &sm.Data.MethodBuilder,
                                     &awaiter,
@@ -99,7 +97,7 @@ module CancellableTaskResultCE =
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
-                        let mutable __stack_exn: Exception = null
+                        let mutable __stack_exn: ExceptionNull = null
 
                         try
                             let __stack_code_fin = code.Invoke(&sm)
@@ -181,7 +179,7 @@ module CancellableTaskResultCE =
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
-                        let mutable __stack_exn: Exception = null
+                        let mutable __stack_exn: ExceptionNull = null
 
                         try
                             let __stack_code_fin = code.Invoke(&sm)

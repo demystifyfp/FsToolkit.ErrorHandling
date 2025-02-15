@@ -5,9 +5,9 @@ open FsToolkit.ErrorHandling
 
 [<AutoOpen>]
 module TaskResultOptionCE =
-
-
     open System
+
+
     open System.Runtime.CompilerServices
     open System.Threading
     open System.Threading.Tasks
@@ -184,7 +184,6 @@ module TaskResultOptionCE =
                                     sm.ResumptionDynamicInfo.ResumptionData
                                     :?> ICriticalNotifyCompletion
 
-                                assert not (isNull awaiter)
                                 sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                         with exn ->
@@ -215,7 +214,7 @@ module TaskResultOptionCE =
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
 
-                        let mutable __stack_exn: Exception = null
+                        let mutable __stack_exn: ExceptionNull = null
 
                         try
                             // printfn "Run BeforeInvoke Task.Status  --> %A" sm.Data.MethodBuilder.Task.Status

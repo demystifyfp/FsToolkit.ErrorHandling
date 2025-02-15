@@ -58,8 +58,11 @@ module ResultCE =
                 compensation ()
 
         member inline this.Using
-            (resource: 'disposable :> IDisposable, binder: 'disposable -> Result<'ok, 'error>)
-            : Result<'ok, 'error> =
+            (resource: 'disposable :> IDisposableNull, binder: 'disposable -> Result<'ok, 'error>) : Result<
+                                                                                                         'ok,
+                                                                                                         'error
+                                                                                                      >
+            =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->

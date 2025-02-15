@@ -65,7 +65,7 @@ module AsyncResultOptionCE =
 
         member inline this.Using
             (
-                resource: 'ok :> IAsyncDisposable,
+                resource: 'ok :> IAsyncDisposableNull,
                 [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOut, 'error>
             ) : AsyncResultOption<'okOut, 'error> =
             this.TryFinallyAsync(

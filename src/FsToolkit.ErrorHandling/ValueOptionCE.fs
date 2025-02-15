@@ -16,11 +16,6 @@ module ValueOptionCE =
             : 'output voption =
             ValueOption.bind binder input
 
-        // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
-        member inline this.Bind
-            (input: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output voption) : 'output voption =
-            this.Bind(ValueOption.ofObj input, binder)
-
         member inline this.Zero() : unit voption = this.Return()
 
         member inline _.Combine
@@ -48,7 +43,7 @@ module ValueOptionCE =
                 compensation ()
 
         member inline this.Using
-            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder)
+            (resource: 'T :> IDisposableNull, [<InlineIfLambda>] binder)
             : _ voption =
             this.TryFinally(
                 (fun () -> binder resource),
@@ -84,11 +79,6 @@ module ValueOptionCE =
 
         member inline _.BindReturn(x, [<InlineIfLambda>] f) = ValueOption.map f x
 
-        member inline _.BindReturn(x, [<InlineIfLambda>] f) =
-            x
-            |> ValueOption.ofObj
-            |> ValueOption.map f
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -102,6 +92,18 @@ module ValueOptionCE =
 [<AutoOpen>]
 module ValueOptionExtensionsLower =
     type ValueOptionBuilder with
+
+        // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
+        member inline this.Bind
+            (input: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output voption) : 'output voption =
+            this.Bind(ValueOption.ofObj input, binder)
+
+
+        member inline _.BindReturn(x, [<InlineIfLambda>] f) =
+            x
+            |> ValueOption.ofObj
+            |> ValueOption.map f
+
 
         member inline _.Source(nullableObj: 'a when 'a: null) =
             nullableObj

@@ -58,7 +58,7 @@ module ValidationCE =
 
         member inline this.Using
             (
-                resource: 'disposable :> IDisposable,
+                resource: 'disposable :> IDisposableNull,
                 [<InlineIfLambda>] binder: 'disposable -> Validation<'okOutput, 'error>
             ) : Validation<'okOutput, 'error> =
             this.TryFinally(

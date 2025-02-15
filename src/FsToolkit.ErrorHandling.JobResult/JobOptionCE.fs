@@ -70,7 +70,7 @@ module JobOptionCE =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
+            (resource: 'T :> IDisposableNull, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
             : Job<_ option> =
             job.Using(resource, binder)
 

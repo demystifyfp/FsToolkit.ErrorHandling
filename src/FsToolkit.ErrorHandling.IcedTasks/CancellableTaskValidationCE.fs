@@ -155,7 +155,7 @@ module CancellableTaskValidationCE =
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
                         __resumeAt sm.ResumptionPoint
-                        let mutable __stack_exn: Exception = null
+                        let mutable __stack_exn: ExceptionNull = null
 
                         try
                             let __stack_code_fin = code.Invoke(&sm)

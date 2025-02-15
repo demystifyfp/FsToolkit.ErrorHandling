@@ -14,11 +14,6 @@ module OptionCE =
             : 'output option =
             Option.bind binder input
 
-        // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
-        member inline this.Bind
-            (m: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output option)
-            : 'output option =
-            this.Bind(Option.ofObj m, binder)
 
         member inline this.Zero() : unit option = this.Return()
 
@@ -51,7 +46,7 @@ module OptionCE =
 
         member inline this.Using
             (
-                resource: 'disposable :> IDisposable,
+                resource: 'disposable :> IDisposableNull,
                 [<InlineIfLambda>] binder: 'disposable -> 'value option
             ) : 'value option =
             this.TryFinally(
@@ -94,10 +89,6 @@ module OptionCE =
             : 'output option =
             Option.map mapper input
 
-        member inline _.BindReturn
-            (x: 'input, [<InlineIfLambda>] f: 'input -> 'output)
-            : 'output option =
-            Option.map f (Option.ofObj x)
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
@@ -114,6 +105,19 @@ module OptionCE =
 [<AutoOpen>]
 module OptionExtensionsLower =
     type OptionBuilder with
+
+
+        member inline _.BindReturn
+            (x: 'input, [<InlineIfLambda>] f: 'input -> 'output)
+            : 'output option =
+            Option.map f (Option.ofObj x)
+
+        // Could not get it to work solely with Source. In loop cases it would potentially match the #seq overload and ask for type annotation
+        member inline this.Bind
+            (m: 'input when 'input: null, [<InlineIfLambda>] binder: 'input -> 'output option)
+            : 'output option =
+            this.Bind(Option.ofObj m, binder)
+
 
         member inline _.Source(nullableObj: 'value when 'value: null) : 'value option =
             Option.ofObj nullableObj

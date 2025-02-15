@@ -75,13 +75,10 @@ module JobResultCE =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>) : Job<
-                                                                                                           Result<
-                                                                                                               'U,
-                                                                                                               'TError
-                                                                                                            >
-                                                                                                        >
-            =
+            (
+                resource: 'T :> IDisposableNull,
+                [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
+            ) : Job<Result<'U, 'TError>> =
             job.Using(resource, binder)
 
         member this.While

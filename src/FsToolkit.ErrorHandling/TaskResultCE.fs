@@ -15,7 +15,6 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
 
-
 /// Task<Result<'T, 'Error>>
 type TaskResult<'T, 'Error> = Task<Result<'T, 'Error>>
 
@@ -199,7 +198,7 @@ type TaskResultBuilderBase() =
             )
         )
 
-    member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposable>
+    member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposableNull>
         (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
         : TaskResultCode<'TOverall, 'Error, 'T> =
         this.TryFinallyAsync(
@@ -255,7 +254,6 @@ type TaskResultBuilder() =
                                 sm.ResumptionDynamicInfo.ResumptionData
                                 :?> ICriticalNotifyCompletion
 
-                            assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     with exn ->
@@ -281,7 +279,7 @@ type TaskResultBuilder() =
                     //-- RESUMABLE CODE START
                     __resumeAt sm.ResumptionPoint
 
-                    let mutable __stack_exn: Exception = null
+                    let mutable __stack_exn: ExceptionNull = null
 
                     try
                         // printfn "Run BeforeInvoke Task.Status  --> %A" sm.Data.MethodBuilder.Task.Status
@@ -535,7 +533,7 @@ module TaskResultCEExtensionsLowPriority =
                 return Ok r
             }
 
-        member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposable>
+        member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
             =
             ResumableCode.Using(resource, body)

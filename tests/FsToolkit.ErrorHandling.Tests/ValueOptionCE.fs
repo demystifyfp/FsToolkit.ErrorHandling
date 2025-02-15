@@ -284,7 +284,7 @@ let ceTests =
 
         testCase "Uri null"
         <| fun () ->
-            let (data: Uri) = null
+            let (data: UriNull) = null
 
             let actual =
                 voption {
@@ -296,7 +296,7 @@ let ceTests =
 
         testCase "MemoryStream null"
         <| fun () ->
-            let (data: IO.MemoryStream) = null
+            let (data: MemoryStreamNull) = null
 
             let actual =
                 voption {
