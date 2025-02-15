@@ -146,7 +146,7 @@ let formatCode _ =
         Trace.traceErrorfn "Errors while formatting all files: %A" result.Messages
 
 let analyze _ =
-    let analyzerPaths = !! "packages/analyzers/**/analyzers/dotnet/fs"
+    let analyzerPaths = !!"packages/analyzers/**/analyzers/dotnet/fs"
 
     let createArgsForProject (project: string) analyzerPaths =
         let projectName = Path.GetFileNameWithoutExtension project
@@ -162,7 +162,7 @@ let analyze _ =
         ]
         |> String.concat " "
 
-    !! "src/**/*.fsproj"
+    !!"src/**/*.fsproj"
     |> Seq.iter (fun fsproj ->
         let result =
             createArgsForProject fsproj analyzerPaths
@@ -187,7 +187,7 @@ let checkFormatCode _ =
 
 
 let clean _ =
-    !! "bin"
+    !!"bin"
     ++ "benchmarks/**/bin"
     ++ "src/**/bin"
     ++ "tests/**/bin"

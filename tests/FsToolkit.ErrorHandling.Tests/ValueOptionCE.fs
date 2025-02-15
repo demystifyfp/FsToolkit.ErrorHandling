@@ -327,7 +327,10 @@ type CustomClass(x: int) =
 
 #if NET9_0_OR_GREATER && !FABLE_COMPILER
 
-type AB = A | B
+type AB =
+    | A
+    | B
+
 type AbNull = AB | null
 
 #endif

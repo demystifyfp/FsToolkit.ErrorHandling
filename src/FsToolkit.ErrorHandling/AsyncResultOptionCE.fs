@@ -80,11 +80,8 @@ module AsyncResultOptionCE =
 #endif
 
         member inline this.While
-            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncResultOption<unit, 'error>) : AsyncResultOption<
-                                                                                                         unit,
-                                                                                                         'error
-                                                                                                      >
-            =
+            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncResultOption<unit, 'error>)
+            : AsyncResultOption<unit, 'error> =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
@@ -152,11 +149,8 @@ module AsyncResultOptionCEExtensions =
 
 
         member inline this.For
-            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>) : AsyncResultOption<
-                                                                                                           unit,
-                                                                                                           'error
-                                                                                                        >
-            =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>)
+            : AsyncResultOption<unit, 'error> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->

@@ -84,12 +84,8 @@ type TaskResultBuilderBase() =
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
-        ([<InlineIfLambda>] condition: unit -> bool, body: TaskResultCode<'TOverall, 'Error, unit>) : TaskResultCode<
-                                                                                                          'TOverall,
-                                                                                                          'Error,
-                                                                                                          unit
-                                                                                                       >
-        =
+        ([<InlineIfLambda>] condition: unit -> bool, body: TaskResultCode<'TOverall, 'Error, unit>)
+        : TaskResultCode<'TOverall, 'Error, unit> =
         let mutable keepGoing = true
 
         ResumableCode.While(
@@ -121,12 +117,8 @@ type TaskResultBuilderBase() =
     /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryFinally
-        (body: TaskResultCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit) : TaskResultCode<
-                                                                                                           'TOverall,
-                                                                                                           'Error,
-                                                                                                           'T
-                                                                                                        >
-        =
+        (body: TaskResultCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit)
+        : TaskResultCode<'TOverall, 'Error, 'T> =
 
         // printfn "TryFinally Called --> "
 

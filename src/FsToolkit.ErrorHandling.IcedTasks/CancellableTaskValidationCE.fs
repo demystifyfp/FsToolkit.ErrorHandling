@@ -236,10 +236,8 @@ module AsyncExtensions =
             this.ReturnFrom(Async.AwaitCancellableTask t)
 
         member inline this.Bind
-            ([<InlineIfLambda>] t: CancellableTask, [<InlineIfLambda>] binder: (unit -> Async<'U>)) : Async<
-                                                                                                          'U
-                                                                                                       >
-            =
+            ([<InlineIfLambda>] t: CancellableTask, [<InlineIfLambda>] binder: (unit -> Async<'U>))
+            : Async<'U> =
             this.Bind(Async.AwaitCancellableTask t, binder)
 
         member inline this.ReturnFrom([<InlineIfLambda>] t: CancellableTask) : Async<unit> =

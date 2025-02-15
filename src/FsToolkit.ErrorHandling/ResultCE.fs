@@ -30,11 +30,8 @@ module ResultCE =
             generator ()
 
         member inline this.Combine
-            (result: Result<unit, 'error>, [<InlineIfLambda>] binder: unit -> Result<'ok, 'error>) : Result<
-                                                                                                         'ok,
-                                                                                                         'error
-                                                                                                      >
-            =
+            (result: Result<unit, 'error>, [<InlineIfLambda>] binder: unit -> Result<'ok, 'error>)
+            : Result<'ok, 'error> =
             this.Bind(result, binder)
 
         member inline this.TryWith
@@ -58,11 +55,8 @@ module ResultCE =
                 compensation ()
 
         member inline this.Using
-            (resource: 'disposable :> IDisposableNull, binder: 'disposable -> Result<'ok, 'error>) : Result<
-                                                                                                         'ok,
-                                                                                                         'error
-                                                                                                      >
-            =
+            (resource: 'disposable :> IDisposableNull, binder: 'disposable -> Result<'ok, 'error>)
+            : Result<'ok, 'error> =
             this.TryFinally(
                 (fun () -> binder resource),
                 (fun () ->
