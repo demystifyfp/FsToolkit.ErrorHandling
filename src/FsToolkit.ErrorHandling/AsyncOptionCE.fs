@@ -12,7 +12,7 @@ module AsyncOptionCE =
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
         member inline _.Zero() : Async<unit option> =
-            option.Zero()
+            Some()
             |> async.Return
 
         member inline _.Bind

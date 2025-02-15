@@ -10,13 +10,13 @@ module JobOptionCE =
     type JobOptionBuilder() =
 
         member inline _.Return(value: 'T) : Job<_ option> =
-            option.Return value
+            Some value
             |> job.Return
 
         member inline _.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
 
         member inline _.Zero() : Job<_ option> =
-            option.Zero()
+            Some()
             |> job.Return
 
         member inline _.Bind

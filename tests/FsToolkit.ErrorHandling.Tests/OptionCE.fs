@@ -20,6 +20,7 @@ let makeDisposable () =
     }
 
 
+
 // type 'a option = | Some of 'a | None
 
 let ceTests =
@@ -206,7 +207,7 @@ let ceTests =
             let data = 42
 
             let actual =
-                option {
+                option { 
                     for i in [ 1..10 ] do
                         ()
 
@@ -319,16 +320,35 @@ type CustomClass(x: int) =
     member _.getX = x
 
 
+#if NET9_0_OR_GREATER
+
+type AB = A | B
+type AbNull = AB | null
+
+#endif
+
 let ``OptionCE inference checks`` =
     testList "OptionCE Inference checks" [
-        testCase "Inference checks"
+        testCase "Argument should be inferred to Option"
         <| fun () ->
             // Compilation is success
             let f res = option { return! res }
 
             f (Some())
             |> ignore
-    ]
+#if NET9_0_OR_GREATER
+        testCase "Nullable argument should be inferred" <| fun () ->
+            // Compilation is real success
+            let y (p : AbNull) =
+                option {
+                    let! p = p
+                    let isa = p.IsA
+                    return isa
+                }
+            
+            Expect.equal (y A) (Some true) ""
+#endif
+    ] 
 
 let allTests =
     testList "Option CE tests" [

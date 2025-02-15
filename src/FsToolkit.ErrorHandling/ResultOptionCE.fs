@@ -11,7 +11,7 @@ module ResultOptionCE =
         member inline _.ReturnFrom value : Result<'ok option, 'error> = value
 
         member inline _.Zero() =
-            option.Zero()
+            Some()
             |> Ok
 
         member inline _.Bind

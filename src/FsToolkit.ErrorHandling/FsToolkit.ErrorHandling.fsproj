@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net9.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net9.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <NoWarn>$(NoWarn);FS1204;FS3511;FS3513;FS0057</NoWarn>
     <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
@@ -12,6 +12,7 @@
     <Compile Include="ResultCE.fs" />
     <Compile Include="ResultOp.fs" />
     <Compile Include="Option.fs" />
+    <Compile Include="ValueOption.fs" />
     <Compile Include="OptionCE.fs" />
     <Compile Include="OptionOp.fs" />
     <Compile Include="ResultOption.fs" />
@@ -32,8 +33,6 @@
     <Compile Include="AsyncValidation.fs" />
     <Compile Include="AsyncValidationOp.fs" />
     <Compile Include="AsyncValidationCE.fs" />
-    <Compile Include="ValueOption.fs" />
-    <Compile Include="ValueOptionCE.fs" />
     <Compile Include="AsyncOption.fs" />
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="AsyncOptionOp.fs" />

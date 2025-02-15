@@ -325,15 +325,36 @@ type CustomClass(x: int) =
     member _.getX = x
 
 
+#if NET9_0_OR_GREATER
+
+type AB = A | B
+type AbNull = AB | null
+
+#endif
+
+
 let ``ValueOptionCE inference checks`` =
     testList "ValueOptionCE Inference checks" [
-        testCase "Inference checks"
+        testCase "Argument should be inferred to ValueOption"
         <| fun () ->
             // Compilation is success
             let f res = voption { return! res }
 
             f (ValueSome())
             |> ignore
+#if NET9_0_OR_GREATER
+        testCase "Nullable argument should be inferred"
+        <| fun () ->
+            // Compilation is real success
+            let y (p: AbNull) =
+                option {
+                    let! p = p
+                    let isa = p.IsA
+                    return isa
+                }
+
+            Expect.equal (y A) (Some true) ""
+#endif
     ]
 
 
