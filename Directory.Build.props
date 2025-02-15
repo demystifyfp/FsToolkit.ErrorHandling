@@ -1,8 +1,17 @@
 <Project>
   <PropertyGroup>
     <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
-    <NoWarn>$(NoWarn);FS2003; NU1903; NU1904</NoWarn>
+    <NoWarn>$(NoWarn);FS2003;NU1903;NU1904;FS0057</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <!-- 
+      Changing the LangVersion based on TFM because F# 9 brings in new features that older SDK's can't support.
+      See https://github.com/dotnet/fsharp/issues/14313 for an example.
+      To keep this library as backward compatible as possible we're setting the LangVersion to 8.0 by default.
+      Then, we're assuming if you're building for net9.0 you're using F# 9 Language features.
+      -->
+    <LangVersion>8.0</LangVersion>
+    <LangVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0</LangVersion>
+    <PaketPropsVersion>6.0.0</PaketPropsVersion> <!--  Hack to prevent paket from restoring when it should not -->
   </PropertyGroup>
 </Project>

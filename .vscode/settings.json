@@ -1,7 +1,9 @@
 {
     "editor.inlayHints.enabled": "off",
     "FSharp.enableMSBuildProjectGraph": true,
-    "editor.formatOnSave": true,
+    "[fsharp]": {
+        "editor.formatOnSave": true,
+    },
     "FSharp.notifications.trace": false,
     "FSharp.notifications.traceNamespaces": [
         "BoundModel.TypeCheck",
@@ -9,5 +11,7 @@
     ],
     "FSharp.fsac.parallelReferenceResolution": false,
     "FSharp.enableAnalyzers": true,
-    "FSharp.analyzersPath": ["packages/analyzers"]
+    "FSharp.analyzersPath": [
+        "packages/analyzers"
+    ]
 }
