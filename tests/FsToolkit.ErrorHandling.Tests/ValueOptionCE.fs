@@ -325,7 +325,7 @@ type CustomClass(x: int) =
     member _.getX = x
 
 
-#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER && !FABLE_COMPILER
 
 type AB = A | B
 type AbNull = AB | null
@@ -342,7 +342,7 @@ let ``ValueOptionCE inference checks`` =
 
             f (ValueSome())
             |> ignore
-#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER && !FABLE_COMPILER
         testCase "Nullable argument should be inferred"
         <| fun () ->
             // Compilation is real success

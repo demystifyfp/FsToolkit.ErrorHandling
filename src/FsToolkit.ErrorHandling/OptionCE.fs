@@ -101,7 +101,7 @@ module OptionCE =
             /// Needed to allow `for..in` and `for..do` functionality
             /// </summary>
             // member inline _.Source(s: string) = ValueOption.ofObj s
-#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER && !FABLE_COMPILER
 
             member inline _.Source(s: #seq<'value>) = ValueOption.ofObj s
 #else
