@@ -23,8 +23,6 @@ let makeDisposable () =
         member this.Dispose() = ()
     }
 
-
-#if !FABLE_COMPILER
 // type 'a option = | ValueSome of 'a | None
 
 let ceTests =
@@ -366,6 +364,3 @@ let allTests =
         ceTests
         ``ValueOptionCE inference checks``
     ]
-#else
-let allTests = testList "ValueOption CE tests" []
-#endif

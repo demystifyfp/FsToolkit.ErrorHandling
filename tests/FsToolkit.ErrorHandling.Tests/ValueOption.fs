@@ -18,7 +18,6 @@ open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
 
-#if !FABLE_COMPILER
 
 let traverseResultTests =
     testList "ValueOption.traverseResult Tests" [
@@ -193,7 +192,3 @@ let allTests =
         eitherTests
         ofPairTests
     ]
-#else
-
-let allTests = testList "ValueOption Tests" []
-#endif
