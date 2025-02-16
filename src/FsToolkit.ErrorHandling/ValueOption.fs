@@ -1,6 +1,5 @@
 namespace FsToolkit.ErrorHandling
 
-#if !FABLE_COMPILER
 [<RequireQualifiedAccess>]
 module ValueOption =
 
@@ -147,5 +146,3 @@ module ValueOption =
         match input with
         | true, x -> ValueSome x
         | false, _ -> ValueNone
-
-#endif

@@ -23,8 +23,6 @@ let makeDisposable () =
         member this.Dispose() = ()
     }
 
-
-#if !FABLE_COMPILER
 // type 'a option = | ValueSome of 'a | None
 
 let ceTests =
@@ -284,7 +282,7 @@ let ceTests =
 
         testCase "Uri null"
         <| fun () ->
-            let (data: Uri) = null
+            let (data: UriNull) = null
 
             let actual =
                 voption {
@@ -296,7 +294,7 @@ let ceTests =
 
         testCase "MemoryStream null"
         <| fun () ->
-            let (data: IO.MemoryStream) = null
+            let (data: MemoryStreamNull) = null
 
             let actual =
                 voption {
@@ -325,15 +323,39 @@ type CustomClass(x: int) =
     member _.getX = x
 
 
+#if NET9_0_OR_GREATER && !FABLE_COMPILER
+
+type AB =
+    | A
+    | B
+
+type AbNull = AB | null
+
+#endif
+
+
 let ``ValueOptionCE inference checks`` =
     testList "ValueOptionCE Inference checks" [
-        testCase "Inference checks"
+        testCase "Argument should be inferred to ValueOption"
         <| fun () ->
             // Compilation is success
             let f res = voption { return! res }
 
             f (ValueSome())
             |> ignore
+#if NET9_0_OR_GREATER && !FABLE_COMPILER
+        testCase "Nullable argument should be inferred"
+        <| fun () ->
+            // Compilation is real success
+            let y (p: AbNull) =
+                option {
+                    let! p = p
+                    let isa = p.IsA
+                    return isa
+                }
+
+            Expect.equal (y A) (Some true) ""
+#endif
     ]
 
 
@@ -342,6 +364,3 @@ let allTests =
         ceTests
         ``ValueOptionCE inference checks``
     ]
-#else
-let allTests = testList "ValueOption CE tests" []
-#endif

@@ -58,13 +58,8 @@ module JobResultCE =
             Job.tryWithDelay computation handler
 
         member inline _.TryFinally
-            (computation: Job<Result<'T, 'TError>>, [<InlineIfLambda>] compensation: unit -> unit) : Job<
-                                                                                                         Result<
-                                                                                                             'T,
-                                                                                                             'TError
-                                                                                                          >
-                                                                                                      >
-            =
+            (computation: Job<Result<'T, 'TError>>, [<InlineIfLambda>] compensation: unit -> unit)
+            : Job<Result<'T, 'TError>> =
             Job.tryFinallyFun computation compensation
 
         member inline _.TryFinally
@@ -75,13 +70,10 @@ module JobResultCE =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>) : Job<
-                                                                                                           Result<
-                                                                                                               'U,
-                                                                                                               'TError
-                                                                                                            >
-                                                                                                        >
-            =
+            (
+                resource: 'T :> IDisposableNull,
+                [<InlineIfLambda>] binder: 'T -> Job<Result<'U, 'TError>>
+            ) : Job<Result<'U, 'TError>> =
             job.Using(resource, binder)
 
         member this.While

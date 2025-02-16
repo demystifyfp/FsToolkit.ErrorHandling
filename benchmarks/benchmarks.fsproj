@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -13,9 +12,6 @@
     <Configuration>Release</Configuration>
     <IsPackable>false</IsPackable>
     <NoWarn>FS1204;FS3501;FS3511</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <Tailcalls>true</Tailcalls>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="SeqTests.fs" />
@@ -28,7 +24,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
+    <ProjectReference
+      Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

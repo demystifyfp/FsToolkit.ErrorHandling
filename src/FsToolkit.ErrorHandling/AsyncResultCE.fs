@@ -46,13 +46,8 @@ module AsyncResultCE =
             async.TryWith(computation, handler)
 
         member inline _.TryFinally
-            (computation: Async<Result<'ok, 'error>>, [<InlineIfLambda>] compensation: unit -> unit) : Async<
-                                                                                                           Result<
-                                                                                                               'ok,
-                                                                                                               'error
-                                                                                                            >
-                                                                                                        >
-            =
+            (computation: Async<Result<'ok, 'error>>, [<InlineIfLambda>] compensation: unit -> unit)
+            : Async<Result<'ok, 'error>> =
             async.TryFinally(computation, compensation)
 #if !FABLE_COMPILER
         member inline _.TryFinallyAsync

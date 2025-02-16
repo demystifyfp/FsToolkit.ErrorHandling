@@ -28,7 +28,7 @@ module AsyncResultOptionCE =
 
         member inline _.Delay([<InlineIfLambda>] f: unit -> Async<'a>) : Async<'a> = async.Delay f
 
-        member inline _.Zero() = Async.singleton (Ok(option.Zero()))
+        member inline _.Zero() = Async.singleton (Ok(Some()))
 
         member inline _.TryWith
             (
@@ -65,7 +65,7 @@ module AsyncResultOptionCE =
 
         member inline this.Using
             (
-                resource: 'ok :> IAsyncDisposable,
+                resource: 'ok :> IAsyncDisposableNull,
                 [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOut, 'error>
             ) : AsyncResultOption<'okOut, 'error> =
             this.TryFinallyAsync(
@@ -80,11 +80,8 @@ module AsyncResultOptionCE =
 #endif
 
         member inline this.While
-            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncResultOption<unit, 'error>) : AsyncResultOption<
-                                                                                                         unit,
-                                                                                                         'error
-                                                                                                      >
-            =
+            ([<InlineIfLambda>] guard: unit -> bool, computation: AsyncResultOption<unit, 'error>)
+            : AsyncResultOption<unit, 'error> =
             if guard () then
                 let mutable whileAsync = Unchecked.defaultof<_>
 
@@ -152,11 +149,8 @@ module AsyncResultOptionCEExtensions =
 
 
         member inline this.For
-            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>) : AsyncResultOption<
-                                                                                                           unit,
-                                                                                                           'error
-                                                                                                        >
-            =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<unit, 'error>)
+            : AsyncResultOption<unit, 'error> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum ->

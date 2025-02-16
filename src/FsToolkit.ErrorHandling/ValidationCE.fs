@@ -58,7 +58,7 @@ module ValidationCE =
 
         member inline this.Using
             (
-                resource: 'disposable :> IDisposable,
+                resource: 'disposable :> IDisposableNull,
                 [<InlineIfLambda>] binder: 'disposable -> Validation<'okOutput, 'error>
             ) : Validation<'okOutput, 'error> =
             this.TryFinally(
@@ -96,11 +96,8 @@ module ValidationCE =
             )
 
         member inline _.BindReturn
-            (input: Validation<'okInput, 'error>, [<InlineIfLambda>] mapper: 'okInput -> 'okOutput) : Validation<
-                                                                                                          'okOutput,
-                                                                                                          'error
-                                                                                                       >
-            =
+            (input: Validation<'okInput, 'error>, [<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
+            : Validation<'okOutput, 'error> =
             Validation.map mapper input
 
         member inline _.MergeSources

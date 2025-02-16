@@ -15,7 +15,6 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
 
-
 /// Task<Result<'T, 'Error>>
 type TaskResult<'T, 'Error> = Task<Result<'T, 'Error>>
 
@@ -85,12 +84,8 @@ type TaskResultBuilderBase() =
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
-        ([<InlineIfLambda>] condition: unit -> bool, body: TaskResultCode<'TOverall, 'Error, unit>) : TaskResultCode<
-                                                                                                          'TOverall,
-                                                                                                          'Error,
-                                                                                                          unit
-                                                                                                       >
-        =
+        ([<InlineIfLambda>] condition: unit -> bool, body: TaskResultCode<'TOverall, 'Error, unit>)
+        : TaskResultCode<'TOverall, 'Error, unit> =
         let mutable keepGoing = true
 
         ResumableCode.While(
@@ -122,12 +117,8 @@ type TaskResultBuilderBase() =
     /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryFinally
-        (body: TaskResultCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit) : TaskResultCode<
-                                                                                                           'TOverall,
-                                                                                                           'Error,
-                                                                                                           'T
-                                                                                                        >
-        =
+        (body: TaskResultCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit)
+        : TaskResultCode<'TOverall, 'Error, 'T> =
 
         // printfn "TryFinally Called --> "
 
@@ -199,7 +190,7 @@ type TaskResultBuilderBase() =
             )
         )
 
-    member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposable>
+    member inline this.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IAsyncDisposableNull>
         (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
         : TaskResultCode<'TOverall, 'Error, 'T> =
         this.TryFinallyAsync(
@@ -255,7 +246,6 @@ type TaskResultBuilder() =
                                 sm.ResumptionDynamicInfo.ResumptionData
                                 :?> ICriticalNotifyCompletion
 
-                            assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     with exn ->
@@ -281,7 +271,7 @@ type TaskResultBuilder() =
                     //-- RESUMABLE CODE START
                     __resumeAt sm.ResumptionPoint
 
-                    let mutable __stack_exn: Exception = null
+                    let mutable __stack_exn: ExceptionNull = null
 
                     try
                         // printfn "Run BeforeInvoke Task.Status  --> %A" sm.Data.MethodBuilder.Task.Status
@@ -535,7 +525,7 @@ module TaskResultCEExtensionsLowPriority =
                 return Ok r
             }
 
-        member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposable>
+        member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
             =
             ResumableCode.Using(resource, body)

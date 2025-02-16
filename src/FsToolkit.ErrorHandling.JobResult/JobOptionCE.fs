@@ -10,13 +10,13 @@ module JobOptionCE =
     type JobOptionBuilder() =
 
         member inline _.Return(value: 'T) : Job<_ option> =
-            option.Return value
+            Some value
             |> job.Return
 
         member inline _.ReturnFrom(jobResult: Job<_ option>) : Job<_ option> = jobResult
 
         member inline _.Zero() : Job<_ option> =
-            option.Zero()
+            Some()
             |> job.Return
 
         member inline _.Bind
@@ -70,7 +70,7 @@ module JobOptionCE =
             Job.tryFinallyFunDelay computation compensation
 
         member inline _.Using
-            (resource: 'T :> IDisposable, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
+            (resource: 'T :> IDisposableNull, [<InlineIfLambda>] binder: 'T -> Job<_ option>)
             : Job<_ option> =
             job.Using(resource, binder)
 

@@ -12,7 +12,7 @@ module AsyncOptionCE =
         member inline _.ReturnFrom(value: Async<'value option>) : Async<'value option> = value
 
         member inline _.Zero() : Async<unit option> =
-            option.Zero()
+            Some()
             |> async.Return
 
         member inline _.Bind
@@ -43,10 +43,8 @@ module AsyncOptionCE =
             async.TryFinally(computation, compensation)
 #if !FABLE_COMPILER
         member inline _.TryFinallyAsync
-            (computation: Async<'value option>, [<InlineIfLambda>] compensation: unit -> ValueTask) : Async<
-                                                                                                          'value option
-                                                                                                       >
-            =
+            (computation: Async<'value option>, [<InlineIfLambda>] compensation: unit -> ValueTask)
+            : Async<'value option> =
             let compensation =
                 async {
                     let vTask = compensation ()

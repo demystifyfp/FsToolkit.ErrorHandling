@@ -15,7 +15,6 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
 
-
 /// Task<'T option>
 type TaskOption<'T> = Task<'T option>
 
@@ -185,7 +184,7 @@ type TaskOptionBuilderBase() =
             )
         )
 
-    member inline this.Using<'Resource, 'TOverall, 'T when 'Resource :> IAsyncDisposable>
+    member inline this.Using<'Resource, 'TOverall, 'T when 'Resource :> IAsyncDisposableNull>
         (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
         : TaskOptionCode<'TOverall, 'T> =
         this.TryFinallyAsync(
@@ -235,7 +234,7 @@ type TaskOptionBuilder() =
                                 sm.ResumptionDynamicInfo.ResumptionData
                                 :?> ICriticalNotifyCompletion
 
-                            assert not (isNull awaiter)
+                            // assert not (isNull awaiter)
                             sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     with exn ->
@@ -260,7 +259,7 @@ type TaskOptionBuilder() =
                 (MoveNextMethodImpl<_>(fun sm ->
                     //-- RESUMABLE CODE START
                     __resumeAt sm.ResumptionPoint
-                    let mutable __stack_exn: Exception = null
+                    let mutable __stack_exn: ExceptionNull = null
 
                     try
                         let __stack_code_fin = code.Invoke(&sm)
@@ -480,7 +479,7 @@ module TaskOptionCEExtensionsLowPriority =
                 return Some r
             }
 
-        member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposable>
+        member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
             =
             ResumableCode.Using(resource, body)

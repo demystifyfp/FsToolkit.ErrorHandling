@@ -28,11 +28,8 @@ module AsyncValidationCE =
             async.Delay generator
 
         member inline this.Combine
-            (validation1: AsyncValidation<unit, 'error>, validation2: AsyncValidation<'ok, 'error>) : AsyncValidation<
-                                                                                                          'ok,
-                                                                                                          'error
-                                                                                                       >
-            =
+            (validation1: AsyncValidation<unit, 'error>, validation2: AsyncValidation<'ok, 'error>)
+            : AsyncValidation<'ok, 'error> =
             this.Bind(validation1, (fun () -> validation2))
 
         member inline _.TryWith
@@ -71,11 +68,8 @@ module AsyncValidationCE =
 
 
         member inline this.For
-            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncValidation<unit, 'error>) : AsyncValidation<
-                                                                                                         unit,
-                                                                                                         'error
-                                                                                                      >
-            =
+            (sequence: #seq<'ok>, [<InlineIfLambda>] binder: 'ok -> AsyncValidation<unit, 'error>)
+            : AsyncValidation<unit, 'error> =
             this.Using(
                 sequence.GetEnumerator(),
                 fun enum -> this.While(enum.MoveNext, this.Delay(fun () -> binder enum.Current))

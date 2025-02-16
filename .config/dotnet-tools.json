@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "paket": {
-      "version": "8.0.3",
+      "version": "9.0.2",
       "commands": [
         "paket"
       ],
@@ -17,7 +17,7 @@
       "rollForward": false
     },
     "fantomas": {
-      "version": "6.3.16",
+      "version": "7.0.0",
       "commands": [
         "fantomas"
       ],
