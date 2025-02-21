@@ -42,9 +42,9 @@ module List =
                 match s, fR with
                 | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.singleton (y :: ys)) f xs
                 | Error errs, Error e ->
-                    return! traverseJobResultA' (JobResult.returnError (e :: errs)) f xs
-                | Ok _, Error e -> return! traverseJobResultA' (JobResult.returnError [ e ]) f xs
-                | Error e, Ok _ -> return! traverseJobResultA' (JobResult.returnError e) f xs
+                    return! traverseJobResultA' (JobResult.error (e :: errs)) f xs
+                | Ok _, Error e -> return! traverseJobResultA' (JobResult.error [ e ]) f xs
+                | Error e, Ok _ -> return! traverseJobResultA' (JobResult.error e) f xs
             }
 
 

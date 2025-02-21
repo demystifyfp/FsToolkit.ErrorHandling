@@ -43,10 +43,6 @@ module AsyncValidation =
                     )
         }
 
-    let inline returnError (error: 'error) : AsyncValidation<'ok, 'error> =
-        Error [ error ]
-        |> async.Return
-
     let inline orElse
         (ifError: AsyncValidation<'ok, 'errorOutput>)
         (result: AsyncValidation<'ok, 'errorInput>)

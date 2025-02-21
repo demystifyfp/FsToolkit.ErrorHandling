@@ -851,7 +851,7 @@ let TaskResultOperatorTests =
                 if isAllowed then
                     createPostSuccess validCreatePostRequest
                 else
-                    TaskResult.returnError (Exception "")
+                    TaskResult.error (Exception "")
             )
             |> Expect.hasTaskOkValueSync (PostId newPostId)
     ]
