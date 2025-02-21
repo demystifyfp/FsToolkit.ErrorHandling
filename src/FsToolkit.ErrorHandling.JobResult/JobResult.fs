@@ -43,11 +43,9 @@ module JobResult =
         Ok x
         |> Job.result
 
-    let inline returnError x =
+    let inline error x =
         Error x
         |> Job.result
-
-    let inline error x = returnError x
 
     let inline map2 ([<InlineIfLambda>] f) xJR yJR = Job.map2 (Result.map2 f) xJR yJR
 

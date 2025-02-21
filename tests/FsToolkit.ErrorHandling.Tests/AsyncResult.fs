@@ -781,7 +781,7 @@ let asyncResultOperatorTests =
                     if isAllowed then
                         createPostSuccess validCreatePostRequest
                     else
-                        AsyncResult.returnError (Exception "")
+                        AsyncResult.error (Exception "")
                 )
                 |> Expect.hasAsyncOkValue (PostId newPostId)
         }

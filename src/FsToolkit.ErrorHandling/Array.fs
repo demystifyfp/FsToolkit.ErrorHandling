@@ -91,13 +91,9 @@ module Array =
                     return! traverseAsyncResultA' (AsyncResult.ok (Array.append [| y |] ys)) f xs
                 | Error errs, Error e ->
                     return!
-                        traverseAsyncResultA'
-                            (AsyncResult.returnError (Array.append [| e |] errs))
-                            f
-                            xs
-                | Ok _, Error e ->
-                    return! traverseAsyncResultA' (AsyncResult.returnError [| e |]) f xs
-                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
+                        traverseAsyncResultA' (AsyncResult.error (Array.append [| e |] errs)) f xs
+                | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [| e |]) f xs
+                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
             }
 
     let traverseResultA f xs = traverseResultA' (Ok [||]) f xs

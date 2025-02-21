@@ -79,10 +79,9 @@ module List =
                 match s, fR with
                 | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.ok (y :: ys)) f xs
                 | Error errs, Error e ->
-                    return! traverseAsyncResultA' (AsyncResult.returnError (e :: errs)) f xs
-                | Ok _, Error e ->
-                    return! traverseAsyncResultA' (AsyncResult.returnError [ e ]) f xs
-                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.returnError e) f xs
+                    return! traverseAsyncResultA' (AsyncResult.error (e :: errs)) f xs
+                | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [ e ]) f xs
+                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
             }
 
     let traverseResultA f xs = traverseResultA' (Ok []) f xs

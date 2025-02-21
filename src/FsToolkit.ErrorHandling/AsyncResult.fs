@@ -9,11 +9,9 @@ module AsyncResult =
         Ok value
         |> Async.singleton
 
-    let inline returnError (error: 'error) : Async<Result<'ok, 'error>> =
+    let inline error (error: 'error) : Async<Result<'ok, 'error>> =
         Error error
         |> Async.singleton
-
-    let inline error (error: 'error) : Async<Result<'ok, 'error>> = returnError error
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -31,7 +29,7 @@ module AsyncResult =
         ([<InlineIfLambda>] binder: 'input -> Async<Result<'output, 'error>>)
         (input: Async<Result<'input, 'error>>)
         : Async<Result<'output, 'error>> =
-        Async.bind (Result.either binder returnError) input
+        Async.bind (Result.either binder error) input
 
     let inline foldResult
         ([<InlineIfLambda>] onSuccess: 'input -> 'output)

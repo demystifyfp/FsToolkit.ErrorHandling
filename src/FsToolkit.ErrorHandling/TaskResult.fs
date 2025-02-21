@@ -28,11 +28,9 @@ module TaskResult =
         Ok x
         |> Task.singleton
 
-    let inline returnError x =
+    let inline error x =
         Error x
         |> Task.singleton
-
-    let inline error x = returnError x
 
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 

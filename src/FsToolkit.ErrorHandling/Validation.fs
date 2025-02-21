@@ -31,9 +31,6 @@ module Validation =
                 @ errs2
             )
 
-    let inline returnError (error: 'error) : Validation<'ok, 'error> = Error [ error ]
-
-
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
     /// </summary>
