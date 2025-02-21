@@ -2,7 +2,7 @@
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Lift an 'error value into an Validation<'ok, 'error>
+Lift an `'error` value into an `Validation<'ok, 'error>`
 
 ## Function Signature:
 

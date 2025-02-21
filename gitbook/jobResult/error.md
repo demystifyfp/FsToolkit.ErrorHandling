@@ -2,7 +2,7 @@
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Lift an 'error value into an Job<Result<'ok, 'error>>
+Lift an `'error` value into an `Job<Result<'ok, 'error>>`
 
 ## Function Signature:
 

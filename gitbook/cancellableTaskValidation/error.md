@@ -1,13 +1,13 @@
-## CancellableTaskValidation.error
+## CancellableTaskValidation
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Lift an 'error value into an Async<Validation<'ok, 'error>>
+Lift an `'error` value into an `CancellableTaskValidation<'ok, 'error>`
 
 ## Function Signature:
 
 ```fsharp
-'error -> Async<Validation<'ok, 'error>>
+'error -> CancellableTaskValidation<'ok, 'error>
 ```
 
 ## Examples
@@ -16,7 +16,7 @@ Lift an 'error value into an Async<Validation<'ok, 'error>>
 
 
 ```fsharp
-let result : Async<Validation<int, string>> =
-  AsyncValidation.error "Something bad happened"
+let result : CancellableTaskValidation<int, string> =
+  CancellableTaskValidation.error "Something bad happened"
 ```
 
