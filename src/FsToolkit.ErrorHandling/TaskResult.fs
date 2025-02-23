@@ -107,6 +107,10 @@ module TaskResult =
         option
         |> Task.map (Result.requireSome error)
 
+    let inline requireSomeWith ifErrorThunk option =
+        option
+        |> Task.map (Result.requireSomeWith ifErrorThunk)
+
     // Converts an task-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =
         option

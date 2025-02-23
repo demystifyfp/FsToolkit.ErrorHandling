@@ -298,6 +298,18 @@ let requireSomeTests =
             |> Expect.hasAsyncErrorValue err)
     ]
 
+let requireSomeWithTests =
+    testList "AsyncResult.requireSomeWith Tests" [
+        testCaseAsync "requireSomeWith happy path"
+        <| (toAsync (Some 42)
+            |> AsyncResult.requireSomeWith (fun () -> err)
+            |> Expect.hasAsyncOkValue 42)
+
+        testCaseAsync "requireSomeWith error path"
+        <| (toAsync None
+            |> AsyncResult.requireSomeWith (fun () -> err)
+            |> Expect.hasAsyncErrorValue err)
+    ]
 
 let requireNoneTests =
     testList "AsyncResult.requireNone Tests" [
@@ -1006,6 +1018,7 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
+        requireSomeWithTests
         requireNoneTests
         requireValueSomeTests
         requireValueNoneTests
