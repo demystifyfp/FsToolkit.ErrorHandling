@@ -13,20 +13,20 @@ Result<'ok, 'leftError> -> Result<'ok, 'rightError> -> Result<'ok, 'leftError * 
 ### Example 1
 
 ```fsharp
-let result = Result.zip (Ok 1) (Ok 2)
+let result = Result.zipError (Ok 1) (Ok 2)
 // Ok  1
 ```
 
 ### Example 2
 
 ```fsharp
-let result = Result.zip (Ok 1) (Error "Bad")
+let result = Result.zipError (Ok 1) (Error "Bad")
 // Ok  1
 ```
 
 ### Example 3
 
 ```fsharp
-let result = Result.zip (Error "Bad1") (Error "Bad2")
+let result = Result.zipError (Error "Bad1") (Error "Bad2")
 // Error("Bad1", "Bad2")
 ```

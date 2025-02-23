@@ -1,4 +1,4 @@
-﻿# Result.mapError
+# Result.mapError
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -27,10 +27,10 @@ let getErrorCode (message: string) =
 
 ```fsharp
 let result =
-    Ok "bad things happened" // Result<string, string>
-    |> ResultOption.mapError getErrorCode // Result<string, int>
+    Ok "all good" // Result<string, string>
+    |> Result.mapError getErrorCode // Result<string, int>
 
-// Ok "bad things happened"
+// Ok "all good"
 ```
 
 ### Example 2
@@ -38,7 +38,7 @@ let result =
 ```fsharp
 let result =
     Error "bad things happened" // Result<string, string>
-    |> ResultOption.mapError getErrorCode // Result<string, int>
+    |> Result.mapError getErrorCode // Result<string, int>
 
 // Error 1
 ```
