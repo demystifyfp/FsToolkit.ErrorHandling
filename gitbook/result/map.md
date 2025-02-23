@@ -7,8 +7,7 @@ Namespace: `FsToolkit.ErrorHandling`
 ## Function Signature
 
 ```fsharp
-('okInput -> 'okOutput) -> Result<'okInput, 'error> 
-    -> Result<'okOutput, 'error>
+('okInput -> 'okOutput) -> Result<'okInput, 'error> -> Result<'okOutput, 'error>
 ```
 
 ## Examples
@@ -26,7 +25,7 @@ let remainingCharacters (prompt: string) =
 ```fsharp
 let result =
     Ok "foo" // Result<string, string>
-    |> ResultOption.map remainingCharacters // Result<int, string>
+    |> Result.map remainingCharacters // Result<int, string>
 
 // Ok 277
 ```
@@ -36,7 +35,7 @@ let result =
 ```fsharp
 let result =
     Error "bad things happened" // Result<string, string>
-    |> ResultOption.map remainingCharacters // Result<int, string>
+    |> Result.map remainingCharacters // Result<int, string>
 
 // Error "bad things happened"
 ```

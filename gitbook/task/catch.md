@@ -31,8 +31,6 @@ let result = Task.catch (Task.singleton 42)
 
 ### Example 2
 
-Given the function
-
 ```fsharp
 let result = Task.catch (taskThrow ())
 // task { Choice2Of2(exn("something bad happened")) }
