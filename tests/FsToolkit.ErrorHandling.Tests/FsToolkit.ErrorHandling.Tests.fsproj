@@ -34,9 +34,16 @@
         <Compile Include="ValidationCE.fs" />
         <Compile Include="AsyncValidation.fs" />
         <Compile Include="AsyncValidationCE.fs" />
+        <Compile Include="TaskValidation.fs" />
+        <Compile Include="TaskValidationCE.fs" />
         <Compile Include="Main.fs" />
         <None Include="paket.references" />
         <Watch Include="@(None)" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Update="Expecto">
+        <Version>10.2.1</Version>
+      </PackageReference>
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

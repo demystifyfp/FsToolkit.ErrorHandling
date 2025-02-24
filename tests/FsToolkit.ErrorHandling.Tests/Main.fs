@@ -30,6 +30,8 @@ let allTests =
         AsyncResultOptionCETests.allTests
         AsyncValidationTests.allTests
         AsyncValidationCETests.allTests
+        TaskValidationTests.allTests
+        TaskValidationCETests.allTests
         ValidationTests.allTests
         ValidationCETests.allTests
         ValueOptionTests.allTests
