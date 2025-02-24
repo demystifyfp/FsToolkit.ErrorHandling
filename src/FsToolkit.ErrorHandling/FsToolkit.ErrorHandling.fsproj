@@ -31,10 +31,11 @@
     <Compile Include="ValidationOp.fs" />
     <Compile Include="ValidationCE.fs" />
     <Compile Include="AsyncValidation.fs" />
-    <Compile Include="TaskValidation.fs" />
     <Compile Include="AsyncValidationOp.fs" />
-    <Compile Include="TaskValidationOp.fs" />
     <Compile Include="AsyncValidationCE.fs" />
+    <Compile Include="TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskValidationOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="AsyncOption.fs" />
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="AsyncOptionOp.fs" />
