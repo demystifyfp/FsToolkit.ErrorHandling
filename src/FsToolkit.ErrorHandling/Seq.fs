@@ -167,6 +167,7 @@ let traverseAsyncResultM f xs =
 /// <remarks>This function is equivalent to <see cref="traverseAsyncResultM"/> but auto-applying the 'id' function</remarks>
 let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
+#if !FABLE_COMPILER
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single Task result
 /// </summary>
@@ -219,6 +220,8 @@ let traverseTaskResultM f xs =
 /// <returns>A task result with the ok elements in an array or the first error occurring in the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseTaskResultM"/> but auto-applying the 'id' function</remarks>
 let sequenceTaskResultM xs = traverseTaskResultM id xs
+
+#endif
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single async result

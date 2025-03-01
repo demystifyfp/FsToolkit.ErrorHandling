@@ -353,6 +353,8 @@ let traverseAsyncResultMTests =
         }
     ]
 
+#if !FABLE_COMPILER
+
 let traverseTaskResultMTests =
 
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
@@ -396,6 +398,8 @@ let traverseTaskResultMTests =
                 |> Async.AwaitTask
         }
     ]
+
+#endif
 
 let traverseAsyncOptionMTests =
 
@@ -527,6 +531,8 @@ let sequenceAsyncResultMTests =
         }
     ]
 
+#if !FABLE_COMPILER
+
 let sequenceTaskResultMTests =
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
 
@@ -579,6 +585,8 @@ let sequenceTaskResultMTests =
             do! Expect.hasAsyncErrorValue expected actual
         }
     ]
+
+#endif
 
 let sequenceAsyncOptionMTests =
 
@@ -782,11 +790,15 @@ let allTests =
         traverseResultATests
         sequenceResultATests
         traverseAsyncResultMTests
+#if !FABLE_COMPILER
         traverseTaskResultMTests
+#endif
         traverseAsyncOptionMTests
         traverseAsyncResultATests
         sequenceAsyncResultMTests
+#if !FABLE_COMPILER
         sequenceTaskResultMTests
+#endif
         sequenceAsyncOptionMTests
         sequenceAsyncResultATests
 #if !FABLE_COMPILER
