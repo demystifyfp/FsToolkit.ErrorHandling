@@ -67,15 +67,20 @@ type TaskValidationBuilderBase() =
         ResumableCode.Combine(
             task1,
             TaskValidationCode<'TOverall, 'Error, 'T>(fun sm ->
-                if sm.Data.IsValidationError then true else task2.Invoke(&sm)
+                if sm.Data.IsValidationError then
+                    true
+                else
+                    task2.Invoke(&sm)
             )
         )
 
 
     /// Builds a step that executes the body while the condition predicate is true.
     member inline _.While
-        ([<InlineIfLambda>] condition: unit -> bool, body: TaskValidationCode<'TOverall, 'Error, unit>)
-        : TaskValidationCode<'TOverall, 'Error, unit> =
+        (
+            [<InlineIfLambda>] condition: unit -> bool,
+            body: TaskValidationCode<'TOverall, 'Error, unit>
+        ) : TaskValidationCode<'TOverall, 'Error, unit> =
         let mutable keepGoing = true
 
         ResumableCode.While(
@@ -106,8 +111,10 @@ type TaskValidationBuilderBase() =
     /// Wraps a step in a try/finally. This catches exceptions both in the evaluation of the function
     /// to retrieve the step, and in the continuation of the step (if any).
     member inline _.TryFinally
-        (body: TaskValidationCode<'TOverall, 'Error, 'T>, [<InlineIfLambda>] compensation: unit -> unit)
-        : TaskValidationCode<'TOverall, 'Error, 'T> =
+        (
+            body: TaskValidationCode<'TOverall, 'Error, 'T>,
+            [<InlineIfLambda>] compensation: unit -> unit
+        ) : TaskValidationCode<'TOverall, 'Error, 'T> =
 
         ResumableCode.TryFinally(
             body,
@@ -127,7 +134,9 @@ type TaskValidationBuilderBase() =
             (fun e ->
                 this.While(
                     (fun () -> e.MoveNext()),
-                    TaskValidationCode<'TOverall, 'Error, unit>(fun sm -> (body e.Current).Invoke(&sm))
+                    TaskValidationCode<'TOverall, 'Error, unit>(fun sm ->
+                        (body e.Current).Invoke(&sm)
+                    )
                 )
             )
         )
@@ -188,7 +197,9 @@ type TaskValidationBuilderBase() =
         )
 
 
-    member inline this.Source(taskValidation: TaskValidation<'T, 'Error>) : TaskValidation<'T, 'Error> =
+    member inline this.Source
+        (taskValidation: TaskValidation<'T, 'Error>)
+        : TaskValidation<'T, 'Error> =
         taskValidation
 
 
@@ -202,7 +213,9 @@ type TaskValidationBuilder() =
     // The executor stays constant throughout the execution, it wraps each step
     // of the execution in a try/with.  The resumption is changed at each step
     // to represent the continuation of the computation.
-    static member RunDynamic(code: TaskValidationCode<'T, 'Error, 'T>) : TaskValidation<'T, 'Error> =
+    static member RunDynamic
+        (code: TaskValidationCode<'T, 'Error, 'T>)
+        : TaskValidation<'T, 'Error> =
         let mutable sm = TaskValidationStateMachine<'T, 'Error>()
 
         let initialResumptionFunc =
@@ -285,7 +298,9 @@ type BackgroundTaskValidationBuilder() =
 
     inherit TaskValidationBuilderBase()
 
-    static member RunDynamic(code: TaskValidationCode<'T, 'Error, 'T>) : TaskValidation<'T, 'Error> =
+    static member RunDynamic
+        (code: TaskValidationCode<'T, 'Error, 'T>)
+        : TaskValidation<'T, 'Error> =
         // backgroundTask { .. } escapes to a background thread where necessary
         // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
         if
@@ -327,7 +342,9 @@ type BackgroundTaskValidationBuilder() =
                         isNull SynchronizationContext.Current
                         && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
                     then
-                        sm.Data.MethodBuilder <- AsyncTaskValidationMethodBuilder<'T, 'Error>.Create()
+                        sm.Data.MethodBuilder <-
+                            AsyncTaskValidationMethodBuilder<'T, 'Error>.Create()
+
                         sm.Data.MethodBuilder.Start(&sm)
                         sm.Data.MethodBuilder.Task
                     else
@@ -515,7 +532,9 @@ module TaskValidationCEExtensionsHighPriority =
         member inline this.BindReturn(x: TaskValidation<'T, 'Error>, f) =
             this.Bind(x.GetAwaiter(), (fun x -> this.Return(f x)))
 
-        member inline _.MergeSources(t1: TaskValidation<'T, 'Error>, t2: TaskValidation<'T1, 'Error>) =
+        member inline _.MergeSources
+            (t1: TaskValidation<'T, 'Error>, t2: TaskValidation<'T1, 'Error>)
+            =
             TaskValidation.zip t1 t2
 
         member inline _.Source(s: #seq<_>) = s
@@ -546,9 +565,11 @@ module TaskValidationCEExtensionsHighPriority2 =
             result
             |> Async.StartImmediateAsTask
 
-        member inline _.Source(t: ValueTask<Validation<_, _>>) : Task<Validation<_, _>> = task { return! t }
+        member inline _.Source(t: ValueTask<Validation<_, _>>) : Task<Validation<_, _>> =
+            task { return! t }
 
-        member inline _.Source(result: Validation<_, _>) : Task<Validation<_, _>> = Task.singleton result
+        member inline _.Source(result: Validation<_, _>) : Task<Validation<_, _>> =
+            Task.singleton result
 
         member inline _.Source(result: Choice<_, _>) : Task<Validation<_, _>> =
             result

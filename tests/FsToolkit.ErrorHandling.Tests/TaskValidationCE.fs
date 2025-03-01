@@ -1,361 +1,414 @@
 module TaskValidationCETests
 
 
-#if FABLE_COMPILER_PYTHON
-open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
-#endif
-#if !FABLE_COMPILER
 open Expecto
-#endif
-
+open SampleDomain
+open TestData
 open FsToolkit.ErrorHandling
+open System.Threading.Tasks
 
 let ``TaskValidationCE return Tests`` =
-    testList "TaskValidationCE return Tests" [
+    testList "TaskValidationCE  Tests" [
         testCaseTask "Return string"
-        <| fun () -> task {
-            let data = "Foo"
-            let! actual = taskValidation { return data }
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+        <| fun () ->
+            task {
+                let data = "Foo"
+                let! actual = taskValidation { return data }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
     ]
 
 let ``TaskValidationCE return! Tests`` =
     testList "TaskValidationCE return! Tests" [
-        testCaseTask "Return Ok result"
-        <| fun () -> task {
-            let data = Ok "Foo"
-            let! actual = taskValidation { return! data }
-            Expect.equal actual (data) "Should be ok"
-        }
-        testCaseTask "Return Error result"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let! expected = TaskValidation.error innerData
-            let data = Validation.Error [ innerData ]
-            let! actual = taskValidation { return! data }
-            Expect.equal actual expected "Should be error"
-        }
-        testCaseTask "Return Ok Choice"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let data = Choice1Of2 innerData
-            let! actual = taskValidation { return! data }
-            Expect.equal actual (Ok innerData) "Should be ok"
-        }
-        testCaseTask "Return Error Choice"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let! expected = TaskValidation.error innerData
-            let data = Choice2Of2 innerData
-            let! actual = taskValidation { return! data }
-            Expect.equal actual expected "Should be error"
-        }
         testCaseTask "Return Ok Validation"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let data = Validation.ok innerData
-            let! actual = taskValidation { return! data }
-            Expect.equal actual (Ok innerData) "Should be ok"
-        }
-        testCaseTask "Return Error Validation"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let expected = Validation.error innerData
-            let data = TaskValidation.error innerData
-            let! actual = taskValidation { return! data }
-            Expect.equal actual expected "Should be ok"
-        }
-    ]
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Validation.ok innerData
+                let! actual = taskValidation { return! data }
 
+                Expect.equal actual (data) "Should be ok"
+            }
+        testCaseTask "Return Ok Choice"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Choice1Of2 innerData
+                let! actual = taskValidation { return! data }
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+
+        testCaseTask "Return Ok AsyncValidation"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Validation.ok innerData
+                let! actual = taskValidation { return! Async.singleton data }
+
+                Expect.equal actual (data) "Should be ok"
+            }
+        testCaseTask "Return Ok TaskValidation"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Validation.ok innerData
+                let! actual = taskValidation { return! Task.FromResult data }
+
+                Expect.equal actual (data) "Should be ok"
+            }
+        testCaseTask "Return Async"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let! actual = taskValidation { return! Async.singleton innerData }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Return Task Generic"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let! actual = taskValidation { return! Task.singleton innerData }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Return Task"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let! actual = taskValidation { return! Task.FromResult innerData :> Task }
+
+                Expect.equal actual (Validation.ok ()) "Should be ok"
+            }
+        testCaseTask "Return ValueTask Generic"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let! actual = taskValidation { return! ValueTask.FromResult innerData }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Return ValueTask"
+        <| fun () ->
+            task {
+                let! actual = taskValidation { return! ValueTask.CompletedTask }
+
+                Expect.equal actual (Validation.ok ()) "Should be ok"
+            }
+    ]
 
 let ``TaskValidationCE bind Tests`` =
     testList "TaskValidationCE bind Tests" [
-        testCaseTask "let! Async"
-        <| fun () -> task {
-            let data = "Foo"
+        testCaseTask "Bind Ok Validation"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Validation.ok innerData
 
-            let! actual =
-                taskValidation {
-                    let! f = async { return data }
-                    return f
-                }
+                let! actual =
+                    taskValidation {
+                        let! data = data
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
-        testCaseTask "let! Ok result"
-        <| fun () -> task {
-            let data = Ok "Foo"
+                Expect.equal actual (data) "Should be ok"
 
-            let! actual =
-                taskValidation {
-                    let! f = data
-                    return f
-                }
+            }
+        testCaseTask "Bind Ok Choice"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let data = Choice1Of2 innerData
 
-            Expect.equal actual data "Should be ok"
-        }
-        testCaseTask "let! Error result"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let data = Validation.Error [ innerData ]
-            let! expected = TaskValidation.error innerData
+                let! actual =
+                    taskValidation {
+                        let! data = data
+                        return data
+                    }
 
-            let! actual =
-                taskValidation {
-                    let! f = data
-                    return f
-                }
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
 
-            Expect.equal actual expected "Should be ok"
-        }
-        testCaseTask "let! Ok Choice"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let data = Choice1Of2 innerData
 
-            let! actual =
-                taskValidation {
-                    let! f = data
-                    return f
-                }
+        testCaseTask "Bind Ok AsyncValidation"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
 
-            Expect.equal actual (Ok innerData) "Should be ok"
-        }
-        testCaseTask "let! Error Choice"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let data = Choice2Of2 innerData
-            let! expected = TaskValidation.error innerData
+                let data =
+                    Validation.ok innerData
+                    |> Async.singleton
 
-            let! actual =
-                taskValidation {
-                    let! f = data
-                    return f
-                }
+                let! actual =
+                    taskValidation {
+                        let! data = data
+                        return data
+                    }
 
-            Expect.equal actual expected "Should be ok"
-        }
-        testCaseTask "let! Ok Validation"
-        <| fun () -> task {
-            let innerData = "Foo"
+                Expect.equal
+                    actual
+                    (data
+                     |> Async.RunSynchronously)
+                    "Should be ok"
+            }
+        testCaseTask "Bind Ok TaskValidation"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
 
-            let! actual =
-                taskValidation {
-                    let! f = validation { return innerData }
-                    return f
-                }
+                let data =
+                    Validation.ok innerData
+                    |> Task.singleton
 
-            Expect.equal actual (Ok innerData) "Should be ok"
-        }
-        testCaseTask "let! Error Validation"
-        <| fun () -> task {
-            let innerData = "Foo"
-            let error = Error innerData
-            let expected = Error [ innerData ]
+                let! actual =
+                    taskValidation {
+                        let! data = data
+                        return data
+                    }
 
-            let! actual =
-                taskValidation {
-                    let! f = validation { return! error }
-                    and! _ = validation { return! Ok innerData }
-                    return f
-                }
+                Expect.equal actual (data.Result) "Should be ok"
+            }
+        testCaseTask "Bind Async"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
 
-            Expect.equal actual expected "Should be ok"
-        }
-        testCaseTask "do! Ok result"
-        <| fun () -> task {
-            let data = Ok()
-            let! actual = taskValidation { do! data }
-            Expect.equal actual data "Should be ok"
-        }
-        testCaseTask "do! Error result"
-        <| fun () -> task {
-            let innerData = ()
-            let data = Validation.Error [ innerData ]
-            let! expected = TaskValidation.error innerData
-            let! actual = taskValidation { do! data }
-            Expect.equal actual expected "Should be error"
-        }
-        testCaseTask "do! Ok Choice"
-        <| fun () -> task {
-            let innerData = ()
-            let! expected = TaskValidation.ok innerData
-            let data = Choice1Of2 innerData
-            let! actual = taskValidation { do! data }
-            Expect.equal actual expected "Should be ok"
-        }
-        testCaseTask "do! Error Choice"
-        <| fun () -> task {
-            let innerData = ()
-            let! expected = TaskValidation.error innerData
-            let data = Choice2Of2 innerData
-            let! actual = taskValidation { do! data }
-            Expect.equal actual expected "Should be error"
-        }
-        testCaseTask "do! Ok Validation"
-        <| fun () -> task {
-            let innerData = ()
-            let! expected = TaskValidation.ok innerData
-            let data = TaskValidation.ok innerData
-            let! actual = taskValidation { do! data }
-            Expect.equal actual expected "Should be ok"
-        }
-        testCaseTask "do! Error Validation"
-        <| fun () -> task {
-            let innerData = ()
-            let! expected = TaskValidation.error innerData
-            let data = TaskValidation.error innerData
-            let! actual = taskValidation { do! data }
-            Expect.equal actual expected "Should be error"
-        }
+                let! actual =
+                    taskValidation {
+                        let! data = Async.singleton innerData
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Bind Task Generic"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+
+                let! actual =
+                    taskValidation {
+                        let! data = Task.FromResult innerData
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Bind Task"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+                let! actual = taskValidation { do! Task.FromResult innerData :> Task }
+
+                Expect.equal actual (Validation.ok ()) "Should be ok"
+            }
+        testCaseTask "Bind ValueTask Generic"
+        <| fun () ->
+            task {
+                let innerData = "Foo"
+
+                let! actual =
+                    taskValidation {
+                        let! data = ValueTask.FromResult innerData
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok innerData) "Should be ok"
+            }
+        testCaseTask "Bind ValueTask"
+        <| fun () ->
+            task {
+                let! actual = taskValidation { do! ValueTask.CompletedTask }
+
+                Expect.equal actual (Validation.ok ()) "Should be ok"
+            }
+
+        testCaseTask "Task.Yield"
+        <| fun () ->
+            task {
+
+                let! actual = taskValidation { do! Task.Yield() }
+
+                Expect.equal actual (Validation.ok ()) "Should be ok"
+            }
     ]
 
 let ``TaskValidationCE combine/zero/delay/run Tests`` =
     testList "TaskValidationCE combine/zero/delay/run Tests" [
         testCaseTask "Zero/Combine/Delay/Run"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    let result = data
+                let! actual =
+                    taskValidation {
+                        let result = data
 
-                    if true then
-                        ()
+                        if true then
+                            ()
 
-                    return result
-                }
+                        return result
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
+        testCaseTask "If do!"
+        <| fun () ->
+            task {
+                let data = 42
+
+                let taskVal (call: unit -> Task) maybeCall : Task<Validation<int, unit>> =
+                    taskValidation {
+                        if true then
+                            do! call ()
+
+                        let! (res: string) = maybeCall (): Task<Validation<string, unit>>
+                        return data
+                    }
+
+                ()
+            }
     ]
-
 
 let ``TaskValidationCE try Tests`` =
     testList "TaskValidationCE try Tests" [
         testCaseTask "Try With"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    let data = data
+                let! actual =
+                    taskValidation {
+                        let data = data
 
-                    try
-                        ()
-                    with _ ->
-                        ()
+                        try
+                            ()
+                        with _ ->
+                            ()
 
-                    return data
-                }
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
         testCaseTask "Try Finally"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    let data = data
+                let! actual =
+                    taskValidation {
+                        let data = data
 
-                    try
-                        ()
-                    finally
-                        ()
+                        try
+                            ()
+                        finally
+                            ()
 
-                    return data
-                }
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
     ]
-
-let makeDisposable callback =
-    { new System.IDisposable with
-        member _.Dispose() = callback ()
-    }
 
 let ``TaskValidationCE using Tests`` =
     testList "TaskValidationCE using Tests" [
         testCaseTask "use normal disposable"
-        <| fun () -> task {
-            let data = 42
-            let mutable isFinished = false
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
 
-            let! actual =
-                taskValidation {
-                    use _ = makeDisposable (fun () -> isFinished <- true)
-                    return data
-                }
+                let! actual =
+                    taskValidation {
+                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        return data
+                    }
 
-            Expect.equal actual (Result.Ok data) "Should be ok"
-            Expect.isTrue isFinished "Expected disposable to be disposed"
-        }
-
+                Expect.equal actual (Validation.ok data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
         testCaseTask "use! normal wrapped disposable"
-        <| fun () -> task {
-            let data = 42
-            let mutable isFinished = false
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
 
-            let! actual =
-                taskValidation {
-                    use! d =
-                        makeDisposable (fun () -> isFinished <- true)
-                        |> Ok
+                let! actual =
+                    taskValidation {
+                        use! d =
+                            TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                            |> Validation.ok
 
-                    return data
-                }
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-            Expect.isTrue isFinished "Expected disposable to be disposed"
-        }
-
-        testCaseTask "disposable not disposed too early"
-        <| fun () -> task {
-            let mutable disposed = false
-            let mutable finished = false
-            let f1 _ = AsyncResult.ok 42
-
-            let! actual =
-                taskValidation {
-                    use d =
-                        makeDisposable (fun () ->
-                            disposed <- true
-
-                            if not finished then
-                                failwith "Should not be disposed too early"
-                        )
-
-                    let! data = f1 d
-                    finished <- true
-                    return data
-                }
-
-            Expect.equal actual (Ok 42) "Should be ok"
-            Expect.isTrue disposed "Should be disposed"
-        }
-
-#if !FABLE_COMPILER && NETSTANDARD2_1
-        // Fable can't handle null disposables you get
-        // TypeError: Cannot read property 'Dispose' of null
+                Expect.equal actual (Validation.ok data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
         testCaseTask "use null disposable"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    use d = null
-                    return data
-                }
+                let! actual =
+                    taskValidation {
+                        use d = null
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
-#endif
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
+        testCaseTask "use sync asyncdisposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskValidation {
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    isFinished <- true
+                                    ValueTask()
+                                )
+                            )
+
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+
+        testCaseTask "use async asyncdisposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskValidation {
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    task {
+                                        do! Task.Yield()
+                                        isFinished <- true
+                                    }
+                                    :> Task
+                                    |> ValueTask
+                                )
+                            )
+
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
     ]
 
 let ``TaskValidationCE loop Tests`` =
@@ -368,242 +421,320 @@ let ``TaskValidationCE loop Tests`` =
 
             for maxIndex in maxIndices do
                 testCaseTask
-                <| $"While - %i{maxIndex}"
-                <| fun () -> task {
-                    let data = 42
-                    let mutable index = 0
+                <| sprintf "While - %i" maxIndex
+                <| fun () ->
+                    task {
+                        let data = 42
+                        let mutable index = 0
 
-                    let! actual =
-                        taskValidation {
-                            while index < maxIndex do
-                                index <- index + 1
+                        let! actual =
+                            taskValidation {
+                                while index < maxIndex do
+                                    index <- index + 1
 
-                            return data
-                        }
+                                return data
+                            }
 
-                    Expect.equal index maxIndex "Index should reach maxIndex"
-                    Expect.equal actual (Ok data) "Should be ok"
-                }
+                        Expect.equal index maxIndex "Index should reach maxIndex"
+                        Expect.equal actual (Validation.ok data) "Should be ok"
+                    }
         ]
 
+
         testCaseTask "while fail"
-        <| fun () -> task {
+        <| fun () ->
+            task {
 
-            let mutable loopCount = 0
-            let mutable wasCalled = false
+                let mutable loopCount = 0
+                let mutable wasCalled = false
 
-            let sideEffect () =
-                wasCalled <- true
-                "ok"
+                let sideEffect () =
+                    wasCalled <- true
+                    "ok"
 
-            let expected = Validation.error "NOPE"
+                let expected = Validation.error "error"
 
-            let data = [
-                Validation.ok "42"
-                Validation.ok "1024"
-                expected
-                Validation.ok "1M"
-                Validation.ok "1M"
-                Validation.ok "1M"
-            ]
+                let data = [
+                    Validation.ok "42"
+                    Validation.ok "1024"
+                    expected
+                    Validation.ok "1M"
+                    Validation.ok "1M"
+                    Validation.ok "1M"
+                ]
 
-            let! actual =
-                taskValidation {
-                    while loopCount < data.Length do
-                        let! _ = data[loopCount]
+                let! actual =
+                    taskValidation {
+                        while loopCount < data.Length do
+                            let! x = data.[loopCount]
 
-                        loopCount <-
-                            loopCount
-                            + 1
+                            loopCount <-
+                                loopCount
+                                + 1
 
-                    return sideEffect ()
-                }
+                        return sideEffect ()
+                    }
 
-            Expect.equal loopCount 2 "Should only loop twice"
-            Expect.equal actual (Error [ "NOPE" ]) "Should be an error"
-            Expect.isFalse wasCalled "No additional side effects should occur"
-        }
-
+                Expect.equal loopCount 2 "Should only loop twice"
+                Expect.equal actual expected "Should be an error"
+                Expect.isFalse wasCalled "No additional side effects should occur"
+            }
         testCaseTask "for in"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    for _ in [ 1..10 ] do
-                        ()
+                let! actual =
+                    taskValidation {
+                        for i in [ 1..10 ] do
+                            ()
 
-                    return data
-                }
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
         testCaseTask "for to"
-        <| fun () -> task {
-            let data = 42
+        <| fun () ->
+            task {
+                let data = 42
 
-            let! actual =
-                taskValidation {
-                    for _ = 1 to 10 do
-                        ()
+                let! actual =
+                    taskValidation {
+                        for i = 1 to 10 do
+                            ()
 
-                    return data
-                }
+                        return data
+                    }
 
-            Expect.equal actual (Ok data) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
+        testCaseTask "for in fail"
+        <| fun () ->
+            task {
+
+                let mutable loopCount = 0
+                let expected = Validation.error "error"
+
+                let data = [
+                    Validation.ok "42"
+                    Validation.ok "1024"
+                    expected
+                    Validation.ok "1M"
+                    Validation.ok "1M"
+                    Validation.ok "1M"
+                ]
+
+                let! actual =
+                    taskValidation {
+                        for i in data do
+                            let! x = i
+
+                            loopCount <-
+                                loopCount
+                                + 1
+
+                            ()
+
+                        return "ok"
+                    }
+
+                Expect.equal loopCount 2 "Should only loop twice"
+                Expect.equal actual expected "Should be an error"
+            }
     ]
 
 let ``TaskValidationCE applicative tests`` =
     testList "TaskValidationCE applicative tests" [
-        testCaseTask "Happy Path Result"
-        <| fun () -> task {
-            let! actual =
-                taskValidation {
-                    let! a = Ok 3
-                    and! b = Ok 2
-                    and! c = Ok 1
-                    return a + b - c
-                }
+        testCaseTask "Happy Path TaskValidation"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = TaskValidation.ok 3
+                        and! b = TaskValidation.ok 2
+                        and! c = TaskValidation.ok 1
+                        return a + b - c
+                    }
 
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
-        testCaseTask "Happy Path Valiation"
-        <| fun () -> task {
-            let! actual =
-                taskValidation {
-                    let! a = TaskValidation.ok 3
-                    and! b = TaskValidation.ok 2
-                    and! c = TaskValidation.ok 1
-                    return a + b - c
-                }
+                Expect.equal actual (Validation.ok 4) "Should be ok"
+            }
 
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
+        testCaseTask "Happy Path AsyncValidation"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = AsyncValidation.ok 3
+                        and! b = AsyncValidation.ok 2
+                        and! c = AsyncValidation.ok 1
+                        return a + b - c
+                    }
 
-        testCaseTask "Happy Path Result/Validation"
-        <| fun () -> task {
-            let! actual =
-                taskValidation {
-                    let! a = TaskValidation.ok 3
-                    and! b = Validation.ok 2
-                    and! c = TaskValidation.ok 1
-                    return a + b - c
-                }
+                Expect.equal actual (Validation.ok 4) "Should be ok"
+            }
 
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
+
+        testCaseTask "Happy Path Validation"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Validation.ok 3
+                        and! b = Validation.ok 2
+                        and! c = Validation.ok 1
+                        return a + b - c
+                    }
+
+                Expect.equal actual (Validation.ok 4) "Should be ok"
+            }
 
         testCaseTask "Happy Path Choice"
-        <| fun () -> task {
-            let! actual =
-                taskValidation {
-                    let! a = Choice1Of2 3
-                    and! b = Choice1Of2 2
-                    and! c = Choice1Of2 1
-                    return a + b - c
-                }
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Choice1Of2 3
+                        and! b = Choice1Of2 2
+                        and! c = Choice1Of2 1
+                        return a + b - c
+                    }
 
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
+                Expect.equal actual (Validation.ok 4) "Should be ok"
+            }
 
-        testCaseTask "Happy Path Result/Choice/Task/Validation"
-        <| fun () -> task {
-            let! actual =
-                taskValidation {
-                    let! a = Ok 3
-                    and! b = Choice1Of2 2
-                    and! c = TaskValidation.ok 1
+        testCaseTask "Happy Path Async"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Async.singleton 3 //: Async<int>
+                        and! b = Async.singleton 2 //: Async<int>
+                        and! c = Async.singleton 1 //: Async<int>
+                        return a + b - c
+                    }
 
-                    return a + b - c
-                }
+                Expect.equal actual (Validation.ok 4) "Should be ok"
+            }
 
-            Expect.equal actual (Ok 4) "Should be ok"
-        }
+        testCaseTask "Happy Path 2 Async"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Async.singleton 3 //: Async<int>
+                        and! b = Async.singleton 2 //: Async<int>
+                        return a + b
+                    }
 
-        testCaseTask "Sad Path Async Result/Async Result"
-        <| fun () -> task {
-            let expected =
-                Error [
-                    "Hello"
-                    "World"
-                ]
+                Expect.equal actual (Validation.ok 5) "Should be ok"
+            }
 
-            let! actual =
-                taskValidation {
-                    let! _ = async { return Error "Hello" }
-                    and! _ = async { return Error "World" }
-                    return ()
-                }
+        testCaseTask "Happy Path 2 Task"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Task.FromResult 3
+                        and! b = Task.FromResult 2
+                        return a + b
+                    }
 
-            Expect.equal actual expected "Should be error"
-        }
+                Expect.equal actual (Validation.ok 5) "Should be ok"
+            }
+        let specialCaseTask returnValue = Task.FromResult returnValue
 
-#if !FABLE_COMPILER
+        testCaseTask "Happy Path Validation/Choice/AsyncValidation/Ply/ValueTask"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! a = Validation.ok 3
+                        and! b = Choice1Of2 2
 
-        testCaseTask "Sad Path Task Result/Task Result"
-        <| fun () -> task {
-            let expected =
-                Error [
-                    "Hello"
-                    "World"
-                ]
+                        and! c =
+                            Validation.ok 1
+                            |> Async.singleton
 
-            let! actual =
-                taskValidation {
-                    let! _ = task { return Error "Hello" }
-                    and! _ = task { return Error "World" }
-                    return ()
-                }
+                        and! d = specialCaseTask (Validation.ok 3)
+                        and! e = ValueTask.FromResult(Validation.ok 5)
 
-            Expect.equal actual expected "Should be error"
-        }
+                        return
+                            a + b
+                            - c
+                            - d
+                            + e
+                    }
 
-#endif
-
-        testCaseTask "Fail Path Result"
-        <| fun () -> task {
-            let expected =
-                Error [
-                    "Error 1"
-                    "Error 2"
-                ]
-
-            let! actual =
-                taskValidation {
-                    let! a = Ok 3
-                    and! b = Ok 2
-                    and! c = Validation.error "Error 1"
-                    and! d = Validation.error "Error 2"
-
-                    return
-                        a + b
-                        - c
-                        - d
-                }
-
-            Expect.equal actual expected "Should be Error"
-        }
+                Expect.equal actual (Validation.ok 6) "Should be ok"
+            }
 
         testCaseTask "Fail Path Validation"
-        <| fun () -> task {
-            let expected = TaskValidation.error "TryParse failure"
-            let! expected' = expected
+        <| fun () ->
+            task {
+                let expected = Validation.error "TryParse failure"
 
-            let! actual =
-                taskValidation {
-                    let! a = TaskValidation.ok 3
-                    and! b = TaskValidation.ok 2
-                    and! c = expected
-                    return a + b - c
-                }
+                let! actual =
+                    taskValidation {
+                        let! a = Validation.ok 3
+                        and! b = Validation.ok 2
+                        and! c = expected
+                        return a + b - c
+                    }
 
-            Expect.equal actual expected' "Should be Error"
-        }
+                Expect.equal actual expected "Should be Error"
+            }
+
+        testCaseTask "Fail Path Choice"
+        <| fun () ->
+            task {
+                let errorMsg = "TryParse failure"
+
+                let! actual =
+                    taskValidation {
+                        let! a = Choice1Of2 3
+                        and! b = Choice1Of2 2
+                        and! c = Choice2Of2 errorMsg
+                        return a + b - c
+                    }
+
+                Expect.equal actual (Validation.error errorMsg) "Should be Error"
+            }
+
+        testCaseTask "Fail Path Validation/Choice/AsyncValidation"
+        <| fun () ->
+            task {
+                let errorMsg = "TryParse failure"
+
+                let! actual =
+                    taskValidation {
+                        let! a = Choice1Of2 3
+
+                        and! b =
+                            Validation.ok 2
+                            |> Async.singleton
+
+                        and! c = Validation.error errorMsg
+                        return a + b - c
+                    }
+
+                Expect.equal actual (Validation.error errorMsg) "Should be Error"
+            }
+    ]
+
+let ``TaskValidationCE inference checks`` =
+    testList "TaskValidationCE inference checks" [
+        testCase "Inference checks"
+        <| fun () ->
+            // Compilation is success
+            let f res = taskValidation { return! res () }
+
+            f (TaskValidation.ok)
+            |> ignore
     ]
 
 let allTests =
-    testList "Validation CE Tests" [
+    testList "TaskValidationCETests" [
         ``TaskValidationCE return Tests``
         ``TaskValidationCE return! Tests``
         ``TaskValidationCE bind Tests``
@@ -612,4 +743,5 @@ let allTests =
         ``TaskValidationCE using Tests``
         ``TaskValidationCE loop Tests``
         ``TaskValidationCE applicative tests``
+        ``TaskValidationCE inference checks``
     ]

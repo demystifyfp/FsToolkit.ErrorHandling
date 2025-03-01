@@ -96,7 +96,7 @@ module TaskValidation =
     /// </returns>
     let inline orElseWith
         ([<InlineIfLambda>] ifErrorFunc: 'errorInput list -> TaskValidation<'ok, 'errorOutput>)
-        (validation : TaskValidation<'ok, 'errorInput>)
+        (validation: TaskValidation<'ok, 'errorInput>)
         : TaskValidation<'ok, 'errorOutput> =
         task {
             let! validation = validation
