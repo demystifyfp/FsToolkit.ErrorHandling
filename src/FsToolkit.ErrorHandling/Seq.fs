@@ -168,6 +168,51 @@ let traverseAsyncResultM f xs =
 let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
 /// <summary>
+/// Applies a function to each element of a sequence and returns a single Task result
+/// </summary>
+/// <param name="state">The initial state</param>
+/// <param name="f">The function to apply to each element</param>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with the ok elements in an array or the first error encountered in the state or the sequence</returns>
+let inline traverseTaskResultM'
+    (state: TaskResult<'okOutput seq, 'error>)
+    ([<InlineIfLambda>] f: 'okInput -> TaskResult<'okOutput, 'error>)
+    (xs: 'okInput seq)
+    : TaskResult<'okOutput[], 'error> =
+    if isNull xs then
+        nullArg (nameof xs)
+
+    task {
+        match! state with
+        | Error e -> return Error e
+        | Ok initialSuccesses ->
+            let oks = ResizeArray(initialSuccesses)
+            let mutable ok = true
+            let mutable err = Unchecked.defaultof<'error>
+            use e = xs.GetEnumerator()
+
+            while ok
+                  && e.MoveNext() do
+                match! f e.Current with
+                | Ok r -> oks.Add r
+                | Error e ->
+                    ok <- false
+                    err <- e
+
+            return if ok then Ok(oks.ToArray()) else Error err
+    }
+
+/// <summary>
+/// Applies a function to each element of a sequence and returns a single Task result
+/// </summary>
+/// <param name="f">The function to apply to each element</param>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with the ok elements in an array or the first error occurring in the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseTaskResultM'"/> but applying an initial state of 'Seq.empty'</remarks>
+let traverseTaskResultM f xs =
+    traverseTaskResultM' (TaskResult.ok Seq.empty) f xs
+
+/// <summary>
 /// Applies a function to each element of a sequence and returns a single async result
 /// </summary>
 /// <param name="state">The initial state</param>

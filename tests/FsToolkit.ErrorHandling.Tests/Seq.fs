@@ -470,7 +470,6 @@ let traverseAsyncResultATests =
         }
     ]
 
-
 let sequenceAsyncResultMTests =
     let userIds =
         seq {
@@ -509,6 +508,50 @@ let sequenceAsyncResultMTests =
                 |> Seq.sequenceAsyncResultM
 
             do! Expect.hasAsyncErrorValue expected actual
+        }
+    ]
+
+let traverseTaskResultATests =
+    let userIds =
+        seq {
+            userId1
+            userId2
+            userId3
+            userId4
+        }
+        |> Seq.map UserId
+
+    testList "Seq.traverseTaskResultA Tests" [
+        testCaseAsync "traverseTaskResultA with a sequence of valid data"
+        <| async {
+            let expected =
+                userIds
+                |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toList
+
+            let! actual = Seq.traverseTaskResultA (notifyNewPostSuccess (PostId newPostId)) userIds
+
+            let actual =
+                Expect.wantOk actual "Expected result to be Ok"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of valid data"
+        }
+
+        testCaseAsync "traverseResultA with few invalid data"
+        <| async {
+            let expected = [
+                sprintf "error: %s" (userId1.ToString())
+                sprintf "error: %s" (userId3.ToString())
+            ]
+
+            let! actual = Seq.traverseTaskResultA (notifyFailure (PostId newPostId)) userIds
+
+            let actual =
+                Expect.wantError actual "Expected result to be Error"
+                |> Seq.toList
+
+            Expect.equal actual expected "Should have a sequence of errors"
         }
     ]
 
@@ -723,6 +766,7 @@ let allTests =
         traverseAsyncResultMTests
         traverseAsyncOptionMTests
         traverseAsyncResultATests
+        traverseTaskResultATests
         sequenceAsyncResultMTests
         sequenceAsyncOptionMTests
         sequenceAsyncResultATests
