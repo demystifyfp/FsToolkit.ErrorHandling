@@ -22,6 +22,8 @@
         <Compile Include="BackgroundTaskOptionCE.fs" />
         <Compile Include="List.fs" />
         <Compile Include="TaskResultOption.fs" />
+        <Compile Include="TaskValidation.fs" />
+        <Compile Include="TaskValidationCE.fs" />
         <Compile Include="Main.fs" />
         <None Include="paket.references" />
         <Watch Include="@(None)" />

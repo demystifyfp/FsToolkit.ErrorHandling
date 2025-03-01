@@ -1,12 +1,10 @@
 module TaskValidationCETests
 
-
 open Expecto
-open SampleDomain
-open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
+[<Tests>]
 let ``TaskValidationCE return Tests`` =
     testList "TaskValidationCE  Tests" [
         testCaseTask "Return string"
@@ -18,6 +16,7 @@ let ``TaskValidationCE return Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE return! Tests`` =
     testList "TaskValidationCE return! Tests" [
         testCaseTask "Return Ok Validation"
@@ -97,6 +96,7 @@ let ``TaskValidationCE return! Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE bind Tests`` =
     testList "TaskValidationCE bind Tests" [
         testCaseTask "Bind Ok Validation"
@@ -233,6 +233,7 @@ let ``TaskValidationCE bind Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE combine/zero/delay/run Tests`` =
     testList "TaskValidationCE combine/zero/delay/run Tests" [
         testCaseTask "Zero/Combine/Delay/Run"
@@ -270,6 +271,7 @@ let ``TaskValidationCE combine/zero/delay/run Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE try Tests`` =
     testList "TaskValidationCE try Tests" [
         testCaseTask "Try With"
@@ -312,6 +314,7 @@ let ``TaskValidationCE try Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE using Tests`` =
     testList "TaskValidationCE using Tests" [
         testCaseTask "use normal disposable"
@@ -411,6 +414,7 @@ let ``TaskValidationCE using Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE loop Tests`` =
     testList "TaskValidationCE loop Tests" [
         yield! [
@@ -544,6 +548,7 @@ let ``TaskValidationCE loop Tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE applicative tests`` =
     testList "TaskValidationCE applicative tests" [
         testCaseTask "Happy Path TaskValidation"
@@ -722,6 +727,7 @@ let ``TaskValidationCE applicative tests`` =
             }
     ]
 
+[<Tests>]
 let ``TaskValidationCE inference checks`` =
     testList "TaskValidationCE inference checks" [
         testCase "Inference checks"
@@ -731,17 +737,4 @@ let ``TaskValidationCE inference checks`` =
 
             f (TaskValidation.ok)
             |> ignore
-    ]
-
-let allTests =
-    testList "TaskValidationCETests" [
-        ``TaskValidationCE return Tests``
-        ``TaskValidationCE return! Tests``
-        ``TaskValidationCE bind Tests``
-        ``TaskValidationCE combine/zero/delay/run Tests``
-        ``TaskValidationCE try Tests``
-        ``TaskValidationCE using Tests``
-        ``TaskValidationCE loop Tests``
-        ``TaskValidationCE applicative tests``
-        ``TaskValidationCE inference checks``
     ]
