@@ -213,6 +213,14 @@ let traverseTaskResultM f xs =
     traverseTaskResultM' (TaskResult.ok Seq.empty) f xs
 
 /// <summary>
+/// Converts a sequence of Task results into a single Task result
+/// </summary>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with the ok elements in an array or the first error occurring in the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseTaskResultM"/> but auto-applying the 'id' function</remarks>
+let sequenceTaskResultM xs = traverseTaskResultM id xs
+
+/// <summary>
 /// Applies a function to each element of a sequence and returns a single async result
 /// </summary>
 /// <param name="state">The initial state</param>
