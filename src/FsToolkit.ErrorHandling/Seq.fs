@@ -5,6 +5,8 @@
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Seq
 
+open Microsoft.FSharp.Core.CompilerServices
+
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
 /// </summary>
@@ -24,9 +26,10 @@ let inline traverseResultM'
     | Error e -> Error e
     | Ok initialSuccesses ->
 
-        let oks = ResizeArray(initialSuccesses)
-        let mutable ok = true
+        let oks = ArrayCollector()
+        oks.AddMany initialSuccesses
         let mutable err = Unchecked.defaultof<'error>
+        let mutable ok = true
         use e = xs.GetEnumerator()
 
         while ok
@@ -34,10 +37,10 @@ let inline traverseResultM'
             match f e.Current with
             | Ok r -> oks.Add r
             | Error e ->
-                ok <- false
                 err <- e
+                ok <- false
 
-        if ok then Ok(oks.ToArray()) else Error err
+        if ok then Ok(oks.Close()) else Error err
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -74,28 +77,31 @@ let inline traverseResultA'
 
     match state with
     | Error failuresToDate ->
-        let errs = ResizeArray(failuresToDate)
+        let errs = ArrayCollector()
+        errs.AddMany failuresToDate
 
         for x in xs do
             match f x with
-            | Ok _ -> () // as the initial state was failure, oks are irrelevant
             | Error e -> errs.Add e
+            | Ok _ -> () // as the initial state was failure, oks are irrelevant
 
-        Error(errs.ToArray())
+        Error(errs.Close())
     | Ok initialSuccesses ->
 
-        let oks = ResizeArray(initialSuccesses)
-        let errs = ResizeArray()
+        let oks = ArrayCollector()
+        oks.AddMany initialSuccesses
+        let errs = ArrayCollector()
+        let mutable ok = true
 
         for x in xs do
             match f x with
-            | Error e -> errs.Add e
-            | Ok r when errs.Count = 0 -> oks.Add r
+            | Ok r when ok -> oks.Add r
             | Ok _ -> () // no point saving results we won't use given the end result will be Error
+            | Error e ->
+                errs.Add e
+                ok <- false
 
-        match errs.ToArray() with
-        | [||] -> Ok(oks.ToArray())
-        | errs -> Error errs
+        if ok then Ok(oks.Close()) else Error(errs.Close())
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -133,9 +139,10 @@ let inline traverseAsyncResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ResizeArray(initialSuccesses)
-            let mutable ok = true
+            let oks = ArrayCollector()
+            oks.AddMany initialSuccesses
             let mutable err = Unchecked.defaultof<'error>
+            let mutable ok = true
             use e = xs.GetEnumerator()
 
             while ok
@@ -143,10 +150,10 @@ let inline traverseAsyncResultM'
                 match! f e.Current with
                 | Ok r -> oks.Add r
                 | Error e ->
-                    ok <- false
                     err <- e
+                    ok <- false
 
-            return if ok then Ok(oks.ToArray()) else Error err
+            return if ok then Ok(oks.Close()) else Error err
     }
 
 /// <summary>
@@ -187,9 +194,10 @@ let inline traverseTaskResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ResizeArray(initialSuccesses)
-            let mutable ok = true
+            let oks = ArrayCollector()
+            oks.AddMany initialSuccesses
             let mutable err = Unchecked.defaultof<'error>
+            let mutable ok = true
             use e = xs.GetEnumerator()
 
             while ok
@@ -197,10 +205,10 @@ let inline traverseTaskResultM'
                 match! f e.Current with
                 | Ok r -> oks.Add r
                 | Error e ->
-                    ok <- false
                     err <- e
+                    ok <- false
 
-            return if ok then Ok(oks.ToArray()) else Error err
+            return if ok then Ok(oks.Close()) else Error err
     }
 
 /// <summary>
@@ -241,28 +249,31 @@ let inline traverseAsyncResultA'
     async {
         match! state with
         | Error failuresToDate ->
-            let errs = ResizeArray(failuresToDate)
+            let errs = ArrayCollector()
+            errs.AddMany failuresToDate
 
             for x in xs do
                 match! f x with
                 | Ok _ -> () // as the initial state was failure, oks are irrelevant
                 | Error e -> errs.Add e
 
-            return Error(errs.ToArray())
+            return Error(errs.Close())
         | Ok initialSuccesses ->
 
-            let oks = ResizeArray(initialSuccesses)
-            let errs = ResizeArray()
+            let oks = ArrayCollector()
+            oks.AddMany initialSuccesses
+            let mutable ok = true
+            let errs = ArrayCollector()
 
             for x in xs do
                 match! f x with
-                | Error e -> errs.Add e
-                | Ok r when errs.Count = 0 -> oks.Add r
+                | Ok r when ok -> oks.Add r
                 | Ok _ -> () // no point saving results we won't use given the end result will be Error
+                | Error e ->
+                    errs.Add e
+                    ok <- false
 
-            match errs.ToArray() with
-            | [||] -> return Ok(oks.ToArray())
-            | errs -> return Error errs
+            return if ok then Ok(oks.Close()) else Error(errs.Close())
     }
 
 /// <summary>
@@ -300,8 +311,9 @@ let inline traverseOptionM'
 
     match state with
     | None -> None
-    | Some values ->
-        let values = ResizeArray(values)
+    | Some initialValues ->
+        let values = ArrayCollector()
+        values.AddMany initialValues
         let mutable ok = true
         use enumerator = xs.GetEnumerator()
 
@@ -311,7 +323,7 @@ let inline traverseOptionM'
             | Some value -> values.Add value
             | None -> ok <- false
 
-        if ok then Some(values.ToArray()) else None
+        if ok then Some(values.Close()) else None
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single option
@@ -348,8 +360,9 @@ let inline traverseAsyncOptionM'
     async {
         match! state with
         | None -> return None
-        | Some values ->
-            let values = ResizeArray(values)
+        | Some initialValues ->
+            let values = ArrayCollector()
+            values.AddMany initialValues
             let mutable ok = true
             use enumerator = xs.GetEnumerator()
 
@@ -359,7 +372,7 @@ let inline traverseAsyncOptionM'
                 | Some value -> values.Add value
                 | None -> ok <- false
 
-            return if ok then Some(values.ToArray()) else None
+            return if ok then Some(values.Close()) else None
     }
 
 /// <summary>
@@ -399,8 +412,9 @@ let inline traverseVOptionM'
 
     match state with
     | ValueNone -> ValueNone
-    | ValueSome values ->
-        let values = ResizeArray(values)
+    | ValueSome initialValues ->
+        let values = ArrayCollector()
+        values.AddMany initialValues
         let mutable ok = true
         use enumerator = xs.GetEnumerator()
 
@@ -410,7 +424,7 @@ let inline traverseVOptionM'
             | ValueSome value -> values.Add value
             | ValueNone -> ok <- false
 
-        if ok then ValueSome(values.ToArray()) else ValueNone
+        if ok then ValueSome(values.Close()) else ValueNone
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single voption
