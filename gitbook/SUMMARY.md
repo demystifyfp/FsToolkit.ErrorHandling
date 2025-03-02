@@ -228,6 +228,21 @@
       * [ofChoice](asyncValidation/ofChoice.md)
       * [ofResult](asyncValidation/ofResult.md)
 
+  * [TaskValidation](taskValidation/index.md)
+    * [apply](taskValidation/apply.md)
+    * [Computation Expression](taskValidation/ce.md)
+    * [error](taskValidation/error.md)
+    * [map](taskValidation/map.md)
+    * [map2](taskValidation/map2.md)
+    * [map3](taskValidation/map3.md)
+    * [mapError](taskValidation/mapError.md)
+    * [mapErrors](taskValidation/mapErrors.md)
+    * [Operators](taskValidation/operators.md)
+    * [zip](taskValidation/zip.md)
+    * Transforms
+      * [ofChoice](taskValidation/ofChoice.md)
+      * [ofResult](taskValidation/ofResult.md)
+
 * FsToolkit.ErrorHandling.AsyncSeq
   * AsyncSeq
     * [Computation Expression](pr.md)
