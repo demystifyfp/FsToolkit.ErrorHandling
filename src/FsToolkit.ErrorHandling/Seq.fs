@@ -26,7 +26,7 @@ let inline traverseResultM'
     | Error e -> Error e
     | Ok initialSuccesses ->
 
-        let oks = ArrayCollector()
+        let mutable oks = ArrayCollector()
         oks.AddMany initialSuccesses
         let mutable err = Unchecked.defaultof<'error>
         let mutable ok = true
@@ -77,7 +77,7 @@ let inline traverseResultA'
 
     match state with
     | Error failuresToDate ->
-        let errs = ArrayCollector()
+        let mutable errs = ArrayCollector()
         errs.AddMany failuresToDate
 
         for x in xs do
@@ -88,9 +88,9 @@ let inline traverseResultA'
         Error(errs.Close())
     | Ok initialSuccesses ->
 
-        let oks = ArrayCollector()
+        let mutable oks = ArrayCollector()
         oks.AddMany initialSuccesses
-        let errs = ArrayCollector()
+        let mutable errs = ArrayCollector()
         let mutable ok = true
 
         for x in xs do
@@ -139,7 +139,7 @@ let inline traverseAsyncResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ArrayCollector()
+            let mutable oks = ArrayCollector()
             oks.AddMany initialSuccesses
             let mutable err = Unchecked.defaultof<'error>
             let mutable ok = true
@@ -194,7 +194,7 @@ let inline traverseTaskResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ArrayCollector()
+            let mutable oks = ArrayCollector()
             oks.AddMany initialSuccesses
             let mutable err = Unchecked.defaultof<'error>
             let mutable ok = true
@@ -249,7 +249,7 @@ let inline traverseAsyncResultA'
     async {
         match! state with
         | Error failuresToDate ->
-            let errs = ArrayCollector()
+            let mutable errs = ArrayCollector()
             errs.AddMany failuresToDate
 
             for x in xs do
@@ -260,10 +260,10 @@ let inline traverseAsyncResultA'
             return Error(errs.Close())
         | Ok initialSuccesses ->
 
-            let oks = ArrayCollector()
+            let mutable oks = ArrayCollector()
             oks.AddMany initialSuccesses
             let mutable ok = true
-            let errs = ArrayCollector()
+            let mutable errs = ArrayCollector()
 
             for x in xs do
                 match! f x with
@@ -312,7 +312,7 @@ let inline traverseOptionM'
     match state with
     | None -> None
     | Some initialValues ->
-        let values = ArrayCollector()
+        let mutable values = ArrayCollector()
         values.AddMany initialValues
         let mutable ok = true
         use enumerator = xs.GetEnumerator()
@@ -361,7 +361,7 @@ let inline traverseAsyncOptionM'
         match! state with
         | None -> return None
         | Some initialValues ->
-            let values = ArrayCollector()
+            let mutable values = ArrayCollector()
             values.AddMany initialValues
             let mutable ok = true
             use enumerator = xs.GetEnumerator()
@@ -413,7 +413,7 @@ let inline traverseVOptionM'
     match state with
     | ValueNone -> ValueNone
     | ValueSome initialValues ->
-        let values = ArrayCollector()
+        let mutable values = ArrayCollector()
         values.AddMany initialValues
         let mutable ok = true
         use enumerator = xs.GetEnumerator()

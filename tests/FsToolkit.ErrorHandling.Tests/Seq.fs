@@ -782,7 +782,7 @@ let sequenceVOptionMTests =
 #endif
 
 let allTests =
-    testList "List Tests" [
+    testList "Seq Tests" [
         traverseResultMTests
         traverseOptionMTests
         sequenceResultMTests
