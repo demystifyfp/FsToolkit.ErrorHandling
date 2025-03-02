@@ -674,6 +674,31 @@ let ``TaskValidationCE applicative tests`` =
                 Expect.equal actual (Validation.ok 6) "Should be ok"
             }
 
+        testCaseTask "Fail Path Result"
+        <| fun () ->
+            task {
+                let expected =
+                    Error [
+                        "Error 1"
+                        "Error 2"
+                    ]
+
+                let! actual =
+                    taskValidation {
+                        let! a = Ok 3
+                        and! b = Ok 2
+                        and! c = Error "Error 1"
+                        and! d = Error "Error 2"
+
+                        return
+                            a + b
+                            - c
+                            - d
+                    }
+
+                Expect.equal actual expected "Should be Error"
+            }
+
         testCaseTask "Fail Path Validation"
         <| fun () ->
             task {

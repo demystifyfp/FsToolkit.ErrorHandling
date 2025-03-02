@@ -1,5 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
+open System
 open System.Threading.Tasks
 open System.Runtime.CompilerServices
 open System.Threading
@@ -553,6 +554,19 @@ module TaskValidationCEExtensionsMediumPriority =
             computation
             |> Async.map Ok
             |> Async.StartImmediateAsTask
+
+        member inline _.Source(s: Async<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
+            s
+            |> AsyncResult.mapError List.singleton
+            |> Async.StartImmediateAsTask
+
+        member inline _.Source(s: Task<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
+            TaskResult.mapError List.singleton s
+
+        member inline _.Source(result: Result<_, _>) : Task<Validation<_, _>> =
+            result
+            |> Validation.ofResult
+            |> Task.singleton
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsHighPriority2 =
