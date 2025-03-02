@@ -294,6 +294,73 @@ let traverseAsyncResultA f xs =
 /// <remarks>This function is equivalent to <see cref="traverseAsyncResultA"/> but auto-applying the 'id' function</remarks>
 let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
+#if !FABLE_COMPILER
+
+/// <summary>
+/// Applies a function to each element of a sequence and returns a single task result
+/// </summary>
+/// <param name="state">The initial state</param>
+/// <param name="f">The function to apply to each element</param>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with the ok elements in an array or an array of all errors from the state and the original sequence</returns>
+let inline traverseTaskResultA'
+    (state: TaskResult<'okOutput seq, 'error seq>)
+    ([<InlineIfLambda>] f: 'okInput -> TaskResult<'okOutput, 'error>)
+    (xs: 'okInput seq)
+    : TaskResult<'okOutput[], 'error[]> =
+    if isNull xs then
+        nullArg (nameof xs)
+
+    task {
+        match! state with
+        | Error failuresToDate ->
+            let mutable errs = ArrayCollector()
+            errs.AddMany failuresToDate
+
+            for x in xs do
+                match! f x with
+                | Ok _ -> () // as the initial state was failure, oks are irrelevant
+                | Error e -> errs.Add e
+
+            return Error(errs.Close())
+        | Ok initialSuccesses ->
+
+            let mutable oks = ArrayCollector()
+            oks.AddMany initialSuccesses
+            let mutable ok = true
+            let mutable errs = ArrayCollector()
+
+            for x in xs do
+                match! f x with
+                | Ok r when ok -> oks.Add r
+                | Ok _ -> () // no point saving results we won't use given the end result will be Error
+                | Error e ->
+                    errs.Add e
+                    ok <- false
+
+            return if ok then Ok(oks.Close()) else Error(errs.Close())
+    }
+
+/// <summary>
+/// Applies a function to each element of a sequence and returns a single task result
+/// </summary>
+/// <param name="f">The function to apply to each element</param>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with the ok elements in an array or an array of all errors occuring in the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseTaskResultA'"/> but applying an initial state of 'Seq.empty'</remarks>
+let traverseTaskResultA f xs =
+    traverseTaskResultA' (TaskResult.ok Seq.empty) f xs
+
+/// <summary>
+/// Converts a sequence of task results into a single task result
+/// </summary>
+/// <param name="xs">The input sequence</param>
+/// <returns>A task result with all ok elements in an array or an error result with an array of all errors occuring in the sequence</returns>
+/// <remarks>This function is equivalent to <see cref="traverseTaskResultA"/> but auto-applying the 'id' function</remarks>
+let sequenceTaskResultA xs = traverseTaskResultA id xs
+
+#endif
+
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single option
 /// </summary>

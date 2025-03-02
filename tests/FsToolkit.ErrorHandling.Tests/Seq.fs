@@ -452,7 +452,20 @@ let notifyFailure (PostId _) (UserId uId) =
             return Ok()
     }
 
-let traverseAsyncResultATests =
+let traverseTaskResultATests =
+    let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
+
+    let notifyNewPostFailure (PostId _) (UserId uId) = TaskResult.error $"error: %O{uId}"
+
+    let notifyFailure (PostId _) (UserId uId) =
+        if
+            uId = userId1
+            || uId = userId3
+        then
+            TaskResult.error $"error: %O{uId}"
+        else
+            TaskResult.ok ()
+
     let userIds =
         seq {
             userId1
@@ -462,15 +475,17 @@ let traverseAsyncResultATests =
         }
         |> Seq.map UserId
 
-    testList "Seq.traverseAsyncResultA Tests" [
-        testCaseAsync "traverseAsyncResultA with a sequence of valid data"
+    testList "Seq.traverseTaskResultA Tests" [
+        testCaseAsync "traverseTaskResultA with a sequence of valid data"
         <| async {
             let expected =
                 userIds
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
                 |> Seq.toArray
 
-            let! actual = Seq.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
+            let! actual =
+                Seq.traverseTaskResultA (notifyNewPostSuccess (PostId newPostId)) userIds
+                |> Async.AwaitTask
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
@@ -484,7 +499,9 @@ let traverseAsyncResultATests =
                 sprintf "error: %s" (userId3.ToString())
             |]
 
-            let! actual = Seq.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
+            let! actual =
+                Seq.traverseTaskResultA (notifyFailure (PostId newPostId)) userIds
+                |> Async.AwaitTask
 
             let actual = Expect.wantError actual "Expected result to be Error"
 
@@ -532,6 +549,46 @@ let sequenceAsyncResultMTests =
     ]
 
 #if !FABLE_COMPILER
+
+let traverseAsyncResultATests =
+    let userIds =
+        seq {
+            userId1
+            userId2
+            userId3
+            userId4
+        }
+        |> Seq.map UserId
+
+    testList "Seq.traverseAsyncResultA Tests" [
+        testCaseAsync "traverseAsyncResultA with a sequence of valid data"
+        <| async {
+            let expected =
+                userIds
+                |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toArray
+
+            let! actual = Seq.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
+
+            let actual = Expect.wantOk actual "Expected result to be Ok"
+
+            Expect.equal actual expected "Should have a sequence of valid data"
+        }
+
+        testCaseAsync "traverseResultA with few invalid data"
+        <| async {
+            let expected = [|
+                sprintf "error: %s" (userId1.ToString())
+                sprintf "error: %s" (userId3.ToString())
+            |]
+
+            let! actual = Seq.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
+
+            let actual = Expect.wantError actual "Expected result to be Error"
+
+            Expect.equal actual expected "Should have a sequence of errors"
+        }
+    ]
 
 let sequenceTaskResultMTests =
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
@@ -672,6 +729,58 @@ let sequenceAsyncResultATests =
     ]
 
 #if !FABLE_COMPILER
+let sequenceTaskResultATests =
+    let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
+    let notifyFailure (PostId _) (UserId uId) =
+        if
+            uId = userId1
+            || uId = userId3
+        then
+            TaskResult.error $"error: %O{uId}"
+        else
+            TaskResult.ok ()
+
+    let userIds =
+        seq {
+            userId1
+            userId2
+            userId3
+            userId4
+        }
+        |> Seq.map UserId
+
+    testList "Seq.sequenceTaskResultA Tests" [
+        testCaseAsync "sequenceTaskResultA with a sequence of valid data"
+        <| async {
+            let expected =
+                userIds
+                |> Seq.map (fun (UserId user) -> (newPostId, user))
+                |> Seq.toArray
+
+            let actual =
+                Seq.map (notifyNewPostSuccess (PostId newPostId)) userIds
+                |> Seq.sequenceTaskResultA
+
+            do! Expect.hasTaskOkValue expected actual |> Async.AwaitTask
+        }
+
+        testCaseAsync "sequenceTaskResultA with few invalid data"
+        <| async {
+            let expected = [|
+                sprintf "error: %s" (userId1.ToString())
+                sprintf "error: %s" (userId3.ToString())
+            |]
+
+            let! actual =
+                Seq.map (notifyFailure (PostId newPostId)) userIds
+                |> Seq.sequenceTaskResultA
+                |> Async.AwaitTask
+
+            let actual = Expect.wantError actual "Expected result to be Error"
+            Expect.equal actual expected "Should have a sequence of errors"
+        }
+    ]
+
 let traverseVOptionMTests =
     testList "Seq.traverseVOptionM Tests" [
         let tryTweetVOption x =
@@ -797,11 +906,13 @@ let allTests =
         traverseAsyncResultATests
         sequenceAsyncResultMTests
 #if !FABLE_COMPILER
+        traverseTaskResultATests
         sequenceTaskResultMTests
 #endif
         sequenceAsyncOptionMTests
         sequenceAsyncResultATests
 #if !FABLE_COMPILER
+        sequenceTaskResultATests
         traverseVOptionMTests
         sequenceVOptionMTests
 #endif
