@@ -438,24 +438,10 @@ let traverseAsyncOptionMTests =
             | None -> do! Expect.hasAsyncNoneValue actual
         }
     ]
-
-let notifyFailure (PostId _) (UserId uId) =
-    async {
-        if
-            (uId = userId1
-             || uId = userId3)
-        then
-            return
-                sprintf "error: %s" (uId.ToString())
-                |> Error
-        else
-            return Ok()
-    }
+#if !FABLE_COMPILER
 
 let traverseTaskResultATests =
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
-
-    let notifyNewPostFailure (PostId _) (UserId uId) = TaskResult.error $"error: %O{uId}"
 
     let notifyFailure (PostId _) (UserId uId) =
         if
@@ -508,6 +494,19 @@ let traverseTaskResultATests =
             Expect.equal actual expected "Should have a sequence of errors"
         }
     ]
+#endif
+let notifyFailure (PostId _) (UserId uId) =
+    async {
+        if
+            (uId = userId1
+             || uId = userId3)
+        then
+            return
+                sprintf "error: %s" (uId.ToString())
+                |> Error
+        else
+            return Ok()
+    }
 
 let sequenceAsyncResultMTests =
     let userIds =
@@ -548,8 +547,6 @@ let sequenceAsyncResultMTests =
         }
     ]
 
-#if !FABLE_COMPILER
-
 let traverseAsyncResultATests =
     let userIds =
         seq {
@@ -589,6 +586,8 @@ let traverseAsyncResultATests =
             Expect.equal actual expected "Should have a sequence of errors"
         }
     ]
+
+#if !FABLE_COMPILER
 
 let sequenceTaskResultMTests =
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
@@ -731,6 +730,7 @@ let sequenceAsyncResultATests =
 #if !FABLE_COMPILER
 let sequenceTaskResultATests =
     let notifyNewPostSuccess (PostId post) (UserId user) = TaskResult.ok (post, user)
+
     let notifyFailure (PostId _) (UserId uId) =
         if
             uId = userId1
@@ -761,7 +761,9 @@ let sequenceTaskResultATests =
                 Seq.map (notifyNewPostSuccess (PostId newPostId)) userIds
                 |> Seq.sequenceTaskResultA
 
-            do! Expect.hasTaskOkValue expected actual |> Async.AwaitTask
+            do!
+                Expect.hasTaskOkValue expected actual
+                |> Async.AwaitTask
         }
 
         testCaseAsync "sequenceTaskResultA with few invalid data"
