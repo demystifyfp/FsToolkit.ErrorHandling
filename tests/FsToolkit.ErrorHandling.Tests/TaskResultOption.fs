@@ -16,8 +16,6 @@ let getPostById x =
     getPostById x
     |> Async.StartImmediateAsTask
 
-
-[<Tests>]
 let mapTests =
     testList "TaskResultOption.map tests" [
         testCase "map with Task(Ok Some(x))"
@@ -47,8 +45,6 @@ let userTweet (p: Post) (u: User) = {
     Tweet = p.Tweet.Value
 }
 
-
-[<Tests>]
 let bindTests =
     testList "TaskResultOption.bind tests" [
         testCase "bind with Task(Ok Some(x)) Task(Ok Some(x))"
@@ -91,7 +87,6 @@ let bindTests =
             |> Expect.hasTaskErrorValueSync "invalid post id"
     ]
 
-[<Tests>]
 let map2Tests =
     testList "TaskResultOption.map2 tests" [
         testCase "map2 with Task(Ok Some(x)) Task(Ok Some(x))"
@@ -148,7 +143,6 @@ let map2Tests =
             |> Expect.hasTaskErrorValueSync "invalid post id"
     ]
 
-[<Tests>]
 let ignoreTests =
     testList "TaskResultOption.ignore tests" [
         testCase "ignore with Task(Ok Some(x))"
@@ -178,7 +172,6 @@ let ignoreTests =
                 TaskResultOption.ignore<int, string>
     ]
 
-[<Tests>]
 let computationExpressionTests =
     testList "taskResultOption CE tests" [
         testCase "CE with Task(Ok Some(x)) Task(Ok Some(x))"
@@ -223,7 +216,6 @@ let computationExpressionTests =
             |> Expect.hasTaskErrorValueSync "invalid post id"
     ]
 
-[<Tests>]
 let operatorTests =
     testList "TaskResultOption Operators Tests" [
         testCase "map & apply operators"
@@ -256,8 +248,6 @@ let operatorTests =
             )
     ]
 
-
-[<Tests>]
 let ``TaskResultOptionCE inference checks`` =
     testList "TaskResultOption inference checks" [
         testCase "Inference checks"
@@ -267,4 +257,15 @@ let ``TaskResultOptionCE inference checks`` =
 
             f (TaskResultOption.singleton ())
             |> ignore
+    ]
+
+let allTests =
+    testList "TaskResultOption Tests" [
+        mapTests
+        bindTests
+        map2Tests
+        ignoreTests
+        computationExpressionTests
+        operatorTests
+        ``TaskResultOptionCE inference checks``
     ]

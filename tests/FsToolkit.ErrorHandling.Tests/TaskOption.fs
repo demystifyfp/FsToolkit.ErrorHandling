@@ -1,15 +1,6 @@
 module TaskOptionTests
 
-
-#if FABLE_COMPILER_PYTHON
-open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
-#endif
-#if !FABLE_COMPILER
 open Expecto
-#endif
 
 open System
 open System.Threading.Tasks

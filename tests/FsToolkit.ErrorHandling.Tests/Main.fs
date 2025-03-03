@@ -34,6 +34,17 @@ let allTests =
         ValidationCETests.allTests
         ValueOptionTests.allTests
         ValueOptionCETests.allTests
+        #if !FABLE_COMPILER
+        BackgroundTaskOptionCETests.allTests
+        BackgroundTaskResultCETests.allTests
+        TaskOptionTests.allTests
+        TaskOptionCETests.allTests
+        TaskResultTests.allTests
+        TaskResultCETests.allTests
+        TaskResultOptionTests.allTests
+        TaskValidationTests.allTests
+        TaskValidationCETests.allTests
+        #endif
     ]
 
 [<EntryPoint>]

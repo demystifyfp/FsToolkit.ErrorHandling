@@ -1,14 +1,9 @@
 module BackgroundTaskResultCETests
 
-
 open Expecto
-open SampleDomain
-open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE return Tests`` =
     testList "BackgroundTaskResultCE  Tests" [
         testCaseTask "Return string"
@@ -20,8 +15,6 @@ let ``BackgroundTaskResultCE return Tests`` =
             }
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE return! Tests`` =
     testList "BackgroundTaskResultCE return! Tests" [
         testCaseTask "Return Ok Result"
@@ -111,8 +104,6 @@ let ``BackgroundTaskResultCE return! Tests`` =
 #endif
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE bind Tests`` =
     testList "BackgroundTaskResultCE bind Tests" [
         testCaseTask "Bind Ok Result"
@@ -264,8 +255,6 @@ let ``BackgroundTaskResultCE bind Tests`` =
 #endif
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE combine/zero/delay/run Tests`` =
     testList "BackgroundTaskResultCE combine/zero/delay/run Tests" [
         testCaseTask "Zero/Combine/Delay/Run"
@@ -287,8 +276,6 @@ let ``BackgroundTaskResultCE combine/zero/delay/run Tests`` =
             }
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE try Tests`` =
     testList "BackgroundTaskResultCE try Tests" [
         testCaseTask "Try With"
@@ -336,7 +323,6 @@ let makeDisposable () =
         member this.Dispose() = ()
     }
 
-[<Tests>]
 let ``BackgroundTaskResultCE using Tests`` =
     testList "BackgroundTaskResultCE using Tests" [
         testCaseTask "use normal disposable"
@@ -383,8 +369,6 @@ let ``BackgroundTaskResultCE using Tests`` =
             }
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE loop Tests`` =
     testList "BackgroundTaskResultCE loop Tests" [
         yield! [
@@ -517,8 +501,6 @@ let ``BackgroundTaskResultCE loop Tests`` =
             }
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE applicative tests`` =
     testList "BackgroundTaskResultCE applicative tests" [
         testCaseTask "Happy Path TaskResult"
@@ -702,8 +684,6 @@ let ``BackgroundTaskResultCE applicative tests`` =
             }
     ]
 
-
-[<Tests>]
 let ``BackgroundTaskResultCE inference checks`` =
     testList "BackgroundTaskResultCE inference checks" [
         testCase "Inference checks"
@@ -713,4 +693,17 @@ let ``BackgroundTaskResultCE inference checks`` =
 
             f (TaskResult.ok ())
             |> ignore
+    ]
+
+let allTests =
+    testList "BackgroundTaskResult CE Tests" [
+        ``BackgroundTaskResultCE return Tests``
+        ``BackgroundTaskResultCE return! Tests``
+        ``BackgroundTaskResultCE bind Tests``
+        ``BackgroundTaskResultCE combine/zero/delay/run Tests``
+        ``BackgroundTaskResultCE try Tests``
+        ``BackgroundTaskResultCE using Tests``
+        ``BackgroundTaskResultCE loop Tests``
+        ``BackgroundTaskResultCE applicative tests``
+        ``BackgroundTaskResultCE inference checks``
     ]
