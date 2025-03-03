@@ -967,9 +967,9 @@ let allTests =
         teeErrorIfTests
         sequenceAsyncTests
         traverseAsyncTests
-        #if !FABLE_COMPILER
+#if !FABLE_COMPILER
         sequenceTaskTests
-        #endif
+#endif
         valueOrTests
         zipTests
         zipErrorTests

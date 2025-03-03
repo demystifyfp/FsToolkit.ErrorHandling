@@ -56,7 +56,8 @@ module Expect =
                     (typeof<'texn>.FullName)
                     (e.GetType().FullName)
             | Choice1Of2 _ -> ()
-            | Choice2Of2 result -> Tests.failtestf "%s. Expected f to throw. returned %A" message result
+            | Choice2Of2 result ->
+                Tests.failtestf "%s. Expected f to throw. returned %A" message result
         }
 
 type Expect =
