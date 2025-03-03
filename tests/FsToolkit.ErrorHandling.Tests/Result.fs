@@ -793,6 +793,8 @@ let traverseAsyncTests =
         }
     ]
 
+#if !FABLE_COMPILER
+
 let sequenceTaskTests =
     testList "sequenceTask Tests" [
         testCase "sequenceTask returns the task value if Ok"
@@ -819,6 +821,8 @@ let sequenceTaskTests =
 
             Expect.equal value (Error "foo") ""
     ]
+
+#endif
 
 let valueOrTests =
     testList "valueOrTests Tests" [
@@ -963,6 +967,9 @@ let allTests =
         teeErrorIfTests
         sequenceAsyncTests
         traverseAsyncTests
+        #if !FABLE_COMPILER
+        sequenceTaskTests
+        #endif
         valueOrTests
         zipTests
         zipErrorTests

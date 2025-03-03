@@ -5,6 +5,7 @@ open FsToolkit.ErrorHandling
 open System
 open System.Threading.Tasks
 
+#if !FABLE_COMPILER
 let testCaseTask name test =
     testCaseAsync
         name
@@ -32,6 +33,7 @@ let ftestCaseTask name test =
                 |> Async.AwaitTask
         })
 
+#endif
 
 module Expect =
     open Expecto
@@ -65,7 +67,8 @@ type Expect =
     static member CancellationRequested(operation: Async<'a>) =
         Expect.throwsTAsync<'a, OperationCanceledException> (operation) "Should have been cancelled"
 
-
+    #if !FABLE_COMPILER
     static member CancellationRequested(operation: Task<_>) =
         Expect.CancellationRequested(Async.AwaitTask operation)
         |> Async.StartImmediateAsTask
+    #endif
