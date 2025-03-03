@@ -1,7 +1,6 @@
 module Expecto
 
 open Expecto
-open FsToolkit.ErrorHandling
 open System
 open System.Threading.Tasks
 
@@ -33,8 +32,6 @@ let ftestCaseTask name test =
                 |> Async.AwaitTask
         })
 
-#endif
-
 module Expect =
     open Expecto
 
@@ -53,13 +50,13 @@ module Expect =
 
             match thrown with
             | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom(e.GetType())) ->
-                failtestf
+                Tests.failtestf
                     "%s. Expected f to throw an exn of type %s, but one of type %s was thrown."
                     message
                     (typeof<'texn>.FullName)
                     (e.GetType().FullName)
             | Choice1Of2 _ -> ()
-            | Choice2Of2 result -> failtestf "%s. Expected f to throw. returned %A" message result
+            | Choice2Of2 result -> Tests.failtestf "%s. Expected f to throw. returned %A" message result
         }
 
 type Expect =
@@ -67,8 +64,8 @@ type Expect =
     static member CancellationRequested(operation: Async<'a>) =
         Expect.throwsTAsync<'a, OperationCanceledException> (operation) "Should have been cancelled"
 
-    #if !FABLE_COMPILER
     static member CancellationRequested(operation: Task<_>) =
         Expect.CancellationRequested(Async.AwaitTask operation)
         |> Async.StartImmediateAsTask
-    #endif
+
+#endif
