@@ -1,4 +1,4 @@
-### 5.0.0-beta008 - March 02, 2025
+### 5.0.0-beta009 - March 04, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations like Result](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
 - BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
@@ -17,7 +17,7 @@
 - [F# 9 support and nullness](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/308) Credits @TheAngryByrd
 - [Update IcedTasks 0.11.7](https://github.com/demystifyfp/FsToolkit.ErrorHandling/commit/0a4cc7b3c52efcef47dbc653b00d56ab029bbd01) Credits @TheAngryByrd
 - [Add TaskValidation module](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/313) Credits @tw0po1nt
-
+- [feat(Seq.traverse/sequence*)!: Yield arrays](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/310) Credits @bartelink
 
 ### 4.18.0 - October 23, 2024
 - [Add Array errorhandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/279) Credits @DashieTM
