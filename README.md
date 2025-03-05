@@ -34,12 +34,10 @@ GitHub Actions |
 | FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.AsyncSeq?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq/absoluteLatest)
 | FsToolkit.ErrorHandling.IcedTasks | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks) | [![NuGet](https://buildstats.info/nuget/FsToolkit.ErrorHandling.IcedTasks?includePreReleases=true)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks/absoluteLatest)
 
-
-
 ## Developing locally
 
 ### Devcontainer 
-This repository has a devcontainer setup for VSCode. For more infomation see:
+This repository has a devcontainer setup for VSCode. For more information see:
 - [VSCode](https://code.visualstudio.com/docs/devcontainers/containers)
 
 ### Local Setup
@@ -79,7 +77,7 @@ Without specifying a build target, the default target is `DotnetPack`, which wil
 - `RunTests` - Will run tests for `dotnet`, `fable-javascript` and `fable-python` projects
 - `FormatCode` - Will run `fantomas` to format the codebase
 
-This is not an exhausting list. Additional targets can be found in the `./build/build.fs` file.
+This is not an exhaustive list. Additional targets can be found in the `./build/build.fs` file.
 
 
 A motivating example
