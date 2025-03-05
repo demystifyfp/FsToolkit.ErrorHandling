@@ -16,7 +16,7 @@ This is just a shortcut for `Task.map Result.fold`. See [Result.fold](../result/
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | OK of 'a
+  | Ok of 'a
   | InternalError of 'b
 
 // CreatePostRequest -> CancellableTask<Result<PostId, exn>>

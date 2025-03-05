@@ -42,7 +42,7 @@ And the following fake HTTP response type:
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | OK of 'a
+  | Ok of 'a
   | BadRequest of 'b
 ```
 
@@ -53,7 +53,7 @@ Then using `Result.fold`, we can do the following
 let handler httpRequest =
   // reading the input from the HTTP request
   let inputStr = httpRequest ... 
-  inputStr |> tryParseInt |> Result.fold OK BadRequest
+  inputStr |> tryParseInt |> Result.fold Ok BadRequest
 ```
 
 

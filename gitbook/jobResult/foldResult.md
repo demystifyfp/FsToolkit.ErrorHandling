@@ -16,7 +16,7 @@ This is just a shortcut for `Job.map Result.fold`. See [Result.fold](../result/f
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | OK of 'a
+  | Ok of 'a
   | InternalError of 'b
 
 // CreatePostRequest -> Job<Result<PostId, exn>>

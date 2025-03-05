@@ -16,7 +16,7 @@ This is just a shortcut for `Async.map Result.fold`. See [Result.fold](../result
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | OK of 'a
+  | Ok of 'a
   | InternalError of 'b
 
 // CreatePostRequest -> Async<Result<PostId, exn>>
