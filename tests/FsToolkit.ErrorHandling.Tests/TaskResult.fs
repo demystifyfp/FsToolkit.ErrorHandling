@@ -1015,7 +1015,28 @@ let taskResultCheckTests =
 
 let allTests =
     testList "TaskResult Tests" [
-
+        mapTests
+        map2Tests
+        mapErrorTests
+        bindTests
+        orElseTests
+        orElseWithTests
+        ignoreTests
+        requireTrueTests
+        requireFalseTests
+        requireSomeTests
+        requireNoneTests
+        requireValueSomeTests
+        requireValueNoneTests
+        requireEqualToTests
+        requireEqualTests
+        requireEmptyTests
+        requireNotEmptyTests
+        requireHeadTests
+        taskResultRequireTests
+        setErrorTests
+        withErrorTests
+        defaultValueTests
         defaultErrorTests
         defaultWithTests
         ignoreErrorTests
