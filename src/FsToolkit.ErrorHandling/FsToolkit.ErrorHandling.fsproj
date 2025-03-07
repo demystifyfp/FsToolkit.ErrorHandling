@@ -48,6 +48,10 @@
     <Compile Include="TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="ParallelAsyncResult.fs" />
+    <Compile Include="ParallelAsyncResultCE.fs" />
+    <Compile Include="ParallelAsyncValidation.fs" />
+    <Compile Include="ParallelAsyncValidationCE.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Array.fs" />
     <Compile Include="Seq.fs" />

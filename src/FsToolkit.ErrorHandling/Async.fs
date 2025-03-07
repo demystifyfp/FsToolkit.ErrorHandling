@@ -114,6 +114,95 @@ module Async =
     let inline zip (left: Async<'left>) (right: Async<'right>) : Async<'left * 'right> =
         bind (fun l -> bind (fun r -> singleton (l, r)) right) left
 
+    /// <summary>
+    /// Executes two asyncs concurrently <see cref='M:Microsoft.FSharp.Control.FSharpAsync.Parallel``1'/> and returns a mapping of the values
+    /// </summary>
+    /// <param name="mapper">The function to apply to the values of the <c>Async</c> values.</param>
+    /// <param name="input1">The first <c>Async</c> to execute</param>
+    /// <param name="input2">The second <c>Async</c> to execute</param>
+    /// <returns>The transformed <c>Async</c> value.</returns>
+    let inline parallelMap2
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'output)
+        (input1: Async<'input1>)
+        (input2: Async<'input2>)
+        : Async<'output> =
+
+#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+            |]
+        )
+#else
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+            |],
+            maxDegreeOfParallelism = 2
+        )
+#endif
+        |> map (fun results ->
+            let a =
+                results[0]
+                |> unbox<'input1>
+
+            let b =
+                results[1]
+                |> unbox<'input2>
+
+            mapper a b
+        )
+
+    /// <summary>
+    /// Executes three asyncs concurrently <see cref='M:Microsoft.FSharp.Control.FSharpAsync.Parallel``1'/> and returns a mapping of the values
+    /// </summary>
+    /// <param name="mapper">The function to apply to the values of the <c>Async</c> values.</param>
+    /// <param name="input1">The first <c>Async</c> to execute</param>
+    /// <param name="input2">The second <c>Async</c> to execute</param>
+    /// <param name="input3">The third <c>Async</c> value to transform.</param>
+    /// <returns>The transformed <c>Async</c> value.</returns>
+    let inline parallelMap3
+        ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'input3 -> 'output)
+        (input1: Async<'input1>)
+        (input2: Async<'input2>)
+        (input3: Async<'input3>)
+        : Async<'output> =
+#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+                map box input3
+            |]
+        )
+#else
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+                map box input3
+            |],
+            maxDegreeOfParallelism = 3
+        )
+#endif
+        |> map (fun results ->
+            let a =
+                results[0]
+                |> unbox<'input1>
+
+            let b =
+                results[1]
+                |> unbox<'input2>
+
+            let c =
+                results[2]
+                |> unbox<'input3>
+
+            mapper a b c
+        )
+
 /// <summary>
 /// Operators for working with the <c>Async</c> type.
 /// </summary>

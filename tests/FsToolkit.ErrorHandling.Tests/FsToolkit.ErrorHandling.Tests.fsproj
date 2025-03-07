@@ -44,6 +44,10 @@
         <Compile Include="ValidationCE.fs" />
         <Compile Include="AsyncValidation.fs" />
         <Compile Include="AsyncValidationCE.fs" />
+        <Compile Include="ParallelAsyncResult.fs" />
+        <Compile Include="ParallelAsyncResultCE.fs" />
+        <Compile Include="ParallelAsyncValidation.fs" />
+        <Compile Include="ParallelAsyncValidationCE.fs" />
         <Compile Include="Main.fs" />
         <None Include="paket.references" />
         <Watch Include="@(None)" />
