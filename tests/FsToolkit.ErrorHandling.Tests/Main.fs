@@ -34,6 +34,10 @@ let allTests =
         ValidationCETests.allTests
         ValueOptionTests.allTests
         ValueOptionCETests.allTests
+        ParallelAsyncResultTests.allTests
+        ParallelAsyncResultCETests.allTests
+        ParallelAsyncValidationTests.allTests
+        ParallelAsyncValidationCETests.allTests
     ]
 
 [<EntryPoint>]

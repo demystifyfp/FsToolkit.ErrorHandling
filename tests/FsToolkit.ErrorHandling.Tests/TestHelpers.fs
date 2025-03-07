@@ -1,5 +1,17 @@
 namespace FsToolkit.ErrorHandling
 
+[<RequireQualifiedAccess>]
+module Async =
+
+    /// An Async that never completes but can be cancelled
+    let never<'a> : Async<'a> =
+        async {
+            let! ct = Async.CancellationToken
+
+            let! _ = Async.AwaitWaitHandle(ct.WaitHandle)
+
+            return failwith "Unreachable"
+        }
 
 module TestHelpers =
     let makeDisposable (callback) =
