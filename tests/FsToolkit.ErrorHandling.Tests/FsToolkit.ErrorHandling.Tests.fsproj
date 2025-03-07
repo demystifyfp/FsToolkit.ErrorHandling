@@ -9,10 +9,20 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Expect.fs" />
+        <Compile Include="Expecto.fs" />
         <Compile Include="TestHelpers.fs" />
         <Compile Include="SampleDomain.fs" />
         <Compile Include="TestData.fs" />
-        <Compile Include="Expect.fs" />
+        <Compile Include="BackgroundTaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="BackgroundTaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="Result.fs" />
         <Compile Include="ResultCE.fs" />
         <Compile Include="ResultOption.fs" />

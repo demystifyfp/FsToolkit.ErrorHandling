@@ -1,14 +1,6 @@
 module TaskValidationTests
 
-#if FABLE_COMPILER_PYTHON
-open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
-#endif
-#if !FABLE_COMPILER
 open Expecto
-#endif
 
 open SampleDomain
 open TestData
@@ -18,7 +10,6 @@ open FsToolkit.ErrorHandling.Operator.TaskValidation
 
 let lift = TaskValidation.ofResult
 
-[<Tests>]
 let map2Tests =
     testList "TaskValidation.map2 Tests" [
         testCaseTask "map2 with two ok parts"
@@ -65,7 +56,6 @@ let map2Tests =
             }
     ]
 
-[<Tests>]
 let map3Tests =
     testList "TaskValidation.map3 Tests" [
         testCaseTask "map3 with three ok parts"
@@ -149,7 +139,6 @@ let map3Tests =
             }
     ]
 
-[<Tests>]
 let applyTests =
 
     testList "TaskValidation.apply tests" [
@@ -184,7 +173,6 @@ let applyTests =
             }
     ]
 
-[<Tests>]
 let operatorsTests =
 
     testList "TaskValidation Operators Tests" [
@@ -221,7 +209,6 @@ let operatorsTests =
             }
     ]
 
-[<Tests>]
 let zipTests =
     testList "zip tests" [
         testCaseTask "Ok, Ok"
@@ -274,7 +261,6 @@ let zipTests =
             }
     ]
 
-[<Tests>]
 let orElseTests =
     testList "TaskValidation.orElseWith Tests" [
         testCaseTask "Ok Ok takes first Ok"
@@ -342,7 +328,6 @@ let orElseTests =
             }
     ]
 
-[<Tests>]
 let orElseWithTests =
     testList "TaskValidation.orElse Tests" [
         testCaseTask "Ok Ok takes first Ok"
@@ -408,4 +393,15 @@ let orElseWithTests =
                     result
                     |> Expect.hasErrorValue [ "Second" ]
             }
+    ]
+
+let allTests =
+    testList "TaskValidation Tests" [
+        map2Tests
+        map3Tests
+        applyTests
+        operatorsTests
+        zipTests
+        orElseTests
+        orElseWithTests
     ]

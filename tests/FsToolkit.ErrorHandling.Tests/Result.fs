@@ -793,6 +793,37 @@ let traverseAsyncTests =
         }
     ]
 
+#if !FABLE_COMPILER
+
+let sequenceTaskTests =
+    testList "sequenceTask Tests" [
+        testCase "sequenceTask returns the task value if Ok"
+        <| fun _ ->
+            let resTask =
+                task { return "foo" }
+                |> Ok
+
+            let value =
+                (resTask
+                 |> Result.sequenceTask)
+                    .Result
+
+            Expect.equal value (Ok "foo") ""
+
+        testCase "sequenceTask returns the error value if Error"
+        <| fun _ ->
+            let resTask = Error "foo"
+
+            let value =
+                (resTask
+                 |> Result.sequenceTask)
+                    .Result
+
+            Expect.equal value (Error "foo") ""
+    ]
+
+#endif
+
 let valueOrTests =
     testList "valueOrTests Tests" [
         testCase "valueOrTests returns the value if Ok"
@@ -936,6 +967,9 @@ let allTests =
         teeErrorIfTests
         sequenceAsyncTests
         traverseAsyncTests
+#if !FABLE_COMPILER
+        sequenceTaskTests
+#endif
         valueOrTests
         zipTests
         zipErrorTests
