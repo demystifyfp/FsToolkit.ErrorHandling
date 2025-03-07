@@ -5,15 +5,26 @@ module Async =
 
     open System
 
+#if FABLE_COMPILER && FABLE_COMPILER_JAVASCRIPT
+    open Fable.Core
+
     /// An Async that never completes but can be cancelled
     let never<'a> : Async<'a> =
+        Fable.Core.JS.Constructors.Promise.Create(fun _ _ -> ())
+        |> Async.AwaitPromise
+#else
+    /// An Async that never completes but can be cancelled
+    let never<'a> : Async<'a> =
+        let granularity = TimeSpan.FromSeconds 3.
+
         let rec loop () =
             async {
-                do! Async.Sleep(TimeSpan.FromHours 1)
+                do! Async.Sleep(granularity)
                 return! loop ()
             }
 
         loop ()
+#endif
 
 module TestHelpers =
     let makeDisposable (callback) =
