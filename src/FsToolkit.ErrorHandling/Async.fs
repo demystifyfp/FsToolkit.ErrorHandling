@@ -126,6 +126,15 @@ module Async =
         (input1: Async<'input1>)
         (input2: Async<'input2>)
         : Async<'output> =
+
+#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+            |]
+        )
+#else
         Async.Parallel(
             [|
                 map box input1
@@ -133,6 +142,7 @@ module Async =
             |],
             maxDegreeOfParallelism = 2
         )
+#endif
         |> map (fun results ->
             let a =
                 results[0]
@@ -159,6 +169,15 @@ module Async =
         (input2: Async<'input2>)
         (input3: Async<'input3>)
         : Async<'output> =
+#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
+        Async.Parallel(
+            [|
+                map box input1
+                map box input2
+                map box input3
+            |]
+        )
+#else
         Async.Parallel(
             [|
                 map box input1
@@ -167,6 +186,7 @@ module Async =
             |],
             maxDegreeOfParallelism = 3
         )
+#endif
         |> map (fun results ->
             let a =
                 results[0]

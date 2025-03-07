@@ -3,15 +3,17 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
+    open System
+
     /// An Async that never completes but can be cancelled
     let never<'a> : Async<'a> =
-        async {
-            let! ct = Async.CancellationToken
+        let rec loop () =
+            async {
+                do! Async.Sleep(TimeSpan.FromHours 1)
+                return! loop ()
+            }
 
-            let! _ = Async.AwaitWaitHandle(ct.WaitHandle)
-
-            return failwith "Unreachable"
-        }
+        loop ()
 
 module TestHelpers =
     let makeDisposable (callback) =
