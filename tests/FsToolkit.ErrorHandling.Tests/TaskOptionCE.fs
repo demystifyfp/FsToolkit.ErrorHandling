@@ -1,95 +1,97 @@
-module BackgroundTaskOptionCETests
+module TaskOptionCETests
 
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-let makeDisposable () =
-    { new System.IDisposable with
-        member this.Dispose() = ()
-    }
 
-[<Tests>]
+module TestFuncs =
+    let testFunctionTO<'Dto> () =
+        taskOption {
+            let dto = Unchecked.defaultof<'Dto>
+            System.Console.WriteLine(dto)
+        }
+
 let ceTests =
-    testList "Background TaskOption CE" [
+    testList "TaskOption CE" [
         testCaseTask "Return value"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return 42 }
+                let! actual = taskOption { return 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Some"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (Some 42) }
+                let! actual = taskOption { return! (Some 42) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
-                let! actual = backgroundTaskOption { return! None }
+                let! actual = taskOption { return! None }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
 
         testCaseTask "ReturnFrom Async None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
-                let! actual = backgroundTaskOption { return! (async.Return None) }
+                let! actual = taskOption { return! (async.Return None) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Async"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (async.Return 42) }
+                let! actual = taskOption { return! (async.Return 42) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
-                let! actual = backgroundTaskOption { return! (Task.FromResult None) }
+                let! actual = taskOption { return! (Task.FromResult None) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task Generic"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (Task.FromResult 42) }
+                let! actual = taskOption { return! (Task.FromResult 42) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some()
-                let! actual = backgroundTaskOption { return! Task.CompletedTask }
+                let! actual = taskOption { return! Task.CompletedTask }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom ValueTask Generic"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (ValueTask.FromResult 42) }
+                let! actual = taskOption { return! (ValueTask.FromResult 42) }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom ValueTask"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some()
-                let! actual = backgroundTaskOption { return! ValueTask.CompletedTask }
+                let! actual = taskOption { return! ValueTask.CompletedTask }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "Bind Some"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = Some 42
                         return value
                     }
@@ -98,11 +100,11 @@ let ceTests =
             }
         testCaseTask "Bind None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = None
                         return value
                     }
@@ -111,11 +113,11 @@ let ceTests =
             }
         testCaseTask "Bind Async None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = async.Return(None)
                         return value
                     }
@@ -124,11 +126,11 @@ let ceTests =
             }
         testCaseTask "Bind Async"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = async.Return 42
                         return value
                     }
@@ -137,11 +139,11 @@ let ceTests =
             }
         testCaseTask "Bind Task None"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = None
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = Task.FromResult None
                         return value
                     }
@@ -150,11 +152,11 @@ let ceTests =
             }
         testCaseTask "Bind Task Generic"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = Task.FromResult 42
                         return value
                     }
@@ -163,11 +165,11 @@ let ceTests =
             }
         testCaseTask "Bind Task"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some()
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = Task.CompletedTask
                         return value
                     }
@@ -176,11 +178,11 @@ let ceTests =
             }
         testCaseTask "Bind ValueTask Generic"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = ValueTask.FromResult 42
                         return value
                     }
@@ -189,11 +191,11 @@ let ceTests =
             }
         testCaseTask "Bind ValueTask"
         <| fun () ->
-            backgroundTask {
+            task {
                 let expected = Some()
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! value = ValueTask.CompletedTask
                         return value
                     }
@@ -203,19 +205,19 @@ let ceTests =
 
         testCaseTask "Task.Yield"
         <| fun () ->
-            backgroundTask {
+            task {
 
-                let! actual = backgroundTaskOption { do! Task.Yield() }
+                let! actual = taskOption { do! Task.Yield() }
 
                 Expect.equal actual (Some()) "Should be ok"
             }
         testCaseTask "Zero/Combine/Delay/Run"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let result = data
 
                         if true then
@@ -226,13 +228,29 @@ let ceTests =
 
                 Expect.equal actual (Some data) "Should be ok"
             }
+        testCaseTask "If do!"
+        <| fun () ->
+            task {
+                let data = 42
+
+                let taskRes (call: unit -> Task) maybeCall : Task<Option<int>> =
+                    taskOption {
+                        if true then
+                            do! call ()
+
+                        let! (res: string) = maybeCall (): Task<Option<string>>
+                        return data
+                    }
+
+                ()
+            }
         testCaseTask "Try With"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         try
                             return data
                         with e ->
@@ -243,11 +261,11 @@ let ceTests =
             }
         testCaseTask "Try Finally"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         try
                             return data
                         finally
@@ -258,65 +276,171 @@ let ceTests =
             }
         testCaseTask "Using null"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         use d = null
                         return data
                     }
 
                 Expect.equal actual (Some data) "Should be ok"
             }
-        testCaseTask "Using disposeable"
+
+        testCaseTask "use normal disposable"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
+                let mutable isFinished = false
 
                 let! actual =
-                    backgroundTaskOption {
-                        use d = makeDisposable ()
+                    taskOption {
+                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         return data
                     }
 
                 Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
             }
-        testCaseTask "Using bind disposeable"
+        testCaseTask "use! normal wrapped disposable"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
+                let mutable isFinished = false
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         use! d =
-                            (makeDisposable ()
-                             |> Some)
+                            TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                            |> Some
 
                         return data
                     }
 
                 Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
             }
-        testCaseTask "While"
+        testCaseTask "use null disposable"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
+
+                let! actual =
+                    taskOption {
+                        use d = null
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+            }
+        testCaseTask "use sync asyncdisposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskOption {
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    isFinished <- true
+                                    ValueTask()
+                                )
+                            )
+
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+
+        testCaseTask "use async asyncdisposable"
+        <| fun () ->
+            task {
+                let data = 42
+                let mutable isFinished = false
+
+                let! actual =
+                    taskOption {
+                        use d =
+                            TestHelpers.makeAsyncDisposable (
+                                (fun () ->
+                                    task {
+                                        do! Task.Yield()
+                                        isFinished <- true
+                                    }
+                                    :> Task
+                                    |> ValueTask
+                                )
+                            )
+
+                        return data
+                    }
+
+                Expect.equal actual (Some data) "Should be ok"
+                Expect.isTrue isFinished ""
+            }
+        yield! [
+            let maxIndices = [
+                10
+                1000000
+            ]
+
+            for maxIndex in maxIndices do
+                testCaseTask
+                <| sprintf "While - %i" maxIndex
+                <| fun () ->
+                    task {
+                        let data = 42
+                        let mutable index = 0
+
+                        let! actual =
+                            taskOption {
+                                while index < maxIndex do
+                                    index <- index + 1
+
+                                return data
+                            }
+
+                        Expect.equal index maxIndex "Index should reach maxIndex"
+                        Expect.equal actual (Some data) "Should be ok"
+                    }
+        ]
+
+        testCaseTask "while bind error"
+        <| fun () ->
+            task {
+                let items = [
+                    TaskOption.some 3
+                    TaskOption.some 4
+                    Task.singleton (None)
+                ]
+
                 let mutable index = 0
 
                 let! actual =
-                    backgroundTaskOption {
-                        while index < 10 do
+                    taskOption {
+                        while index < items.Length do
+                            let! _ = items[index]
                             index <- index + 1
 
-                        return data
+                        return index
                     }
 
-                Expect.equal actual (Some data) "Should be ok"
+                Expect.equal
+                    index
+                    (items.Length
+                     - 1)
+                    "Index should reach maxIndex"
+
+                Expect.equal actual (None) "Should be NOPE"
             }
         testCaseTask "while fail"
         <| fun () ->
-            backgroundTask {
+            task {
 
                 let mutable loopCount = 0
                 let mutable wasCalled = false
@@ -337,7 +461,7 @@ let ceTests =
                 ]
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         while loopCount < data.Length do
                             let! x = data.[loopCount]
 
@@ -354,11 +478,11 @@ let ceTests =
             }
         testCaseTask "For in"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         for i in [ 1..10 ] do
                             ()
 
@@ -369,11 +493,11 @@ let ceTests =
             }
         testCaseTask "For to"
         <| fun () ->
-            backgroundTask {
+            task {
                 let data = 42
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         for i = 1 to 10 do
                             ()
 
@@ -384,7 +508,7 @@ let ceTests =
             }
         testCaseTask "for in fail"
         <| fun () ->
-            backgroundTask {
+            task {
 
                 let mutable loopCount = 0
                 let mutable wasCalled = false
@@ -405,7 +529,7 @@ let ceTests =
                 ]
 
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         for i in data do
                             let! x = i
 
@@ -422,6 +546,12 @@ let ceTests =
                 Expect.equal actual expected "Should be an error"
                 Expect.isFalse wasCalled "No additional side effects should occur"
             }
+        testCaseTask "Empty result"
+        <| fun () ->
+            task {
+                let! _ = TestFuncs.testFunctionTO ()
+                ()
+            }
     ]
 
 let specialCaseTask returnValue =
@@ -431,14 +561,13 @@ let specialCaseTask returnValue =
     Task.FromResult returnValue
 #endif
 
-[<Tests>]
 let ceTestsApplicative =
-    testList "BackgroundTaskOptionCE applicative tests" [
+    testList "TaskOptionCE applicative tests" [
         testCaseTask "Happy Path Option/AsyncOption/Ply/ValueTask"
         <| fun () ->
-            backgroundTask {
+            task {
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! a = Some 3
 
                         let! b =
@@ -458,9 +587,9 @@ let ceTestsApplicative =
             }
         testCaseTask "Fail Path Option/AsyncOption/Ply/ValueTask"
         <| fun () ->
-            backgroundTask {
+            task {
                 let! actual =
-                    backgroundTaskOption {
+                    taskOption {
                         let! a = Some 3
 
                         and! b =
@@ -480,14 +609,20 @@ let ceTestsApplicative =
             }
     ]
 
-[<Tests>]
-let ``BackgroundTaskOptionCE inference checks`` =
-    testList "BackgroundTaskOptionCE inference checks" [
+let ``TaskOptionCE inference checks`` =
+    testList "TaskOptionCE inference checks" [
         testCase "Inference checks"
         <| fun () ->
             // Compilation is success
-            let f res = backgroundTaskOption { return! res }
+            let f res = taskOption { return! res }
 
             f (TaskOption.some ())
             |> ignore
+    ]
+
+let allTests =
+    testList "TaskOption CE Tests" [
+        ceTests
+        ceTestsApplicative
+        ``TaskOptionCE inference checks``
     ]
