@@ -32,7 +32,6 @@ let allowedToPost =
     allowedToPost
     >> Async.StartImmediateAsTask
 
-[<Tests>]
 let mapTests =
     testList "TaskResult.map tests" [
         testCase "map with Task(Ok x)"
@@ -48,7 +47,6 @@ let mapTests =
             |> Expect.hasTaskErrorValueSync { Message = "something went wrong!" }
     ]
 
-[<Tests>]
 let map2Tests =
     testList "TaskResult.map2 tests" [
         testCase "map2 with Task(Ok x) Task(Ok y)"
@@ -91,7 +89,6 @@ let map2Tests =
             |> Expect.hasTaskErrorValueSync getFollowersEx
     ]
 
-[<Tests>]
 let mapErrorTests =
     testList "TaskResult.mapError tests" [
         testCase "mapError with Task(Ok x)"
@@ -108,7 +105,6 @@ let mapErrorTests =
             |> Expect.hasTaskErrorValueSync (commonEx.Message)
     ]
 
-[<Tests>]
 let bindTests =
     testList "TaskResult.bind tests" [
         testCase "bind with Task(Ok x)"
@@ -139,8 +135,6 @@ let bindTests =
             |> Expect.hasTaskErrorValueSync ex
     ]
 
-
-[<Tests>]
 let orElseTests =
     testList "TaskResult.orElseWith Tests" [
         testCaseTask "Ok Ok takes first Ok"
@@ -177,7 +171,6 @@ let orElseTests =
             }
     ]
 
-[<Tests>]
 let orElseWithTests =
     testList "TaskResult.orElse Tests" [
         testCaseTask "Ok Ok takes first Ok"
@@ -214,7 +207,6 @@ let orElseWithTests =
             }
     ]
 
-[<Tests>]
 let ignoreTests =
     testList "TaskResult.ignore tests" [
         testCase "ignore with Task(Ok x)"
@@ -241,7 +233,6 @@ let ignoreTests =
 let err = "foobar"
 let toTask x = task { return x }
 
-[<Tests>]
 let requireTrueTests =
     testList "TaskResult.requireTrue Tests" [
         testCase "requireTrue happy path"
@@ -257,7 +248,6 @@ let requireTrueTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireFalseTests =
     testList "TaskResult.requireFalse Tests" [
         testCase "requireFalse happy path"
@@ -273,7 +263,6 @@ let requireFalseTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireSomeTests =
     testList "TaskResult.requireSome Tests" [
         testCase "requireSome happy path"
@@ -289,7 +278,6 @@ let requireSomeTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireNoneTests =
     testList "TaskResult.requireNone Tests" [
         testCase "requireNone happy path"
@@ -305,7 +293,6 @@ let requireNoneTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireValueSomeTests =
     testList "TaskResult.requireValueSome Tests" [
         testCase "requireValueSome happy path"
@@ -321,7 +308,6 @@ let requireValueSomeTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireValueNoneTests =
     testList "TaskResult.requireValueNone Tests" [
         testCase "requireValueNone happy path"
@@ -337,7 +323,6 @@ let requireValueNoneTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireEqualToTests =
     testList "TaskResult.requireEqualTo Tests" [
         testCase "requireEqualTo happy path"
@@ -353,7 +338,6 @@ let requireEqualToTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireEqualTests =
     testList "TaskResult.requireEqual Tests" [
         testCase "requireEqual happy path"
@@ -367,7 +351,6 @@ let requireEqualTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireEmptyTests =
     testList "TaskResult.requireEmpty Tests" [
         testCase "requireEmpty happy path"
@@ -383,7 +366,6 @@ let requireEmptyTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireNotEmptyTests =
     testList "TaskResult.requireNotEmpty Tests" [
         testCase "requireNotEmpty happy path"
@@ -399,7 +381,6 @@ let requireNotEmptyTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let requireHeadTests =
     testList "TaskResult.requireHead Tests" [
         testCase "requireHead happy path"
@@ -415,7 +396,6 @@ let requireHeadTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
-[<Tests>]
 let taskResultRequireTests =
     testList "TaskResult.require Tests" [
         testCaseTask "True, Ok"
@@ -451,7 +431,6 @@ let taskResultRequireTests =
             }
     ]
 
-[<Tests>]
 let setErrorTests =
     testList "TaskResult.setError Tests" [
         testCase "setError replaces a any error value with a custom error value"
@@ -467,7 +446,6 @@ let setErrorTests =
             |> Expect.hasTaskOkValueSync 42
     ]
 
-[<Tests>]
 let withErrorTests =
     testList "TaskResult.withError Tests" [
         testCase "withError replaces a any error value with a custom error value"
@@ -483,7 +461,6 @@ let withErrorTests =
             |> Expect.hasTaskOkValueSync 42
     ]
 
-[<Tests>]
 let defaultValueTests =
     testList "TaskResult.defaultValue Tests" [
         testCase "defaultValue returns the ok value"
@@ -499,7 +476,6 @@ let defaultValueTests =
             Expect.hasTaskValue 43 v
     ]
 
-[<Tests>]
 let defaultErrorTests =
     testList "TaskResult.defaultError Tests" [
         testCase "defaultError returns the error value"
@@ -515,7 +491,6 @@ let defaultErrorTests =
             Expect.hasTaskValue 43 v
     ]
 
-[<Tests>]
 let defaultWithTests =
     testList "TaskResult.defaultWith Tests" [
         testCase "defaultWith returns the ok value"
@@ -531,7 +506,6 @@ let defaultWithTests =
             Expect.hasTaskValue 42 v
     ]
 
-[<Tests>]
 let ignoreErrorTests =
     testList "TaskResult.ignoreError Tests" [
         testCase "ignoreError returns the unit for ok"
@@ -547,7 +521,6 @@ let ignoreErrorTests =
         <| fun _ -> ignore<Task<Result<unit, string>> -> Task<unit>> TaskResult.ignoreError<string>
     ]
 
-[<Tests>]
 let teeTests =
 
     testList "TaskResult.tee Tests" [
@@ -580,7 +553,6 @@ let teeTests =
 let returnTrue _ = true
 let returnFalse _ = false
 
-[<Tests>]
 let teeIfTests =
     testList "TaskResult.teeIf Tests" [
         testCase "teeIf executes the function for ok and true predicate "
@@ -629,7 +601,6 @@ let teeIfTests =
             Expect.equal foo "foo" ""
     ]
 
-[<Tests>]
 let teeErrorTests =
 
     testList "TaskResult.teeError Tests" [
@@ -660,8 +631,6 @@ let teeErrorTests =
             Expect.equal foo "foo" ""
     ]
 
-
-[<Tests>]
 let teeErrorIfTests =
     testList "TaskResult.teeErrorIf Tests" [
         testCase "teeErrorIf executes the function for Error and true predicate "
@@ -710,7 +679,6 @@ let teeErrorIfTests =
             Expect.equal foo "foo" ""
     ]
 
-[<Tests>]
 let catchTests =
     let f (e: exn) = e.Message
 
@@ -732,7 +700,6 @@ let catchTests =
             Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
     ]
 
-[<Tests>]
 let zipTests =
     testList "TaskResult.zip tests" [
         testCase "Ok, Ok"
@@ -760,7 +727,6 @@ let zipTests =
             Expect.hasTaskValue (Error("Bad1")) v
     ]
 
-[<Tests>]
 let zipErrorTests =
     testList "TaskResult.zipError tests" [
         testCase "Ok, Ok"
@@ -792,7 +758,6 @@ type CreatePostResult =
     | PostSuccess of NotifyNewPostRequest
     | NotAllowedToPost
 
-[<Tests>]
 let TaskResultCETests =
     let createPost userId =
         taskResult {
@@ -828,7 +793,6 @@ let TaskResultCETests =
             |> Expect.hasTaskErrorValueSync commonEx
     ]
 
-[<Tests>]
 let TaskResultOperatorTests =
     testList "TaskResult Operators Tests" [
         testCase "map & apply operators"
@@ -856,7 +820,6 @@ let TaskResultOperatorTests =
             |> Expect.hasTaskOkValueSync (PostId newPostId)
     ]
 
-[<Tests>]
 let TaskResultBindRequireTests =
     testList "TaskResult Bind + Require Tests" [
         testCaseTask "bindRequireNone"
@@ -880,7 +843,6 @@ let TaskResultBindRequireTests =
             }
     ]
 
-[<Tests>]
 let TaskResultBindRequireValueOptionTests =
     testList "TaskResult Bind + RequireValueOption Tests" [
         testCaseTask "bindRequireValueNone"
@@ -904,7 +866,6 @@ let TaskResultBindRequireValueOptionTests =
             }
     ]
 
-[<Tests>]
 let foldResultTests =
     testList "TaskResult.foldResult tests" [
         testCaseTask "foldResult with Task(Ok x)"
@@ -929,7 +890,6 @@ let foldResultTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireTrueTests =
     testList "TaskResult Bind + RequireTrue Tests" [
         testCaseTask "bindRequireTrue"
@@ -953,7 +913,6 @@ let taskResultBindRequireTrueTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireNotNullTests =
     testList "TaskResult Bind + RequireNotNull Tests" [
         testCaseTask "bindRequireNotNull"
@@ -967,7 +926,6 @@ let taskResultBindRequireNotNullTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireEqualTests =
     testList "TaskResult Bind + RequireEqual Tests" [
         testCaseTask "bindRequireEqual"
@@ -981,7 +939,6 @@ let taskResultBindRequireEqualTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireEmptyTests =
     testList "TaskResult Bind + RequireEmpty Tests" [
         testCaseTask "bindRequireEmpty"
@@ -995,7 +952,6 @@ let taskResultBindRequireEmptyTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireNotEmptyTests =
     testList "TaskResult Bind + RequireNotEmpty Tests" [
         testCaseTask "bindRequireNotEmpty"
@@ -1009,7 +965,6 @@ let taskResultBindRequireNotEmptyTests =
             }
     ]
 
-[<Tests>]
 let taskResultBindRequireHeadTests =
     testList "TaskResult Bind + RequireHead Tests" [
         testCaseTask "bindRequireHead"
@@ -1023,8 +978,6 @@ let taskResultBindRequireHeadTests =
             }
     ]
 
-
-[<Tests>]
 let taskResultCheckTests =
     testList "TaskResult.check Tests" [
         testCaseTask "Ok, Ok"
@@ -1058,4 +1011,52 @@ let taskResultCheckTests =
                     TaskResult.check (fun number -> TaskResult.error (1)) (TaskResult.error (2))
                     |> Expect.hasTaskErrorValue (2)
             }
+    ]
+
+let allTests =
+    testList "TaskResult Tests" [
+        mapTests
+        map2Tests
+        mapErrorTests
+        bindTests
+        orElseTests
+        orElseWithTests
+        ignoreTests
+        requireTrueTests
+        requireFalseTests
+        requireSomeTests
+        requireNoneTests
+        requireValueSomeTests
+        requireValueNoneTests
+        requireEqualToTests
+        requireEqualTests
+        requireEmptyTests
+        requireNotEmptyTests
+        requireHeadTests
+        taskResultRequireTests
+        setErrorTests
+        withErrorTests
+        defaultValueTests
+        defaultErrorTests
+        defaultWithTests
+        ignoreErrorTests
+        teeTests
+        teeIfTests
+        teeErrorTests
+        teeErrorIfTests
+        catchTests
+        zipTests
+        zipErrorTests
+        TaskResultCETests
+        TaskResultOperatorTests
+        TaskResultBindRequireTests
+        TaskResultBindRequireValueOptionTests
+        foldResultTests
+        taskResultBindRequireTrueTests
+        taskResultBindRequireNotNullTests
+        taskResultBindRequireEqualTests
+        taskResultBindRequireEmptyTests
+        taskResultBindRequireNotEmptyTests
+        taskResultBindRequireHeadTests
+        taskResultCheckTests
     ]
