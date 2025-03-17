@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 This CE operates on the same type as `asyncResult`, but it adds the `and!` operator for running workflows in parallel.
 
-Concurrent workflows are run with the same semantics as [`Async.Parallel`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-control-fsharpasync.html#Parallel), so only the first exception is returned.
+When running concurrent workflows, fail-fast semantics are used. If any sub-task returns an `Error`, then all other tasks are cancelled and only that error is returned. To instead collect all errors, use `parallelAsyncValidation`.
 
 
 ## Examples
