@@ -321,7 +321,11 @@ module Option =
 
         opt
 
+    /// <summary>
     /// Converts a Option<Async<_>> to an Async<Option<_>>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasync</href>
+    /// </summary>
     let inline sequenceAsync (optAsync: Option<Async<'T>>) : Async<Option<'T>> =
         async {
             match optAsync with
@@ -333,6 +337,8 @@ module Option =
 
     /// <summary>
     /// Maps an Async function over an Option, returning an Async Option.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasync</href>
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
@@ -342,6 +348,35 @@ module Option =
         (opt: Option<'T>)
         : Async<Option<'T>> =
         sequenceAsync ((map f) opt)
+
+    /// <summary>
+    /// Converts a Option<Async<Result<'ok,'error>>> to an Async<Result<Option<'ok>,'error>>
+    /// </summary>
+    let inline sequenceAsyncResult
+        (optAsyncResult: Option<Async<Result<'T, 'E>>>)
+        : Async<Result<Option<'T>, 'E>> =
+        async {
+            match optAsyncResult with
+            | Some asncRes ->
+                let! xRes = asncRes
+
+                return
+                    xRes
+                    |> Result.map Some
+            | None -> return Ok None
+        }
+
+    /// <summary>
+    /// Maps an AsyncResult function over an Option, returning an AsyncResult Option.
+    /// </summary>
+    /// <param name="f">The function to map over the Option.</param>
+    /// <param name="opt">The Option to map over.</param>
+    /// <returns>An AsyncResult Option with the mapped value.</returns>
+    let inline traverseAsyncResult
+        ([<InlineIfLambda>] f: 'T -> Async<Result<'U, 'E>>)
+        (opt: Option<'T>)
+        : Async<Result<Option<'U>, 'E>> =
+        sequenceAsyncResult ((map f) opt)
 
     /// <summary>
     /// Creates an option from a boolean value and a value of type 'a.
