@@ -212,7 +212,7 @@ let sequenceAsyncTests =
     ]
 
 let sequenceAsyncResultTests =
-    ftestList "Option.sequenceAsyncResult Tests" [
+    testList "Option.sequenceAsyncResult Tests" [
         testCaseAsync "sequenceAsyncResult returns the async Ok value if Some"
         <| async {
             let optAsyncOk =
@@ -251,9 +251,6 @@ let sequenceAsyncResultTests =
 
             let valueNone = Expect.wantOk valueRes "Expect to get back OK"
             Expect.isNone valueNone "Expect to get back None"
-
-            // check things actually fail when fail
-            Expect.isSome valueNone "This should fail"
         }
     ]
 
@@ -305,23 +302,60 @@ let traverseResultTests =
             |> Expect.hasOkValue (Some validLng)
     ]
 
-// to do
-// let traverseAsyncResultTests =
-//     testList "Option.traverseAsyncResult Tests" [
-//         testCaseAsync "traverseAsyncResult with valid latitute data"
-//         <| async {
-//             let tryCreateLatAsync = fun l -> async { return Latitude.TryCreate l }
-//
-//             let! valueRes =
-//                 Some lat
-//                 |> Option.traverseAsyncResult tryCreateLatAsync
-//
-//             let value = Expect.wantOk valueRes "Expect to get OK"
-//             Expect.equal value (Some validLat) "Expect to get valid latitute"
-//
-//         }
-//
-//     ]
+let traverseAsyncResultTests =
+    testList "Option.traverseAsyncResult Tests" [
+        testCaseAsync "traverseAsyncResult with valid latitute data"
+        <| async {
+            let tryCreateLatAsync = fun l -> async { return Latitude.TryCreate l }
+
+            let! valueRes =
+                Some lat
+                |> Option.traverseAsyncResult tryCreateLatAsync
+
+            let value = Expect.wantOk valueRes "Expect to get OK"
+            Expect.equal value (Some validLat) "Expect to get valid latitute"
+        }
+
+        testCaseAsync "traverseAsyncResult id returns async Ok value if Some"
+        <| async {
+            let optAsyncOk =
+                async { return Ok "foo" }
+                |> Some
+
+            let! valueRes =
+                optAsyncOk
+                |> Option.traverseAsyncResult id
+
+            let value = Expect.wantOk valueRes "Expect to get back OK"
+            Expect.equal value (Some "foo") "Expect to get back value"
+        }
+
+        testCaseAsync "traverseAsyncResult id returns the async Error value if Some"
+        <| async {
+            let optAsyncOk =
+                async { return Error "error" }
+                |> Some
+
+            let! valueRes =
+                optAsyncOk
+                |> Option.traverseAsyncResult id
+
+            let errorValue = Expect.wantError valueRes "Expect to get back Error"
+            Expect.equal errorValue "error" "Expect to get back the error value"
+        }
+
+        testCaseAsync "traverseAsyncResult id returns None if None"
+        <| async {
+            let optAsyncNone = None
+
+            let! valueRes =
+                optAsyncNone
+                |> Option.traverseAsyncResult id
+
+            let valueNone = Expect.wantOk valueRes "Expect to get back OK"
+            Expect.isNone valueNone "Expect to get back None"
+        }
+    ]
 
 let tryParseTests =
     testList "Option.tryParse" [
@@ -490,8 +524,10 @@ let optionOperatorsTests =
 let allTests =
     testList "Option Tests" [
         sequenceAsyncTests
+        sequenceAsyncResultTests
         traverseAsyncTests
         traverseResultTests
+        traverseAsyncResultTests
         tryParseTests
         tryGetValueTests
         ofResultTests
