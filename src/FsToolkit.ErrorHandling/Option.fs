@@ -350,11 +350,13 @@ module Option =
         sequenceAsync ((map f) opt)
 
     /// <summary>
-    /// Converts a Option<Async<Result<'ok,'error>>> to an Async<Result<Option<'ok>,'error>>
+    /// Converts a Async<Result<'ok,'error>> option to an Async<Result<'ok option,'error>>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasyncresult</href>
     /// </summary>
     let inline sequenceAsyncResult
-        (optAsyncResult: Option<Async<Result<'T, 'E>>>)
-        : Async<Result<Option<'T>, 'E>> =
+        (optAsyncResult: Async<Result<'T, 'E>> option)
+        : Async<Result<'T option, 'E>> =
         async {
             match optAsyncResult with
             | Some asncRes ->
@@ -367,15 +369,17 @@ module Option =
         }
 
     /// <summary>
-    /// Maps an AsyncResult function over an Option, returning an AsyncResult Option.
+    /// Maps an AsyncResult function over an option, returning an AsyncResult option.
+    ///
+    /// /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
     /// <returns>An AsyncResult Option with the mapped value.</returns>
     let inline traverseAsyncResult
         ([<InlineIfLambda>] f: 'T -> Async<Result<'U, 'E>>)
-        (opt: Option<'T>)
-        : Async<Result<Option<'U>, 'E>> =
+        (opt: 'T option)
+        : Async<Result<'U option, 'E>> =
         sequenceAsyncResult ((map f) opt)
 
     /// <summary>
