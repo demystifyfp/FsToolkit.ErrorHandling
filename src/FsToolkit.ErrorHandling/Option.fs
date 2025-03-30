@@ -321,7 +321,11 @@ module Option =
 
         opt
 
+    /// <summary>
     /// Converts a Option<Async<_>> to an Async<Option<_>>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasync</href>
+    /// </summary>
     let inline sequenceAsync (optAsync: Option<Async<'T>>) : Async<Option<'T>> =
         async {
             match optAsync with
@@ -333,6 +337,8 @@ module Option =
 
     /// <summary>
     /// Maps an Async function over an Option, returning an Async Option.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasync</href>
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
@@ -342,6 +348,39 @@ module Option =
         (opt: Option<'T>)
         : Async<Option<'T>> =
         sequenceAsync ((map f) opt)
+
+    /// <summary>
+    /// Converts a Async<Result<'ok,'error>> option to an Async<Result<'ok option,'error>>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasyncresult</href>
+    /// </summary>
+    let inline sequenceAsyncResult
+        (optAsyncResult: Async<Result<'T, 'E>> option)
+        : Async<Result<'T option, 'E>> =
+        async {
+            match optAsyncResult with
+            | Some asncRes ->
+                let! xRes = asncRes
+
+                return
+                    xRes
+                    |> Result.map Some
+            | None -> return Ok None
+        }
+
+    /// <summary>
+    /// Maps an AsyncResult function over an option, returning an AsyncResult option.
+    ///
+    /// /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
+    /// </summary>
+    /// <param name="f">The function to map over the Option.</param>
+    /// <param name="opt">The Option to map over.</param>
+    /// <returns>An AsyncResult Option with the mapped value.</returns>
+    let inline traverseAsyncResult
+        ([<InlineIfLambda>] f: 'T -> Async<Result<'U, 'E>>)
+        (opt: 'T option)
+        : Async<Result<'U option, 'E>> =
+        sequenceAsyncResult ((map f) opt)
 
     /// <summary>
     /// Creates an option from a boolean value and a value of type 'a.
