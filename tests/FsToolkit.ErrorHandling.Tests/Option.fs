@@ -279,7 +279,7 @@ let traverseTaskTests =
             }
 
         testCaseTask "traverseTask returns None if None"
-        <| fun() ->
+        <| fun () ->
             task {
                 let optTask = None
 
@@ -694,12 +694,12 @@ let optionOperatorsTests =
 
 let allTests =
     testList "Option Tests" [
-        #if !FABLE_COMPILER
+#if !FABLE_COMPILER
         sequenceTaskTests
         sequenceTaskResultTests
         traverseTaskTests
         traverseTaskResultTests
-        #endif
+#endif
         sequenceAsyncTests
         sequenceAsyncResultTests
         traverseAsyncTests
