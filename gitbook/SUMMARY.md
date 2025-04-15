@@ -44,9 +44,13 @@
     * [map3](option/map3.md)
     * [sequenceAsync](option/sequenceAsync.md)
     * [sequenceResult](option/sequenceResult.md)
+    * [sequenceTask](option/sequenceTask.md)
+    * [sequenceTaskResult](option/sequenceTaskResult.md)
     * [tee Functions](option/teeFunctions.md)
     * [traverseAsync](option/traverseAsync.md)
     * [traverseResult](option/traverseResult.md)
+    * [traverseTask](option/traverseTask.md)
+    * [traverseTaskResult](option/traverseTaskResult.md)
     * [zip](option/zip.md)
     * Lists
         * [traverseOptionM](option/traverseOptionM.md)
