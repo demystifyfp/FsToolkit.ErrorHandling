@@ -353,7 +353,7 @@ module Option =
         sequenceTask ((map f) opt)
 
     /// <summary>
-    /// Converts an <c>Async&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Async&lt;Result&lt;'ok option,'error&gt;&gt;</c><br />
+    /// Converts an <c>Task&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Task&lt;Result&lt;'ok option,'error&gt;&gt;</c><br />
     ///
     /// Documentation is found here: <see href="https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequencetaskresult" />
     /// </summary>
