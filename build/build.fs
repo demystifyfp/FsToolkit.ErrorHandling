@@ -561,6 +561,12 @@ let initTargets () =
     "GenerateAssemblyInfo"
     ==>! "PublishToNuGet"
 
+    "RunTests"
+    ?=>! "DotnetPack"
+
+    "RunTests"
+    ==>! "PublishToNuGet"
+
     "Clean"
     ==> "CheckFormatCode"
     ==> "DotnetPack"
