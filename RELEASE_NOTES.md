@@ -1,4 +1,4 @@
-### 5.0.0-beta011 - March 30, 2025
+### 5.0.0-beta012 - May 01, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations like Result](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
 - BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
@@ -20,6 +20,7 @@
 - [feat(Seq.traverse/sequence*)!: Yield arrays](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/310) Credits @bartelink
 - [Add ParallelAsync CEs](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/318) Credits @njlr
 - [Add Option.sequenceAsyncResult and Option.traverseAsyncResult](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/321) Credits @JayWearsSocks
+- [Add traversals/sequences for Task and TaskResult in the Option module](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/325) Credits @tw0po1nt
 
 ### 4.18.0 - October 23, 2024
 - [Add Array errorhandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/279) Credits @DashieTM
