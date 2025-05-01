@@ -17,7 +17,7 @@ storage: none
 lowest_matching: true
 strategy: min
 nuget FSharp.Core ~> 7.0.0
-nuget Expecto
+nuget Expecto 10.2.3
 nuget Expecto.Hopac
 nuget Microsoft.NET.Test.Sdk
 nuget YoloDev.Expecto.TestSdk

@@ -876,7 +876,7 @@ STRATEGY: MIN
 LOWEST_MATCHING: TRUE
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    Expecto (10.1)
+    Expecto (10.2.3)
       FSharp.Core (>= 7.0.200) - restriction: >= net6.0
       Mono.Cecil (>= 0.11.4 < 1.0) - restriction: >= net6.0
     Expecto.Hopac (10.1)
