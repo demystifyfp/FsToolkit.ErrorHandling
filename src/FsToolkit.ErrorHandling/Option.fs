@@ -321,6 +321,71 @@ module Option =
 
         opt
 
+#if !FABLE_COMPILER
+    open System.Threading.Tasks
+
+    /// <summary>
+    /// Converts an <c>Option&lt;Task&lt;_&gt;&gt;</c> to an <c>Task&lt;Option&lt;_&gt;&gt;</c><br />
+    ///
+    /// Documentation is found here: <see href="https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequencetask" />
+    /// </summary>
+    let inline sequenceTask (optTask: Option<Task<'T>>) : Task<Option<'T>> =
+        task {
+            match optTask with
+            | Some tsk ->
+                let! x = tsk
+                return Some x
+            | None -> return None
+        }
+
+    /// <summary>
+    /// Maps a <c>Task</c> function over an <c>option</c>, returning a <c>Task&lt;'T option&gt;</c><br/>
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traversetask</href>
+    /// </summary>
+    /// <param name="f">The function to map over the <c>option</c>.</param>
+    /// <param name="opt">The <c>option</c> to map over.</param>
+    /// <returns>A <c>Task&lt;'T option&gt;</c> with the mapped value.</returns>
+    let inline traverseTask
+        ([<InlineIfLambda>] f: 'T -> Task<'T>)
+        (opt: Option<'T>)
+        : Task<Option<'T>> =
+        sequenceTask ((map f) opt)
+
+    /// <summary>
+    /// Converts an <c>Task&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Task&lt;Result&lt;'ok option,'error&gt;&gt;</c><br />
+    ///
+    /// Documentation is found here: <see href="https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequencetaskresult" />
+    /// </summary>
+    let inline sequenceTaskResult
+        (optTaskResult: Task<Result<'T, 'E>> option)
+        : Task<Result<'T option, 'E>> =
+        task {
+            match optTaskResult with
+            | Some taskRes ->
+                let! xRes = taskRes
+
+                return
+                    xRes
+                    |> Result.map Some
+            | None -> return Ok None
+        }
+
+    /// <summary>
+    /// Maps a <c>TaskResult</c> function over an <c>option</c>, returning a <c>Task&lt;Result&lt;'U option, 'E&gt;&gt;</c>.<br />
+    ///
+    /// Documentation is found here: <see href="https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traversetaskresult" />
+    /// </summary>
+    /// <param name="f">The function to map over the <c>option</c>.</param>
+    /// <param name="opt">The <c>option</c> to map over.</param>
+    /// <returns>A <c>Task&lt;Result&lt;'U option, 'E&gt;&gt;</c> with the mapped value.</returns>
+    let inline traverseTaskResult
+        ([<InlineIfLambda>] f: 'T -> Task<Result<'U, 'E>>)
+        (opt: 'T option)
+        : Task<Result<'U option, 'E>> =
+        sequenceTaskResult ((map f) opt)
+#endif
+
     /// <summary>
     /// Converts a Option<Async<_>> to an Async<Option<_>>
     ///

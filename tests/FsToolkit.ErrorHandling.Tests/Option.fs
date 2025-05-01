@@ -184,6 +184,177 @@ let teeIfTests =
             Expect.equal foo "foo" ""
     ]
 
+#if !FABLE_COMPILER
+let sequenceTaskTests =
+    testList "Option.sequenceTask Tests" [
+        testCaseTask "sequenceTask returns the task value if Some"
+        <| fun () ->
+            task {
+                let optTask =
+                    task { return "foo" }
+                    |> Some
+
+                let! value =
+                    optTask
+                    |> Option.sequenceTask
+
+                Expect.equal value (Some "foo") ""
+            }
+
+        testCaseTask "sequenceTask returns None if None"
+        <| fun () ->
+            task {
+                let optTask = None
+
+                let! value =
+                    optTask
+                    |> Option.sequenceTask
+
+                Expect.equal value None ""
+            }
+    ]
+
+let sequenceTaskResultTests =
+    testList "Option.sequenceTaskResult Tests" [
+        testCaseTask "sequenceTaskResult returns the take Ok value if Some"
+        <| fun () ->
+            task {
+                let optTaskOk =
+                    task { return Ok "foo" }
+                    |> Some
+
+                let! valueRes =
+                    optTaskOk
+                    |> Option.sequenceTaskResult
+
+                let value = Expect.wantOk valueRes "Expect to get back OK"
+                Expect.equal value (Some "foo") "Expect to get back value"
+            }
+
+        testCaseTask "sequenceTaskResult returns the task Error value if Some"
+        <| fun () ->
+            task {
+                let optTaskOk =
+                    task { return Error "error" }
+                    |> Some
+
+                let! valueRes =
+                    optTaskOk
+                    |> Option.sequenceTaskResult
+
+                let errorValue = Expect.wantError valueRes "Expect to get back Error"
+                Expect.equal errorValue "error" "Expect to get back the error value"
+            }
+
+        testCaseTask "sequenceTaskResult returns None if None"
+        <| fun () ->
+            task {
+                let optTaskNone = None
+
+                let! valueRes =
+                    optTaskNone
+                    |> Option.sequenceTaskResult
+
+                let valueNone = Expect.wantOk valueRes "Expect to get back OK"
+                Expect.isNone valueNone "Expect to get back None"
+            }
+    ]
+
+let traverseTaskTests =
+    testList "Option.traverseTask Tests" [
+        testCaseTask "traverseTask returns the task value if Some"
+        <| fun () ->
+            task {
+                let optTask = Some "foo"
+
+                let optFunc =
+                    id
+                    >> Task.singleton
+
+                let! value =
+                    (optFunc, optTask)
+                    ||> Option.traverseTask
+
+                Expect.equal value (Some "foo") ""
+            }
+
+        testCaseTask "traverseTask returns None if None"
+        <| fun () ->
+            task {
+                let optTask = None
+
+                let optFunc =
+                    id
+                    >> Task.singleton
+
+                let! value =
+                    (optFunc, optTask)
+                    ||> Option.traverseTask
+
+                Expect.equal value None ""
+            }
+    ]
+
+let traverseTaskResultTests =
+    testList "Option.traverseTaskResult Tests" [
+        testCaseTask "traverseTaskResult with valid latitute data"
+        <| fun () ->
+            task {
+                let tryCreateLatTask = fun l -> task { return Latitude.TryCreate l }
+
+                let! valueRes =
+                    Some lat
+                    |> Option.traverseTaskResult tryCreateLatTask
+
+                let value = Expect.wantOk valueRes "Expect to get OK"
+                Expect.equal value (Some validLat) "Expect to get valid latitute"
+            }
+
+        testCaseTask "traverseTaskResult id returns async Ok value if Some"
+        <| fun () ->
+            task {
+                let optTaskOk =
+                    task { return Ok "foo" }
+                    |> Some
+
+                let! valueRes =
+                    optTaskOk
+                    |> Option.traverseTaskResult id
+
+                let value = Expect.wantOk valueRes "Expect to get back OK"
+                Expect.equal value (Some "foo") "Expect to get back value"
+            }
+
+        testCaseTask "traverseTaskResult id returns the async Error value if Some"
+        <| fun () ->
+            task {
+                let optTaskOk =
+                    task { return Error "error" }
+                    |> Some
+
+                let! valueRes =
+                    optTaskOk
+                    |> Option.traverseTaskResult id
+
+                let errorValue = Expect.wantError valueRes "Expect to get back Error"
+                Expect.equal errorValue "error" "Expect to get back the error value"
+            }
+
+        testCaseTask "traverseTaskResult id returns None if None"
+        <| fun () ->
+            task {
+                let optTaskNone = None
+
+                let! valueRes =
+                    optTaskNone
+                    |> Option.traverseTaskResult id
+
+                let valueNone = Expect.wantOk valueRes "Expect to get back OK"
+                Expect.isNone valueNone "Expect to get back None"
+            }
+    ]
+#endif
+
 let sequenceAsyncTests =
     testList "Option.sequenceAsync Tests" [
         testCaseAsync "sequenceAsync returns the async value if Some"
@@ -523,6 +694,12 @@ let optionOperatorsTests =
 
 let allTests =
     testList "Option Tests" [
+#if !FABLE_COMPILER
+        sequenceTaskTests
+        sequenceTaskResultTests
+        traverseTaskTests
+        traverseTaskResultTests
+#endif
         sequenceAsyncTests
         sequenceAsyncResultTests
         traverseAsyncTests
