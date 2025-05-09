@@ -23,6 +23,10 @@ module TaskResultOption =
 
     let inline singleton value = TaskResult.ok (Some value)
 
+    let inline ok x = singleton x
+
+    let inline error x : TaskResult<'ok option, 'error> = TaskResult.error x
+
     let inline apply fTRO xTRO = map2 (fun f x -> f x) fTRO xTRO
 
     /// Replaces the wrapped value with unit
