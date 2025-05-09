@@ -24,6 +24,13 @@ module AsyncResultOption =
             )
             input
 
+    let inline ok x =
+        Ok(Some x)
+        |> Async.singleton
+
+    let inline error x : Async<Result<'ok option, 'error>> =
+        Error x
+        |> Async.singleton
 
     let inline map2
         ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
