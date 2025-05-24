@@ -254,6 +254,15 @@
     * [Computation Expression](pr.md)
 
 * FsToolkit.ErrorHandling.IcedTasks
+  * CancellableTaskOption
+    * [apply](cancellableTaskOption/apply.md)
+    * [bind](cancellableTaskOption/bind.md)
+    * [Computation Expression](cancellableTaskOption/ce.md)
+    * [either](cancellableTaskOption/either.md)
+    * [map](cancellableTaskOption/map.md)
+    * [Other Functions](cancellableTaskOption/others.md)
+    * [zip](cancellableTaskOption/zip.md)
+
   * [CancellableTaskResult](cancellableTaskResult/index.md)
     * [apply](cancellableTaskResult/apply.md)
     * [bind](cancellableTaskResult/bind.md)
