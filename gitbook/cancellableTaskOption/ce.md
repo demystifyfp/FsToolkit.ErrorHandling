@@ -1,4 +1,4 @@
-## TaskOption Computation Expression
+## CancellableTaskOption Computation Expression
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -10,13 +10,13 @@ Given a personId and an age, find a person and update their age.
 
 ```fsharp
 tryParseInt : string -> Option<int>
-tryFindPersonById : int -> Task<Option<Person>>
-updatePerson : Person -> Task<unit>
+tryFindPersonById : int -> CancellableTask<Person option>
+updatePerson : Person -> CancellableTask<unit>
 ```
 
 ```fsharp
-// Task<Option<unit>>
-let addResult = taskOption {
+// CancellableTask<unit option>
+let addResult = cancellableTaskOption {
   let! personId = tryParseInt "3001"
   let! age = tryParseInt "35"
   let! person = tryFindPersonById personId

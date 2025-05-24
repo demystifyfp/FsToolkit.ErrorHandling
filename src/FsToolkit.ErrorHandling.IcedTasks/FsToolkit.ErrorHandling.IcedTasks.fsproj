@@ -9,7 +9,9 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CancellableTaskResultBuilderBase.fs" />
+        <Compile Include="CancellableTaskOptionBuilderBase.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
+        <Compile Include="CancellableTaskOptionCE.fs" />
         <None Include="paket.references" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="CancellableTaskValidationOp.fs" />
