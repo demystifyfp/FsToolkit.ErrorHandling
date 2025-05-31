@@ -49,6 +49,12 @@ module Expect =
         | Some x -> Tests.failtestf "Expected Some(%A), was Some(%A)." v x
         | None -> Tests.failtestf "Expected Some, was None."
 
+    let hasValueSomeValue v x =
+        match x with
+        | ValueSome x when x = v -> ()
+        | ValueSome x -> Tests.failtestf "Expected ValueSome(%A), was ValueSome(%A)." v x
+        | ValueNone -> Tests.failtestf "Expected ValueSome, was ValueNone."
+
     let hasSomeSeqValue v x =
         match x with
         | Some x ->
@@ -62,6 +68,11 @@ module Expect =
         match x with
         | None -> ()
         | Some _ -> Tests.failtestf "Expected None, was Some."
+
+    let hasValueNoneValue x =
+        match x with
+        | ValueNone -> ()
+        | ValueSome v -> Tests.failtestf "Expected ValueNone, was ValueSome(%A)." v
 
     let hasAsyncValue v asyncX =
         async {
@@ -144,6 +155,14 @@ module Expect =
 
         hasNoneValue x
 
+    let hasTaskValueNoneValue taskX =
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
+        hasValueNoneValue x
+
     let hasTaskErrorValue v (taskX: Task<_>) =
         task {
             let! x = taskX
@@ -165,6 +184,14 @@ module Expect =
             |> Async.RunSynchronously
 
         hasSomeValue v x
+
+    let hasTaskValueSomeValue v taskX =
+        let x =
+            taskX
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+
+        hasValueSomeValue v x
 
 #endif
 

@@ -14,9 +14,12 @@
         <Compile Include="SampleDomain.fs" />
         <Compile Include="TestData.fs" />
         <Compile Include="BackgroundTaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="BackgroundTaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="BackgroundTaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskValueOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
