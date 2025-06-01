@@ -14,7 +14,6 @@
         <PackageReference Include="Fake.DotNet.Cli" />
         <PackageReference Include="Fake.Core.ReleaseNotes" />
         <PackageReference Include="Fake.DotNet.AssemblyInfoFile" />
-        <PackageReference Include="Fake.DotNet.Paket" />
         <PackageReference Include="Fake.DotNet.Testing.Expecto" />
         <PackageReference Include="Fake.Tools.Git" />
         <PackageReference Include="Fake.JavaScript.Npm" />

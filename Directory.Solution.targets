@@ -5,7 +5,7 @@
     <_DotnetToolRestoreOutputFile>$(_BuildProjBaseIntermediateOutputPath)/dotnet-tool-restore-$(NETCoreSdkVersion)-$(OS)</_DotnetToolRestoreOutputFile>
   </PropertyGroup>
 
-  <Target Name="ToolRestore" BeforeTargets="Restore;CollectPackageReferences;PaketRestore" Inputs="$(_DotnetToolManifestFile)" Outputs="$(_DotnetToolRestoreOutputFile)">
+  <Target Name="ToolRestore" BeforeTargets="Restore;CollectPackageReferences" Inputs="$(_DotnetToolManifestFile)" Outputs="$(_DotnetToolRestoreOutputFile)">
     <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" />
     <MakeDir Directories="$(_BuildProjBaseIntermediateOutputPath)"/>
     <Touch Files="$(_DotnetToolRestoreOutputFile)" AlwaysCreate="True" ForceTouch="True" />
