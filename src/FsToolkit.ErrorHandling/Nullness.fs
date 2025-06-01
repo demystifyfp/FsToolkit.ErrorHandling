@@ -1,5 +1,11 @@
 namespace FsToolkit.ErrorHandling
 
+(*
+This Polyfills the F# 9.0 and later types for nullability, which are not available in earlier versions of F# or in Fable.
+This is useful for keeping compatibility with older versions of F# or when using Fable, which does not support the new nullability features.
+*)
+
+
 open System
 
 /// Represents errors that occur during application execution. In F# 9.0 and later, this type is marked as nullable.
@@ -63,10 +69,10 @@ type ResizeArrayNull<'T> =
 module internal Nullness =
 
 #if NET9_0_OR_GREATER && !FABLE_COMPILER
-    /// Throw a System.ArgumentNullException if the given value is null exceptio
+    /// Throw a System.ArgumentNullException if the given value is null exception
     let inline nullArgCheck name value = nullArgCheck name value
 #else
-    /// Throw a System.ArgumentNullException if the given value is null exceptio
+    /// Throw a System.ArgumentNullException if the given value is null exception
     let inline nullArgCheck (name: string) (value: 'T) : 'T =
         if isNull value then
             raise (ArgumentNullException(name))
