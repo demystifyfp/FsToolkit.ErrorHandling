@@ -306,6 +306,7 @@ let runPythonTests _ =
             CreateProcess.fromRawCommand "dotnet" [
                 "fable"
                 testProject
+                "--noCache"
                 "--lang"
                 "py"
                 "-o"

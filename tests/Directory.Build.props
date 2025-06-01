@@ -12,6 +12,9 @@
         <!-- <PackageReference Include="Microsoft.Bcl.TimeProvider" /> -->
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="YoloDev.Expecto.TestSdk" />
+        <PackageReference Include="Fable.Mocha" />
+        <PackageReference Include="Fable.Pyxpecto" />
+        
         <!-- <PackageReference Include="TimeProviderExtensions"/> -->
         <!-- <PackageReference Include="FSharp.Control.TaskSeq"/> -->
     </ItemGroup>

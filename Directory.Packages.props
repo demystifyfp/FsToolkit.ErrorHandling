@@ -18,14 +18,14 @@
     <PackageVersion Include="Expecto.Hopac" Version="10.2.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
-    <PackageVersion Include="Fable.Mocha" Version="2.9.0" />
-    <PackageVersion Include="Fable.Python" Version="3.0.0" />
-    <PackageVersion Include="Fable.Pyxpecto" Version="1.0.0" />
+    <PackageVersion Include="Fable.Mocha" Version="2.17.0" />
+    <PackageVersion Include="Fable.Python" Version="4.3.0" />
+    <PackageVersion Include="Fable.Pyxpecto" Version="0.3" />
 
     <!-- Benchmarks group dependencies -->
-    <PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.13.5" />
-    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.5" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.0" />
 
     <!-- Build group dependencies -->
     <PackageVersion Include="Fake.Core.Target" Version="5.22.0" />
