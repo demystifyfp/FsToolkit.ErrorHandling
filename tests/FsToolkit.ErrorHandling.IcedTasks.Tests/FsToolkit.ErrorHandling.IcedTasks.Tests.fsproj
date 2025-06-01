@@ -11,15 +11,10 @@
         <Compile Include="Expect.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
-        <Compile Include="CancellableTaskOptionCE.fs" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="Main.fs" />
-        <None Include="paket.references" />
-        <Watch Include="@(None)" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference
-            Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+        <ProjectReference Include="..\..\src\FsToolkit.ErrorHandling.IcedTasks\FsToolkit.ErrorHandling.IcedTasks.fsproj" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -54,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node-version: ['18', '20', 'latest' ]
+        node-version: ['lts/-1', 'lts/*', 'latest' ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -164,3 +164,5 @@ jobs:
           with:
             # You can also specify the path to a folder for `sarif_file`
             sarif_file: analysisreports
+          # make this step optional, so that it does not fail the workflow
+          continue-on-error: true

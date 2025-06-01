@@ -107,15 +107,16 @@ module CancellableTaskValidationCE =
                                 // sm.Data.MethodBuilder.SetResult sm.Data.Result
                                 MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                             else
-                                let mutable awaiter =
-                                    sm.ResumptionDynamicInfo.ResumptionData
-                                    :?> ICriticalNotifyCompletion
+                                match sm.ResumptionDynamicInfo.ResumptionData with
+                                | :? ICriticalNotifyCompletion as awaiter ->
+                                    let mutable awaiter = awaiter
 
-                                MethodBuilder.AwaitUnsafeOnCompleted(
-                                    &sm.Data.MethodBuilder,
-                                    &awaiter,
-                                    &sm
-                                )
+                                    MethodBuilder.AwaitUnsafeOnCompleted(
+                                        &sm.Data.MethodBuilder,
+                                        &awaiter,
+                                        &sm
+                                    )
+                                | awaiter -> assert not (isNull awaiter)
 
                         with exn ->
                             savedExn <- exn

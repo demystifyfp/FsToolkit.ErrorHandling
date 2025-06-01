@@ -371,9 +371,6 @@ FakesAssemblies/
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
-# Paket dependency manager
-paket-files/
-
 # FAKE - F# Make
 .fake/
 

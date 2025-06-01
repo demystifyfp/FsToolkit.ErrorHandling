@@ -1,0 +1,51 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable central package management -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Core Dependencies -->
+    <PackageVersion Include="FSharp.Core" Version="6.0.1" />
+    <PackageVersion Include="Hopac" Version="0.5.1" />
+    <PackageVersion Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
+    <PackageVersion Include="Fable.Core" Version="4.2.0" />
+    <PackageVersion Include="IcedTasks" Version="0.11.8" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+
+    <!-- Test group dependencies -->
+    <PackageVersion Include="Expecto" Version="10.2.3" />
+    <PackageVersion Include="Expecto.Hopac" Version="10.2.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
+    <PackageVersion Include="Fable.Python" Version="4.3.0" />
+    <PackageVersion Include="Fable.Pyxpecto" Version="1.3.0" />
+
+    <!-- Benchmarks group dependencies -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.0" />
+
+    <!-- Build group dependencies -->
+    <PackageVersion Include="Fake.Core.Target" Version="5.22.0" />
+    <PackageVersion Include="Fake.DotNet.Cli" Version="5.22.0" />
+    <PackageVersion Include="Fake.Core.ReleaseNotes" Version="5.22.0" />
+    <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="5.22.0" />
+    <PackageVersion Include="Fake.DotNet.Testing.Expecto" Version="5.22.0" />
+    <PackageVersion Include="Fake.Tools.Git" Version="5.22.0" />
+    <PackageVersion Include="Fake.JavaScript.Npm" Version="5.22.0" />
+    <PackageVersion Include="Fake.Api.GitHub" Version="5.22.0" />
+    <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="5.22.0" />
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.206" />
+    <PackageVersion Include="Octokit" Version="0.53.0" />
+    <PackageVersion Include="Nuget.Common" Version="6.6.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.6.1" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="7.0.2" />
+
+    <!-- Analyzers group dependencies -->
+    <PackageVersion Include="Ionide.Analyzers" Version="0.14.5" />
+    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.15.0" />
+  </ItemGroup>
+
+  
+</Project>

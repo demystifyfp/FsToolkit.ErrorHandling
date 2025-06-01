@@ -32,6 +32,8 @@ let environVarAsBoolOrDefault varName defaultValue =
 
 let project = "FsToolkit.ErrorHandling"
 
+let publishUrl = "https://www.nuget.org"
+
 let summary =
     "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
 
@@ -201,9 +203,6 @@ let clean _ =
     ++ "**/.python-tests"
     |> Shell.cleanDirs
 
-    [ "paket-files/paket.restore.cached" ]
-    |> Seq.iter Shell.rm
-
 
 module BuildParameters =
     let common (defaults: MSBuild.CliArguments) = {
@@ -229,11 +228,6 @@ let build ctx =
 
 
 let restore _ =
-    Fake.DotNet.Paket.restore (fun p -> {
-        p with
-            ToolType = ToolType.CreateLocalTool()
-    })
-
     let setParams (c: DotNet.RestoreOptions) = {
         c with
             MSBuildParams = BuildParameters.common c.MSBuildParams
@@ -306,6 +300,7 @@ let runPythonTests _ =
             CreateProcess.fromRawCommand "dotnet" [
                 "fable"
                 testProject
+                "--noCache"
                 "--lang"
                 "py"
                 "-o"
@@ -392,16 +387,22 @@ let dotnetPack ctx =
 
 
 let publishNuget _ =
-    Paket.push (fun p -> {
-        p with
-            ToolType = ToolType.CreateLocalTool()
-            PublishUrl = "https://www.nuget.org"
-            WorkingDir = distDir
-            ApiKey =
-                match nugetToken.Value with
-                | Some s -> s
-                | _ -> p.ApiKey // assume paket-config was set properly
-    })
+
+
+    DotNet.nugetPush
+        (fun c -> {
+            c with
+                Common = {
+                    c.Common with
+                        WorkingDirectory = distDir
+                }
+                PushParams = {
+                    c.PushParams with
+                        Source = Some publishUrl
+                        ApiKey = nugetToken.Value
+                }
+        })
+        "*.nupkg"
 
 
 let remote = Environment.environVarOrDefault "FSTK_GIT_REMOTE" "origin"

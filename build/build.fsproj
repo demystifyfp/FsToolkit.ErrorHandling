@@ -9,5 +9,15 @@
         <Compile Include="DotEnv.fs" />
         <Compile Include="build.fs" />
     </ItemGroup>
-    <Import Project="..\.paket\Paket.Restore.targets" />
+    <ItemGroup>
+        <PackageReference Include="Fake.Core.Target" />
+        <PackageReference Include="Fake.DotNet.Cli" />
+        <PackageReference Include="Fake.Core.ReleaseNotes" />
+        <PackageReference Include="Fake.DotNet.AssemblyInfoFile" />
+        <PackageReference Include="Fake.DotNet.Testing.Expecto" />
+        <PackageReference Include="Fake.Tools.Git" />
+        <PackageReference Include="Fake.JavaScript.Npm" />
+        <PackageReference Include="Fake.Api.GitHub" />
+        <PackageReference Include="Fake.BuildServer.GitHubActions" />
+    </ItemGroup>
 </Project>

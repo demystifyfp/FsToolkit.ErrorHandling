@@ -242,11 +242,11 @@ type TaskResultBuilder() =
                             // printfn "RunDynamic Data --> %A" sm.Data.Result
                             sm.Data.MethodBuilder.SetResult(sm.Data.Result)
                         else
-                            let mutable awaiter =
-                                sm.ResumptionDynamicInfo.ResumptionData
-                                :?> ICriticalNotifyCompletion
-
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            match sm.ResumptionDynamicInfo.ResumptionData with
+                            | :? ICriticalNotifyCompletion as awaiter ->
+                                let mutable awaiter = awaiter
+                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            | awaiter -> assert not (isNull awaiter)
 
                     with exn ->
                         savedExn <- exn

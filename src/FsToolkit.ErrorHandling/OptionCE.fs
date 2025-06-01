@@ -102,8 +102,7 @@ module OptionCE =
             /// </summary>
             // member inline _.Source(s: string) = ValueOption.ofObj s
 #if NET9_0_OR_GREATER && !FABLE_COMPILER
-
-            member inline _.Source(s: #seq<'value>) = ValueOption.ofObj s
+            member inline _.Source(s: #seq<'value> | null) = ValueOption.ofObj s
 #else
             member inline _.Source(s: #seq<'value>) = ValueOption.ofNull s
 #endif

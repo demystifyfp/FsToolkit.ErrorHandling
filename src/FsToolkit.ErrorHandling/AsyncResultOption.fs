@@ -56,12 +56,16 @@ module AsyncResultOption =
         : Async<Result<'okOutput option, 'error>> =
         map2 (fun f x -> f x) applier input
 
+#if !FABLE_COMPILER_PYTHON
+    // https://github.com/fable-compiler/Fable/issues/4125
     /// Replaces the wrapped value with unit
     let ignore<'ok, 'error>
         (value: Async<Result<'ok option, 'error>>)
         : Async<Result<unit option, 'error>> =
         value
         |> map ignore<'ok>
+#endif
+
 
     let inline ofResult (r: Result<'ok, 'error>) =
         r

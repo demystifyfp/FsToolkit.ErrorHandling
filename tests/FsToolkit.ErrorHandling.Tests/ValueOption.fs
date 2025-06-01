@@ -4,11 +4,8 @@ module ValueOptionTests
 open System
 
 
-#if FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
 #endif
 #if !FABLE_COMPILER
 open Expecto
@@ -96,7 +93,7 @@ let ofNullTests =
             Expect.equal (ValueOption.ofNull someValue) (ValueSome someValue) ""
         testCase "A null value"
         <| fun _ ->
-            let (someValue: string) = null
+            let (someValue: StringNull) = null
             Expect.equal (ValueOption.ofNull someValue) (ValueNone) ""
     ]
 

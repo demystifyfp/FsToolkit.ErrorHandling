@@ -1,9 +1,6 @@
 module AsyncResultOptionTests
-#if FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
 #endif
 #if !FABLE_COMPILER
 open Expecto
@@ -130,6 +127,8 @@ let map2Tests =
             |> Expect.hasAsyncErrorValue "invalid post id")
     ]
 
+#if !FABLE_COMPILER_PYTHON
+// https://github.com/fable-compiler/Fable/issues/4125
 let ignoreTests =
     testList "AsyncResultOption.ignore tests" [
         testCaseAsync "ignore with Async(Ok Some(x))"
@@ -156,6 +155,9 @@ let ignoreTests =
                 AsyncResultOption.ignore<int, string>
     ]
 
+#else
+let ignoreTests = testList "AsyncResultOption.ignore tests" []
+#endif
 
 let operatorTests =
     testList "AsyncResultOption Operators Tests" [

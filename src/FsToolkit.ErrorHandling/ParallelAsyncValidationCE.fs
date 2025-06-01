@@ -50,7 +50,7 @@ module ParallelAsyncValidationCE =
 
         member inline _.Using
             (
-                resource: 'disposable :> IDisposable,
+                resource: 'disposable :> IDisposableNull,
                 [<InlineIfLambda>] binder: 'disposable -> AsyncValidation<'okOutput, 'error>
             ) : AsyncValidation<'okOutput, 'error> =
             async.Using(resource, binder)

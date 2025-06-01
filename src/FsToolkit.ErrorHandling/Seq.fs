@@ -17,7 +17,7 @@ open Microsoft.FSharp.Core.CompilerServices
 let inline traverseResultM'
     (state: Result<'okOutput seq, 'error>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : Result<'okOutput[], 'error> =
     if isNull xs then
         nullArg (nameof xs)
@@ -68,7 +68,7 @@ let sequenceResultM xs = traverseResultM id xs
 let inline traverseResultA'
     (state: Result<'okOutput seq, 'error seq>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-    xs
+    (xs: SeqNull<'okInput>)
     =
 
     if isNull xs then
@@ -127,7 +127,7 @@ let sequenceResultA xs = traverseResultA id xs
 let inline traverseAsyncResultM'
     (state: Async<Result<'okOutput seq, 'error>>)
     ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : Async<Result<'okOutput[], 'error>> =
     if isNull xs then
         nullArg (nameof xs)
@@ -181,7 +181,7 @@ let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 let inline traverseTaskResultM'
     (state: TaskResult<'okOutput seq, 'error>)
     ([<InlineIfLambda>] f: 'okInput -> TaskResult<'okOutput, 'error>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : TaskResult<'okOutput[], 'error> =
     if isNull xs then
         nullArg (nameof xs)
@@ -236,10 +236,9 @@ let sequenceTaskResultM xs = traverseTaskResultM id xs
 let inline traverseAsyncResultA'
     (state: Async<Result<'okOutput seq, 'error seq>>)
     ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : Async<Result<'okOutput[], 'error[]>> =
-    if isNull xs then
-        nullArg (nameof xs)
+    let xs = Nullness.nullArgCheck (nameof xs) xs
 
     async {
         match! state with
@@ -299,10 +298,9 @@ let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 let inline traverseTaskResultA'
     (state: TaskResult<'okOutput seq, 'error seq>)
     ([<InlineIfLambda>] f: 'okInput -> TaskResult<'okOutput, 'error>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : TaskResult<'okOutput[], 'error[]> =
-    if isNull xs then
-        nullArg (nameof xs)
+    let xs = Nullness.nullArgCheck (nameof xs) xs
 
     task {
         match! state with
@@ -364,7 +362,7 @@ let sequenceTaskResultA xs = traverseTaskResultA id xs
 let inline traverseOptionM'
     (state: seq<'okOutput> option)
     ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : 'okOutput[] option =
     if isNull xs then
         nullArg (nameof xs)
@@ -411,7 +409,7 @@ let sequenceOptionM xs = traverseOptionM id xs
 let inline traverseAsyncOptionM'
     (state: Async<seq<'okOutput> option>)
     ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput option>)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : Async<'okOutput[] option> =
     if isNull xs then
         nullArg (nameof xs)
@@ -463,7 +461,7 @@ let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 let inline traverseVOptionM'
     (state: ValueOption<'okOutput seq>)
     ([<InlineIfLambda>] f: 'okInput -> 'okOutput voption)
-    (xs: 'okInput seq)
+    (xs: SeqNull<'okInput>)
     : ValueOption<'okOutput[]> =
     if isNull xs then
         nullArg (nameof xs)

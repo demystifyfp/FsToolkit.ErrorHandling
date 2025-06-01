@@ -1,9 +1,6 @@
 module AsyncResultOptionCETests
-#if FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
 #endif
 #if !FABLE_COMPILER
 open Expecto
@@ -15,11 +12,8 @@ open FsToolkit.ErrorHandling.Operator.AsyncResultOption
 open System
 
 
-#if FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
 #endif
 #if !FABLE_COMPILER
 open Expecto

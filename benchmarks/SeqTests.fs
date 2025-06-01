@@ -6,6 +6,7 @@ open BenchmarkDotNet.Mathematics
 open BenchmarkDotNet.Configs
 open System.Threading
 open System
+open FsToolkit.ErrorHandling
 
 module sequenceResultMTests =
 

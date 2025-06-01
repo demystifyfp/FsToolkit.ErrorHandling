@@ -24,5 +24,8 @@
     <ItemGroup>
         <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
+
+    <ItemGroup>
+        <PackageReference Include="Hopac" />
+    </ItemGroup>
 </Project>

@@ -1,11 +1,8 @@
 module OptionCETests
 
 
-#if FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
-#endif
-#if FABLE_COMPILER_JAVASCRIPT
-open Fable.Mocha
 #endif
 #if !FABLE_COMPILER
 open Expecto
@@ -266,7 +263,7 @@ let ceTests =
 
         testCase "string null"
         <| fun () ->
-            let (data: string) = null
+            let (data: StringNull) = null
 
             let actual =
                 option {
@@ -302,7 +299,7 @@ let ceTests =
 
         testCase "ResizeArray null"
         <| fun () ->
-            let (data: ResizeArray<string>) = null
+            let (data: ResizeArrayNull<string>) = null
 
             let actual =
                 option {

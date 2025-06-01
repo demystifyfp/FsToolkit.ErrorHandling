@@ -54,15 +54,6 @@ end_of_line = crlf
 [*.{ps1, psm1}]
 end_of_line = crlf
 
-# Paket files
-[paket.*]
-trim_trailing_whitespace = true
-indent_size = 2
-
-[*.paket.references]
-trim_trailing_whitespace = true
-indent_size = 2
-
 # YAML Files
 [*.{yml,yaml}]
 indent_size = 2

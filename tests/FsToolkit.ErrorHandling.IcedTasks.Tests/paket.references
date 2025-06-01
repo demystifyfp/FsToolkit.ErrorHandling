@@ -1,6 +1,0 @@
-group Test
-  Expecto
-  Microsoft.NET.Test.Sdk
-  YoloDev.Expecto.TestSdk
-  Fable.Pyxpecto
-  Microsoft.Bcl.AsyncInterfaces
