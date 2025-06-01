@@ -16,4 +16,7 @@
     <ItemGroup>
         <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
     </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="IcedTasks"/>
+    </ItemGroup>
 </Project>
