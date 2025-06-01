@@ -43,8 +43,8 @@
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="7.0.2" />
 
     <!-- Analyzers group dependencies -->
-    <PackageVersion Include="Ionide.Analyzers" Version="1.0.0" />
-    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="1.0.0" />
+    <PackageVersion Include="Ionide.Analyzers" Version="0.14.5" />
+    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.15.0" />
   </ItemGroup>
 
   
