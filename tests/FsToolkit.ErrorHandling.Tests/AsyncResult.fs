@@ -907,7 +907,7 @@ let asyncResultBindRequireNotNullTests =
         testCaseAsync "bindRequireNotNull"
         <| async {
             do!
-                "Test"
+                ("Test": StringNull)
                 |> AsyncResult.ok
                 |> AsyncResult.bindRequireNotNull "Should not be null"
                 |> Expect.hasAsyncOkValue "Test"

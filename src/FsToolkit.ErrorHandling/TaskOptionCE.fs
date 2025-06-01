@@ -230,12 +230,11 @@ type TaskOptionBuilder() =
                         if step then
                             sm.Data.SetResult()
                         else
-                            let mutable awaiter =
-                                sm.ResumptionDynamicInfo.ResumptionData
-                                :?> ICriticalNotifyCompletion
-
-                            // assert not (isNull awaiter)
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            match sm.ResumptionDynamicInfo.ResumptionData with
+                            | :? ICriticalNotifyCompletion as awaiter ->
+                                let mutable awaiter = awaiter
+                                sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                            | awaiter -> assert not (isNull awaiter)
 
                     with exn ->
                         savedExn <- exn

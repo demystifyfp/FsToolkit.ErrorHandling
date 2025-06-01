@@ -270,7 +270,7 @@ let ceTests =
 
         testCase "string null"
         <| fun () ->
-            let (data: string) = null
+            let (data: StringNull) = null
 
             let actual =
                 voption {
@@ -306,7 +306,7 @@ let ceTests =
 
         testCase "ResizeArray null"
         <| fun () ->
-            let (data: ResizeArray<string>) = null
+            let (data: ResizeArrayNull<string>) = null
 
             let actual =
                 voption {

@@ -5,4 +5,27 @@
         <IsTestProject>true</IsTestProject>
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Expecto"/>
+        <!-- <PackageReference Include="Expecto.FsCheck" /> -->
+        <!-- <PackageReference Include="Microsoft.Bcl.TimeProvider" /> -->
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="YoloDev.Expecto.TestSdk" />
+        <!-- <PackageReference Include="TimeProviderExtensions"/> -->
+        <!-- <PackageReference Include="FSharp.Control.TaskSeq"/> -->
+    </ItemGroup>
+
+      <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
+      <ItemGroup>
+      <PackageReference Include="FSharp.Core" VersionOverride="9.0.300-beta.25181.1" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="FSharp.Core" VersionOverride="7.0.200" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 </Project>

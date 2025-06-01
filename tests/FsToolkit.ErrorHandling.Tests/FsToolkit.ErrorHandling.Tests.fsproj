@@ -5,8 +5,7 @@
         <TargetFrameworks>net9.0;net8.0;</TargetFrameworks>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj">
-        </ProjectReference>
+        <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Expect.fs" />
@@ -49,8 +48,5 @@
         <Compile Include="ParallelAsyncValidation.fs" />
         <Compile Include="ParallelAsyncValidationCE.fs" />
         <Compile Include="Main.fs" />
-        <None Include="paket.references" />
-        <Watch Include="@(None)" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

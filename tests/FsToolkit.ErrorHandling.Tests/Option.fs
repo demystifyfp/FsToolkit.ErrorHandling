@@ -588,7 +588,7 @@ let ofNullTests =
             Expect.equal (Option.ofNull someValue) (Some someValue) ""
         testCase "A null value"
         <| fun _ ->
-            let (someValue: string) = null
+            let (someValue: StringNull) = null
             Expect.equal (Option.ofNull someValue) (None) ""
     ]
 

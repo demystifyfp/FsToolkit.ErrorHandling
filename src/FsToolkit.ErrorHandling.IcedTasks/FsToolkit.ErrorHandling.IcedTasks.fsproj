@@ -9,16 +9,11 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CancellableTaskResultBuilderBase.fs" />
-        <Compile Include="CancellableTaskOptionBuilderBase.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
-        <Compile Include="CancellableTaskOptionCE.fs" />
-        <None Include="paket.references" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="CancellableTaskValidationOp.fs" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference
-            Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
+        <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

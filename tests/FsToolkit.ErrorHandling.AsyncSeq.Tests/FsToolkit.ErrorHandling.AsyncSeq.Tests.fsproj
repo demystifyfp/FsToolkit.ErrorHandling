@@ -5,15 +5,10 @@
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference
-            Include="../../src/FsToolkit.ErrorHandling.AsyncSeq/FsToolkit.ErrorHandling.AsyncSeq.fsproj">
-        </ProjectReference>
+        <ProjectReference Include="../../src/FsToolkit.ErrorHandling.AsyncSeq/FsToolkit.ErrorHandling.AsyncSeq.fsproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="AsyncSeq.fs" />
         <Compile Include="Main.fs" />
-        <None Include="paket.references" />
-        <Watch Include="@(None)" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

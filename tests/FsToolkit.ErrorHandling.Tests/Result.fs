@@ -336,7 +336,7 @@ let requireNotNullTests =
     testList "requireNotNull Tests" [
         testCase "requireNotNull happy path"
         <| fun _ ->
-            Result.requireNotNull err ("test")
+            Result.requireNotNull err ("test": StringNull)
             |> Expect.hasOkValue "test"
 
         testCase "requireNotNull error path"

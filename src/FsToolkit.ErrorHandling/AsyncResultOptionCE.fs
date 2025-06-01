@@ -142,7 +142,7 @@ module AsyncResultOptionCEExtensions =
 
         member inline _.Using
             (
-                resource: 'ok :> IDisposable,
+                resource: 'ok :> IDisposableNull,
                 [<InlineIfLambda>] binder: 'ok -> AsyncResultOption<'okOutput, 'error>
             ) : AsyncResultOption<'okOutput, 'error> =
             async.Using(resource, binder)

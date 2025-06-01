@@ -12,7 +12,7 @@ module ParallelAsyncResult =
             inherit Exception()
             member this.Value = value
 
-        let toBoxedAsync (input: Async<Result<'ok, 'error>>) : Async<obj> =
+        let toBoxedAsync (input: Async<Result<'ok, 'error>>) : Async<ObjNull> =
             async {
                 match! input with
                 | Ok x -> return box x

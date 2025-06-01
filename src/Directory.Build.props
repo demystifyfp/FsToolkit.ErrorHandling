@@ -25,4 +25,20 @@
     <PropertyGroup>
         <NoWarn>$(NoWarn);FS2003</NoWarn>
     </PropertyGroup>
+
+        <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
+      <ItemGroup>
+      <PackageReference Include="FSharp.Core" VersionOverride="9.0.300-beta.25181.1" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="FSharp.Core" VersionOverride="6.0.4" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 </Project>

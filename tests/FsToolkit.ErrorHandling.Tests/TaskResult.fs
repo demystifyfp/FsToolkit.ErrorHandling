@@ -919,7 +919,7 @@ let taskResultBindRequireNotNullTests =
         <| fun _ ->
             task {
                 do!
-                    "Test"
+                    ("Test": StringNull)
                     |> TaskResult.ok
                     |> TaskResult.bindRequireNotNull "Should not be null"
                     |> Expect.hasTaskOkValue "Test"
