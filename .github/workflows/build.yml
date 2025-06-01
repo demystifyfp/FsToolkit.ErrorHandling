@@ -164,3 +164,5 @@ jobs:
           with:
             # You can also specify the path to a folder for `sarif_file`
             sarif_file: analysisreports
+          # make this step optional, so that it does not fail the workflow
+          continue-on-error: true
