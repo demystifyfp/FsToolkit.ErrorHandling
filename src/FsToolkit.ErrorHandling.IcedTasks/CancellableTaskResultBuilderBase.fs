@@ -1057,9 +1057,9 @@ module CancellableTaskResultBuilderBase =
             ///
             member inline _.Using
                 (
-                    resource: #IDisposable,
+                    resource: #IDisposableNull,
                     binder:
-                        #IDisposable
+                        #IDisposableNull
                             -> CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder>
                 ) =
                 ResumableCode.Using(resource, binder)

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
@@ -27,5 +27,8 @@
     <ProjectReference
       Include="..\src\FsToolkit.ErrorHandling.JobResult\FsToolkit.ErrorHandling.JobResult.fsproj" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
+
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotnet"/>
+    </ItemGroup>
 </Project>
