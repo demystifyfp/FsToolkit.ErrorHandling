@@ -22,4 +22,8 @@
         <Compile Include="JobResultOption.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Expecto.Hopac"/>
+    </ItemGroup>
 </Project>
