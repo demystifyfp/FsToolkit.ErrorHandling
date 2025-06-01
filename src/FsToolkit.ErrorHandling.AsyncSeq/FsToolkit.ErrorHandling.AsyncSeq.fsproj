@@ -15,4 +15,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Control.AsyncSeq" />
+  </ItemGroup>
 </Project>
