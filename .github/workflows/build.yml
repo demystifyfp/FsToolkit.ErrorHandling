@@ -54,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        node-version: ['18', '20', 'latest' ]
+        node-version: ['lts/-1', 'lts/*', 'latest' ]
     runs-on: ${{ matrix.os }}
 
     steps:
