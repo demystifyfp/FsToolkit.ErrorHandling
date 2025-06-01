@@ -2,15 +2,8 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "paket": {
-      "version": "9.0.2",
-      "commands": [
-        "paket"
-      ],
-      "rollForward": false
-    },
     "fable": {
-      "version": "4.4.0",
+      "version": "4.25.0",
       "commands": [
         "fable"
       ],
