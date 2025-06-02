@@ -1,4 +1,4 @@
-### 5.0.0-beta013 - May 29, 2025
+### 5.0.0-beta014 - Jun 02, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations like Result](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
 - BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
@@ -23,6 +23,8 @@
 - [Add traversals/sequences for Task and TaskResult in the Option module](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/325) Credits @tw0po1nt
 - [Add ok and error helper functions to TaskResultOption and AsyncResultOption modules](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/327) Credits @tw0po1nt
 - [Add CancellableTaskOption module and CE + tests and documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/328) Credits @tw0po1nt
+- [Remove paket, Enforce nullness on net9.0, remove mocha](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/331) Credits @TheAngryByrd
+- [Add TaskValueOption module, operators, and CE + tests and documentation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/329) Credits @tw0po1nt
 
 
 ### 4.18.0 - October 23, 2024
