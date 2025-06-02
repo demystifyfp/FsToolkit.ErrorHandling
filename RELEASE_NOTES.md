@@ -1,4 +1,4 @@
-### 5.0.0-beta014 - Jun 02, 2025
+### 5.0.0 - Jun 02, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
 - BREAKING: [Remove MergeSources (and!) from some implementations like Result](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/261)  Credits @TheAngryByrd
 - BREAKING: [Merge TaskResult into Core library](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/285) Credits @TheAngryByrd 
