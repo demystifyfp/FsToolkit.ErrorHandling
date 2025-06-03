@@ -199,7 +199,7 @@ let clean _ =
     ++ "tests/**/obj"
     ++ "tools/**/obj"
     ++ "dist"
-    ++ "js-dist"
+    ++ "**/.js-tests"
     ++ "**/.python-tests"
     |> Shell.cleanDirs
 

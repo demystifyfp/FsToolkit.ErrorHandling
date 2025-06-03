@@ -8,13 +8,13 @@
     "rollup": "^2.79.2"
   },
   "scripts": {
-    "pretest:FsToolkit.ErrorHandling.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.Tests -o js-dist/tests/FsToolkit.ErrorHandling.Tests  --noCache",
-    "pretest:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests --noCache",
-    "test:FsToolkit.ErrorHandling.Tests": "node js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js --timeout 60000",
-    "test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "node js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.js",
+    "pretest:FsToolkit.ErrorHandling.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.Tests -o tests/FsToolkit.ErrorHandling.Tests/.js-tests",
+    "pretest:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/.js-tests",
+    "test:FsToolkit.ErrorHandling.Tests": "node tests/FsToolkit.ErrorHandling.Tests/.js-tests/Main.js --timeout 60000",
+    "test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "node tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/.js-tests/Main.js",
     "test": "npm-run-all test:*",
-    "watch-test:FsToolkit.ErrorHandling.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o js-dist/tests/FsToolkit.ErrorHandling.Tests --runWatch mocha js-dist/tests/FsToolkit.ErrorHandling.Tests/Main.js --timeout 10000",
-    "watch-test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests --runWatch mocha js-dist/tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.js",
+    "watch-test:FsToolkit.ErrorHandling.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.Tests -o tests/FsToolkit.ErrorHandling.Tests/.js-tests --runWatch node tests/FsToolkit.ErrorHandling.Tests/.js-tests/Main.js --timeout 10000",
+    "watch-test:FsToolkit.ErrorHandling.AsyncSeq.Tests": "dotnet fable watch tests/FsToolkit.ErrorHandling.AsyncSeq.Tests -o tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/.js-tests --runWatch node tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/.js-tests/Main.js",
     "watch-test": "npm-run-all -p  watch-test:*"
   }
 }

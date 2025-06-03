@@ -385,7 +385,7 @@ _Pvt_Extensions
 fable_modules
 .fable
 *.fs.js
-js-dist/
+.js-tests/
 
 # Benchmarks
 benchmarks/BenchmarkDotNet.Artifacts/
