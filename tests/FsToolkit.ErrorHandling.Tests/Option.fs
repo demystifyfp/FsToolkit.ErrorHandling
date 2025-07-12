@@ -275,6 +275,22 @@ let traverseTaskTests =
                 Expect.equal value (Some "foo") ""
             }
 
+        testCaseTask "traverseTask allows mapping to new type"
+        <| fun () ->
+            task {
+                let optTask = Some 100
+
+                let optFunc =
+                    string
+                    >> Task.singleton
+
+                let! value =
+                    (optFunc, optTask)
+                    ||> Option.traverseTask
+
+                Expect.equal value (Some "100") ""
+            }
+
         testCaseTask "traverseTask returns None if None"
         <| fun () ->
             task {
@@ -437,6 +453,21 @@ let traverseAsyncTests =
                 ||> Option.traverseAsync
 
             Expect.equal value (Some "foo") ""
+        }
+
+        testCaseAsync "traverseAsync allows mapping to different types"
+        <| async {
+            let optAsync = Some 100
+
+            let optFunc =
+                (fun i -> string i)
+                >> Async.singleton
+
+            let! value =
+                (optFunc, optAsync)
+                ||> Option.traverseAsync
+
+            Expect.equal value (Some "100") ""
         }
 
         testCaseAsync "traverseAsync returns None if None"
