@@ -279,12 +279,15 @@ let traverseTaskTests =
         <| fun () ->
             task {
                 let optTask = Some 100
+
                 let optFunc =
                     string
                     >> Task.singleton
-                let! value = 
+
+                let! value =
                     (optFunc, optTask)
                     ||> Option.traverseTask
+
                 Expect.equal value (Some "100") ""
             }
 
@@ -455,12 +458,15 @@ let traverseAsyncTests =
         testCaseAsync "traverseAsync allows mapping to different types"
         <| async {
             let optAsync = Some 100
+
             let optFunc =
                 (fun i -> string i)
                 >> Async.singleton
+
             let! value =
                 (optFunc, optAsync)
                 ||> Option.traverseAsync
+
             Expect.equal value (Some "100") ""
         }
 
