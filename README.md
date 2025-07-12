@@ -15,7 +15,7 @@ The documentation is [available here](https://demystifyfp.gitbook.io/fstoolkit-e
 ## Further material
 
 * The main resource as to learning this style of programming [Railway Oriented Programming](https://fsharpforfunandprofit.com/rop/)
-* However Result isn't a panacea, see what pitfalls and where you shouldn't use `Result`. [In defense of Exceptions: Throw (away) your Result](https://www.youtube.com/watch?v=E4dI-zd4Cag)
+* However Result isn't a panacea, see what pitfalls and where you shouldn't use `Result`. ["Don't Throw Exceptions, Use A Result Pattern" is BAD ADVICE!](https://www.youtube.com/watch?v=txU58-Q03JA)
 
 ## Builds
 
