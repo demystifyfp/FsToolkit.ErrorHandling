@@ -1,6 +1,6 @@
 ### 5.0.1 - July 12, 2025
 
-- Fix [Option.traverseAsync and traverseTask now allow mapping to new types](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/335) (Credits PaigeM89!)
+- Fix [Option.traverseAsync and traverseTask now allow mapping to new types](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/335) (Credits @PaigeM89!)
 
 ### 5.0.0 - June 02, 2025
 - BREAKING: [Remove Ply and update to FSharp 6](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/248) Credits @TheAngryByrd
