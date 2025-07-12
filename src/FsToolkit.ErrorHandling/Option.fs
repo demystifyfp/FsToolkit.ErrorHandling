@@ -347,9 +347,9 @@ module Option =
     /// <param name="opt">The <c>option</c> to map over.</param>
     /// <returns>A <c>Task&lt;'T option&gt;</c> with the mapped value.</returns>
     let inline traverseTask
-        ([<InlineIfLambda>] f: 'T -> Task<'T>)
+        ([<InlineIfLambda>] f: 'T -> Task<'U>)
         (opt: Option<'T>)
-        : Task<Option<'T>> =
+        : Task<Option<'U>> =
         sequenceTask ((map f) opt)
 
     /// <summary>
@@ -409,9 +409,9 @@ module Option =
     /// <param name="opt">The Option to map over.</param>
     /// <returns>An Async Option with the mapped value.</returns>
     let inline traverseAsync
-        ([<InlineIfLambda>] f: 'T -> Async<'T>)
+        ([<InlineIfLambda>] f: 'T -> Async<'U>)
         (opt: Option<'T>)
-        : Async<Option<'T>> =
+        : Async<Option<'U>> =
         sequenceAsync ((map f) opt)
 
     /// <summary>
