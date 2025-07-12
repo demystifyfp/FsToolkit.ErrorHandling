@@ -339,13 +339,13 @@ module Option =
         }
 
     /// <summary>
-    /// Maps a <c>Task</c> function over an <c>option</c>, returning a <c>Task&lt;'T option&gt;</c><br/>
+    /// Maps a <c>Task</c> function over an <c>option</c>, returning a <c>Task&lt;'U option&gt;</c><br/>
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traversetask</href>
     /// </summary>
     /// <param name="f">The function to map over the <c>option</c>.</param>
     /// <param name="opt">The <c>option</c> to map over.</param>
-    /// <returns>A <c>Task&lt;'T option&gt;</c> with the mapped value.</returns>
+    /// <returns>A <c>Task&lt;'U option&gt;</c> with the mapped value.</returns>
     let inline traverseTask
         ([<InlineIfLambda>] f: 'T -> Task<'U>)
         (opt: Option<'T>)
@@ -407,7 +407,7 @@ module Option =
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
-    /// <returns>An Async Option with the mapped value.</returns>
+    /// <returns>An <c>Async&lt;Option&lt;'U&gt;&gt;</c> with the mapped value.</returns>
     let inline traverseAsync
         ([<InlineIfLambda>] f: 'T -> Async<'U>)
         (opt: Option<'T>)
