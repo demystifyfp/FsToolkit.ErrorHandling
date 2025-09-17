@@ -15,7 +15,7 @@ module Option =
     /// <param name="binder">The function to bind over the <c>Option</c> value.</param>
     /// <returns>The result of binding the function over the <c>Option</c> value.</returns>
     let inline (>>=)
-        (input: Option<'input>)
-        ([<InlineIfLambda>] binder: 'input -> Option<'output>)
-        : Option<'output> =
+        (input: 'input option)
+        ([<InlineIfLambda>] binder: 'input -> 'output option)
+        : 'output option =
         Option.bind binder input

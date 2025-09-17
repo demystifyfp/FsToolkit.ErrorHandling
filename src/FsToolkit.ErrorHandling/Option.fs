@@ -240,7 +240,7 @@ module Option =
     /// <seealso cref="ofNull"/>
     let inline bindNull
         ([<InlineIfLambda>] binder: 'value -> 'nullableValue)
-        (option: Option<'value>)
+        (option: 'value option)
         : 'nullableValue option =
         match option with
         | Some x ->
@@ -329,7 +329,7 @@ module Option =
     ///
     /// Documentation is found here: <see href="https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequencetask" />
     /// </summary>
-    let inline sequenceTask (optTask: Option<Task<'T>>) : Task<Option<'T>> =
+    let inline sequenceTask (optTask: Task<'T> option) : Task<'T option> =
         task {
             match optTask with
             | Some tsk ->
@@ -348,8 +348,8 @@ module Option =
     /// <returns>A <c>Task&lt;'U option&gt;</c> with the mapped value.</returns>
     let inline traverseTask
         ([<InlineIfLambda>] f: 'T -> Task<'U>)
-        (opt: Option<'T>)
-        : Task<Option<'U>> =
+        (opt: 'T option)
+        : Task<'U option> =
         sequenceTask ((map f) opt)
 
     /// <summary>
@@ -387,11 +387,11 @@ module Option =
 #endif
 
     /// <summary>
-    /// Converts a Option<Async<_>> to an Async<Option<_>>
+    /// Converts a Async<'T> option to an Async<'T option>
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasync</href>
     /// </summary>
-    let inline sequenceAsync (optAsync: Option<Async<'T>>) : Async<Option<'T>> =
+    let inline sequenceAsync (optAsync: Async<'T> option) : Async<'T option> =
         async {
             match optAsync with
             | Some asnc ->
@@ -407,11 +407,11 @@ module Option =
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
-    /// <returns>An <c>Async&lt;Option&lt;'U&gt;&gt;</c> with the mapped value.</returns>
+    /// <returns>An <c>Async&lt;'U option&gt;</c> with the mapped value.</returns>
     let inline traverseAsync
         ([<InlineIfLambda>] f: 'T -> Async<'U>)
-        (opt: Option<'T>)
-        : Async<Option<'U>> =
+        (opt: 'T option)
+        : Async<'U option> =
         sequenceAsync ((map f) opt)
 
     /// <summary>

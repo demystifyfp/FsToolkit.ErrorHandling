@@ -9,7 +9,7 @@ Namespace: `FsToolkit.ErrorHandling`
 Given a personId and an age, find a person and update their age.
 
 ```fsharp
-tryParseInt : string -> Option<int>
+tryParseInt : string -> int option
 tryFindPersonById : int -> CancellableTask<Person option>
 updatePerson : Person -> CancellableTask<unit>
 ```

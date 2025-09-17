@@ -7,7 +7,7 @@ Transforms a `'T Option` value to `Result<'T option, 'Error>`.
 ## Function Signature
 
 ```fsharp
-Option<'T> -> Result<'T option, 'Error>
+'T option -> Result<'T option, 'Error>
 ```
 
 ## Examples

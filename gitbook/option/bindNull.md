@@ -28,7 +28,7 @@ Option.bindNull toNullable userInput
 ```fsharp
 open System
 
-let userInput : Option<int> = None
+let userInput : int option = None
 let toNullable<'T> x = Nullable x
 
 Option.bindNull toNullable userInput

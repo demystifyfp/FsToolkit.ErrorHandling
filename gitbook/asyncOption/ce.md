@@ -9,13 +9,13 @@ Namespace: `FsToolkit.ErrorHandling`
 Given a personId and an age, find a person and update their age.
 
 ```fsharp
-tryParseInt : string -> Option<int>
-tryFindPersonById : int -> Async<Option<Person>>
+tryParseInt : string -> int option
+tryFindPersonById : int -> Async<Person option>
 updatePerson : Person -> Async<unit>
 ```
 
 ```fsharp
-// Async<Option<unit>>
+// Async<unit option>
 let addResult = asyncOption {
   let! personId = tryParseInt "3001"
   let! age = tryParseInt "35"
