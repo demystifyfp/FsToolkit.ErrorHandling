@@ -1,7 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
 
-type AsyncResultOption<'ok, 'error> = Async<Result<Option<'ok>, 'error>>
+type AsyncResultOption<'ok, 'error> = Async<Result<'ok option, 'error>>
 
 [<RequireQualifiedAccess>]
 module AsyncResultOption =
@@ -77,11 +77,11 @@ module AsyncResultOption =
         r
         |> AsyncResult.map Some
 
-    let inline ofOption (r: Option<'ok>) =
+    let inline ofOption (r: 'ok option) =
         r
         |> Ok
         |> Async.singleton
 
-    let inline ofAsyncOption (r: Async<Option<'ok>>) =
+    let inline ofAsyncOption (r: Async<'ok option>) =
         r
         |> Async.map Ok

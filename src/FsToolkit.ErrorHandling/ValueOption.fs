@@ -115,7 +115,7 @@ module ValueOption =
     /// <seealso cref="ofNull"/>
     let inline bindNull
         ([<InlineIfLambda>] binder: 'value -> 'nullableValue)
-        (voption: ValueOption<'value>)
+        (voption: 'value voption)
         : 'nullableValue voption =
         match voption with
         | ValueSome x ->

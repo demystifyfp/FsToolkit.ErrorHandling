@@ -7,7 +7,7 @@ Namespace: `FsToolkit.ErrorHandling`
 ### Example 1
 
 ```fsharp
-// Option<int>
+// int option
 let addResult = option {
   let! x = tryParseInt "35"
   let! y = tryParseInt "5"

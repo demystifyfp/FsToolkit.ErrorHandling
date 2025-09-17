@@ -96,9 +96,9 @@ module AsyncOption =
     /// The option if the option is Some, else returns <paramref name="ifNone"/>.
     /// </returns>
     let inline orElse
-        (ifNone: Async<Option<'value>>)
-        (input: Async<Option<'value>>)
-        : Async<Option<'value>> =
+        (ifNone: Async<'value option>)
+        (input: Async<'value option>)
+        : Async<'value option> =
         Async.bind (Option.either some (fun _ -> ifNone)) input
 
     /// <summary>
@@ -121,7 +121,7 @@ module AsyncOption =
     /// The option if the option is Some, else the result of executing <paramref name="ifNoneFunc"/>.
     /// </returns>
     let inline orElseWith
-        ([<InlineIfLambda>] ifNoneFunc: unit -> Async<Option<'value>>)
-        (input: Async<Option<'value>>)
-        : Async<Option<'value>> =
+        ([<InlineIfLambda>] ifNoneFunc: unit -> Async<'value option>)
+        (input: Async<'value option>)
+        : Async<'value option> =
         Async.bind (Option.either some ifNoneFunc) input

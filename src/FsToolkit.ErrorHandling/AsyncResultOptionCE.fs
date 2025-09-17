@@ -130,7 +130,7 @@ module AsyncResultOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline this.Source(optional: Option<'ok>) : AsyncResultOption<'ok, 'error> =
+        member inline this.Source(optional: 'ok option) : AsyncResultOption<'ok, 'error> =
             AsyncResultOption.ofOption optional
 
         /// <summary>
@@ -194,7 +194,7 @@ module AsyncResultOptionCEExtensionsHighPriority =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Async<Option<'ok>>) : AsyncResultOption<'ok, 'error> =
+        member inline _.Source(result: Async<'ok option>) : AsyncResultOption<'ok, 'error> =
             AsyncResultOption.ofAsyncOption result
 
 
@@ -210,7 +210,7 @@ module AsyncResultOptionCEExtensionsHighPriority =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Task<Option<'ok>>) : AsyncResultOption<'ok, 'error> =
+        member inline _.Source(result: Task<'ok option>) : AsyncResultOption<'ok, 'error> =
             result
             |> Async.AwaitTask
             |> AsyncResultOption.ofAsyncOption
@@ -229,7 +229,7 @@ module AsyncResultOptionCEExtensionsHighPriority2 =
         /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
         /// </summary>
         member inline _.Source
-            (result: Task<Result<Option<'ok>, 'error>>)
+            (result: Task<Result<'ok option, 'error>>)
             : AsyncResultOption<'ok, 'error> =
             result
             |> Async.AwaitTask

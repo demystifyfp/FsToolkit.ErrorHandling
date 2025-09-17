@@ -127,7 +127,7 @@ module Array =
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
-    let rec private traverseOptionM' (state: Option<_>) (f: _ -> Option<_>) xs =
+    let rec private traverseOptionM' (state: _ option) (f: _ -> _ option) xs =
         match xs with
         | [||] ->
             state
@@ -147,7 +147,7 @@ module Array =
             | Some _ -> traverseOptionM' r f xs
             | None -> r
 
-    let rec private traverseAsyncOptionM' (state: Async<Option<_>>) (f: _ -> Async<Option<_>>) xs =
+    let rec private traverseAsyncOptionM' (state: Async<_ option>) (f: _ -> Async<_ option>) xs =
         match xs with
         | [||] ->
             state
