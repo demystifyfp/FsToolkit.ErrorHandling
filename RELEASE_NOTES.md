@@ -1,4 +1,4 @@
-### 5.1.0-beta001 - September 26, 2025
+### 5.1.0 - September 26, 2025
 
 - [Adds getOrReraise and tests](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/342) Credits @njlr
 
