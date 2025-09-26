@@ -1,3 +1,7 @@
+### 5.1.0-beta001 - September 26, 2025
+
+- [Adds getOrReraise and tests](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/342) Credits @njlr
+
 ### 5.0.1 - July 12, 2025
 
 - Fix [Option.traverseAsync and traverseTask now allow mapping to new types](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/335) (Credits @PaigeM89!)

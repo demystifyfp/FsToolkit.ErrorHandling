@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>benchmarks.EitherMapBenchmarks-20250922-141456</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                                       </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>P80 </th><th>P95 </th><th>Ratio      </th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Result_Normal_EitherMap</td><td>41.2824 ns</td><td>0.4097 ns</td><td>0.3632 ns</td><td>41.2079 ns</td><td>41.5505 ns</td><td>41.8396 ns</td><td>baseline</td><td></td><td>0.0030</td><td>48 B</td><td></td>
+</tr><tr><td>Result_Normal_NoComposition_EitherMap</td><td>42.5274 ns</td><td>0.7575 ns</td><td>0.7086 ns</td><td>42.3763 ns</td><td>43.3329 ns</td><td>43.5685 ns</td><td>1.030x slower</td><td>0.02x</td><td>0.0030</td><td>48 B</td><td>1.00x more</td>
+</tr><tr><td>Result_Inlined_EitherMap</td><td>0.0267 ns</td><td>0.0148 ns</td><td>0.0138 ns</td><td>0.0269 ns</td><td>0.0396 ns</td><td>0.0458 ns</td><td>3,321.381x faster</td><td>4,588.78x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Inlined_NoComposition_EitherMap</td><td>0.0081 ns</td><td>0.0064 ns</td><td>0.0059 ns</td><td>0.0091 ns</td><td>0.0143 ns</td><td>0.0151 ns</td><td>NA</td><td>NA</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_InlinedLambda_EitherMap</td><td>0.0139 ns</td><td>0.0107 ns</td><td>0.0100 ns</td><td>0.0156 ns</td><td>0.0190 ns</td><td>0.0314 ns</td><td>NA</td><td>NA</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Normal_InlinedLambda_NoComposition_EitherMap</td><td>0.0132 ns</td><td>0.0161 ns</td><td>0.0150 ns</td><td>0.0068 ns</td><td>0.0294 ns</td><td>0.0394 ns</td><td>NA</td><td>NA</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_EitherMap</td><td>0.2275 ns</td><td>0.0173 ns</td><td>0.0153 ns</td><td>0.2271 ns</td><td>0.2372 ns</td><td>0.2495 ns</td><td>182.243x faster</td><td>12.26x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_Inlined_EitherMap</td><td>0.0209 ns</td><td>0.0154 ns</td><td>0.0144 ns</td><td>0.0135 ns</td><td>0.0337 ns</td><td>0.0442 ns</td><td>3,199.092x faster</td><td>2,604.59x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_EitherMap</td><td>0.0332 ns</td><td>0.0104 ns</td><td>0.0087 ns</td><td>0.0374 ns</td><td>0.0393 ns</td><td>0.0408 ns</td><td>1,367.892x faster</td><td>506.50x</td><td>-</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

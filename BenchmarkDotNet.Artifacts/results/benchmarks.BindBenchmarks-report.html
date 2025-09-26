@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>benchmarks.BindBenchmarks-20250922-140945</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                 </th><th>Mean</th><th>Error</th><th>StdDev</th><th>P80</th><th>P95</th><th>Ratio </th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Result_Normal_Bind</td><td>0.0247 ns</td><td>0.0110 ns</td><td>0.0102 ns</td><td>0.0344 ns</td><td>0.0414 ns</td><td>baseline</td><td></td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_Bind</td><td>0.0324 ns</td><td>0.0130 ns</td><td>0.0122 ns</td><td>0.0441 ns</td><td>0.0487 ns</td><td>1.57x slower</td><td>0.93x</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

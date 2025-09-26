@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>benchmarks.BindCEBenchmarks-20250922-141111</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                               </th><th>Mean </th><th>Error</th><th>StdDev</th><th>P80  </th><th>P95  </th><th>Ratio      </th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Result_Normal_Bind_CE</td><td>114.1285 ns</td><td>0.6707 ns</td><td>0.6274 ns</td><td>114.6632 ns</td><td>114.7984 ns</td><td>baseline</td><td></td><td>0.0014</td><td>24 B</td><td></td>
+</tr><tr><td>Result_Alt_Inlined_Bind_CE</td><td>2.1060 ns</td><td>0.0149 ns</td><td>0.0139 ns</td><td>2.1177 ns</td><td>2.1299 ns</td><td>54.195x faster</td><td>0.45x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_Bind_Same_CE</td><td>0.8549 ns</td><td>0.0160 ns</td><td>0.0150 ns</td><td>0.8701 ns</td><td>0.8717 ns</td><td>133.531x faster</td><td>2.40x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_Bind_CE</td><td>1.0587 ns</td><td>0.0181 ns</td><td>0.0169 ns</td><td>1.0720 ns</td><td>1.0792 ns</td><td>107.828x faster</td><td>1.77x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Normal_Bind_CE_Error</td><td>112.8824 ns</td><td>0.7177 ns</td><td>0.6362 ns</td><td>113.4376 ns</td><td>113.8665 ns</td><td>1.011x faster</td><td>0.01x</td><td>0.0014</td><td>24 B</td><td>1.00x more</td>
+</tr><tr><td>Result_Alt_Inlined_Bind_CE_Error</td><td>2.0847 ns</td><td>0.0334 ns</td><td>0.0312 ns</td><td>2.1158 ns</td><td>2.1321 ns</td><td>54.757x faster</td><td>0.84x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_Bind_Same_CE_Error</td><td>0.0311 ns</td><td>0.0087 ns</td><td>0.0081 ns</td><td>0.0359 ns</td><td>0.0443 ns</td><td>3,935.129x faster</td><td>1,081.18x</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>Result_Alt_InlinedLambda_Bind_CE_Error</td><td>0.0250 ns</td><td>0.0115 ns</td><td>0.0107 ns</td><td>0.0360 ns</td><td>0.0390 ns</td><td>5,572.306x faster</td><td>2,541.88x</td><td>-</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>FsToolkit.ErrorHandling.Benchmarks.AsyncResultCEExtensions.AsyncResult_BindCEBenchmarks-20250922-143420</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method              </th><th>Mean</th><th>Error</th><th>StdDev</th><th>P80</th><th>P95</th><th>Ratio </th><th>RatioSD</th><th>Gen0</th><th>Gen1</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>afib</td><td>12.06 &mu;s</td><td>0.301 &mu;s</td><td>0.879 &mu;s</td><td>12.85 &mu;s</td><td>13.71 &mu;s</td><td>baseline</td><td></td><td>3.0670</td><td>0.1068</td><td>46.9 KB</td><td></td>
+</tr><tr><td>Result_Normal_Bind_CE</td><td>12.42 &mu;s</td><td>0.328 &mu;s</td><td>0.961 &mu;s</td><td>13.21 &mu;s</td><td>14.10 &mu;s</td><td>1.04x slower</td><td>0.11x</td><td>3.1128</td><td>0.1068</td><td>47.52 KB</td><td>1.01x more</td>
+</tr><tr><td>Result_Alt_Inlined_Bind_CE</td><td>12.50 &mu;s</td><td>0.319 &mu;s</td><td>0.937 &mu;s</td><td>13.30 &mu;s</td><td>13.96 &mu;s</td><td>1.04x slower</td><td>0.11x</td><td>3.1128</td><td>0.1221</td><td>47.55 KB</td><td>1.01x more</td>
+</tr></tbody></table>
+</body>
+</html>

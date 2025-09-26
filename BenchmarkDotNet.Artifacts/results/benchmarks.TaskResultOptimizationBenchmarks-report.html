@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>benchmarks.TaskResultOptimizationBenchmarks-20250922-144529</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method             </th><th>Mean</th><th>Error</th><th>StdDev</th><th>P80</th><th>P95</th><th>Ratio </th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>TaskResult_Original_Bind</td><td>27.53 ns</td><td>0.529 ns</td><td>0.495 ns</td><td>27.99 ns</td><td>28.20 ns</td><td>baseline</td><td></td><td>0.0102</td><td>160 B</td><td></td>
+</tr><tr><td>TaskResult_Optimized_Bind</td><td>28.06 ns</td><td>0.579 ns</td><td>0.711 ns</td><td>28.85 ns</td><td>29.19 ns</td><td>1.02x slower</td><td>0.03x</td><td>0.0102</td><td>160 B</td><td>1.00x more</td>
+</tr><tr><td>TaskResult_Original_Map2</td><td>16.80 ns</td><td>0.358 ns</td><td>0.413 ns</td><td>17.21 ns</td><td>17.43 ns</td><td>1.64x faster</td><td>0.05x</td><td>0.0051</td><td>80 B</td><td>2.00x less</td>
+</tr><tr><td>TaskResult_Optimized_Map2</td><td>16.83 ns</td><td>0.359 ns</td><td>0.441 ns</td><td>17.27 ns</td><td>17.59 ns</td><td>1.64x faster</td><td>0.05x</td><td>0.0051</td><td>80 B</td><td>2.00x less</td>
+</tr></tbody></table>
+</body>
+</html>

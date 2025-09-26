@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>ApplicativeTests.Result_BindvsAndCEBenchmarks-20250922-142559</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method    </th><th>delay     </th><th>Mean      </th><th>Error    </th><th>StdDev   </th><th>P80       </th><th>P95       </th><th>Ratio </th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>All_Success_Bind</td><td>00:00:00</td><td>396.4 ns</td><td>2.02 ns</td><td>1.79 ns</td><td>397.6 ns</td><td>399.2 ns</td><td>baseline</td><td></td><td>-</td><td>NA</td>
+</tr><tr><td>Fail_First_Bind</td><td>00:00:00</td><td>135.5 ns</td><td>2.65 ns</td><td>2.94 ns</td><td>137.5 ns</td><td>142.0 ns</td><td>2.93x faster</td><td>0.06x</td><td>-</td><td>NA</td>
+</tr><tr><td>Fail_Mid_Bind</td><td>00:00:00</td><td>268.3 ns</td><td>3.17 ns</td><td>2.81 ns</td><td>270.8 ns</td><td>272.3 ns</td><td>1.48x faster</td><td>0.02x</td><td>-</td><td>NA</td>
+</tr><tr><td>Fail_Last_Bind</td><td>00:00:00</td><td>404.1 ns</td><td>7.41 ns</td><td>6.57 ns</td><td>407.8 ns</td><td>415.3 ns</td><td>1.02x slower</td><td>0.02x</td><td>-</td><td>NA</td>
+</tr><tr><td>All_Success_Bind</td><td>00:00:00.0100000</td><td>46,111,521.8 ns</td><td>192,384.31 ns</td><td>179,956.40 ns</td><td>46,276,183.6 ns</td><td>46,378,462.7 ns</td><td>baseline</td><td></td><td>36 B</td><td></td>
+</tr><tr><td>Fail_First_Bind</td><td>00:00:00.0100000</td><td>15,426,211.6 ns</td><td>54,496.15 ns</td><td>50,975.74 ns</td><td>15,472,531.9 ns</td><td>15,483,028.6 ns</td><td>2.99x faster</td><td>0.01x</td><td>6 B</td><td>6.00x less</td>
+</tr><tr><td>Fail_Mid_Bind</td><td>00:00:00.0100000</td><td>30,808,305.6 ns</td><td>105,414.06 ns</td><td>98,604.37 ns</td><td>30,909,783.8 ns</td><td>30,924,549.7 ns</td><td>1.50x faster</td><td>0.01x</td><td>12 B</td><td>3.00x less</td>
+</tr><tr><td>Fail_Last_Bind</td><td>00:00:00.0100000</td><td>46,163,303.0 ns</td><td>219,192.98 ns</td><td>205,033.25 ns</td><td>46,307,245.5 ns</td><td>46,480,478.2 ns</td><td>1.00x slower</td><td>0.01x</td><td>10 B</td><td>3.60x less</td>
+</tr><tr><td>All_Success_Bind</td><td>00:00:00.1000000</td><td>322,992,466.7 ns</td><td>1,473,213.95 ns</td><td>1,378,045.25 ns</td><td>324,191,030.0 ns</td><td>324,994,950.0 ns</td><td>baseline</td><td></td><td>56 B</td><td></td>
+</tr><tr><td>Fail_First_Bind</td><td>00:00:00.1000000</td><td>107,686,136.0 ns</td><td>573,511.95 ns</td><td>536,463.44 ns</td><td>108,014,196.0 ns</td><td>108,556,736.0 ns</td><td>3.00x faster</td><td>0.02x</td><td>80 B</td><td>1.43x more</td>
+</tr><tr><td>Fail_Mid_Bind</td><td>00:00:00.1000000</td><td>215,564,164.4 ns</td><td>1,065,878.73 ns</td><td>997,023.62 ns</td><td>216,307,473.3 ns</td><td>216,915,103.3 ns</td><td>1.50x faster</td><td>0.01x</td><td>37 B</td><td>1.51x less</td>
+</tr><tr><td>Fail_Last_Bind</td><td>00:00:00.1000000</td><td>323,256,786.7 ns</td><td>1,362,267.07 ns</td><td>1,274,265.46 ns</td><td>324,183,810.0 ns</td><td>325,108,270.0 ns</td><td>1.00x slower</td><td>0.01x</td><td>56 B</td><td>1.00x more</td>
+</tr></tbody></table>
+</body>
+</html>

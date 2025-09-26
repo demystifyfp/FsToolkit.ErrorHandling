@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>SeqTests.SeqBenchmarks-20250922-142842</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.0, Windows 11 (10.0.26100.4652/24H2/2024Update/HudsonValley)
+12th Gen Intel Core i9-12900F 2.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 9.0.202
+  [Host]     : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2 DEBUG
+  DefaultJob : .NET 9.0.3 (9.0.325.11113), X64 RyuJIT AVX2
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                         </th><th>Categories           </th><th>Mean    </th><th>Error   </th><th>StdDev  </th><th>Min     </th><th>Max     </th><th>Median  </th><th>P80     </th><th>P95     </th><th>Ratio      </th><th>RatioSD</th><th>Rank</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>SeqExprLarge</td><td>1,000,000,func vs expr</td><td>23,808.268 &mu;s</td><td>457.3319 &mu;s</td><td>449.1611 &mu;s</td><td>23,268.044 &mu;s</td><td>24,467.425 &mu;s</td><td>23,842.825 &mu;s</td><td>24,399.122 &mu;s</td><td>24,466.750 &mu;s</td><td>4.32x faster</td><td>0.16x</td><td>*</td><td>2312.5000</td><td>2281.2500</td><td>750.0000</td><td>27344.16 KB</td><td>2.29x less</td>
+</tr><tr><td>SeqFuncsLarge</td><td>1,000,000,func vs expr</td><td>102,791.632 &mu;s</td><td>1,900.7996 &mu;s</td><td>3,378.6696 &mu;s</td><td>97,260.180 &mu;s</td><td>113,155.820 &mu;s</td><td>102,705.070 &mu;s</td><td>104,145.176 &mu;s</td><td>109,326.874 &mu;s</td><td>baseline</td><td></td><td>**</td><td>5400.0000</td><td>5200.0000</td><td>1400.0000</td><td>62500.63 KB</td><td></td>
+</tr><tr><td>SeqExprLargeIter</td><td>1,000,000,func vs expr,iter</td><td>23,647.776 &mu;s</td><td>460.0653 &mu;s</td><td>451.8457 &mu;s</td><td>22,978.725 &mu;s</td><td>24,694.438 &mu;s</td><td>23,397.517 &mu;s</td><td>23,930.728 &mu;s</td><td>24,471.029 &mu;s</td><td>4.19x faster</td><td>0.15x</td><td>*</td><td>2312.5000</td><td>2281.2500</td><td>750.0000</td><td>27344.17 KB</td><td>2.29x less</td>
+</tr><tr><td>SeqFuncsLargeIter</td><td>1,000,000,func vs expr,iter</td><td>99,039.519 &mu;s</td><td>1,666.2471 &mu;s</td><td>2,961.7528 &mu;s</td><td>94,554.860 &mu;s</td><td>108,092.000 &mu;s</td><td>98,307.490 &mu;s</td><td>101,237.296 &mu;s</td><td>104,000.894 &mu;s</td><td>baseline</td><td></td><td>**</td><td>5400.0000</td><td>5200.0000</td><td>1400.0000</td><td>62500.63 KB</td><td></td>
+</tr><tr><td>SeqExprSmall</td><td>1,000,func vs expr</td><td>7.382 &mu;s</td><td>0.1272 &mu;s</td><td>0.1128 &mu;s</td><td>7.162 &mu;s</td><td>7.543 &mu;s</td><td>7.376 &mu;s</td><td>7.478 &mu;s</td><td>7.534 &mu;s</td><td>1.44x faster</td><td>0.04x</td><td>*</td><td>1.7929</td><td>0.0839</td><td>-</td><td>27.49 KB</td><td>2.28x less</td>
+</tr><tr><td>SeqFuncsSmall</td><td>1,000,func vs expr</td><td>10.621 &mu;s</td><td>0.2045 &mu;s</td><td>0.2512 &mu;s</td><td>10.186 &mu;s</td><td>11.071 &mu;s</td><td>10.630 &mu;s</td><td>10.840 &mu;s</td><td>10.963 &mu;s</td><td>baseline</td><td></td><td>**</td><td>4.0741</td><td>0.4425</td><td>-</td><td>62.58 KB</td><td></td>
+</tr><tr><td>SeqExprSmallIter</td><td>1,000,func vs expr,iter</td><td>7.531 &mu;s</td><td>0.1469 &mu;s</td><td>0.2414 &mu;s</td><td>7.117 &mu;s</td><td>7.985 &mu;s</td><td>7.528 &mu;s</td><td>7.774 &mu;s</td><td>7.884 &mu;s</td><td>1.30x faster</td><td>0.05x</td><td>*</td><td>1.7853</td><td>0.0763</td><td>-</td><td>27.49 KB</td><td>2.28x less</td>
+</tr><tr><td>SeqFuncsSmallIter</td><td>1,000,func vs expr,iter</td><td>9.754 &mu;s</td><td>0.1895 &mu;s</td><td>0.2593 &mu;s</td><td>9.419 &mu;s</td><td>10.293 &mu;s</td><td>9.760 &mu;s</td><td>9.946 &mu;s</td><td>10.204 &mu;s</td><td>baseline</td><td></td><td>**</td><td>4.0741</td><td>0.4425</td><td>-</td><td>62.58 KB</td><td></td>
+</tr><tr><td>&#39;Seq expression&#39;</td><td>1000,sleep</td><td>71.924 &mu;s</td><td>0.8751 &mu;s</td><td>0.8186 &mu;s</td><td>70.763 &mu;s</td><td>73.360 &mu;s</td><td>71.927 &mu;s</td><td>72.732 &mu;s</td><td>73.304 &mu;s</td><td>5,010.407x faster</td><td>475.40x</td><td>*</td><td>1.7090</td><td>-</td><td>-</td><td>27.49 KB</td><td>608.244x less</td>
+</tr><tr><td>&#39;inlined GetEnumerator w/ mutability&#39;</td><td>1000,sleep</td><td>76.305 &mu;s</td><td>1.0590 &mu;s</td><td>0.9906 &mu;s</td><td>74.558 &mu;s</td><td>78.067 &mu;s</td><td>76.206 &mu;s</td><td>77.085 &mu;s</td><td>77.788 &mu;s</td><td>4,722.903x faster</td><td>449.07x</td><td>**</td><td>4.0283</td><td>0.3662</td><td>-</td><td>62.58 KB</td><td>267.217x less</td>
+</tr><tr><td>&#39;GetEnumerator w/ mutability&#39;</td><td>1000,sleep</td><td>76.437 &mu;s</td><td>0.9549 &mu;s</td><td>0.8932 &mu;s</td><td>75.271 &mu;s</td><td>78.157 &mu;s</td><td>76.451 &mu;s</td><td>76.883 &mu;s</td><td>77.843 &mu;s</td><td>4,714.614x faster</td><td>447.51x</td><td>**</td><td>4.0283</td><td>0.3662</td><td>-</td><td>62.58 KB</td><td>267.217x less</td>
+</tr><tr><td>Seq.fold</td><td>1000,sleep</td><td>146.920 &mu;s</td><td>1.8837 &mu;s</td><td>1.7620 &mu;s</td><td>143.474 &mu;s</td><td>150.054 &mu;s</td><td>146.386 &mu;s</td><td>148.632 &mu;s</td><td>149.462 &mu;s</td><td>2,452.855x faster</td><td>232.92x</td><td>***</td><td>3.9063</td><td>0.2441</td><td>-</td><td>62.6 KB</td><td>267.117x less</td>
+</tr><tr><td>&#39;inlined Seq.fold&#39;</td><td>1000,sleep</td><td>150.342 &mu;s</td><td>1.2402 &mu;s</td><td>1.1601 &mu;s</td><td>148.452 &mu;s</td><td>152.129 &mu;s</td><td>150.557 &mu;s</td><td>151.263 &mu;s</td><td>152.045 &mu;s</td><td>2,396.827x faster</td><td>226.60x</td><td>***</td><td>3.9063</td><td>0.2441</td><td>-</td><td>62.6 KB</td><td>267.117x less</td>
+</tr><tr><td>Seq.unfold</td><td>1000,sleep</td><td>16,567.961 &mu;s</td><td>170.4365 &mu;s</td><td>159.4264 &mu;s</td><td>16,321.959 &mu;s</td><td>16,903.759 &mu;s</td><td>16,606.203 &mu;s</td><td>16,682.831 &mu;s</td><td>16,777.077 &mu;s</td><td>21.750x faster</td><td>2.06x</td><td>****</td><td>-</td><td>-</td><td>-</td><td>207.37 KB</td><td>80.638x less</td>
+</tr><tr><td>original</td><td>1000,sleep</td><td>360,324.211 &mu;s</td><td>11,571.2841 &mu;s</td><td>34,118.1947 &mu;s</td><td>249,339.000 &mu;s</td><td>417,361.800 &mu;s</td><td>361,486.200 &mu;s</td><td>389,361.920 &mu;s</td><td>411,521.640 &mu;s</td><td>baseline</td><td></td><td>*****</td><td>1000.0000</td><td>-</td><td>-</td><td>16721.95 KB</td><td></td>
+</tr><tr><td>&#39;Seq expression&#39;</td><td>5000,sleep</td><td>361.965 &mu;s</td><td>4.1905 &mu;s</td><td>3.9197 &mu;s</td><td>356.176 &mu;s</td><td>367.553 &mu;s</td><td>362.104 &mu;s</td><td>365.772 &mu;s</td><td>367.533 &mu;s</td><td>2.03x faster</td><td>0.03x</td><td>*</td><td>8.7891</td><td>1.4648</td><td>-</td><td>136.87 KB</td><td>2.28x less</td>
+</tr><tr><td>&#39;GetEnumerator w/ mutability&#39;</td><td>5000,sleep</td><td>386.157 &mu;s</td><td>3.2603 &mu;s</td><td>2.7225 &mu;s</td><td>380.789 &mu;s</td><td>391.203 &mu;s</td><td>387.111 &mu;s</td><td>388.018 &mu;s</td><td>389.597 &mu;s</td><td>1.90x faster</td><td>0.02x</td><td>**</td><td>20.0195</td><td>19.5313</td><td>-</td><td>312.58 KB</td><td>1.00x less</td>
+</tr><tr><td>&#39;inlined GetEnumerator w/ mutability&#39;</td><td>5000,sleep</td><td>388.803 &mu;s</td><td>4.8791 &mu;s</td><td>4.5639 &mu;s</td><td>379.463 &mu;s</td><td>395.923 &mu;s</td><td>389.013 &mu;s</td><td>392.393 &mu;s</td><td>394.711 &mu;s</td><td>1.89x faster</td><td>0.03x</td><td>**</td><td>20.0195</td><td>19.5313</td><td>-</td><td>312.58 KB</td><td>1.00x less</td>
+</tr><tr><td>Seq.fold</td><td>5000,sleep</td><td>733.890 &mu;s</td><td>6.9244 &mu;s</td><td>6.4771 &mu;s</td><td>723.400 &mu;s</td><td>741.735 &mu;s</td><td>734.373 &mu;s</td><td>740.904 &mu;s</td><td>741.718 &mu;s</td><td>baseline</td><td></td><td>***</td><td>19.5313</td><td>18.5547</td><td>-</td><td>312.6 KB</td><td></td>
+</tr><tr><td>&#39;inlined Seq.fold&#39;</td><td>5000,sleep</td><td>736.380 &mu;s</td><td>7.1504 &mu;s</td><td>6.6885 &mu;s</td><td>724.887 &mu;s</td><td>750.013 &mu;s</td><td>736.590 &mu;s</td><td>740.666 &mu;s</td><td>746.474 &mu;s</td><td>1.00x slower</td><td>0.01x</td><td>***</td><td>19.5313</td><td>18.5547</td><td>-</td><td>312.6 KB</td><td>1.00x more</td>
+</tr></tbody></table>
+</body>
+</html>
