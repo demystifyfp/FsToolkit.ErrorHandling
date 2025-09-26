@@ -714,6 +714,37 @@ let catchTests =
         <| Expect.hasAsyncErrorValue "unmapped" (AsyncResult.catch f (toAsync (Error "unmapped")))
     ]
 
+let getOrReraiseTests =
+    let makeException () : exn =
+        try
+            failwith "Kaboom"
+        with exn ->
+            exn
+
+    testList "AsyncResult.getOrReraise tests" [
+        testCaseAsync "getOrReraise preserves message and stack-trace"
+        <| async {
+            let exn = makeException ()
+
+            let! captured =
+                async {
+                    try
+                        let! () =
+                            AsyncResult.error exn
+                            |> AsyncResult.getOrReraise
+
+                        return failwith "Unexpected"
+                    with exn ->
+                        return exn
+                }
+
+            Expect.equal captured.Message exn.Message ""
+#if !FABLE_COMPILER
+            Expect.equal captured.StackTrace exn.StackTrace ""
+#endif
+        }
+    ]
+
 type CreatePostResult =
     | PostSuccess of NotifyNewPostRequest
     | NotAllowedToPost
@@ -1023,6 +1054,7 @@ let allTests =
         teeErrorTests
         teeErrorIfTests
         catchTests
+        getOrReraiseTests
         asyncResultCETests
         asyncResultOperatorTests
         zipTests

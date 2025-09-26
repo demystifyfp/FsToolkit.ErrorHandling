@@ -1,6 +1,9 @@
 namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
+#if !FABLE_COMPILER
+open System.Runtime.ExceptionServices
+#endif
 
 [<RequireQualifiedAccess>]
 module AsyncResult =
@@ -341,6 +344,20 @@ module AsyncResult =
             | Choice1Of2(Error err) -> Error err
             | Choice2Of2 ex -> Error(exnMapper ex)
         )
+
+    /// Gets the value in the Ok case or re-raises the exception in the Error case
+    let inline getOrReraise (input: Async<Result<'ok, exn>>) : Async<'ok> =
+        async {
+            match! input with
+            | Ok a -> return a
+            | Error exn ->
+#if FABLE_COMPILER
+                return raise exn
+#else
+                ExceptionDispatchInfo.Capture(exn).Throw()
+                return Unchecked.defaultof<_>
+#endif
+        }
 
     /// Lift Async to AsyncResult
     let inline ofAsync (value: Async<'ok>) : Async<Result<'ok, 'error>> =
