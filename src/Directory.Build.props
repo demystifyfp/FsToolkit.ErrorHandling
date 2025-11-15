@@ -41,4 +41,10 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
+  
+  <ItemGroup>
+    <PackageReference Include="Ionide.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="G-Research.FSharp.Analyzers" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>
