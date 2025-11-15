@@ -24,14 +24,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     - name: Setup necessary dotnet SDKs
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
         dotnet-version: |
           8.x
           9.x
+          10.x
 
     - name: Build via Bash
       if: runner.os != 'Windows'
@@ -58,20 +59,21 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
 
     - name: Setup necessary dotnet SDKs
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
         dotnet-version: |
           8.x
           9.x
+          10.x
 
     - name: Build via Bash
       if: runner.os != 'Windows'
@@ -105,12 +107,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Setup necessary dotnet SDKs
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
         global-json-file: global.json
         dotnet-version: |
           8.x
           9.x
+          10.x
     - name: Build via Bash
       if: runner.os != 'Windows'
       run: |
@@ -132,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
@@ -144,14 +147,15 @@ jobs:
   analyze:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v5
         - name: Setup necessary dotnet SDKs
-          uses: actions/setup-dotnet@v3
+          uses: actions/setup-dotnet@v5
           with:
             global-json-file: global.json
             dotnet-version: |
               8.x
               9.x
+              10.x
         - name: Analyze
           run: |
             chmod +x ./build.sh

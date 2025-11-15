@@ -3,14 +3,14 @@
   "isRoot": true,
   "tools": {
     "fable": {
-      "version": "4.25.0",
+      "version": "4.27.0",
       "commands": [
         "fable"
       ],
       "rollForward": false
     },
     "fantomas": {
-      "version": "7.0.2",
+      "version": "7.0.3",
       "commands": [
         "fantomas"
       ],
@@ -24,7 +24,7 @@
       "rollForward": false
     },
     "fsharp-analyzers": {
-      "version": "0.31.0",
+      "version": "0.34.1",
       "commands": [
         "fsharp-analyzers"
       ],

@@ -746,7 +746,7 @@ module CancellableTaskResultCE =
 
                     let! actual =
                         cancellableTaskResult {
-                            use d = null
+                            use d: IDisposableNull = null
                             return data
                         }
 
