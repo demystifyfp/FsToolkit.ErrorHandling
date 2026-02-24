@@ -1,8 +1,8 @@
-﻿namespace FsToolkit.ErrorHandling
+namespace FsToolkit.ErrorHandling
 
-/// Contains methods to build CancellableTasks using the F# computation expression syntax
+/// Contains methods to build CancellableValueTasks using the F# computation expression syntax
 [<AutoOpen>]
-module CancellableTaskOptionCE =
+module CancellableValueTaskResultCE =
 
     open System
     open System.Runtime.CompilerServices
@@ -15,11 +15,13 @@ module CancellableTaskOptionCE =
     open Microsoft.FSharp.Collections
     open IcedTasks
 
+    /// CancellationToken -> ValueTask<Result<'T, 'Error>>
+    type CancellableValueTaskResult<'T, 'Error> = CancellableValueTask<Result<'T, 'Error>>
 
-    /// Contains methods to build CancellableTasks using the F# computation expression syntax
-    type CancellableTaskOptionBuilder() =
+    /// Contains methods to build CancellableValueTasks using the F# computation expression syntax
+    type CancellableValueTaskResultBuilder() =
 
-        inherit CancellableTaskOptionBuilderBase()
+        inherit CancellableTaskResultBuilderBase()
 
         // This is the dynamic implementation - this is not used
         // for statically compiled tasks.  An executor (resumptionFuncExecutor) is
@@ -31,16 +33,18 @@ module CancellableTaskOptionCE =
         /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
         /// </summary>
         static member inline RunDynamic
-            (code: CancellableTaskOptionBuilderBaseCode<'T, 'T>)
-            : CancellableTaskOption<'T> =
+            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
+            : CancellableValueTaskResult<'T, 'Error> =
 
-            let mutable sm = CancellableTaskOptionBuilderBaseStateMachine<'T>()
+            let mutable sm = CancellableTaskResultBuilderBaseStateMachine<'T, 'Error, _>()
 
             let initialResumptionFunc =
-                CancellableTaskOptionBuilderBaseResumptionFunc<'T>(fun sm -> code.Invoke(&sm))
+                CancellableTaskResultBuilderBaseResumptionFunc<'T, 'Error, _>(fun sm ->
+                    code.Invoke(&sm)
+                )
 
             let resumptionInfo =
-                { new CancellableTaskOptionBuilderBaseResumptionDynamicInfo<'T>(initialResumptionFunc) with
+                { new CancellableTaskResultBuilderBaseResumptionDynamicInfo<'T, 'Error, _>(initialResumptionFunc) with
                     member info.MoveNext(sm) =
                         let mutable savedExn = null
 
@@ -49,7 +53,7 @@ module CancellableTaskOptionCE =
                             let step = info.ResumptionFunc.Invoke(&sm)
 
                             if step then
-                                sm.Data.SetResult()
+                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                             else
                                 match sm.ResumptionDynamicInfo.ResumptionData with
                                 | :? ICriticalNotifyCompletion as awaiter ->
@@ -61,7 +65,6 @@ module CancellableTaskOptionCE =
                                         &sm
                                     )
                                 | awaiter -> assert not (isNull awaiter)
-
                         with exn ->
                             savedExn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
@@ -73,25 +76,28 @@ module CancellableTaskOptionCE =
                         MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
                 }
 
-            fun ct ->
+            fun (ct) ->
                 if ct.IsCancellationRequested then
-                    Task.FromCanceled<_>(ct)
+                    ValueTask<Result<'T, 'Error>>(Task.FromCanceled<Result<'T, 'Error>>(ct))
                 else
                     sm.Data.CancellationToken <- ct
                     sm.ResumptionDynamicInfo <- resumptionInfo
-                    sm.Data.MethodBuilder <- AsyncTaskMethodBuilder<Option<'T>>.Create()
+
+                    sm.Data.MethodBuilder <-
+                        AsyncValueTaskMethodBuilder<Result<'T, 'Error>>.Create()
+
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
 
 
         /// Hosts the task code in a state machine and starts the task.
         member inline _.Run
-            (code: CancellableTaskOptionBuilderBaseCode<'T, 'T>)
-            : CancellableTaskOption<'T> =
+            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
+            : CancellableValueTaskResult<'T, 'Error> =
             if __useResumableCode then
                 __stateMachine<
-                    CancellableTaskOptionBuilderBaseStateMachineData<'T>,
-                    CancellableTaskOption<'T>
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableValueTaskResult<'T, 'Error>
                  >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
@@ -102,7 +108,7 @@ module CancellableTaskOptionCE =
                             let __stack_code_fin = code.Invoke(&sm)
 
                             if __stack_code_fin then
-                                sm.Data.SetResult()
+                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                         with exn ->
                             __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
@@ -117,63 +123,69 @@ module CancellableTaskOptionCE =
                     (AfterCode<_, _>(fun sm ->
                         let sm = sm
 
-                        fun ct ->
+                        fun (ct) ->
                             if ct.IsCancellationRequested then
-                                Task.FromCanceled<_>(ct)
+                                ValueTask<Result<'T, 'Error>>(
+                                    Task.FromCanceled<Result<'T, 'Error>>(ct)
+                                )
                             else
                                 let mutable sm = sm
                                 sm.Data.CancellationToken <- ct
 
                                 sm.Data.MethodBuilder <-
-                                    AsyncTaskMethodBuilder<Option<'T>>.Create()
+                                    AsyncValueTaskMethodBuilder<Result<'T, 'Error>>.Create()
 
                                 sm.Data.MethodBuilder.Start(&sm)
                                 sm.Data.MethodBuilder.Task
                     ))
             else
-                CancellableTaskOptionBuilder.RunDynamic(code)
+                CancellableValueTaskResultBuilder.RunDynamic(code)
 
-        /// Specify a Source of CancellationToken -> Task<_> on the real type to allow type inference to work
+        /// Specify a Source of CancellationToken -> ValueTask<_> on the real type to allow type inference to work
         member inline _.Source
-            (x: CancellationToken -> Task<_>)
-            : CancellationToken -> Awaiter<TaskAwaiter<_>, _> =
-            fun ct -> Awaitable.GetTaskAwaiter(x ct)
+            (x: CancellationToken -> ValueTask<_>)
+            : CancellationToken -> Awaiter<ValueTaskAwaiter<_>, _> =
+            fun ct -> (x ct).GetAwaiter()
 
-    /// Contains methods to build CancellableTasks using the F# computation expression syntax
-    type BackgroundCancellableTaskOptionBuilder() =
+    /// Contains methods to build CancellableValueTasks using the F# computation expression syntax
+    type BackgroundCancellableValueTaskResultBuilder() =
 
-        inherit CancellableTaskOptionBuilderBase()
+        inherit CancellableTaskResultBuilderBase()
 
         /// <summary>
         /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
         /// </summary>
         static member inline RunDynamic
-            (code: CancellableTaskOptionBuilderBaseCode<'T, 'T>)
-            : CancellableTaskOption<'T> =
+            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
+            : CancellableValueTaskResult<'T, 'Error> =
             // backgroundTask { .. } escapes to a background thread where necessary
             // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
             if
                 isNull SynchronizationContext.Current
                 && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
             then
-                CancellableTaskOptionBuilder.RunDynamic(code)
+                CancellableValueTaskResultBuilder.RunDynamic(code)
             else
-                fun ct ->
-                    Task.Run<Option<'T>>(
-                        (fun () -> CancellableTaskOptionBuilder.RunDynamic code ct),
-                        ct
+                fun (ct) ->
+                    ValueTask<Result<'T, 'Error>>(
+                        Task.Run<Result<'T, 'Error>>(
+                            (fun () ->
+                                (CancellableValueTaskResultBuilder.RunDynamic (code) (ct)).AsTask()
+                            ),
+                            ct
+                        )
                     )
 
         /// <summary>
         /// Hosts the task code in a state machine and starts the task, executing in the ThreadPool using Task.Run
         /// </summary>
         member inline _.Run
-            (code: CancellableTaskOptionBuilderBaseCode<'T, 'T>)
-            : CancellableTaskOption<'T> =
+            (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
+            : CancellableValueTaskResult<'T, 'Error> =
             if __useResumableCode then
                 __stateMachine<
-                    CancellableTaskOptionBuilderBaseStateMachineData<'T>,
-                    CancellableTaskOption<'T>
+                    CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, _>,
+                    CancellableValueTaskResult<'T, 'Error>
                  >
                     (MoveNextMethodImpl<_>(fun sm ->
                         //-- RESUMABLE CODE START
@@ -184,7 +196,7 @@ module CancellableTaskOptionCE =
                             let __stack_code_fin = code.Invoke(&sm)
 
                             if __stack_code_fin then
-                                sm.Data.MethodBuilder.SetResult(sm.Data.Result.Value)
+                                MethodBuilder.SetResult(&sm.Data.MethodBuilder, sm.Data.Result)
                         with exn ->
                             __stack_exn <- exn
                         // Run SetException outside the stack unwind, see https://github.com/dotnet/roslyn/issues/26567
@@ -196,7 +208,7 @@ module CancellableTaskOptionCE =
                     (SetStateMachineMethodImpl<_>(fun sm state ->
                         MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
                     ))
-                    (AfterCode<_, CancellableTaskOption<'T>>(fun sm ->
+                    (AfterCode<_, CancellableValueTaskResult<'T, 'Error>>(fun sm ->
                         // backgroundTask { .. } escapes to a background thread where necessary
                         // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
                         if
@@ -205,14 +217,16 @@ module CancellableTaskOptionCE =
                         then
                             let mutable sm = sm
 
-                            fun ct ->
+                            fun (ct) ->
                                 if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct)
+                                    ValueTask<Result<'T, 'Error>>(
+                                        Task.FromCanceled<Result<'T, 'Error>>(ct)
+                                    )
                                 else
                                     sm.Data.CancellationToken <- ct
 
                                     sm.Data.MethodBuilder <-
-                                        AsyncTaskMethodBuilder<Option<'T>>.Create()
+                                        AsyncValueTaskMethodBuilder<Result<'T, 'Error>>.Create()
 
                                     sm.Data.MethodBuilder.Start(&sm)
                                     sm.Data.MethodBuilder.Task
@@ -221,43 +235,49 @@ module CancellableTaskOptionCE =
 
                             fun (ct) ->
                                 if ct.IsCancellationRequested then
-                                    Task.FromCanceled<_>(ct)
+                                    ValueTask<Result<'T, 'Error>>(
+                                        Task.FromCanceled<Result<'T, 'Error>>(ct)
+                                    )
                                 else
-                                    Task.Run<Option<'T>>(
-                                        (fun () ->
-                                            let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
-                                            sm.Data.CancellationToken <- ct
+                                    ValueTask<Result<'T, 'Error>>(
+                                        Task.Run<Result<'T, 'Error>>(
+                                            (fun () ->
+                                                let mutable sm = sm // host local mutable copy of contents of state machine on this thread pool thread
+                                                sm.Data.CancellationToken <- ct
 
-                                            sm.Data.MethodBuilder <-
-                                                AsyncTaskMethodBuilder<Option<'T>>.Create()
+                                                sm.Data.MethodBuilder <-
+                                                    AsyncValueTaskMethodBuilder<Result<'T, 'Error>>
+                                                        .Create()
 
-                                            sm.Data.MethodBuilder.Start(&sm)
-                                            sm.Data.MethodBuilder.Task
-                                        ),
-                                        ct
+                                                sm.Data.MethodBuilder.Start(&sm)
+                                                sm.Data.MethodBuilder.Task.AsTask()
+                                            ),
+                                            ct
+                                        )
                                     )
                     ))
 
             else
-                BackgroundCancellableTaskOptionBuilder.RunDynamic(code)
+                BackgroundCancellableValueTaskResultBuilder.RunDynamic(code)
 
-    /// Contains the cancellableTask computation expression builder.
+    /// Contains the cancellableValueTaskResult computation expression builder.
     [<AutoOpen>]
-    module CancellableTaskOptionBuilder =
+    module CancellableValueTaskResultBuilder =
 
         /// <summary>
-        /// Builds a cancellableTask using computation expression syntax.
+        /// Builds a cancellableValueTaskResult using computation expression syntax.
         /// </summary>
-        let cancellableTaskOption = CancellableTaskOptionBuilder()
+        let cancellableValueTaskResult = CancellableValueTaskResultBuilder()
 
         /// <summary>
-        /// Builds a cancellableTask using computation expression syntax which switches to execute on a background thread if not already doing so.
+        /// Builds a cancellableValueTaskResult using computation expression syntax which switches to execute on a background thread if not already doing so.
         /// </summary>
-        let backgroundCancellableTaskOption = BackgroundCancellableTaskOptionBuilder()
+        let backgroundCancellableValueTaskResult =
+            BackgroundCancellableValueTaskResultBuilder()
 
 
 [<RequireQualifiedAccess>]
-module CancellableTaskOption =
+module CancellableValueTaskResult =
     open System.Threading.Tasks
     open System.Threading
     open IcedTasks
@@ -274,8 +294,8 @@ module CancellableTaskOption =
     /// let primes = [ 2; 3; 5; 7; 11 ]
     /// for i in primes do
     ///     let computation =
-    ///         cancellableTask {
-    ///             let! cancellationToken = CancellableTask.getCancellationToken()
+    ///         cancellableValueTask {
+    ///             let! cancellationToken = CancellableValueTask.getCancellationToken()
     ///             do! Task.Delay(i * 1000, cancellationToken)
     ///             printfn $"{i}"
     ///         }
@@ -290,130 +310,80 @@ module CancellableTaskOption =
     let inline getCancellationToken () =
         fun (ct: CancellationToken) -> ValueTask<CancellationToken> ct
 
-    /// <summary>Lifts an item to a CancellableTask.</summary>
-    /// <param name="x">The item to be the result of the CancellableTask.</param>
-    /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline some x = cancellableTask { return Some x }
+    /// <summary>Lifts an item to a CancellableValueTaskResult.</summary>
+    /// <param name="item">The item to be the result of the CancellableValueTaskResult.</param>
+    /// <returns>A CancellableValueTaskResult with the item as the result.</returns>
+    let inline singleton (item: 'item) : CancellableValueTaskResult<'item, 'Error> =
+        fun _ -> ValueTask<Result<'item, 'Error>>(Ok item)
 
 
-    /// <summary>Allows chaining of CancellableTasks.</summary>
+    /// <summary>Allows chaining of CancellableValueTaskResults.</summary>
     /// <param name="binder">The continuation.</param>
     /// <param name="cTask">The value.</param>
     /// <returns>The result of the binder.</returns>
     let inline bind
-        ([<InlineIfLambda>] binder: 'input -> CancellableTaskOption<'output>)
-        ([<InlineIfLambda>] cTask: CancellableTaskOption<'input>)
+        ([<InlineIfLambda>] binder: 'input -> CancellableValueTaskResult<'output, 'Error>)
+        ([<InlineIfLambda>] cTask: CancellableValueTaskResult<'input, 'Error>)
         =
-        cancellableTaskOption {
+        cancellableValueTaskResult {
             let! cResult = cTask
             return! binder cResult
         }
 
-    /// <summary>Allows chaining of CancellableTasks.</summary>
+    /// <summary>Allows chaining of CancellableValueTaskResults.</summary>
     /// <param name="mapper">The continuation.</param>
     /// <param name="cTask">The value.</param>
-    /// <returns>The result of the mapper wrapped in a CancellableTasks.</returns>
+    /// <returns>The result of the mapper wrapped in a CancellableValueTaskResult.</returns>
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
-        ([<InlineIfLambda>] cTask: CancellableTaskOption<'input>)
+        ([<InlineIfLambda>] cTask: CancellableValueTaskResult<'input, 'Error>)
         =
-        cancellableTaskOption {
+        cancellableValueTaskResult {
             let! cResult = cTask
             return mapper cResult
         }
 
-    /// <summary>Allows chaining of CancellableTasks.</summary>
-    /// <param name="applicable">A function wrapped in a CancellableTasks</param>
+    /// <summary>Allows chaining of CancellableValueTaskResults.</summary>
+    /// <param name="applicable">A function wrapped in a CancellableValueTaskResult</param>
     /// <param name="cTask">The value.</param>
     /// <returns>The result of the applicable.</returns>
     let inline apply
-        ([<InlineIfLambda>] applicable: CancellableTaskOption<'input -> 'output>)
-        ([<InlineIfLambda>] cTask: CancellableTaskOption<'input>)
+        ([<InlineIfLambda>] applicable: CancellableValueTaskResult<'input -> 'output, 'Error>)
+        ([<InlineIfLambda>] cTask: CancellableValueTaskResult<'input, 'Error>)
         =
-        cancellableTaskOption {
+        cancellableValueTaskResult {
             let! (applier: 'input -> 'output) = applicable
             let! (cResult: 'input) = cTask
             return applier cResult
         }
 
-    /// <summary>Takes two CancellableTasks, starts them serially in order of left to right, and returns a tuple of the pair.</summary>
+    /// <summary>Takes two CancellableValueTaskResults, starts them serially in order of left to right, and returns a tuple of the pair.</summary>
     /// <param name="left">The left value.</param>
     /// <param name="right">The right value.</param>
     /// <returns>A tuple of the parameters passed in</returns>
     let inline zip
-        ([<InlineIfLambda>] left: CancellableTaskOption<'left>)
-        ([<InlineIfLambda>] right: CancellableTaskOption<'right>)
+        ([<InlineIfLambda>] left: CancellableValueTaskResult<'left, 'Error>)
+        ([<InlineIfLambda>] right: CancellableValueTaskResult<'right, 'Error>)
         =
-        cancellableTaskOption {
+        cancellableValueTaskResult {
             let! r1 = left
             let! r2 = right
             return r1, r2
         }
 
-    /// <summary>Takes two CancellableTask, starts them concurrently, and returns a tuple of the pair.</summary>
+    /// <summary>Takes two CancellableValueTaskResults, starts them concurrently, and returns a tuple of the pair.</summary>
     /// <param name="left">The left value.</param>
     /// <param name="right">The right value.</param>
     /// <returns>A tuple of the parameters passed in.</returns>
     let inline parallelZip
-        ([<InlineIfLambda>] left: CancellableTaskOption<'left>)
-        ([<InlineIfLambda>] right: CancellableTaskOption<'right>)
+        ([<InlineIfLambda>] left: CancellableValueTaskResult<'left, 'Error>)
+        ([<InlineIfLambda>] right: CancellableValueTaskResult<'right, 'Error>)
         =
-        cancellableTask {
+        cancellableValueTask {
             let! ct = getCancellationToken ()
             let r1 = left ct
             let r2 = right ct
             let! r1 = r1
             let! r2 = r2
-            return Option.zip r1 r2
+            return Result.zip r1 r2
         }
-
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
-    let inline either
-        ([<InlineIfLambda>] onSome: 'input -> CancellableTask<'output>)
-        ([<InlineIfLambda>] onNone: unit -> CancellableTask<'output>)
-        (input: CancellableTask<'input option>)
-        : CancellableTask<'output> =
-        input
-        |> CancellableTask.bind (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
-
-    /// <summary>
-    ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.
-    /// </summary>
-    /// <param name="value">The specified default value.</param>
-    /// <param name="cancellableTaskOption">The input option.</param>
-    /// <returns>
-    /// The option if the option is <c>Some</c>, else the default value.
-    /// </returns>
-    let inline defaultValue
-        (value: 'value)
-        (cancellableTaskOption: CancellableTask<'value option>)
-        =
-        cancellableTaskOption
-        |> CancellableTask.map (Option.defaultValue value)
-
-    /// <summary>
-    ///  Gets the value of the option if the option is <c>Some</c>, otherwise evaluates <paramref name="defThunk"/> and returns the result.
-    /// </summary>
-    /// <param name="defThunk">A thunk that provides a default value when evaluated.</param>
-    /// <param name="cancellableTaskOption">The input option.</param>
-    /// <returns>
-    /// The option if the option is <c>Some</c>, else the result of evaluating <paramref name="defThunk"/>.
-    /// </returns>
-    let inline defaultWith
-        ([<InlineIfLambda>] defThunk: unit -> 'value)
-        (cancellableTaskOption: CancellableTask<'value option>)
-        : CancellableTask<'value> =
-        cancellableTaskOption
-        |> CancellableTask.map (Option.defaultWith defThunk)

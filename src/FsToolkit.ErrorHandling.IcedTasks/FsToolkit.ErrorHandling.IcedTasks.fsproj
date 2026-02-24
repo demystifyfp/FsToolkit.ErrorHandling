@@ -12,6 +12,10 @@
         <Compile Include="CancellableTaskResultCE.fs" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="CancellableTaskValidationOp.fs" />
+        <Compile Include="CancellableTaskOptionBuilderBase.fs" />
+        <Compile Include="CancellableTaskOptionCE.fs" />
+        <Compile Include="CancellableValueTaskResultCE.fs" />
+        <Compile Include="CancellableValueTaskOptionCE.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />
