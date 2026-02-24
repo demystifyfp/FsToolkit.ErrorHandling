@@ -539,6 +539,60 @@ let ``TaskValidationCE loop Tests`` =
                 Expect.equal loopCount 2 "Should only loop twice"
                 Expect.equal actual expected "Should be an error"
             }
+        testCaseTask "IAsyncEnumerable for in"
+        <| fun () ->
+            task {
+                let data = 42
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        1
+                        2
+                        3
+                    ]
+
+                let! actual =
+                    taskValidation {
+                        for _i in asyncSeq do
+                            ()
+
+                        return data
+                    }
+
+                Expect.equal actual (Validation.ok data) "Should be ok"
+            }
+        testCaseTask "IAsyncEnumerable for in fail"
+        <| fun () ->
+            task {
+                let mutable loopCount = 0
+                let expected = Validation.error "error"
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        Validation.ok "42"
+                        Validation.ok "1024"
+                        expected
+                        Validation.ok "1M"
+                        Validation.ok "1M"
+                    ]
+
+                let! actual =
+                    taskValidation {
+                        for i in asyncSeq do
+                            let! x = i
+
+                            loopCount <-
+                                loopCount
+                                + 1
+
+                            ()
+
+                        return "ok"
+                    }
+
+                Expect.equal loopCount 2 "Should only loop twice"
+                Expect.equal actual expected "Should be an error"
+            }
     ]
 
 let ``TaskValidationCE applicative tests`` =

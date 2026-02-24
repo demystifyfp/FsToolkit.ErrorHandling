@@ -37,6 +37,29 @@ module TestHelpers =
             member this.DisposeAsync() = callback ()
         }
 
+#if !FABLE_COMPILER
+    open System.Collections.Generic
+    open System.Threading.Tasks
+
+    /// Creates a simple IAsyncEnumerable<'T> from a list, for use in tests.
+    let toAsyncEnumerable (items: 'T list) : IAsyncEnumerable<'T> =
+        let arr = List.toArray items
+
+        { new IAsyncEnumerable<'T> with
+            member _.GetAsyncEnumerator(_ct) =
+                let mutable index = -1
+
+                { new IAsyncEnumerator<'T> with
+                    member _.MoveNextAsync() =
+                        index <- index + 1
+                        ValueTask.FromResult(index < arr.Length)
+
+                    member _.Current = arr.[index]
+                    member _.DisposeAsync() = ValueTask()
+                }
+        }
+#endif
+
 type MemoryStreamNull =
 #if NET9_0_OR_GREATER && !FABLE_COMPILER
     System.IO.MemoryStream | null
