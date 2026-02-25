@@ -20,12 +20,26 @@ Converts an job-wrapped Option to a Result, using the given error if None.
 ```fsharp
 'a -> job<'b option> -> job<Result<'b, 'a>>`
 ```
+### requireSomeWith
+
+Converts an job-wrapped Option to a Result, using the given error factory if None. The error factory is only called when the value is `None`.
+```fsharp
+(unit -> 'a) -> job<'b option> -> job<Result<'b, 'a>>
+```
 ### requireNone
 
 Converts an job-wrapped Option to a Result, using the given error if Some.
 
 ```fsharp
 'a -> job<'b option> -> job<Result<unit, 'a>>`
+```
+
+### requireNoneWith
+
+Converts an job-wrapped Option to a Result, using the given error factory if Some. The error factory is only called when the value is `Some`.
+
+```fsharp
+(unit -> 'a) -> job<'b option> -> job<Result<unit, 'a>>
 ```
 
 ### requireValueSome
