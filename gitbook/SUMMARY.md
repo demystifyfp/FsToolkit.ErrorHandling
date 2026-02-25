@@ -208,6 +208,7 @@
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
     * Transforms
       * [ofAsync](taskResult/ofAsync.md)
+      * [ofCatchTask](taskResult/ofCatchTask.md)
       * [ofResult](taskResult/ofResult.md)
       * [ofTask](taskResult/ofTask.md)
 

@@ -2,7 +2,9 @@
 
 Namespace: `FsToolkit.ErrorHandling`
 
-Transforms a `Task<'T>` into a `Task<Result<'T, exn>>`.
+Transforms a `Task<'T>` into a `Task<Result<'T, exn>>` by wrapping the value in `Ok`.
+
+> **Note:** This function does **not** catch exceptions thrown by the task. Any exceptions will propagate as-is. To catch exceptions and map them to the `Error` case, use [`ofCatchTask`](ofCatchTask.md).
 
 ## Function Signature
 
@@ -25,3 +27,4 @@ let result = TaskResult.ofTask (task { return 42 })
 let result = TaskResult.ofTask (task { return System.Exception("error") })
 // task { return Error (System.Exception("error")) }
 ```
+

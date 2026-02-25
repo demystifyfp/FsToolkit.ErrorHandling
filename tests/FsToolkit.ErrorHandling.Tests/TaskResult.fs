@@ -700,6 +700,29 @@ let catchTests =
             Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
     ]
 
+let ofCatchTaskTests =
+    let taskThrow () =
+        task {
+            failwith err
+            return Unchecked.defaultof<int>
+        }
+
+    testList "TaskResult.ofCatchTask tests" [
+        testCase "ofCatchTask returns Ok for a successful task"
+        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.ofCatchTask (task { return 42 }))
+
+        testCase "ofCatchTask returns Error for a throwing task"
+        <| fun _ ->
+            let result =
+                TaskResult.ofCatchTask (taskThrow ())
+                |> Async.AwaitTask
+                |> Async.RunSynchronously
+
+            match result with
+            | Error ex -> Expect.equal ex.Message err "Expected exception message to match"
+            | Ok _ -> Tests.failtestf "Expected Error, was Ok"
+    ]
+
 let zipTests =
     testList "TaskResult.zip tests" [
         testCase "Ok, Ok"
@@ -1045,6 +1068,7 @@ let allTests =
         teeErrorTests
         teeErrorIfTests
         catchTests
+        ofCatchTaskTests
         zipTests
         zipErrorTests
         TaskResultCETests
