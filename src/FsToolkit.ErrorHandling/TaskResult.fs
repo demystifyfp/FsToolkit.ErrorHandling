@@ -244,10 +244,40 @@ module TaskResult =
             | Choice2Of2 ex -> Error(f ex)
         )
 
-    /// Lift Task to TaskResult
+    /// <summary>
+    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
+    /// Any exceptions thrown by the task will not be caught and will propagate as-is.
+    /// To catch exceptions and map them to the <c>Error</c> case, use <see cref="ofCatchTask"/>.
+    /// </summary>
+    /// <param name="x">The task to lift.</param>
+    /// <returns>A task containing <c>Ok</c> of the task's result value.</returns>
     let inline ofTask x =
         x
         |> Task.map Ok
+
+    /// <summary>
+    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, exn&gt;&gt;</c>, catching any exceptions
+    /// thrown by the task and wrapping them in <c>Error</c>. If the task completes successfully,
+    /// the result is wrapped in <c>Ok</c>.
+    /// </summary>
+    /// <param name="x">The task to lift.</param>
+    /// <returns>
+    /// A task containing <c>Ok</c> of the result value if the task succeeds, or
+    /// <c>Error</c> of the exception if the task throws.
+    /// </returns>
+    /// <example>
+    /// <code>
+    ///     TaskResult.ofCatchTask (task { return 42 })
+    ///     // Returns: task { return Ok 42 }
+    ///
+    ///     TaskResult.ofCatchTask (task { failwith "something went wrong" })
+    ///     // Returns: task { return Error (System.Exception("something went wrong")) }
+    /// </code>
+    /// </example>
+    let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
+        x
+        |> Task.catch
+        |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
     let inline ofResult (x: Result<_, _>) =
