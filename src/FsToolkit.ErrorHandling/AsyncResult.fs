@@ -158,6 +158,14 @@ module AsyncResult =
         value
         |> Async.map (Result.requireSome error)
 
+    // Converts an async-wrapped Option to a Result, using the given error factory if None.
+    let inline requireSomeWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (value: Async<'ok option>)
+        : Async<Result<'ok, 'error>> =
+        value
+        |> Async.map (Result.requireSomeWith errorFactory)
+
     // Converts an async-wrapped Option to a Result, using the given error if Some.
     let inline requireNone
         (error: 'error)
@@ -165,6 +173,14 @@ module AsyncResult =
         : Async<Result<unit, 'error>> =
         value
         |> Async.map (Result.requireNone error)
+
+    // Converts an async-wrapped Option to a Result, using the given error factory if Some.
+    let inline requireNoneWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (value: Async<'ok option>)
+        : Async<Result<unit, 'error>> =
+        value
+        |> Async.map (Result.requireNoneWith errorFactory)
 
     // Converts an async-wrapped ValueOption to a Result, using the given error if ValueNone.
     let inline requireValueSome

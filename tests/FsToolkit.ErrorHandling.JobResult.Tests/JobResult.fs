@@ -285,6 +285,22 @@ let requireSomeTests =
     ]
 
 [<Tests>]
+let requireSomeWithTests =
+    testList "JobResult.requireSomeWith Tests" [
+        testCase "requireSomeWith happy path"
+        <| fun _ ->
+            toJob (Some 42)
+            |> JobResult.requireSomeWith (fun () -> err)
+            |> Expect.hasJobOkValueSync 42
+
+        testCase "requireSomeWith error path"
+        <| fun _ ->
+            toJob None
+            |> JobResult.requireSomeWith (fun () -> err)
+            |> Expect.hasJobErrorValueSync err
+    ]
+
+[<Tests>]
 let requireNoneTests =
     testList "JobResult.requireNone Tests" [
         testCase "requireNone happy path"
@@ -297,6 +313,22 @@ let requireNoneTests =
         <| fun _ ->
             toJob (Some 42)
             |> JobResult.requireNone err
+            |> Expect.hasJobErrorValueSync err
+    ]
+
+[<Tests>]
+let requireNoneWithTests =
+    testList "JobResult.requireNoneWith Tests" [
+        testCase "requireNoneWith happy path"
+        <| fun _ ->
+            toJob None
+            |> JobResult.requireNoneWith (fun () -> err)
+            |> Expect.hasJobOkValueSync ()
+
+        testCase "requireNoneWith error path"
+        <| fun _ ->
+            toJob (Some 42)
+            |> JobResult.requireNoneWith (fun () -> err)
             |> Expect.hasJobErrorValueSync err
     ]
 

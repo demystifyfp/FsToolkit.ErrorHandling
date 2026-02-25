@@ -278,6 +278,21 @@ let requireSomeTests =
             |> Expect.hasTaskErrorValueSync err
     ]
 
+let requireSomeWithTests =
+    testList "TaskResult.requireSomeWith Tests" [
+        testCase "requireSomeWith happy path"
+        <| fun _ ->
+            toTask (Some 42)
+            |> TaskResult.requireSomeWith (fun () -> err)
+            |> Expect.hasTaskOkValueSync 42
+
+        testCase "requireSomeWith error path"
+        <| fun _ ->
+            toTask None
+            |> TaskResult.requireSomeWith (fun () -> err)
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
 let requireNoneTests =
     testList "TaskResult.requireNone Tests" [
         testCase "requireNone happy path"
@@ -290,6 +305,21 @@ let requireNoneTests =
         <| fun _ ->
             toTask (Some 42)
             |> TaskResult.requireNone err
+            |> Expect.hasTaskErrorValueSync err
+    ]
+
+let requireNoneWithTests =
+    testList "TaskResult.requireNoneWith Tests" [
+        testCase "requireNoneWith happy path"
+        <| fun _ ->
+            toTask None
+            |> TaskResult.requireNoneWith (fun () -> err)
+            |> Expect.hasTaskOkValueSync ()
+
+        testCase "requireNoneWith error path"
+        <| fun _ ->
+            toTask (Some 42)
+            |> TaskResult.requireNoneWith (fun () -> err)
             |> Expect.hasTaskErrorValueSync err
     ]
 
@@ -1025,7 +1055,9 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
+        requireSomeWithTests
         requireNoneTests
+        requireNoneWithTests
         requireValueSomeTests
         requireValueNoneTests
         requireEqualToTests
