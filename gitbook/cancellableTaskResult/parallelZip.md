@@ -44,11 +44,11 @@ let loadDashboard (userId: UserId) : CancellableTaskResult<Dashboard, string> =
 
 ### Example 3
 
-Running two independent validations concurrently:
+Unlike [`zip`](../cancellableTaskResult/zip.md), both tasks are started at the same time — neither is skipped even if the other returns an error first:
 
 ```fsharp
-let validateOrder (order: Order) : CancellableTaskResult<ValidatedItems * ValidatedAddress, string> =
+let validateCredentials (username: string) (password: string) : CancellableTaskResult<User * Role, AuthError> =
     CancellableTaskResult.parallelZip
-        (validateItems order.Items)
-        (validateShippingAddress order.Address)
+        (lookupUser username)          // both run concurrently
+        (lookupRole username)          // both run concurrently; short-circuits on first Error
 ```
