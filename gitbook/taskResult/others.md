@@ -20,12 +20,26 @@ Converts an task-wrapped Option to a Result, using the given error if None.
 ```fsharp
 'a -> Task<'b option> -> Task<Result<'b, 'a>>`
 ```
+### requireSomeWith
+
+Converts an task-wrapped Option to a Result, using the given error factory if None. The error factory is only called when the value is `None`.
+```fsharp
+(unit -> 'a) -> Task<'b option> -> Task<Result<'b, 'a>>
+```
 ### requireNone
 
 Converts an task-wrapped Option to a Result, using the given error if Some.
 
 ```fsharp
 'a -> Task<'b option> -> Task<Result<unit, 'a>>`
+```
+
+### requireNoneWith
+
+Converts an task-wrapped Option to a Result, using the given error factory if Some. The error factory is only called when the value is `Some`.
+
+```fsharp
+(unit -> 'a) -> Task<'b option> -> Task<Result<unit, 'a>>
 ```
 
 ### requireValueSome

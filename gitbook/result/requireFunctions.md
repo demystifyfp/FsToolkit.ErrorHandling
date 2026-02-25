@@ -96,6 +96,38 @@ let result : Result<unit, string> =
 // Error "Value must be Some"
 ```
 
+## requireSomeWith
+
+Converts an Option to a Result, using the given error factory if None. The error factory is only called when the value is `None`.
+
+### Function Signature
+
+```fsharp
+(unit -> 'a) -> 'b option -> Result<'b, 'a>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Result<int, string> =
+    Some 1
+    |> Result.requireSomeWith (fun () -> "Value must be Some")
+    
+// Ok 1
+```
+
+#### Example 2
+
+```fsharp
+let result : Result<int, string> =
+    None
+    |> Result.requireSomeWith (fun () -> "Value must be Some")
+    
+// Error "Value must be Some"
+```
+
 ## requireNone
 
 Converts an Option to a Result, using the given error if Some.
@@ -124,6 +156,38 @@ let result : Result<unit, string> =
 let result : Result<unit, string> =
     Some 1
     |> Result.requireNone "Value must be None"
+    
+// Error "Value must be None"
+```
+
+## requireNoneWith
+
+Converts an Option to a Result, using the given error factory if Some. The error factory is only called when the value is `Some`.
+
+### Function Signature
+
+```fsharp
+(unit -> 'a) -> 'b option -> Result<unit, 'a>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Result<unit, string> =
+    None
+    |> Result.requireNoneWith (fun () -> "Value must be None")
+    
+// Ok ()
+```
+
+#### Example 2
+
+```fsharp
+let result : Result<unit, string> =
+    Some 1
+    |> Result.requireNoneWith (fun () -> "Value must be None")
     
 // Error "Value must be None"
 ```

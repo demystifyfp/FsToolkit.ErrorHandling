@@ -308,6 +308,20 @@ module Result =
         | None -> Error error
 
     /// <summary>
+    /// Requires a value to be <c>Some</c>, otherwise returns an error result using the given error factory.
+    /// </summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>None</c>.</param>
+    /// <param name="option">The <c>Option</c> value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>Some</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireSomeWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (option: 'ok option)
+        : Result<'ok, 'error> =
+        match option with
+        | Some x -> Ok x
+        | None -> Error(errorFactory ())
+
+    /// <summary>
     /// Requires a value to be <c>None</c>, otherwise returns an error result.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirenone</href>
@@ -318,6 +332,20 @@ module Result =
     let inline requireNone (error: 'error) (option: 'value option) : Result<unit, 'error> =
         match option with
         | Some _ -> Error error
+        | None -> Ok()
+
+    /// <summary>
+    /// Requires a value to be <c>None</c>, otherwise returns an error result using the given error factory.
+    /// </summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>Some</c>.</param>
+    /// <param name="option">The <c>Option</c> value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>None</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireNoneWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (option: 'value option)
+        : Result<unit, 'error> =
+        match option with
+        | Some _ -> Error(errorFactory ())
         | None -> Ok()
 
     /// <summary>

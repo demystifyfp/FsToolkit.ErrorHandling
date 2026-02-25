@@ -122,10 +122,20 @@ module JobResult =
         option
         |> Job.map (Result.requireSome error)
 
+    // Converts an job-wrapped Option to a Result, using the given error factory if None.
+    let inline requireSomeWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
+        option
+        |> Job.map (Result.requireSomeWith errorFactory)
+
     // Converts an job-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =
         option
         |> Job.map (Result.requireNone error)
+
+    // Converts an job-wrapped Option to a Result, using the given error factory if Some.
+    let inline requireNoneWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
+        option
+        |> Job.map (Result.requireNoneWith errorFactory)
 
     // Converts an job-wrapped ValueOption to a Result, using the given error if ValueNone.
     let inline requireValueSome error voption =

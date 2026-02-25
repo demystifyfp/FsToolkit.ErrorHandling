@@ -20,12 +20,26 @@ Converts an async-wrapped Option to a Result, using the given error if None.
 ```fsharp
 'a -> Async<'b option> -> Async<Result<'b, 'a>>`
 ```
+### requireSomeWith
+
+Converts an async-wrapped Option to a Result, using the given error factory if None. The error factory is only called when the value is `None`.
+```fsharp
+(unit -> 'a) -> Async<'b option> -> Async<Result<'b, 'a>>
+```
 ### requireNone
 
 Converts an async-wrapped Option to a Result, using the given error if Some.
 
 ```fsharp
 'a -> Async<'b option> -> Async<Result<unit, 'a>>`
+```
+
+### requireNoneWith
+
+Converts an async-wrapped Option to a Result, using the given error factory if Some. The error factory is only called when the value is `Some`.
+
+```fsharp
+(unit -> 'a) -> Async<'b option> -> Async<Result<unit, 'a>>
 ```
 
 ### requireValueSome

@@ -107,10 +107,20 @@ module TaskResult =
         option
         |> Task.map (Result.requireSome error)
 
+    // Converts an task-wrapped Option to a Result, using the given error factory if None.
+    let inline requireSomeWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
+        option
+        |> Task.map (Result.requireSomeWith errorFactory)
+
     // Converts an task-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =
         option
         |> Task.map (Result.requireNone error)
+
+    // Converts an task-wrapped Option to a Result, using the given error factory if Some.
+    let inline requireNoneWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
+        option
+        |> Task.map (Result.requireNoneWith errorFactory)
 
     // Converts an task-wrapped ValueOption to a Result, using the given error if ValueNone.
     let inline requireValueSome error voption =
