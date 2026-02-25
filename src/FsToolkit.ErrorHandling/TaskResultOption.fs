@@ -33,3 +33,42 @@ module TaskResultOption =
     let inline ignore<'ok, 'error> (tro: Task<Result<'ok option, 'error>>) =
         tro
         |> map ignore<'ok>
+
+    /// <summary>
+    /// Transforms a <c>Result&lt;'ok, 'error&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
+    /// </summary>
+    let inline ofResult (result: Result<'ok, 'error>) : Task<Result<'ok option, 'error>> =
+        result
+        |> Result.map Some
+        |> Task.singleton
+
+    /// <summary>
+    /// Transforms a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
+    /// </summary>
+    let inline ofTaskResult
+        (taskResult: Task<Result<'ok, 'error>>)
+        : Task<Result<'ok option, 'error>> =
+        taskResult
+        |> TaskResult.map Some
+
+    /// <summary>
+    /// Transforms a <c>'ok option</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
+    /// </summary>
+    let inline ofOption (option: 'ok option) : Task<Result<'ok option, 'error>> =
+        option
+        |> Ok
+        |> Task.singleton
+
+    /// <summary>
+    /// Transforms a <c>Task&lt;'ok option&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
+    /// </summary>
+    let inline ofTaskOption (taskOption: Task<'ok option>) : Task<Result<'ok option, 'error>> =
+        taskOption
+        |> Task.map Ok
+
+    /// <summary>
+    /// Transforms a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
+    /// </summary>
+    let inline ofTask (task: Task<'ok>) : Task<Result<'ok option, 'error>> =
+        task
+        |> Task.map (Some >> Ok)

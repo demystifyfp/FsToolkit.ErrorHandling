@@ -259,6 +259,121 @@ let ``TaskResultOptionCE inference checks`` =
             |> ignore
     ]
 
+let computationExpressionSourceTests =
+    testList "taskResultOption CE Source Tests" [
+        testCase "Bind Result.Ok"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Result.Ok "Foo"
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind Result.Error"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Result.Error "error"
+                return value
+            }
+            |> Expect.hasTaskErrorValueSync "error"
+
+        testCase "Bind Choice1Of2"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Choice1Of2 "Foo"
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind Choice2Of2"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Choice2Of2 "error"
+                return value
+            }
+            |> Expect.hasTaskErrorValueSync "error"
+
+        testCase "Bind Some"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Some "Foo"
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind None"
+        <| fun _ ->
+            taskResultOption {
+                let! value = (None: string option)
+                return value
+            }
+            |> Expect.hasTaskOkValueSync None
+
+        testCase "Bind TaskResult Ok"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Task.FromResult(Ok "Foo")
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind TaskResult Error"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Task.FromResult(Error "error")
+                return value
+            }
+            |> Expect.hasTaskErrorValueSync "error"
+
+        testCase "Bind TaskOption Some"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Task.FromResult(Some "Foo")
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind TaskOption None"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Task.FromResult(None: string option)
+                return value
+            }
+            |> Expect.hasTaskOkValueSync None
+
+        testCase "Bind Task<'T>"
+        <| fun _ ->
+            taskResultOption {
+                let! value = Task.FromResult "Foo"
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind AsyncResult Ok"
+        <| fun _ ->
+            taskResultOption {
+                let! value = async { return Ok "Foo" }
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+
+        testCase "Bind AsyncResult Error"
+        <| fun _ ->
+            taskResultOption {
+                let! value = async { return Error "error" }
+                return value
+            }
+            |> Expect.hasTaskErrorValueSync "error"
+
+        testCase "Bind Async<'T>"
+        <| fun _ ->
+            taskResultOption {
+                let! value = async { return "Foo" }
+                return value
+            }
+            |> Expect.hasTaskOkValueSync (Some "Foo")
+    ]
+
 let allTests =
     testList "TaskResultOption Tests" [
         mapTests
@@ -268,4 +383,5 @@ let allTests =
         computationExpressionTests
         operatorTests
         ``TaskResultOptionCE inference checks``
+        computationExpressionSourceTests
     ]
