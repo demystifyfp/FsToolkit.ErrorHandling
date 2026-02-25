@@ -41,10 +41,13 @@
     <Compile Include="AsyncOptionOp.fs" />
     <Compile Include="TaskOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValueOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="ValueTaskValueOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="ValueTaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValueOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="ValueTaskValueOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="AsyncResultOption.fs" />
     <Compile Include="AsyncResultOptionCE.fs" />
     <Compile Include="AsyncResultOptionOp.fs" />

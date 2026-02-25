@@ -176,6 +176,15 @@
     * [Other Functions](taskValueOption/others.md)
     * [zip](taskValueOption/zip.md)
 
+  * ValueTaskValueOption
+    * [apply](valueTaskValueOption/apply.md)
+    * [bind](valueTaskValueOption/bind.md)
+    * [Computation Expression](valueTaskValueOption/ce.md)
+    * [either](valueTaskValueOption/either.md)
+    * [map](valueTaskValueOption/map.md)
+    * [Other Functions](valueTaskValueOption/others.md)
+    * [zip](valueTaskValueOption/zip.md)
+
   * TaskResult
     * [apply](taskResult/apply.md)
     * [bind](taskResult/bind.md)
