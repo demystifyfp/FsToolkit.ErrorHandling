@@ -833,7 +833,7 @@ module CancellableTaskValidationCE =
 
                     let! actual =
                         cancellableTaskValidation {
-                            use d = null
+                            use d: IDisposableNull = null
                             return data
                         }
 

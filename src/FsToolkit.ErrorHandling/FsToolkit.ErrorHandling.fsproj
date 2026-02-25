@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net10.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <NoWarn>$(NoWarn);FS1204;FS3511;FS3513;FS0057</NoWarn>
     <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>

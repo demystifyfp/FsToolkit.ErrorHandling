@@ -15,9 +15,9 @@
     </ItemGroup>
 
       <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0'))">
       <ItemGroup>
-      <PackageReference Include="FSharp.Core" VersionOverride="9.0.300" />
+      <PackageReference Include="FSharp.Core" VersionOverride="10.0.100" />
       </ItemGroup>
     </When>
     <Otherwise>

@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
-    <NoWarn>$(NoWarn);FS2003;NU1903;NU1904;FS0057</NoWarn>
+    <NoWarn>$(NoWarn);FS2003;NU1902;NU1903;NU1904;FS0057</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <!-- 
@@ -11,8 +11,8 @@
       Then, we're assuming if you're building for net9.0 you're using F# 9 Language features.
       -->
     <LangVersion>8.0</LangVersion>
-    <LangVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0</LangVersion>
-    <Nullable Condition="'$(TargetFramework)' == 'net9.0'">enable</Nullable>
+    <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0</LangVersion>
+    <Nullable Condition="'$(TargetFramework)' == 'net10.0'">enable</Nullable>
   </PropertyGroup>
 
 

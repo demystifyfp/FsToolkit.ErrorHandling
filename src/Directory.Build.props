@@ -30,9 +30,9 @@
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
   <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0'))">
       <ItemGroup>
-      <PackageReference Include="FSharp.Core" VersionOverride="9.0.300" />
+      <PackageReference Include="FSharp.Core" VersionOverride="10.0.100" />
       </ItemGroup>
     </When>
     <Otherwise>
@@ -41,4 +41,10 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
+  
+  <ItemGroup>
+    <PackageReference Include="Ionide.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="G-Research.FSharp.Analyzers" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>
