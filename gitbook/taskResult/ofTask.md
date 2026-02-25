@@ -24,7 +24,8 @@ let result = TaskResult.ofTask (task { return 42 })
 ### Example 2
 
 ```fsharp
-let result = TaskResult.ofTask (task { return System.Exception("error") })
-// task { return Ok (System.Exception("error")) }
+// Exceptions are NOT caught — they propagate out of the task
+let result = TaskResult.ofTask (task { return failwith "something went wrong" })
+// throws System.Exception("something went wrong")
 ```
 
