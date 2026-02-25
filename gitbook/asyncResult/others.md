@@ -164,3 +164,105 @@ If the async-wrapped result is Error and the predicate returns true for the wrap
 ('a -> bool) -> ('a -> unit) -> Async<Result<'b, 'a>> -> Async<Result<'b, 'a>>
 ```
 
+### defaultError
+
+Extracts the contained error value of an async-wrapped result if `Error`, otherwise uses the provided value.
+
+```fsharp
+'error -> Async<Result<'ok, 'error>> -> Async<'error>
+```
+
+---
+
+## bindRequire Functions
+
+The `bindRequire*` functions combine a `bind` and a `require` check in one step. They bind the inner `Ok` value through a function, then assert a condition on the result, returning `Error` with the given error value if the condition is not met.
+
+### bindRequireSome
+
+Binds the async result and requires the inner `Ok` value to be `Some`, returning `Error` with the given error if it is `None`.
+
+```fsharp
+'error -> Async<Result<'ok option, 'error>> -> Async<Result<'ok, 'error>>
+```
+
+### bindRequireNone
+
+Binds the async result and requires the inner `Ok` value to be `None`, returning `Error` with the given error if it is `Some`.
+
+```fsharp
+'error -> Async<Result<'ok option, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireValueSome
+
+Binds the async result and requires the inner `Ok` value to be `ValueSome`, returning `Error` with the given error if it is `ValueNone`.
+
+```fsharp
+'error -> Async<Result<'ok voption, 'error>> -> Async<Result<'ok, 'error>>
+```
+
+### bindRequireValueNone
+
+Binds the async result and requires the inner `Ok` value to be `ValueNone`, returning `Error` with the given error if it is `ValueSome`.
+
+```fsharp
+'error -> Async<Result<'ok voption, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireTrue
+
+Binds the async result and requires the inner `Ok` value to be `true`, returning `Error` with the given error if it is `false`.
+
+```fsharp
+'error -> Async<Result<bool, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireFalse
+
+Binds the async result and requires the inner `Ok` value to be `false`, returning `Error` with the given error if it is `true`.
+
+```fsharp
+'error -> Async<Result<bool, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireNotNull
+
+Binds the async result and requires the inner `Ok` value to be non-null, returning `Error` with the given error if it is `null`.
+
+```fsharp
+'error -> Async<Result<'ok, 'error>> -> Async<Result<'ok, 'error>>
+```
+
+### bindRequireEqual
+
+Binds the async result and requires the inner `Ok` value to equal the provided value, returning `Error` with the given error if they differ.
+
+```fsharp
+'ok -> 'error -> Async<Result<'ok, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireEmpty
+
+Binds the async result and requires the inner `Ok` sequence to be empty, returning `Error` with the given error if it is not.
+
+```fsharp
+'error -> Async<Result<#seq<'ok>, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireNotEmpty
+
+Binds the async result and requires the inner `Ok` sequence to be non-empty, returning `Error` with the given error if it is empty.
+
+```fsharp
+'error -> Async<Result<#seq<'ok>, 'error>> -> Async<Result<unit, 'error>>
+```
+
+### bindRequireHead
+
+Binds the async result and returns the first element of the inner `Ok` sequence, returning `Error` with the given error if the sequence is empty.
+
+```fsharp
+'error -> Async<Result<#seq<'ok>, 'error>> -> Async<Result<'ok, 'error>>
+```
+

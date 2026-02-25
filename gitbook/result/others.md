@@ -30,6 +30,38 @@ Converts a `Result<Async<'a>, 'b>` to `Async<Result<'a, 'b>>`.
 Result<Async<'a>, 'b> -> Async<Result<'a, 'b>>
 ```
 
+## sequenceTask
+
+Converts a `Result<Task<'a>, 'b>` to `Task<Result<'a, 'b>>`.
+
+### Function Signature
+
+```fsharp
+Result<Task<'a>, 'b> -> Task<Result<'a, 'b>>
+```
+
+### Examples
+
+#### Example 1
+
+```fsharp
+let result : Task<Result<int, string>> =
+    Ok (Task.FromResult 1)
+    |> Result.sequenceTask
+    
+// Task { Ok 1 }
+```
+
+#### Example 2
+
+```fsharp
+let result : Task<Result<int, string>> =
+    Error "Something went wrong"
+    |> Result.sequenceTask
+    
+// Task { Error "Something went wrong" }
+```
+
 ## traverseAsync
 
 Converts a `Result<'a, 'error>` to `Async<Result<'b, 'error>>` by applying the given function to the Ok value.
