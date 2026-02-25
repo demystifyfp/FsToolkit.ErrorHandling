@@ -301,6 +301,22 @@
       * [ofChoice](cancellableTaskValidation/ofChoice.md)
       * [ofResult](cancellableTaskValidation/ofResult.md)
 
+  * CancellableValueTaskOption
+    * [apply](cancellableValueTaskOption/apply.md)
+    * [bind](cancellableValueTaskOption/bind.md)
+    * [Computation Expression](cancellableValueTaskOption/ce.md)
+    * [either](cancellableValueTaskOption/either.md)
+    * [map](cancellableValueTaskOption/map.md)
+    * [Other Functions](cancellableValueTaskOption/others.md)
+    * [zip](cancellableValueTaskOption/zip.md)
+
+  * [CancellableValueTaskResult](cancellableValueTaskResult/index.md)
+    * [apply](cancellableValueTaskResult/apply.md)
+    * [bind](cancellableValueTaskResult/bind.md)
+    * [Computation Expression](cancellableValueTaskResult/ce.md)
+    * [map](cancellableValueTaskResult/map.md)
+    * [zip](cancellableValueTaskResult/zip.md)
+
 * FsToolkit.ErrorHandling.JobResult
   * Job
     * [apply](pr.md)

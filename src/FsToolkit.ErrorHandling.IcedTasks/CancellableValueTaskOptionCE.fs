@@ -1040,6 +1040,7 @@ module CancellableValueTaskOptionCE =
 
         type Microsoft.FSharp.Control.Async with
 
+            /// <summary>Returns an asynchronous computation that will wait for the given <see cref="CancellableValueTaskOption{T}"/>.</summary>
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
@@ -1052,6 +1053,9 @@ module CancellableValueTaskOptionCE =
                         |> Async.AwaitTask
                 }
 
+            /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
+            /// <param name="computation">The async computation to convert.</param>
+            /// <returns>A <see cref="CancellableValueTaskOption{T}"/> that wraps the result in Some.</returns>
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
@@ -1061,6 +1065,7 @@ module CancellableValueTaskOptionCE =
 
         type AsyncEx with
 
+            /// <summary>Returns an asynchronous computation that will wait for the given <see cref="CancellableValueTaskOption{T}"/>.</summary>
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
@@ -1073,6 +1078,9 @@ module CancellableValueTaskOptionCE =
                         |> Async.AwaitTask
                 }
 
+            /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
+            /// <param name="computation">The async computation to convert.</param>
+            /// <returns>A <see cref="CancellableValueTaskOption{T}"/> that wraps the result in Some.</returns>
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
@@ -1082,6 +1090,7 @@ module CancellableValueTaskOptionCE =
 
         type AsyncOptionBuilder with
 
+            /// <summary>Allows binding a <see cref="CancellableValueTaskOption{T}"/> in an asyncOption computation expression.</summary>
             member inline this.Source
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 : Async<_> =
@@ -1470,8 +1479,7 @@ module CancellableValueTaskOption =
     /// <summary>Lifts an item to a CancellableValueTaskOption.</summary>
     /// <param name="x">The item to be the result of the CancellableValueTaskOption.</param>
     /// <returns>A CancellableValueTaskOption with the item as the result.</returns>
-    let inline some x =
-        cancellableValueTaskOption { return Some x }
+    let inline some x = cancellableValueTask { return Some x }
 
 
     /// <summary>Allows chaining of CancellableValueTaskOptions.</summary>
