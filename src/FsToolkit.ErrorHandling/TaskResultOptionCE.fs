@@ -250,3 +250,94 @@ module TaskResultOptionCE =
                 TaskResultOptionBuilder.RunDynamic(code)
 
     let taskResultOption = TaskResultOptionBuilder()
+
+[<AutoOpen>]
+module TaskResultOptionCEExtensionsLowPriority =
+    // Low priority extensions - generic catch-alls
+    type TaskResultOptionBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(task: Task<'ok>) : TaskResultOption<'ok, 'error> =
+            TaskResultOption.ofTask task
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(computation: Async<'ok>) : TaskResultOption<'ok, 'error> =
+            computation
+            |> Async.StartImmediateAsTask
+            |> TaskResultOption.ofTask
+
+[<AutoOpen>]
+module TaskResultOptionCEExtensions =
+    // Medium-low priority extensions
+    type TaskResultOptionBuilder with
+
+        /// <summary>
+        /// Needed to allow `for..in` and `for..do` functionality
+        /// </summary>
+        member inline _.Source(s: #seq<'value>) : #seq<'value> = s
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(result: Result<'ok, 'error>) : TaskResultOption<'ok, 'error> =
+            TaskResultOption.ofResult result
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline this.Source(result: Choice<'ok, 'error>) : TaskResultOption<'ok, 'error> =
+            this.Source(Result.ofChoice result)
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(option: 'ok option) : TaskResultOption<'ok, 'error> =
+            TaskResultOption.ofOption option
+
+[<AutoOpen>]
+module TaskResultOptionCEExtensionsMediumPriority =
+    // Medium priority extensions - more specific than generic Task/Async
+    type TaskResultOptionBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source
+            (asyncResult: Async<Result<'ok, 'error>>)
+            : TaskResultOption<'ok, 'error> =
+            asyncResult
+            |> Async.StartImmediateAsTask
+            |> TaskResultOption.ofTaskResult
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source(taskOption: Task<'ok option>) : TaskResultOption<'ok, 'error> =
+            TaskResultOption.ofTaskOption taskOption
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.
+        /// </summary>
+        member inline _.Source
+            (taskResult: Task<Result<'ok, 'error>>)
+            : TaskResultOption<'ok, 'error> =
+            TaskResultOption.ofTaskResult taskResult
+
+[<AutoOpen>]
+module TaskResultOptionCEExtensionsHighPriority =
+    // High priority extensions - identity for the self type
+    type TaskResultOptionBuilder with
+
+        /// <summary>
+        /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
+        ///
+        /// See https://stackoverflow.com/questions/35286541/why-would-you-use-builder-source-in-a-custom-computation-expression-builder
+        /// </summary>
+        member inline _.Source
+            (result: TaskResultOption<'ok, 'error>)
+            : TaskResultOption<'ok, 'error> =
+            result
