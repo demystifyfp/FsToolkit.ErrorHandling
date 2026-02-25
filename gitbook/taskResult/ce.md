@@ -33,3 +33,27 @@ let login (username: string) (password: string) : Task<Result<AuthToken, LoginEr
     return! user |> createAuthToken |> Result.mapError TokenErr
   }
 ```
+
+### Example 2 - IAsyncEnumerable
+
+The `taskResult` CE supports `for .. in ..` iteration over `IAsyncEnumerable<'T>` sequences. Iteration stops immediately when the body returns an `Error`, without consuming further elements.
+
+```fsharp
+validate : Item -> Task<Result<ValidItem, string>>
+save : ValidItem -> Task<Result<unit, string>>
+getItemsAsync : unit -> IAsyncEnumerable<Item>
+```
+
+```fsharp
+// Task<Result<string, string>>
+let processItems () =
+  taskResult {
+    for item in getItemsAsync () do
+      let! validated = validate item
+      do! save validated
+    return "done"
+  }
+// Stops iteration immediately on the first Error
+```
+
+The `backgroundTaskResult` CE inherits this support automatically.

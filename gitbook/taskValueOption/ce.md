@@ -24,3 +24,25 @@ let addResult = taskValueOption {
   do! updatePerson person
 }
 ```
+
+### Example 2 - IAsyncEnumerable
+
+The `taskValueOption` CE supports `for .. in ..` iteration over `IAsyncEnumerable<'T>` sequences. Iteration stops immediately when the body returns `ValueNone`, without consuming further elements.
+
+```fsharp
+tryProcessItem : Item -> Task<unit voption>
+getItemsAsync : unit -> IAsyncEnumerable<Item>
+```
+
+```fsharp
+// Task<string voption>
+let processItems () =
+  taskValueOption {
+    for item in getItemsAsync () do
+      do! tryProcessItem item
+    return "done"
+  }
+// Returns ValueNone and stops iteration on the first ValueNone result
+```
+
+The `backgroundTaskValueOption` CE inherits this support automatically.
