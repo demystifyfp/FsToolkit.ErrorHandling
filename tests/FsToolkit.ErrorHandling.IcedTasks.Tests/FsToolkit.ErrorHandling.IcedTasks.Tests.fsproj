@@ -12,6 +12,9 @@
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
         <Compile Include="CancellableTaskValidationCE.fs" />
+        <Compile Include="CancellableTaskOptionCE.fs" />
+        <Compile Include="CancellableValueTaskResultCE.fs" />
+        <Compile Include="CancellableValueTaskOptionCE.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
     <ItemGroup>
