@@ -260,7 +260,7 @@ module TaskResult =
     ///     TaskResult.ofCatchTask (task { return 42 })
     ///     // Returns: task { return Ok 42 }
     ///
-    ///     TaskResult.ofCatchTask (task { return failwith "something went wrong" })
+    ///     TaskResult.ofCatchTask (task { failwith "something went wrong" })
     ///     // Returns: task { return Error (System.Exception("something went wrong")) }
     /// </code>
     /// </example>

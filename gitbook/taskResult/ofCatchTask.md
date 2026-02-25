@@ -24,6 +24,6 @@ let result = TaskResult.ofCatchTask (task { return 42 })
 ### Example 2
 
 ```fsharp
-let result = TaskResult.ofCatchTask (task { return failwith "something went wrong" })
+let result = TaskResult.ofCatchTask (task { failwith "something went wrong" })
 // task { return Error (System.Exception("something went wrong")) }
 ```

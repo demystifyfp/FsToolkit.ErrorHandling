@@ -25,6 +25,6 @@ let result = TaskResult.ofTask (task { return 42 })
 
 ```fsharp
 let result = TaskResult.ofTask (task { return System.Exception("error") })
-// task { return Error (System.Exception("error")) }
+// task { return Ok (System.Exception("error")) }
 ```
 
