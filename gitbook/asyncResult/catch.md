@@ -18,7 +18,7 @@ Catching any exception and converting it to a string error:
 
 ```fsharp
 let result : Async<Result<int, string>> =
-  async { return! failwith "something went wrong" }
+  async { return failwith "something went wrong" }
   |> Async.map Ok
   |> AsyncResult.catch (fun ex -> ex.Message)
 // evaluates to Error "something went wrong"
