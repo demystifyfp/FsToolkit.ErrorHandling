@@ -499,6 +499,60 @@ let ``BackgroundTaskResultCE loop Tests`` =
                 Expect.equal loopCount 2 "Should only loop twice"
                 Expect.equal actual expected "Should be an error"
             }
+        testCaseTask "IAsyncEnumerable for in"
+        <| fun () ->
+            backgroundTask {
+                let data = 42
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        1
+                        2
+                        3
+                    ]
+
+                let! actual =
+                    backgroundTaskResult {
+                        for _i in asyncSeq do
+                            ()
+
+                        return data
+                    }
+
+                Expect.equal actual (Result.Ok data) "Should be ok"
+            }
+        testCaseTask "IAsyncEnumerable for in fail"
+        <| fun () ->
+            backgroundTask {
+                let mutable loopCount = 0
+                let expected = Error "error"
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        Ok "42"
+                        Ok "1024"
+                        expected
+                        Ok "1M"
+                        Ok "1M"
+                    ]
+
+                let! actual =
+                    backgroundTaskResult {
+                        for i in asyncSeq do
+                            let! x = i
+
+                            loopCount <-
+                                loopCount
+                                + 1
+
+                            ()
+
+                        return "ok"
+                    }
+
+                Expect.equal loopCount 2 "Should only loop twice"
+                Expect.equal actual expected "Should be an error"
+            }
     ]
 
 let ``BackgroundTaskResultCE applicative tests`` =

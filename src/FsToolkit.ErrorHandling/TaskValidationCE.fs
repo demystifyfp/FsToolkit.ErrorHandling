@@ -10,6 +10,7 @@ open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
 open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
+open System.Collections.Generic
 
 [<Struct; NoComparison; NoEquality>]
 type TaskValidationStateMachineData<'T, 'Error> =
@@ -197,6 +198,78 @@ type TaskValidationBuilderBase() =
             )
         )
 
+
+    member inline internal this.WhileAsync
+        (
+            [<InlineIfLambda>] condition: unit -> ValueTask<bool>,
+            body: TaskValidationCode<'TOverall, 'Error, unit>
+        ) : TaskValidationCode<'TOverall, 'Error, unit> =
+        let mutable condition_res = true
+
+        this.While(
+            (fun () -> condition_res),
+            TaskValidationCode<_, _, _>(fun sm ->
+                if __useResumableCode then
+                    let mutable __stack_condition_fin = true
+                    let __stack_vtask = condition ()
+                    let mutable awaiter = __stack_vtask.GetAwaiter()
+
+                    if not awaiter.IsCompleted then
+                        let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                        __stack_condition_fin <- __stack_yield_fin
+
+                        if not __stack_condition_fin then
+                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+
+                    if __stack_condition_fin then
+                        condition_res <- awaiter.GetResult()
+
+                        if condition_res then body.Invoke(&sm) else true
+                    else
+                        false
+                else
+                    let vtask = condition ()
+                    let mutable awaiter = vtask.GetAwaiter()
+
+                    let cont =
+                        TaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
+                            condition_res <- awaiter.GetResult()
+
+                            if condition_res then body.Invoke(&sm) else true
+                        )
+
+                    if awaiter.IsCompleted then
+                        cont.Invoke(&sm)
+                    else
+                        sm.ResumptionDynamicInfo.ResumptionData <-
+                            (awaiter :> ICriticalNotifyCompletion)
+
+                        sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                        false
+            )
+        )
+
+    /// <summary>Iterates over an IAsyncEnumerable sequence, running the body for each element.</summary>
+    /// <remarks>
+    /// The existence of this method permits the use of <c>for .. in ..</c> with <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/>
+    /// in the <c>taskValidation { ... }</c> computation expression syntax.
+    /// If the body returns an Error, the iteration stops early.
+    /// </remarks>
+    /// <param name="source">The async sequence to enumerate.</param>
+    /// <param name="body">A function to take an item from the sequence and create a TaskValidation.</param>
+    /// <returns>A TaskValidation that iterates the sequence and runs the body for each element.</returns>
+    member inline this.For
+        (source: #IAsyncEnumerable<'T>, body: 'T -> TaskValidationCode<'TOverall, 'Error, unit>)
+        : TaskValidationCode<'TOverall, 'Error, unit> =
+        this.Using(
+            source.GetAsyncEnumerator(CancellationToken.None),
+            (fun (e: IAsyncEnumerator<'T>) ->
+                this.WhileAsync(
+                    (fun () -> e.MoveNextAsync()),
+                    TaskValidationCode<_, _, _>(fun sm -> (body e.Current).Invoke(&sm))
+                )
+            )
+        )
 
     member inline this.Source
         (taskValidation: TaskValidation<'T, 'Error>)
@@ -538,6 +611,13 @@ module TaskValidationCEExtensionsHighPriority =
             TaskValidation.zip t1 t2
 
         member inline _.Source(s: #seq<_>) = s
+
+[<AutoOpen>]
+module TaskValidationCEExtensionsHighPriorityAsyncEnumerable =
+
+    type TaskValidationBuilderBase with
+
+        member inline _.Source(source: #IAsyncEnumerable<_>) = source
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsMediumPriority =

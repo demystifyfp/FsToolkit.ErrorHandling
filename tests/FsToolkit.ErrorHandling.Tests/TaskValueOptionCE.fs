@@ -546,6 +546,60 @@ let ceTests =
                 Expect.equal actual expected "Should be an error"
                 Expect.isFalse wasCalled "No additional side effects should occur"
             }
+        testCaseTask "IAsyncEnumerable for in"
+        <| fun () ->
+            task {
+                let data = 42
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        1
+                        2
+                        3
+                    ]
+
+                let! actual =
+                    taskValueOption {
+                        for _i in asyncSeq do
+                            ()
+
+                        return data
+                    }
+
+                Expect.equal actual (ValueSome data) "Should be ok"
+            }
+        testCaseTask "IAsyncEnumerable for in fail"
+        <| fun () ->
+            task {
+                let mutable loopCount = 0
+                let expected = ValueNone
+
+                let asyncSeq =
+                    TestHelpers.toAsyncEnumerable [
+                        ValueSome "42"
+                        ValueSome "1024"
+                        expected
+                        ValueSome "1M"
+                        ValueSome "1M"
+                    ]
+
+                let! actual =
+                    taskValueOption {
+                        for i in asyncSeq do
+                            let! x = i
+
+                            loopCount <-
+                                loopCount
+                                + 1
+
+                            ()
+
+                        return "ok"
+                    }
+
+                Expect.equal loopCount 2 "Should only loop twice"
+                Expect.equal actual expected "Should be ValueNone"
+            }
         testCaseTask "Empty result"
         <| fun () ->
             task {
