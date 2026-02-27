@@ -1,4 +1,4 @@
-### 5.2.0-beta001 - February 27, 2026
+### 5.2.0 - February 27, 2026
 
 - [Add IAsyncEnumerable support to task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/347) Credits @Copilot
 - [Add `valueTaskValueOption` CE for `ValueTask<'T voption>` computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/348) Credits @Copilot
