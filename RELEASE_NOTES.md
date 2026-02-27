@@ -1,3 +1,13 @@
+### 5.2.0-beta001 - February 27, 2026
+
+- [Add IAsyncEnumerable support to task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/347) Credits @Copilot
+- [Add `valueTaskValueOption` CE for `ValueTask<'T voption>` computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/348) Credits @Copilot
+- [Add `cancellableValueTaskOption` and `cancellableValueTaskResult` CEs for IcedTasks](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/349) Credits @Copilot
+- [Add `Source` overloads to `taskResultOption` CE for interop with `Result`, `TaskResult`, `Option`, `Task`, and `Async`](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/351) Credits @Copilot
+- [Add `requireSomeWith` and `requireNoneWith` for lazy error evaluation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/352) Credits @Copilot
+- [Add `TaskResult.ofCatchTask`](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/353) Credits @Copilot
+- [Add comprehensive gitbook documentation for all public API surface](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/354) Credits @Copilot
+
 ### 5.1.0 - September 26, 2025
 
 - [Adds getOrReraise and tests](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/342) Credits @njlr
