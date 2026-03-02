@@ -23,7 +23,11 @@ module Task =
         }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+        task {
+            let! f' = f
+            let! x' = x
+            return f' x'
+        }
 
     let inline map ([<InlineIfLambda>] f) x =
         task {
@@ -31,12 +35,11 @@ module Task =
             return f v
         }
 
-    let inline mapV ([<InlineIfLambda>] f) x =
-        x
-        |> bindV (
-            f
-            >> singleton
-        )
+    let inline mapV ([<InlineIfLambda>] f: 'a -> 'b) (x: ValueTask<'a>) =
+        task {
+            let! v = x
+            return f v
+        }
 
     let inline map2 ([<InlineIfLambda>] f) x y = (apply (apply (singleton f) x) y)
 
