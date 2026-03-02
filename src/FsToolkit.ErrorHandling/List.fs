@@ -218,23 +218,32 @@ module List =
     open System.Threading.Tasks
 
     let private traverseTaskResultM' (f: 'c -> Task<Result<'a, 'b>>) (xs: 'c list) =
-        let oks = ResizeArray()
-        let mutable err = Unchecked.defaultof<'b>
-        let mutable ok = true
-        let mutable current = xs
+        let mutable state = Ok []
+        let mutable index = 0
+
+        let xs =
+            xs
+            |> List.toArray
 
         task {
-            while ok
-                  && not current.IsEmpty do
-                match! f current.Head with
-                | Ok r ->
-                    oks.Add r
-                    current <- current.Tail
-                | Error e ->
-                    err <- e
-                    ok <- false
+            while state
+                  |> Result.isOk
+                  && index < xs.Length do
+                let! r =
+                    xs
+                    |> Array.item index
+                    |> f
 
-            return if ok then Ok(List.ofSeq oks) else Error err
+                index <- index + 1
+
+                match (r, state) with
+                | Ok y, Ok ys -> state <- Ok(y :: ys)
+                | Error e, _ -> state <- Error e
+                | _, _ -> ()
+
+            return
+                state
+                |> Result.map List.rev
         }
 
     let traverseTaskResultM f xs = traverseTaskResultM' f xs
@@ -242,21 +251,21 @@ module List =
     let sequenceTaskResultM xs = traverseTaskResultM id xs
 
     let private traverseTaskResultA' (f: 'c -> Task<Result<'a, 'b>>) (xs: 'c list) =
-        let oks = ResizeArray()
-        let errs = ResizeArray()
+        let mutable state = Ok []
 
         task {
             for x in xs do
-                match! f x with
-                | Ok r when errs.Count = 0 -> oks.Add r
-                | Ok _ -> ()
-                | Error e -> errs.Add e
+                let! r = f x
+
+                match (r, state) with
+                | Ok y, Ok ys -> state <- Ok(y :: ys)
+                | Error e, Error errs -> state <- Error(e :: errs)
+                | Ok _, Error e -> state <- Error e
+                | Error e, Ok _ -> state <- Error [ e ]
 
             return
-                if errs.Count = 0 then
-                    Ok(List.ofSeq oks)
-                else
-                    Error(List.ofSeq errs)
+                state
+                |> Result.eitherMap List.rev List.rev
         }
 
     let traverseTaskResultA f xs = traverseTaskResultA' f xs
