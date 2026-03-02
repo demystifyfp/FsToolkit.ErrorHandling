@@ -71,7 +71,7 @@ module AsyncResultOptionCE =
             this.TryFinallyAsync(
                 binder resource,
                 (fun () ->
-                    if not (isNull (box resource)) then
+                    if not (obj.ReferenceEquals(resource, null)) then
                         resource.DisposeAsync()
                     else
                         ValueTask()

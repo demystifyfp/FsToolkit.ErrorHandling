@@ -191,7 +191,7 @@ type TaskValidationBuilderBase() =
         this.TryFinallyAsync(
             (fun sm -> (body resource).Invoke(&sm)),
             (fun () ->
-                if not (isNull (box resource)) then
+                if not (obj.ReferenceEquals(resource, null)) then
                     resource.DisposeAsync()
                 else
                     ValueTask()
