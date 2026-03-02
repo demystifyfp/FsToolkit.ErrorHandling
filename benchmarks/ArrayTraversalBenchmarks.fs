@@ -10,16 +10,20 @@ module private OldArray =
 
     let rec traverseResultM' (state: Result<'ok array, 'error>) (f: 'a -> Result<'ok, 'error>) xs =
         match xs with
-        | [||] -> state |> Result.map Array.rev
+        | [||] ->
+            state
+            |> Result.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
+
             let res =
                 result {
                     let! y = f x
                     let! ys = state
                     return Array.append [| y |] ys
                 }
+
             match res with
             | Ok _ -> traverseResultM' res f xs
             | Error _ -> res
@@ -29,10 +33,13 @@ module private OldArray =
 
     let rec traverseResultA' state f xs =
         match xs with
-        | [||] -> state |> Result.eitherMap Array.rev Array.rev
+        | [||] ->
+            state
+            |> Result.eitherMap Array.rev Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
+
             match state, f x with
             | Ok ys, Ok y -> traverseResultA' (Ok(Array.append [| y |] ys)) f xs
             | Error errs, Error e -> traverseResultA' (Error(Array.append [| e |] errs)) f xs
@@ -44,11 +51,14 @@ module private OldArray =
 
     let rec traverseValidationA' state f xs =
         match xs with
-        | [||] -> state |> Result.eitherMap Array.rev Array.rev
+        | [||] ->
+            state
+            |> Result.eitherMap Array.rev Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
             let fR = f x
+
             match state, fR with
             | Ok ys, Ok y -> traverseValidationA' (Ok(Array.append [| y |] ys)) f xs
             | Error errs1, Error errs2 ->
@@ -62,16 +72,20 @@ module private OldArray =
 
     let rec traverseOptionM' (state: 'ok array option) (f: 'a -> 'ok option) xs =
         match xs with
-        | [||] -> state |> Option.map Array.rev
+        | [||] ->
+            state
+            |> Option.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
+
             let r =
                 option {
                     let! y = f x
                     let! ys = state
                     return Array.append [| y |] ys
                 }
+
             match r with
             | Some _ -> traverseOptionM' r f xs
             | None -> r
@@ -85,10 +99,13 @@ module private OldArray =
         xs
         =
         match xs with
-        | [||] -> state |> AsyncResult.map Array.rev
+        | [||] ->
+            state
+            |> AsyncResult.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
+
             async {
                 let! r =
                     asyncResult {
@@ -96,12 +113,15 @@ module private OldArray =
                         let! y = f x
                         return Array.append [| y |] ys
                     }
+
                 match r with
                 | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
                 | Error _ -> return r
             }
 
-    let traverseAsyncResultM f xs = traverseAsyncResultM' (AsyncResult.ok [||]) f xs
+    let traverseAsyncResultM f xs =
+        traverseAsyncResultM' (AsyncResult.ok [||]) f xs
+
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
 // ─── Benchmark classes ────────────────────────────────────────────────────────

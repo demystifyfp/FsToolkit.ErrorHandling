@@ -12,17 +12,22 @@ module private OldWhile =
         member _.Return(x: 'T) : Async<'T option> = async.Return(Some x)
         member _.ReturnFrom(x: Async<'T option>) : Async<'T option> = x
         member _.Zero() : Async<unit option> = async.Return(Some())
+
         member _.Bind(x: Async<'T option>, f: 'T -> Async<'U option>) : Async<'U option> =
             async {
                 let! r = x
+
                 match r with
                 | Some v -> return! f v
                 | None -> return None
             }
+
         member _.Delay(f: unit -> Async<'T option>) : Async<'T option> = async.Delay(f)
 
         // OLD: Creates a new Bind wrapper per iteration — allocates per loop step
-        member this.While(guard: unit -> bool, computation: Async<unit option>) : Async<unit option> =
+        member this.While
+            (guard: unit -> bool, computation: Async<unit option>)
+            : Async<unit option> =
             if not (guard ()) then
                 this.Zero()
             else
@@ -38,13 +43,16 @@ module private NewWhile =
         member _.Return(x: 'T) : Async<'T option> = async.Return(Some x)
         member _.ReturnFrom(x: Async<'T option>) : Async<'T option> = x
         member _.Zero() : Async<unit option> = async.Return(Some())
+
         member _.Bind(x: Async<'T option>, f: 'T -> Async<'U option>) : Async<'U option> =
             async {
                 let! r = x
+
                 match r with
                 | Some v -> return! f v
                 | None -> return None
             }
+
         member _.Delay(f: unit -> Async<'T option>) : Async<'T option> = async.Delay(f)
 
         // NEW: Iterative loop — single async workflow, no per-iteration allocation
@@ -53,7 +61,8 @@ module private NewWhile =
                 let mutable keepGoing = guard ()
                 let mutable result: unit option = Some()
 
-                while keepGoing && result.IsSome do
+                while keepGoing
+                      && result.IsSome do
                     let! r = computation
                     result <- r
 
@@ -77,6 +86,7 @@ type AsyncOptionWhile_Benchmarks() =
     [<Benchmark(Baseline = true)>]
     member this.Old_RecursiveWhile() =
         let mutable i = 0
+
         OldWhile.asyncOptionOld {
             while i < this.N do
                 i <- i + 1
@@ -86,6 +96,7 @@ type AsyncOptionWhile_Benchmarks() =
     [<Benchmark>]
     member this.New_IterativeWhile() =
         let mutable i = 0
+
         NewWhile.asyncOptionNew {
             while i < this.N do
                 i <- i + 1
@@ -106,6 +117,7 @@ type AsyncCE_While_Comparison_Benchmarks() =
     [<Benchmark(Baseline = true)>]
     member this.AsyncOption_CurrentImpl() =
         let mutable i = 0
+
         asyncOption {
             while i < this.N do
                 i <- i + 1
@@ -118,6 +130,7 @@ type AsyncCE_While_Comparison_Benchmarks() =
     [<Benchmark>]
     member this.AsyncResult_MutableRefImpl() =
         let mutable i = 0
+
         asyncResult {
             while i < this.N do
                 i <- i + 1

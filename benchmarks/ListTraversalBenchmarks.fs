@@ -10,7 +10,9 @@ module private OldList =
 
     let rec traverseResultM' (state: Result<'ok list, 'error>) (f: 'a -> Result<'ok, 'error>) xs =
         match xs with
-        | [] -> state |> Result.map List.rev
+        | [] ->
+            state
+            |> Result.map List.rev
         | x :: xs ->
             let r =
                 result {
@@ -18,6 +20,7 @@ module private OldList =
                     let! ys = state
                     return y :: ys
                 }
+
             match r with
             | Ok _ -> traverseResultM' r f xs
             | Error _ -> r
@@ -27,7 +30,9 @@ module private OldList =
 
     let rec traverseResultA' state f xs =
         match xs with
-        | [] -> state |> Result.eitherMap List.rev List.rev
+        | [] ->
+            state
+            |> Result.eitherMap List.rev List.rev
         | x :: xs ->
             match state, f x with
             | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
@@ -40,9 +45,12 @@ module private OldList =
 
     let rec traverseValidationA' state f xs =
         match xs with
-        | [] -> state |> Result.eitherMap List.rev List.rev
+        | [] ->
+            state
+            |> Result.eitherMap List.rev List.rev
         | x :: xs ->
             let fR = f x
+
             match state, fR with
             | Ok ys, Ok y -> traverseValidationA' (Ok(y :: ys)) f xs
             | Error errs1, Error errs2 ->
@@ -61,7 +69,9 @@ module private OldList =
 
     let rec traverseOptionM' (state: 'ok list option) (f: 'a -> 'ok option) xs =
         match xs with
-        | [] -> state |> Option.map List.rev
+        | [] ->
+            state
+            |> Option.map List.rev
         | x :: xs ->
             let r =
                 option {
@@ -69,6 +79,7 @@ module private OldList =
                     let! ys = state
                     return y :: ys
                 }
+
             match r with
             | Some _ -> traverseOptionM' r f xs
             | None -> r
@@ -82,7 +93,9 @@ module private OldList =
         xs
         =
         match xs with
-        | [] -> state |> AsyncResult.map List.rev
+        | [] ->
+            state
+            |> AsyncResult.map List.rev
         | x :: xs ->
             async {
                 let! r =
@@ -91,21 +104,27 @@ module private OldList =
                         let! y = f x
                         return y :: ys
                     }
+
                 match r with
                 | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
                 | Error _ -> return r
             }
 
-    let traverseAsyncResultM f xs = traverseAsyncResultM' (AsyncResult.ok []) f xs
+    let traverseAsyncResultM f xs =
+        traverseAsyncResultM' (AsyncResult.ok []) f xs
+
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
     let rec traverseAsyncResultA' state f xs =
         match xs with
-        | [] -> state |> AsyncResult.eitherMap List.rev List.rev
+        | [] ->
+            state
+            |> AsyncResult.eitherMap List.rev List.rev
         | x :: xs ->
             async {
                 let! s = state
                 let! fR = f x
+
                 match s, fR with
                 | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.ok (y :: ys)) f xs
                 | Error errs, Error e ->
@@ -114,7 +133,9 @@ module private OldList =
                 | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
             }
 
-    let traverseAsyncResultA f xs = traverseAsyncResultA' (AsyncResult.ok []) f xs
+    let traverseAsyncResultA f xs =
+        traverseAsyncResultA' (AsyncResult.ok []) f xs
+
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
 // ─── Benchmark classes ────────────────────────────────────────────────────────

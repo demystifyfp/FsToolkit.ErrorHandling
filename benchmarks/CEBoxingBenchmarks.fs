@@ -27,11 +27,9 @@ module private OldNullCheck =
 // For value types: no boxing — F# compiler handles without heap allocation
 // For reference types: same semantics, same speed
 module private NewNullCheck =
-    let inline checkStruct (resource: StructAsyncDisposable) =
-        obj.ReferenceEquals(resource, null)
+    let inline checkStruct (resource: StructAsyncDisposable) = obj.ReferenceEquals(resource, null)
 
-    let inline checkClass (resource: ClassAsyncDisposable) =
-        obj.ReferenceEquals(resource, null)
+    let inline checkClass (resource: ClassAsyncDisposable) = obj.ReferenceEquals(resource, null)
 
 // ─── Benchmark: Struct resource (value type) ─────────────────────────────────
 // This is where the fix matters most: struct boxing → heap allocation per call
@@ -72,14 +70,18 @@ type BoxingNullCheck_Repeated_Benchmarks() =
     member this.Old_IsNullBox_Struct() =
         let resource = StructAsyncDisposable(42)
         let mutable result = false
+
         for _ in 1 .. this.N do
             result <- OldNullCheck.checkStruct resource
+
         result
 
     [<Benchmark>]
     member this.New_ReferenceEquals_Struct() =
         let resource = StructAsyncDisposable(42)
         let mutable result = false
+
         for _ in 1 .. this.N do
             result <- NewNullCheck.checkStruct resource
+
         result
