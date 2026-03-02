@@ -147,11 +147,11 @@ type ListResultM_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseResultM() =
-        OldList.traverseResultM (fun x -> Ok(x * 2)) (List.init this.N id)
+        OldList.traverseResultM (fun x -> (Ok(x * 2): Result<int, string>)) (List.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseResultM() =
-        List.traverseResultM (fun x -> Ok(x * 2)) (List.init this.N id)
+        List.traverseResultM (fun x -> (Ok(x * 2): Result<int, string>)) (List.init this.N id)
 
 [<MemoryDiagnoser>]
 type ListResultA_Benchmarks() =
@@ -160,11 +160,11 @@ type ListResultA_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseResultA() =
-        OldList.traverseResultA (fun x -> Ok(x * 2)) (List.init this.N id)
+        OldList.traverseResultA (fun x -> (Ok(x * 2): Result<int, string>)) (List.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseResultA() =
-        List.traverseResultA (fun x -> Ok(x * 2)) (List.init this.N id)
+        List.traverseResultA (fun x -> (Ok(x * 2): Result<int, string>)) (List.init this.N id)
 
 [<MemoryDiagnoser>]
 type ListValidationA_Benchmarks() =
@@ -173,11 +173,15 @@ type ListValidationA_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseValidationA() =
-        OldList.traverseValidationA (fun x -> Ok(x * 2)) (List.init this.N id)
+        OldList.traverseValidationA
+            (fun x -> (Ok(x * 2): Result<int, string list>))
+            (List.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseValidationA() =
-        List.traverseValidationA (fun x -> Ok(x * 2)) (List.init this.N id)
+        List.traverseValidationA
+            (fun x -> (Ok(x * 2): Result<int, string list>))
+            (List.init this.N id)
 
 [<MemoryDiagnoser>]
 type ListOptionM_Benchmarks() =
@@ -199,12 +203,16 @@ type ListAsyncResultM_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseAsyncResultM() =
-        OldList.traverseAsyncResultM (fun x -> AsyncResult.ok (x * 2)) (List.init this.N id)
+        OldList.traverseAsyncResultM
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (List.init this.N id)
         |> Async.StartImmediateAsTask
 
     [<Benchmark>]
     member this.New_TraverseAsyncResultM() =
-        List.traverseAsyncResultM (fun x -> AsyncResult.ok (x * 2)) (List.init this.N id)
+        List.traverseAsyncResultM
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (List.init this.N id)
         |> Async.StartImmediateAsTask
 
 [<MemoryDiagnoser>]
@@ -214,10 +222,14 @@ type ListAsyncResultA_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseAsyncResultA() =
-        OldList.traverseAsyncResultA (fun x -> AsyncResult.ok (x * 2)) (List.init this.N id)
+        OldList.traverseAsyncResultA
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (List.init this.N id)
         |> Async.StartImmediateAsTask
 
     [<Benchmark>]
     member this.New_TraverseAsyncResultA() =
-        List.traverseAsyncResultA (fun x -> AsyncResult.ok (x * 2)) (List.init this.N id)
+        List.traverseAsyncResultA
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (List.init this.N id)
         |> Async.StartImmediateAsTask

@@ -115,7 +115,7 @@ type AsyncCE_While_Comparison_Benchmarks() =
 
     // Current asyncOption.While = recursive (allocates per iteration)
     [<Benchmark(Baseline = true)>]
-    member this.AsyncOption_CurrentImpl() =
+    member this.AsyncOption_CurrentImpl() : System.Threading.Tasks.Task<int option> =
         let mutable i = 0
 
         asyncOption {
@@ -128,13 +128,14 @@ type AsyncCE_While_Comparison_Benchmarks() =
 
     // asyncResult.While already uses mutable-ref approach (better)
     [<Benchmark>]
-    member this.AsyncResult_MutableRefImpl() =
+    member this.AsyncResult_MutableRefImpl() : System.Threading.Tasks.Task<Result<int, string>> =
         let mutable i = 0
 
-        asyncResult {
+        (asyncResult {
             while i < this.N do
                 i <- i + 1
 
             return i
         }
+        : Async<Result<int, string>>)
         |> Async.StartImmediateAsTask

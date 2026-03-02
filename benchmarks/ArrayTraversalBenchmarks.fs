@@ -135,11 +135,11 @@ type ArrayResultM_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseResultM() =
-        OldArray.traverseResultM (fun x -> Ok(x * 2)) (Array.init this.N id)
+        OldArray.traverseResultM (fun x -> (Ok(x * 2): Result<int, string>)) (Array.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseResultM() =
-        Array.traverseResultM (fun x -> Ok(x * 2)) (Array.init this.N id)
+        Array.traverseResultM (fun x -> (Ok(x * 2): Result<int, string>)) (Array.init this.N id)
 
 [<MemoryDiagnoser>]
 type ArrayResultA_Benchmarks() =
@@ -148,11 +148,11 @@ type ArrayResultA_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseResultA() =
-        OldArray.traverseResultA (fun x -> Ok(x * 2)) (Array.init this.N id)
+        OldArray.traverseResultA (fun x -> (Ok(x * 2): Result<int, string>)) (Array.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseResultA() =
-        Array.traverseResultA (fun x -> Ok(x * 2)) (Array.init this.N id)
+        Array.traverseResultA (fun x -> (Ok(x * 2): Result<int, string>)) (Array.init this.N id)
 
 [<MemoryDiagnoser>]
 type ArrayValidationA_Benchmarks() =
@@ -161,11 +161,15 @@ type ArrayValidationA_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseValidationA() =
-        OldArray.traverseValidationA (fun x -> Ok(x * 2)) (Array.init this.N id)
+        OldArray.traverseValidationA
+            (fun x -> (Ok(x * 2): Result<int, string array>))
+            (Array.init this.N id)
 
     [<Benchmark>]
     member this.New_TraverseValidationA() =
-        Array.traverseValidationA (fun x -> Ok(x * 2)) (Array.init this.N id)
+        Array.traverseValidationA
+            (fun x -> (Ok(x * 2): Result<int, string array>))
+            (Array.init this.N id)
 
 [<MemoryDiagnoser>]
 type ArrayOptionM_Benchmarks() =
@@ -187,10 +191,14 @@ type ArrayAsyncResultM_Benchmarks() =
 
     [<Benchmark(Baseline = true)>]
     member this.Old_TraverseAsyncResultM() =
-        OldArray.traverseAsyncResultM (fun x -> AsyncResult.ok (x * 2)) (Array.init this.N id)
+        OldArray.traverseAsyncResultM
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (Array.init this.N id)
         |> Async.StartImmediateAsTask
 
     [<Benchmark>]
     member this.New_TraverseAsyncResultM() =
-        Array.traverseAsyncResultM (fun x -> AsyncResult.ok (x * 2)) (Array.init this.N id)
+        Array.traverseAsyncResultM
+            (fun x -> (AsyncResult.ok (x * 2): Async<Result<int, string>>))
+            (Array.init this.N id)
         |> Async.StartImmediateAsTask
