@@ -25,6 +25,7 @@
     <Compile Include="CEWhileBenchmarks.fs" />
     <Compile Include="TaskMapBenchmarks.fs" />
     <Compile Include="TaskApplyMapVBenchmarks.fs" />
+    <Compile Include="TaskOptionApplyBenchmarks.fs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />

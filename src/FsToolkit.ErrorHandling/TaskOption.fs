@@ -23,7 +23,15 @@ module TaskOption =
     let inline some x = task { return Some x }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> some (f' x')) x) f
+        task {
+            let! fOpt = f
+
+            match fOpt with
+            | Some f' ->
+                let! xOpt = x
+                return Option.map f' xOpt
+            | None -> return None
+        }
 
     let inline zip x1 x2 =
         Task.zip x1 x2

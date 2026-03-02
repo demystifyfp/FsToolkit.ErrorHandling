@@ -31,7 +31,17 @@ module ValueTaskValueOption =
     let inline valueSome x = ValueTask<_ voption>(ValueSome x)
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f
+        ValueTask<_ voption>(
+            task {
+                let! fOpt = f
+
+                match fOpt with
+                | ValueSome f' ->
+                    let! xOpt = x
+                    return ValueOption.map f' xOpt
+                | ValueNone -> return ValueNone
+            }
+        )
 
     let inline zip (x1: ValueTask<'a voption>) (x2: ValueTask<'b voption>) =
         ValueTask<('a * 'b) voption>(
