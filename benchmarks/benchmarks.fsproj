@@ -19,6 +19,10 @@
     <Compile Include="Benchmarks.fs" />
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="TaskResultCE.fs" />
+    <Compile Include="ArrayTraversalBenchmarks.fs" />
+    <Compile Include="ListTraversalBenchmarks.fs" />
+    <Compile Include="CEBoxingBenchmarks.fs" />
+    <Compile Include="CEWhileBenchmarks.fs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />
