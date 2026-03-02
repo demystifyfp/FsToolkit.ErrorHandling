@@ -196,7 +196,7 @@ type TaskValueOptionBuilderBase() =
         this.TryFinallyAsync(
             (fun sm -> (body resource).Invoke(&sm)),
             (fun () ->
-                if not (obj.ReferenceEquals(resource, null)) then
+                if not (isNull (box resource)) then
                     resource.DisposeAsync()
                 else
                     ValueTask()
