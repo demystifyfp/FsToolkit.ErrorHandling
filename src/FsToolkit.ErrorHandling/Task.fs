@@ -26,11 +26,10 @@ module Task =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
 
     let inline map ([<InlineIfLambda>] f) x =
-        x
-        |> bind (
-            f
-            >> singleton
-        )
+        task {
+            let! v = x
+            return f v
+        }
 
     let inline mapV ([<InlineIfLambda>] f) x =
         x

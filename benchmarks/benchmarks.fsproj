@@ -23,6 +23,7 @@
     <Compile Include="ListTraversalBenchmarks.fs" />
     <Compile Include="CEBoxingBenchmarks.fs" />
     <Compile Include="CEWhileBenchmarks.fs" />
+    <Compile Include="TaskMapBenchmarks.fs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />
