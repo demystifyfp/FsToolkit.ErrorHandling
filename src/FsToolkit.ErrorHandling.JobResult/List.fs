@@ -4,61 +4,51 @@ namespace FsToolkit.ErrorHandling
 module List =
     open Hopac
 
-    // O(n): ResizeArray accumulation — avoids cons+List.rev (extra O(n) copy)
-    let traverseJobResultM
-        (f: 'okInput -> Job<Result<'okOutput, 'error>>)
-        (xs: 'okInput list)
-        : Job<Result<'okOutput list, 'error>> =
-        let oks = ResizeArray()
+    let rec private traverseJobResultM' (state: Job<Result<_, _>>) (f: _ -> Job<Result<_, _>>) xs =
+        match xs with
+        | [] ->
+            state
+            |> JobResult.map List.rev
+        | x :: xs ->
+            job {
+                let! r =
+                    jobResult {
+                        let! ys = state
+                        let! y = f x
+                        return y :: ys
+                    }
 
-        let rec loop current =
-            match current with
-            | [] -> Job.result (Ok(List.ofSeq oks))
-            | x :: rest ->
-                job {
-                    let! r = f x
+                match r with
+                | Ok _ -> return! traverseJobResultM' (Job.singleton r) f xs
+                | Error _ -> return r
+            }
 
-                    match r with
-                    | Ok v ->
-                        oks.Add v
-                        return! loop rest
-                    | Error e -> return Error e
-                }
-
-        loop xs
+    let traverseJobResultM f xs =
+        traverseJobResultM' (JobResult.singleton []) f xs
 
     let sequenceJobResultM xs = traverseJobResultM id xs
 
 
-    // O(n): applicative — collects all errors in a single pass, no List.rev copy
-    let traverseJobResultA
-        (f: 'okInput -> Job<Result<'okOutput, 'error>>)
-        (xs: 'okInput list)
-        : Job<Result<'okOutput list, 'error list>> =
-        let oks = ResizeArray()
-        let errs = ResizeArray()
+    let rec private traverseJobResultA' state (f: _ -> Job<Result<_, _>>) xs =
+        match xs with
+        | [] ->
+            state
+            |> JobResult.eitherMap List.rev List.rev
+        | x :: xs ->
+            job {
+                let! s = state
+                let! fR = f x
 
-        let rec loop current =
-            match current with
-            | [] ->
-                if errs.Count = 0 then
-                    Job.result (Ok(List.ofSeq oks))
-                else
-                    Job.result (Error(List.ofSeq errs))
-            | x :: rest ->
-                job {
-                    let! r = f x
+                match s, fR with
+                | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.singleton (y :: ys)) f xs
+                | Error errs, Error e ->
+                    return! traverseJobResultA' (JobResult.error (e :: errs)) f xs
+                | Ok _, Error e -> return! traverseJobResultA' (JobResult.error [ e ]) f xs
+                | Error e, Ok _ -> return! traverseJobResultA' (JobResult.error e) f xs
+            }
 
-                    match r with
-                    | Ok v when errs.Count = 0 ->
-                        oks.Add v
-                        return! loop rest
-                    | Ok _ -> return! loop rest
-                    | Error e ->
-                        errs.Add e
-                        return! loop rest
-                }
 
-        loop xs
+    let traverseJobResultA f xs =
+        traverseJobResultA' (JobResult.singleton []) f xs
 
     let sequenceJobResultA xs = traverseJobResultA id xs

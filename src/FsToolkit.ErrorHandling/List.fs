@@ -3,121 +3,156 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module List =
 
-    // O(n): iterative ResizeArray accumulation, early exit on first error, no List.rev copy
-    let traverseResultM
-        (f: 'okInput -> Result<'okOutput, 'error>)
-        (xs: 'okInput list)
-        : Result<'okOutput list, 'error> =
-        let oks = ResizeArray()
-        let mutable err = Unchecked.defaultof<'error>
-        let mutable ok = true
-        let mutable current = xs
+    let rec private traverseResultM' (state: Result<_, _>) (f: _ -> Result<_, _>) xs =
+        match xs with
+        | [] ->
+            state
+            |> Result.map List.rev
+        | x :: xs ->
+            let r =
+                result {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
 
-        while ok
-              && not current.IsEmpty do
-            match f current.Head with
-            | Ok r ->
-                oks.Add r
-                current <- current.Tail
-            | Error e ->
-                err <- e
-                ok <- false
+            match r with
+            | Ok _ -> traverseResultM' r f xs
+            | Error _ -> r
 
-        if ok then Ok(List.ofSeq oks) else Error err
+    let rec private traverseAsyncResultM'
+        (state: Async<Result<_, _>>)
+        (f: _ -> Async<Result<_, _>>)
+        xs
+        =
+        match xs with
+        | [] ->
+            state
+            |> AsyncResult.map List.rev
+        | x :: xs ->
+            async {
+                let! r =
+                    asyncResult {
+                        let! ys = state
+                        let! y = f x
+                        return y :: ys
+                    }
+
+                match r with
+                | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
+                | Error _ -> return r
+            }
+
+    let traverseResultM f xs = traverseResultM' (Ok []) f xs
 
     let sequenceResultM xs = traverseResultM id xs
 
-    // O(n): iterative async, early exit on first error, no List.rev copy
-    let traverseAsyncResultM
-        (f: 'okInput -> Async<Result<'okOutput, 'error>>)
-        (xs: 'okInput list)
-        : Async<Result<'okOutput list, 'error>> =
-        async {
-            let oks = ResizeArray()
-            let mutable err = Unchecked.defaultof<'error>
-            let mutable ok = true
-            let mutable current = xs
-
-            while ok
-                  && not current.IsEmpty do
-                match! f current.Head with
-                | Ok r ->
-                    oks.Add r
-                    current <- current.Tail
-                | Error e ->
-                    err <- e
-                    ok <- false
-
-            return if ok then Ok(List.ofSeq oks) else Error err
-        }
+    let traverseAsyncResultM f xs =
+        traverseAsyncResultM' (AsyncResult.ok []) f xs
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
-    // O(n): applicative — collects all errors in a single pass, no List.rev copy
-    let traverseResultA
-        (f: 'okInput -> Result<'okOutput, 'error>)
-        (xs: 'okInput list)
-        : Result<'okOutput list, 'error list> =
-        let oks = ResizeArray()
-        let errs = ResizeArray()
+    let rec private traverseResultA' state f xs =
+        match xs with
+        | [] ->
+            state
+            |> Result.eitherMap List.rev List.rev
+        | x :: xs ->
 
-        for x in xs do
-            match f x with
-            | Ok r when errs.Count = 0 -> oks.Add r
-            | Ok _ -> ()
-            | Error e -> errs.Add e
+            match state, f x with
+            | Ok ys, Ok y -> traverseResultA' (Ok(y :: ys)) f xs
+            | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
+            | Ok _, Error e -> traverseResultA' (Error [ e ]) f xs
+            | Error e, Ok _ -> traverseResultA' (Error e) f xs
 
-        if errs.Count = 0 then
-            Ok(List.ofSeq oks)
-        else
-            Error(List.ofSeq errs)
+    let rec private traverseAsyncResultA' state f xs =
+        match xs with
+        | [] ->
+            state
+            |> AsyncResult.eitherMap List.rev List.rev
+
+        | x :: xs ->
+            async {
+                let! s = state
+                let! fR = f x
+
+                match s, fR with
+                | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.ok (y :: ys)) f xs
+                | Error errs, Error e ->
+                    return! traverseAsyncResultA' (AsyncResult.error (e :: errs)) f xs
+                | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [ e ]) f xs
+                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
+            }
+
+    let traverseResultA f xs = traverseResultA' (Ok []) f xs
 
     let sequenceResultA xs = traverseResultA id xs
 
-    // O(n): applicative async — collects all errors in a single pass, no List.rev copy
-    let traverseAsyncResultA
-        (f: 'okInput -> Async<Result<'okOutput, 'error>>)
-        (xs: 'okInput list)
-        : Async<Result<'okOutput list, 'error list>> =
-        async {
-            let oks = ResizeArray()
-            let errs = ResizeArray()
+    let rec private traverseValidationA' state f xs =
+        match xs with
+        | [] ->
+            state
+            |> Result.eitherMap List.rev List.rev
+        | x :: xs ->
+            let fR = f x
 
-            for x in xs do
-                match! f x with
-                | Ok r when errs.Count = 0 -> oks.Add r
-                | Ok _ -> ()
-                | Error e -> errs.Add e
+            match state, fR with
+            | Ok ys, Ok y -> traverseValidationA' (Ok(y :: ys)) f xs
+            | Error errs1, Error errs2 ->
+                traverseValidationA'
+                    (Error(
+                        errs2
+                        @ errs1
+                    ))
+                    f
+                    xs
+            | Ok _, Error errs
+            | Error errs, Ok _ -> traverseValidationA' (Error errs) f xs
 
-            return
-                if errs.Count = 0 then
-                    Ok(List.ofSeq oks)
-                else
-                    Error(List.ofSeq errs)
-        }
+    let traverseValidationA f xs = traverseValidationA' (Ok []) f xs
+
+    let sequenceValidationA xs = traverseValidationA id xs
+
+    let traverseAsyncResultA f xs =
+        traverseAsyncResultA' (AsyncResult.ok []) f xs
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
-    // O(n): validation applicative — collects all error lists into one, no List.rev or @ copy
-    let traverseValidationA
-        (f: 'okInput -> Result<'okOutput, 'error list>)
-        (xs: 'okInput list)
-        : Result<'okOutput list, 'error list> =
-        let oks = ResizeArray()
-        let errs = ResizeArray()
+    let rec private traverseOptionM' (state: _ option) (f: _ -> _ option) xs =
+        match xs with
+        | [] ->
+            state
+            |> Option.map List.rev
+        | x :: xs ->
+            let r =
+                option {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
 
-        for x in xs do
-            match f x with
-            | Ok r when errs.Count = 0 -> oks.Add r
-            | Ok _ -> ()
-            | Error es -> errs.AddRange es
+            match r with
+            | Some _ -> traverseOptionM' r f xs
+            | None -> r
 
-        if errs.Count = 0 then
-            Ok(List.ofSeq oks)
-        else
-            Error(List.ofSeq errs)
+    let rec private traverseAsyncOptionM' (state: Async<_ option>) (f: _ -> Async<_ option>) xs =
+        match xs with
+        | [] ->
+            state
+            |> AsyncOption.map List.rev
+        | x :: xs ->
+            async {
+                let! o =
+                    asyncOption {
+                        let! y = f x
+                        let! ys = state
+                        return y :: ys
+                    }
 
-    let sequenceValidationA xs = traverseValidationA id xs
+                match o with
+                | Some _ -> return! traverseAsyncOptionM' (Async.singleton o) f xs
+                | None -> return o
+            }
 
     /// <summary>
     /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
@@ -128,24 +163,7 @@ module List =
     /// <param name="xs">The input list.</param>
     /// <returns>An option containing a list of the results of applying the function to each element in the input list,
     /// or None if any of the function applications return None.</returns>
-    // O(n): option monad — iterative, early exit on None, no List.rev copy
-    let traverseOptionM
-        (f: 'okInput -> 'okOutput option)
-        (xs: 'okInput list)
-        : 'okOutput list option =
-        let oks = ResizeArray()
-        let mutable ok = true
-        let mutable current = xs
-
-        while ok
-              && not current.IsEmpty do
-            match f current.Head with
-            | Some r ->
-                oks.Add r
-                current <- current.Tail
-            | None -> ok <- false
-
-        if ok then Some(List.ofSeq oks) else None
+    let traverseOptionM f xs = traverseOptionM' (Some []) f xs
 
     /// <summary>
     /// Applies the monadic function <paramref name="id"/> to each element in the input list <paramref name="xs"/>,
@@ -155,30 +173,29 @@ module List =
     /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
-    // O(n): async option monad — iterative, early exit on None, no List.rev copy
-    let traverseAsyncOptionM
-        (f: 'okInput -> Async<'okOutput option>)
-        (xs: 'okInput list)
-        : Async<'okOutput list option> =
-        async {
-            let oks = ResizeArray()
-            let mutable ok = true
-            let mutable current = xs
-
-            while ok
-                  && not current.IsEmpty do
-                match! f current.Head with
-                | Some r ->
-                    oks.Add r
-                    current <- current.Tail
-                | None -> ok <- false
-
-            return if ok then Some(List.ofSeq oks) else None
-        }
+    let traverseAsyncOptionM f xs =
+        traverseAsyncOptionM' (AsyncOption.some []) f xs
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 
 #if !FABLE_COMPILER
+    let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
+        match xs with
+        | [] ->
+            state
+            |> ValueOption.map List.rev
+        | x :: xs ->
+            let r =
+                voption {
+                    let! y = f x
+                    let! ys = state
+                    return y :: ys
+                }
+
+            match r with
+            | ValueSome _ -> traverseVOptionM' r f xs
+            | ValueNone -> r
+
     /// <summary>
     /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
     /// and returns an option containing a list of the results. If any of the function applications return ValueNone,
@@ -187,24 +204,7 @@ module List =
     /// <param name="f">The function to apply to each element in the input list.</param>
     /// <param name="xs">The input list</param>
     /// <returns>An Option monad containing the collected results.</returns>
-    // O(n): value option monad — iterative, early exit on ValueNone, no List.rev copy
-    let traverseVOptionM
-        (f: 'okInput -> 'okOutput voption)
-        (xs: 'okInput list)
-        : 'okOutput list voption =
-        let oks = ResizeArray()
-        let mutable ok = true
-        let mutable current = xs
-
-        while ok
-              && not current.IsEmpty do
-            match f current.Head with
-            | ValueSome r ->
-                oks.Add r
-                current <- current.Tail
-            | ValueNone -> ok <- false
-
-        if ok then ValueSome(List.ofSeq oks) else ValueNone
+    let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
 
     /// <summary>
     /// Applies the <paramref name="id"/> function to each element in the input list <paramref name="xs"/>,
