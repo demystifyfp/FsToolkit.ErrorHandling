@@ -76,13 +76,18 @@ module AsyncOptionCE =
             )
 #endif
 
-        member this.While
+        member inline this.While
             (guard: unit -> bool, computation: Async<unit option>)
             : Async<unit option> =
-            if not (guard ()) then
-                this.Zero()
+            if guard () then
+                let mutable whileAsync = Unchecked.defaultof<_>
+
+                whileAsync <-
+                    this.Bind(computation, (fun () -> if guard () then whileAsync else this.Zero()))
+
+                whileAsync
             else
-                this.Bind(computation, (fun () -> this.While(guard, computation)))
+                this.Zero()
 
 
         /// <summary>
