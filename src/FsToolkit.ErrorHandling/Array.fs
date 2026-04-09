@@ -233,3 +233,7 @@ module Array =
     let sequenceVOptionM xs = traverseVOptionM id xs
 
 #endif
+
+    let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
+        input |> Array.choose (function Ok v -> Some v | _ -> None),
+        input |> Array.choose (function Error e -> Some e | _ -> None)

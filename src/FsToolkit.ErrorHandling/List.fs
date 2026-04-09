@@ -274,3 +274,7 @@ module List =
 
 
 #endif
+
+    let partitionResults (input: Result<'ok, 'error> list) : 'ok list * 'error list =
+        input |> List.choose (function Ok v -> Some v | _ -> None),
+        input |> List.choose (function Error e -> Some e | _ -> None)
