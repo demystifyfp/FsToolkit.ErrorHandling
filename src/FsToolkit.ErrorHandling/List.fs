@@ -276,10 +276,12 @@ module List =
 #endif
 
     let partitionResults (input: Result<'ok, 'error> list) : 'ok list * 'error list =
-        let rec loop oks errors =
-            function
-            | [] -> List.rev oks, List.rev errors
-            | Ok v :: rest -> loop (v :: oks) errors rest
-            | Error e :: rest -> loop oks (e :: errors) rest
+        let oks = ResizeArray()
+        let errors = ResizeArray()
 
-        loop [] [] input
+        for x in input do
+            match x with
+            | Ok v -> oks.Add v
+            | Error e -> errors.Add e
+
+        List.ofSeq oks, List.ofSeq errors

@@ -507,7 +507,7 @@ let sequenceVOptionM xs = traverseVOptionM id xs
 /// </summary>
 /// <param name="xs">The input sequence of results.</param>
 /// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
-let partitionResults (xs: SeqNull<Result<'ok, 'error>>) : 'ok seq * 'error seq =
+let partitionResults (xs: SeqNull<Result<'ok, 'error>>) : 'ok[] * 'error[] =
     if isNull xs then
         nullArg (nameof xs)
 
@@ -519,4 +519,4 @@ let partitionResults (xs: SeqNull<Result<'ok, 'error>>) : 'ok seq * 'error seq =
         | Ok v -> oks.Add v
         | Error e -> errors.Add e
 
-    oks :> seq<'ok>, errors :> seq<'error>
+    oks.ToArray(), errors.ToArray()
