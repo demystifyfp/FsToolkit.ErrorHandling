@@ -235,6 +235,9 @@ module Array =
 #endif
 
     let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
+        if isNull input then
+            nullArg (nameof input)
+
         let oks = ResizeArray()
         let errors = ResizeArray()
 
