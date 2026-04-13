@@ -276,5 +276,10 @@ module List =
 #endif
 
     let partitionResults (input: Result<'ok, 'error> list) : 'ok list * 'error list =
-        input |> List.choose (function Ok v -> Some v | _ -> None),
-        input |> List.choose (function Error e -> Some e | _ -> None)
+        let rec loop oks errors =
+            function
+            | [] -> List.rev oks, List.rev errors
+            | Ok v :: rest -> loop (v :: oks) errors rest
+            | Error e :: rest -> loop oks (e :: errors) rest
+
+        loop [] [] input

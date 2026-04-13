@@ -235,5 +235,12 @@ module Array =
 #endif
 
     let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
-        input |> Array.choose (function Ok v -> Some v | _ -> None),
-        input |> Array.choose (function Error e -> Some e | _ -> None)
+        let oks = ResizeArray()
+        let errors = ResizeArray()
+
+        for x in input do
+            match x with
+            | Ok v -> oks.Add v
+            | Error e -> errors.Add e
+
+        oks.ToArray(), errors.ToArray()
