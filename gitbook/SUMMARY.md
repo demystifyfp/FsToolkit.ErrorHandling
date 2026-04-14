@@ -26,11 +26,13 @@
       * [sequenceResultM](list/sequenceResultM.md)
       * [traverseResultA](list/traverseResultA.md)
       * [sequenceResultA](list/sequenceResultA.md)
+      * [partitionResults](list/partitionResults.md)
     * Sequences
       * [traverseResultM](seq/traverseResultM.md)
       * [sequenceResultM](seq/sequenceResultM.md)
       * [traverseResultA](seq/traverseResultA.md)
       * [sequenceResultA](seq/sequenceResultA.md)
+      * [partitionResults](seq/partitionResults.md)
     * Transforms
       * [ofChoice](result/ofChoice.md)
 
