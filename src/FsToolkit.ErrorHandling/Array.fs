@@ -234,8 +234,13 @@ module Array =
 
 #endif
 
+    /// <summary>
+    /// Partitions an array of results into a tuple of the ok values and the error values.
+    /// </summary>
+    /// <param name="input">The input array of results.</param>
+    /// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
     let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
-        if isNull input then
+        if System.Object.ReferenceEquals(input, null) then
             nullArg (nameof input)
 
         let oks = ResizeArray()
