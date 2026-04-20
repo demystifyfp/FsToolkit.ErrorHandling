@@ -33,6 +33,8 @@
       * [traverseResultA](seq/traverseResultA.md)
       * [sequenceResultA](seq/sequenceResultA.md)
       * [partitionResults](seq/partitionResults.md)
+    * Arrays
+      * [partitionResults](array/partitionResults.md)
     * Transforms
       * [ofChoice](result/ofChoice.md)
 

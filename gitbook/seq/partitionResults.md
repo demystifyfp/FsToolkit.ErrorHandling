@@ -10,7 +10,7 @@ seq<Result<'ok, 'error>> -> 'ok[] * 'error[]
 
 Separates a sequence of `Result` values into a tuple of the `Ok` values and the `Error` values as arrays, preserving order within each group.
 
-The same function is available for arrays via `Array.partitionResults` with signature `Result<'ok, 'error>[] -> 'ok[] * 'error[]`.
+See also [Array.partitionResults](../array/partitionResults.md).
 
 ## Examples
 
