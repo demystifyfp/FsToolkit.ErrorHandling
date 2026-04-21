@@ -274,3 +274,22 @@ module List =
 
 
 #endif
+
+    /// <summary>
+    /// Partitions a list of results into a tuple of the ok values and the error values.
+    /// </summary>
+    /// <param name="input">The input list of results.</param>
+    /// <returns>A tuple where the first element is a list of all Ok values and the second is a list of all Error values.</returns>
+    let partitionResults (input: Result<'ok, 'error> list) : 'ok list * 'error list =
+        if System.Object.ReferenceEquals(input, null) then
+            nullArg (nameof input)
+
+        let oks = ResizeArray()
+        let errors = ResizeArray()
+
+        for x in input do
+            match x with
+            | Ok v -> oks.Add v
+            | Error e -> errors.Add e
+
+        List.ofSeq oks, List.ofSeq errors

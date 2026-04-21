@@ -233,3 +233,22 @@ module Array =
     let sequenceVOptionM xs = traverseVOptionM id xs
 
 #endif
+
+    /// <summary>
+    /// Partitions an array of results into a tuple of the ok values and the error values.
+    /// </summary>
+    /// <param name="input">The input array of results.</param>
+    /// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
+    let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
+        if System.Object.ReferenceEquals(input, null) then
+            nullArg (nameof input)
+
+        let oks = ResizeArray()
+        let errors = ResizeArray()
+
+        for x in input do
+            match x with
+            | Ok v -> oks.Add v
+            | Error e -> errors.Add e
+
+        oks.ToArray(), errors.ToArray()

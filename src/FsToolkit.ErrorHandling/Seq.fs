@@ -501,3 +501,22 @@ let traverseVOptionM f xs =
 let sequenceVOptionM xs = traverseVOptionM id xs
 
 #endif
+
+/// <summary>
+/// Partitions a sequence of results into a tuple of the ok values and the error values.
+/// </summary>
+/// <param name="input">The input sequence of results.</param>
+/// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
+let partitionResults (input: SeqNull<Result<'ok, 'error>>) : 'ok[] * 'error[] =
+    if isNull input then
+        nullArg (nameof input)
+
+    let oks = ResizeArray()
+    let errors = ResizeArray()
+
+    for x in input do
+        match x with
+        | Ok v -> oks.Add v
+        | Error e -> errors.Add e
+
+    oks.ToArray(), errors.ToArray()
