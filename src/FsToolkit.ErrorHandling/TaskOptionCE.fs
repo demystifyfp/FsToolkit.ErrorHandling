@@ -299,8 +299,7 @@ type TaskOptionBuilder() =
                         // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
                         if sm.Data.IsTaskCompleted then
                             ()
-
-                        if step then
+                        elif step then
                             sm.Data.SetResult()
                         else
                             match sm.ResumptionDynamicInfo.ResumptionData with
