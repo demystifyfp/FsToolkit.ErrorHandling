@@ -54,7 +54,7 @@ module Array =
         (xs: 'okInput[])
         =
         let oks = ResizeArray<'okOutput>(xs.Length)
-        let errors = ResizeArray<'error>()
+        let mutable errors: ResizeArray<'error> option = None
         let mutable ok = true
 
         for x in xs do
@@ -62,10 +62,23 @@ module Array =
             | Ok value when ok -> oks.Add value
             | Ok _ -> ()
             | Error e ->
-                errors.Add e
+                let errorBuffer =
+                    match errors with
+                    | Some errors -> errors
+                    | None ->
+                        let buffer = ResizeArray<'error>()
+                        errors <- Some buffer
+                        buffer
+
+                errorBuffer.Add e
                 ok <- false
 
-        if ok then Ok(oks.ToArray()) else Error(errors.ToArray())
+        if ok then
+            Ok(oks.ToArray())
+        else
+            match errors with
+            | Some errors -> Error(errors.ToArray())
+            | None -> Error [||]
 
     let sequenceResultA xs = traverseResultA id xs
 
@@ -74,7 +87,7 @@ module Array =
         (xs: 'okInput[])
         =
         let oks = ResizeArray<'okOutput>(xs.Length)
-        let errors = ResizeArray<'error>()
+        let mutable errors: ResizeArray<'error> option = None
         let mutable ok = true
 
         for x in xs do
@@ -82,17 +95,30 @@ module Array =
             | Ok value when ok -> oks.Add value
             | Ok _ -> ()
             | Error errs ->
-                errors.AddRange errs
+                let errorBuffer =
+                    match errors with
+                    | Some errors -> errors
+                    | None ->
+                        let buffer = ResizeArray<'error>()
+                        errors <- Some buffer
+                        buffer
+
+                errorBuffer.AddRange errs
                 ok <- false
 
-        if ok then Ok(oks.ToArray()) else Error(errors.ToArray())
+        if ok then
+            Ok(oks.ToArray())
+        else
+            match errors with
+            | Some errors -> Error(errors.ToArray())
+            | None -> Error [||]
 
     let sequenceValidationA xs = traverseValidationA id xs
 
-    let traverseAsyncResultA f (xs: _[]) =
+    let traverseAsyncResultA (f: 'okInput -> Async<Result<'okOutput, 'error>>) (xs: 'okInput[]) =
         async {
-            let oks = ResizeArray(xs.Length)
-            let errors = ResizeArray()
+            let oks = ResizeArray<'okOutput>(xs.Length)
+            let mutable errors: ResizeArray<'error> option = None
             let mutable ok = true
 
             for x in xs do
@@ -102,22 +128,36 @@ module Array =
                 | Ok value when ok -> oks.Add value
                 | Ok _ -> ()
                 | Error e ->
-                    errors.Add e
+                    let errorBuffer =
+                        match errors with
+                        | Some errors -> errors
+                        | None ->
+                            let buffer = ResizeArray<'error>()
+                            errors <- Some buffer
+                            buffer
+
+                    errorBuffer.Add e
                     ok <- false
 
-            return if ok then Ok(oks.ToArray()) else Error(errors.ToArray())
+            return
+                if ok then
+                    Ok(oks.ToArray())
+                else
+                    match errors with
+                    | Some errors -> Error(errors.ToArray())
+                    | None -> Error [||]
         }
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
     /// <summary>
-    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
-    /// and returns an option containing a list of the results. If any of the function applications return None,
+    /// Applies the given function <paramref name="f"/> to each element in the input array <paramref name="xs"/>,
+    /// and returns an option containing an array of the results. If any of the function applications return None,
     /// the entire result will be None.
     /// </summary>
-    /// <param name="f">The function to apply to each element in the input list.</param>
-    /// <param name="xs">The input list.</param>
-    /// <returns>An option containing a list of the results of applying the function to each element in the input list,
+    /// <param name="f">The function to apply to each element in the input array.</param>
+    /// <param name="xs">The input array.</param>
+    /// <returns>An option containing an array of the results of applying the function to each element in the input array,
     /// or None if any of the function applications return None.</returns>
     let inline traverseOptionM
         ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
@@ -138,10 +178,10 @@ module Array =
         if ok then Some(results.ToArray()) else None
 
     /// <summary>
-    /// Applies the monadic function <paramref name="id"/> to each element in the input list <paramref name="xs"/>,
+    /// Applies the monadic function <paramref name="id"/> to each element in the input array <paramref name="xs"/>,
     /// and returns the result as an option. If any element in the list is None, the entire result will be None.
     /// </summary>
-    /// <param name="xs">The input list.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
@@ -168,12 +208,12 @@ module Array =
 
 #if !FABLE_COMPILER
     /// <summary>
-    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
-    /// and returns an option containing a list of the results. If any of the function applications return ValueNone,
+    /// Applies the given function <paramref name="f"/> to each element in the input array <paramref name="xs"/>,
+    /// and returns an option containing an array of the results. If any of the function applications return ValueNone,
     /// the entire result will be ValueNone.
     /// </summary>
-    /// <param name="f">The function to apply to each element in the input list.</param>
-    /// <param name="xs">The input list</param>
+    /// <param name="f">The function to apply to each element in the input array.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>An Option monad containing the collected results.</returns>
     let inline traverseVOptionM
         ([<InlineIfLambda>] f: 'okInput -> 'okOutput voption)
@@ -194,10 +234,10 @@ module Array =
         if ok then ValueSome(results.ToArray()) else ValueNone
 
     /// <summary>
-    /// Applies the <paramref name="id"/> function to each element in the input list <paramref name="xs"/>,
+    /// Applies the <paramref name="id"/> function to each element in the input array <paramref name="xs"/>,
     /// and returns the result as a value option. If any element in the list is ValueNone, the entire result will be ValueNone.
     /// </summary>
-    /// <param name="xs">The input list.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>A <see cref="Option{T}"/> representing the sequence of results.</returns>
     let sequenceVOptionM xs = traverseVOptionM id xs
 

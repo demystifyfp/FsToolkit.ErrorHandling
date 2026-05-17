@@ -220,12 +220,11 @@ module List =
     let private traverseTaskResultM' (f: 'c -> Task<Result<'a, 'b>>) (xs: 'c list) =
         let mutable state = Ok []
         let mutable remaining = xs
-        let mutable hasMore = true
 
         task {
-            while hasMore
-                  && state
-                     |> Result.isOk do
+            while state
+                  |> Result.isOk
+                  && not (List.isEmpty remaining) do
                 match remaining with
                 | x :: xs ->
                     remaining <- xs
@@ -236,7 +235,7 @@ module List =
                     | Ok y, Ok ys -> state <- Ok(y :: ys)
                     | Error e, _ -> state <- Error e
                     | _, _ -> ()
-                | [] -> hasMore <- false
+                | [] -> ()
 
             return
                 state
