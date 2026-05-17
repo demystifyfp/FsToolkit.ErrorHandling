@@ -219,27 +219,24 @@ module List =
 
     let private traverseTaskResultM' (f: 'c -> Task<Result<'a, 'b>>) (xs: 'c list) =
         let mutable state = Ok []
-        let mutable index = 0
-
-        let xs =
-            xs
-            |> List.toArray
+        let mutable remaining = xs
+        let mutable hasMore = true
 
         task {
-            while state
-                  |> Result.isOk
-                  && index < xs.Length do
-                let! r =
-                    xs
-                    |> Array.item index
-                    |> f
+            while hasMore
+                  && state
+                     |> Result.isOk do
+                match remaining with
+                | x :: xs ->
+                    remaining <- xs
 
-                index <- index + 1
+                    let! r = f x
 
-                match (r, state) with
-                | Ok y, Ok ys -> state <- Ok(y :: ys)
-                | Error e, _ -> state <- Error e
-                | _, _ -> ()
+                    match (r, state) with
+                    | Ok y, Ok ys -> state <- Ok(y :: ys)
+                    | Error e, _ -> state <- Error e
+                    | _, _ -> ()
+                | [] -> hasMore <- false
 
             return
                 state
