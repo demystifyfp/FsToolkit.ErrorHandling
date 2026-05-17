@@ -43,7 +43,6 @@ let allTests =
         TaskOptionCETests.allTests
         TaskValueOptionTests.allTests
         TaskValueOptionCETests.allTests
-        ValueTaskValueOptionCETests.allTests
         TaskResultTests.allTests
         TaskResultCETests.allTests
         TaskResultOptionTests.allTests

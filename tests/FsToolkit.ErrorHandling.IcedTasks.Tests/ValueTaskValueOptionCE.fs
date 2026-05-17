@@ -1,4 +1,4 @@
-module ValueTaskValueOptionCETests
+module FsToolkit.ErrorHandling.IcedTasks.Tests.ValueTaskValueOptionCETests
 
 open Expecto
 open FsToolkit.ErrorHandling
@@ -604,6 +604,7 @@ let ``ValueTaskValueOptionCE inference checks`` =
             |> ignore
     ]
 
+[<Tests>]
 let allTests =
     testList "ValueTaskValueOption CE Tests" [
         ceTests

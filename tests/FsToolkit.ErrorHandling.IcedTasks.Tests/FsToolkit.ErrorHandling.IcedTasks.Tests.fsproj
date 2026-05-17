@@ -10,9 +10,11 @@
         <Compile Include="TestData.fs" />
         <Compile Include="Expect.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
         <Compile Include="CancellableTaskValidationCE.fs" />
         <Compile Include="CancellableTaskOptionCE.fs" />
+        <Compile Include="ValueTaskValueOptionCE.fs" />
         <Compile Include="CancellableValueTaskResultCE.fs" />
         <Compile Include="CancellableValueTaskOptionCE.fs" />
         <Compile Include="Main.fs" />
