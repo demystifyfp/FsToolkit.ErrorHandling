@@ -2,233 +2,242 @@ namespace FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
 module Array =
-    let rec private traverseResultM' (state: Result<_, _>) (f: _ -> Result<_, _>) xs =
-        match xs with
-        | [||] ->
-            state
-            |> Result.map Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-
-            let res =
-                result {
-                    let! y = f x
-                    let! ys = state
-                    return Array.append [| y |] ys
-                }
-
-            match res with
-            | Ok _ -> traverseResultM' res f xs
-            | Error _ -> res
-
-    let rec private traverseAsyncResultM'
-        (state: Async<Result<_, _>>)
-        (f: _ -> Async<Result<_, _>>)
-        xs
+    let inline traverseResultM
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
         =
-        match xs with
-        | [||] ->
-            state
-            |> AsyncResult.map Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
+        let results = ResizeArray<'okOutput>(xs.Length)
+        let mutable index = 0
+        let mutable error = Unchecked.defaultof<'error>
+        let mutable ok = true
 
-            async {
-                let! r =
-                    asyncResult {
-                        let! ys = state
-                        let! y = f x
-                        return Array.append [| y |] ys
-                    }
+        while ok
+              && index < xs.Length do
+            match f xs[index] with
+            | Ok value ->
+                results.Add value
+                index <- index + 1
+            | Error e ->
+                error <- e
+                ok <- false
 
-                match r with
-                | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
-                | Error _ -> return r
-            }
-
-    let traverseResultM f xs = traverseResultM' (Ok [||]) f xs
+        if ok then Ok(results.ToArray()) else Error error
 
     let sequenceResultM xs = traverseResultM id xs
 
-    let traverseAsyncResultM f xs =
-        traverseAsyncResultM' (AsyncResult.ok [||]) f xs
+    let traverseAsyncResultM f (xs: _[]) =
+        async {
+            let results = ResizeArray(xs.Length)
+            let mutable index = 0
+            let mutable error = Unchecked.defaultof<_>
+            let mutable ok = true
+
+            while ok
+                  && index < xs.Length do
+                let! result = f xs[index]
+
+                match result with
+                | Ok value ->
+                    results.Add value
+                    index <- index + 1
+                | Error e ->
+                    error <- e
+                    ok <- false
+
+            return if ok then Ok(results.ToArray()) else Error error
+        }
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
-    let rec private traverseResultA' state f xs =
-        match xs with
-        | [||] ->
-            state
-            |> Result.eitherMap Array.rev Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
+    let inline traverseResultA
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        let oks = ResizeArray<'okOutput>(xs.Length)
+        let mutable errors: ResizeArray<'error> option = None
+        let mutable ok = true
 
-            match state, f x with
-            | Ok ys, Ok y -> traverseResultA' (Ok(Array.append [| y |] ys)) f xs
-            | Error errs, Error e -> traverseResultA' (Error(Array.append [| e |] errs)) f xs
-            | Ok _, Error e -> traverseResultA' (Error [| e |]) f xs
-            | Error e, Ok _ -> traverseResultA' (Error e) f xs
+        for x in xs do
+            match f x with
+            | Ok value when ok -> oks.Add value
+            | Ok _ -> ()
+            | Error e ->
+                let errorBuffer =
+                    match errors with
+                    | Some errors -> errors
+                    | None ->
+                        let buffer = ResizeArray<'error>()
+                        errors <- Some buffer
+                        buffer
 
-    let rec private traverseAsyncResultA' state f xs =
-        match xs with
-        | [||] ->
-            state
-            |> AsyncResult.eitherMap Array.rev Array.rev
+                errorBuffer.Add e
+                ok <- false
 
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-
-            async {
-                let! s = state
-                let! fR = f x
-
-                match s, fR with
-                | Ok ys, Ok y ->
-                    return! traverseAsyncResultA' (AsyncResult.ok (Array.append [| y |] ys)) f xs
-                | Error errs, Error e ->
-                    return!
-                        traverseAsyncResultA' (AsyncResult.error (Array.append [| e |] errs)) f xs
-                | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [| e |]) f xs
-                | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
-            }
-
-    let traverseResultA f xs = traverseResultA' (Ok [||]) f xs
+        if ok then
+            Ok(oks.ToArray())
+        else
+            match errors with
+            | Some errors -> Error(errors.ToArray())
+            | None -> Error [||]
 
     let sequenceResultA xs = traverseResultA id xs
 
-    let rec private traverseValidationA' state f xs =
-        match xs with
-        | [||] ->
-            state
-            |> Result.eitherMap Array.rev Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-            let fR = f x
+    let inline traverseValidationA
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error[]>)
+        (xs: 'okInput[])
+        =
+        let oks = ResizeArray<'okOutput>(xs.Length)
+        let mutable errors: ResizeArray<'error> option = None
+        let mutable ok = true
 
-            match state, fR with
-            | Ok ys, Ok y -> traverseValidationA' (Ok(Array.append [| y |] ys)) f xs
-            | Error errs1, Error errs2 ->
-                let errs = Array.append errs2 errs1
-                traverseValidationA' (Error errs) f xs
-            | Ok _, Error errs
-            | Error errs, Ok _ -> traverseValidationA' (Error errs) f xs
+        for x in xs do
+            match f x with
+            | Ok value when ok -> oks.Add value
+            | Ok _ -> ()
+            | Error errs ->
+                let errorBuffer =
+                    match errors with
+                    | Some errors -> errors
+                    | None ->
+                        let buffer = ResizeArray<'error>()
+                        errors <- Some buffer
+                        buffer
 
-    let traverseValidationA f xs = traverseValidationA' (Ok [||]) f xs
+                errorBuffer.AddRange errs
+                ok <- false
+
+        if ok then
+            Ok(oks.ToArray())
+        else
+            match errors with
+            | Some errors -> Error(errors.ToArray())
+            | None -> Error [||]
 
     let sequenceValidationA xs = traverseValidationA id xs
 
-    let traverseAsyncResultA f xs =
-        traverseAsyncResultA' (AsyncResult.ok [||]) f xs
+    let traverseAsyncResultA (f: 'okInput -> Async<Result<'okOutput, 'error>>) (xs: 'okInput[]) =
+        async {
+            let oks = ResizeArray<'okOutput>(xs.Length)
+            let mutable errors: ResizeArray<'error> option = None
+            let mutable ok = true
+
+            for x in xs do
+                let! result = f x
+
+                match result with
+                | Ok value when ok -> oks.Add value
+                | Ok _ -> ()
+                | Error e ->
+                    let errorBuffer =
+                        match errors with
+                        | Some errors -> errors
+                        | None ->
+                            let buffer = ResizeArray<'error>()
+                            errors <- Some buffer
+                            buffer
+
+                    errorBuffer.Add e
+                    ok <- false
+
+            return
+                if ok then
+                    Ok(oks.ToArray())
+                else
+                    match errors with
+                    | Some errors -> Error(errors.ToArray())
+                    | None -> Error [||]
+        }
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
-    let rec private traverseOptionM' (state: _ option) (f: _ -> _ option) xs =
-        match xs with
-        | [||] ->
-            state
-            |> Option.map Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-
-            let r =
-                option {
-                    let! y = f x
-                    let! ys = state
-                    return Array.append [| y |] ys
-                }
-
-            match r with
-            | Some _ -> traverseOptionM' r f xs
-            | None -> r
-
-    let rec private traverseAsyncOptionM' (state: Async<_ option>) (f: _ -> Async<_ option>) xs =
-        match xs with
-        | [||] ->
-            state
-            |> AsyncOption.map Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-
-            async {
-                let! o =
-                    asyncOption {
-                        let! y = f x
-                        let! ys = state
-                        return Array.append [| y |] ys
-                    }
-
-                match o with
-                | Some _ -> return! traverseAsyncOptionM' (Async.singleton o) f xs
-                | None -> return o
-            }
-
     /// <summary>
-    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
-    /// and returns an option containing a list of the results. If any of the function applications return None,
+    /// Applies the given function <paramref name="f"/> to each element in the input array <paramref name="xs"/>,
+    /// and returns an option containing an array of the results. If any of the function applications return None,
     /// the entire result will be None.
     /// </summary>
-    /// <param name="f">The function to apply to each element in the input list.</param>
-    /// <param name="xs">The input list.</param>
-    /// <returns>An option containing a list of the results of applying the function to each element in the input list,
+    /// <param name="f">The function to apply to each element in the input array.</param>
+    /// <param name="xs">The input array.</param>
+    /// <returns>An option containing an array of the results of applying the function to each element in the input array,
     /// or None if any of the function applications return None.</returns>
-    let traverseOptionM f xs = traverseOptionM' (Some [||]) f xs
+    let inline traverseOptionM
+        ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
+        (xs: 'okInput[])
+        =
+        let results = ResizeArray<'okOutput>(xs.Length)
+        let mutable index = 0
+        let mutable ok = true
+
+        while ok
+              && index < xs.Length do
+            match f xs[index] with
+            | Some value ->
+                results.Add value
+                index <- index + 1
+            | None -> ok <- false
+
+        if ok then Some(results.ToArray()) else None
 
     /// <summary>
-    /// Applies the monadic function <paramref name="id"/> to each element in the input list <paramref name="xs"/>,
+    /// Applies the monadic function <paramref name="id"/> to each element in the input array <paramref name="xs"/>,
     /// and returns the result as an option. If any element in the list is None, the entire result will be None.
     /// </summary>
-    /// <param name="xs">The input list.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
-    let traverseAsyncOptionM f xs =
-        traverseAsyncOptionM' (AsyncOption.some [||]) f xs
+    let traverseAsyncOptionM f (xs: _[]) =
+        async {
+            let results = ResizeArray(xs.Length)
+            let mutable index = 0
+            let mutable ok = true
+
+            while ok
+                  && index < xs.Length do
+                let! result = f xs[index]
+
+                match result with
+                | Some value ->
+                    results.Add value
+                    index <- index + 1
+                | None -> ok <- false
+
+            return if ok then Some(results.ToArray()) else None
+        }
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 
 #if !FABLE_COMPILER
-    let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
-        match xs with
-        | [||] ->
-            state
-            |> ValueOption.map Array.rev
-        | arr ->
-            let x = Array.head arr
-            let xs = Array.skip 1 arr
-
-            let r =
-                voption {
-                    let! y = f x
-                    let! ys = state
-                    return Array.append [| y |] ys
-                }
-
-            match r with
-            | ValueSome _ -> traverseVOptionM' r f xs
-            | ValueNone -> r
-
     /// <summary>
-    /// Applies the given function <paramref name="f"/> to each element in the input list <paramref name="xs"/>,
-    /// and returns an option containing a list of the results. If any of the function applications return ValueNone,
+    /// Applies the given function <paramref name="f"/> to each element in the input array <paramref name="xs"/>,
+    /// and returns an option containing an array of the results. If any of the function applications return ValueNone,
     /// the entire result will be ValueNone.
     /// </summary>
-    /// <param name="f">The function to apply to each element in the input list.</param>
-    /// <param name="xs">The input list</param>
+    /// <param name="f">The function to apply to each element in the input array.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>An Option monad containing the collected results.</returns>
-    let traverseVOptionM f xs = traverseVOptionM' (ValueSome [||]) f xs
+    let inline traverseVOptionM
+        ([<InlineIfLambda>] f: 'okInput -> 'okOutput voption)
+        (xs: 'okInput[])
+        =
+        let results = ResizeArray<'okOutput>(xs.Length)
+        let mutable index = 0
+        let mutable ok = true
+
+        while ok
+              && index < xs.Length do
+            match f xs[index] with
+            | ValueSome value ->
+                results.Add value
+                index <- index + 1
+            | ValueNone -> ok <- false
+
+        if ok then ValueSome(results.ToArray()) else ValueNone
 
     /// <summary>
-    /// Applies the <paramref name="id"/> function to each element in the input list <paramref name="xs"/>,
+    /// Applies the <paramref name="id"/> function to each element in the input array <paramref name="xs"/>,
     /// and returns the result as a value option. If any element in the list is ValueNone, the entire result will be ValueNone.
     /// </summary>
-    /// <param name="xs">The input list.</param>
+    /// <param name="xs">The input array.</param>
     /// <returns>A <see cref="Option{T}"/> representing the sequence of results.</returns>
     let sequenceVOptionM xs = traverseVOptionM id xs
 

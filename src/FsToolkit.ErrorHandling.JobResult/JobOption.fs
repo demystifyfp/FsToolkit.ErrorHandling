@@ -15,12 +15,12 @@ module JobOption =
             let t =
                 match opt with
                 | Some x -> f x
-                | None -> job { return None }
+                | None -> Job.result None
 
             return! t
         }
 
-    let inline singleton x = job { return Some x }
+    let inline singleton x = Job.result (Some x)
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f

@@ -23,7 +23,11 @@ module Task =
         }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+        task {
+            let! f' = f
+            let! x' = x
+            return f' x'
+        }
 
     let inline map ([<InlineIfLambda>] f) x =
         x
@@ -39,9 +43,20 @@ module Task =
             >> singleton
         )
 
-    let inline map2 ([<InlineIfLambda>] f) x y = (apply (apply (singleton f) x) y)
+    let inline map2 ([<InlineIfLambda>] f) x y =
+        task {
+            let! x' = x
+            let! y' = y
+            return f x' y'
+        }
 
-    let inline map3 ([<InlineIfLambda>] f) x y z = apply (map2 f x y) z
+    let inline map3 ([<InlineIfLambda>] f) x y z =
+        task {
+            let! x' = x
+            let! y' = y
+            let! z' = z
+            return f x' y' z'
+        }
 
     /// Allows us to call `do!` syntax inside a computation expression
     let inline ignore<'a> (x: Task<'a>) =

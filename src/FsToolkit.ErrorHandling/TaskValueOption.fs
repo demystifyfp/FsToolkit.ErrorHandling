@@ -15,12 +15,12 @@ module TaskValueOption =
             let t =
                 match opt with
                 | ValueSome x -> f x
-                | ValueNone -> task { return ValueNone }
+                | ValueNone -> Task.singleton ValueNone
 
             return! t
         }
 
-    let inline valueSome x = task { return ValueSome x }
+    let inline valueSome x = Task.singleton (ValueSome x)
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f

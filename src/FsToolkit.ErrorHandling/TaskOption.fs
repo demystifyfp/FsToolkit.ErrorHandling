@@ -15,12 +15,12 @@ module TaskOption =
             let t =
                 match opt with
                 | Some x -> f x
-                | None -> task { return None }
+                | None -> Task.singleton None
 
             return! t
         }
 
-    let inline some x = task { return Some x }
+    let inline some x = Task.singleton (Some x)
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> some (f' x')) x) f
