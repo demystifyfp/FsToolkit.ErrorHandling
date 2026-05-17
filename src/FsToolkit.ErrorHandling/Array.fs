@@ -44,11 +44,7 @@ module Array =
                     error <- e
                     ok <- false
 
-            return
-                if ok then
-                    Ok(results.ToArray())
-                else
-                    Error error
+            return if ok then Ok(results.ToArray()) else Error error
         }
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
@@ -109,11 +105,7 @@ module Array =
                     errors.Add e
                     ok <- false
 
-            return
-                if ok then
-                    Ok(oks.ToArray())
-                else
-                    Error(errors.ToArray())
+            return if ok then Ok(oks.ToArray()) else Error(errors.ToArray())
         }
 
     let sequenceAsyncResultA xs = traverseAsyncResultA id xs
@@ -169,11 +161,7 @@ module Array =
                     index <- index + 1
                 | None -> ok <- false
 
-            return
-                if ok then
-                    Some(results.ToArray())
-                else
-                    None
+            return if ok then Some(results.ToArray()) else None
         }
 
     let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs

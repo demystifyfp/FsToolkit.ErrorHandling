@@ -594,7 +594,10 @@ module ArrayCandidates =
                 errors.Add e
                 ok <- false
 
-        if ok then Ok(results.ToArray()) else Error(errors.ToArray())
+        if ok then
+            Ok(results.ToArray())
+        else
+            Error(errors.ToArray())
 
     let inline traverseOptionM ([<InlineIfLambda>] f: 'a -> 'b option) (xs: 'a[]) =
         let results = ResizeArray<'b>(xs.Length)
@@ -624,7 +627,10 @@ module ArrayCandidates =
                 errors.AddRange errs
                 ok <- false
 
-        if ok then Ok(results.ToArray()) else Error(errors.ToArray())
+        if ok then
+            Ok(results.ToArray())
+        else
+            Error(errors.ToArray())
 
     let inline traverseVOptionM ([<InlineIfLambda>] f: 'a -> 'b voption) (xs: 'a[]) =
         let results = ResizeArray<'b>(xs.Length)
@@ -645,7 +651,9 @@ module ArrayOriginal =
 
     let rec private traverseResultM' (state: Result<_, _>) (f: _ -> Result<_, _>) xs =
         match xs with
-        | [||] -> state |> Result.map Array.rev
+        | [||] ->
+            state
+            |> Result.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -665,7 +673,9 @@ module ArrayOriginal =
 
     let rec private traverseResultA' state f xs =
         match xs with
-        | [||] -> state |> Result.eitherMap Array.rev Array.rev
+        | [||] ->
+            state
+            |> Result.eitherMap Array.rev Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -680,7 +690,9 @@ module ArrayOriginal =
 
     let rec private traverseOptionM' (state: _ option) (f: _ -> _ option) xs =
         match xs with
-        | [||] -> state |> Option.map Array.rev
+        | [||] ->
+            state
+            |> Option.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -700,7 +712,9 @@ module ArrayOriginal =
 
     let rec private traverseValidationA' state f xs =
         match xs with
-        | [||] -> state |> Result.eitherMap Array.rev Array.rev
+        | [||] ->
+            state
+            |> Result.eitherMap Array.rev Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -718,7 +732,9 @@ module ArrayOriginal =
 
     let rec private traverseVOptionM' (state: voption<_>) (f: _ -> voption<_>) xs =
         match xs with
-        | [||] -> state |> ValueOption.map Array.rev
+        | [||] ->
+            state
+            |> ValueOption.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -742,7 +758,9 @@ module ArrayOriginal =
         xs
         =
         match xs with
-        | [||] -> state |> AsyncResult.map Array.rev
+        | [||] ->
+            state
+            |> AsyncResult.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -765,7 +783,9 @@ module ArrayOriginal =
 
     let rec private traverseAsyncResultA' state f xs =
         match xs with
-        | [||] -> state |> AsyncResult.eitherMap Array.rev Array.rev
+        | [||] ->
+            state
+            |> AsyncResult.eitherMap Array.rev Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -775,9 +795,11 @@ module ArrayOriginal =
                 let! fR = f x
 
                 match s, fR with
-                | Ok ys, Ok y -> return! traverseAsyncResultA' (AsyncResult.ok (Array.append [| y |] ys)) f xs
+                | Ok ys, Ok y ->
+                    return! traverseAsyncResultA' (AsyncResult.ok (Array.append [| y |] ys)) f xs
                 | Error errs, Error e ->
-                    return! traverseAsyncResultA' (AsyncResult.error (Array.append [| e |] errs)) f xs
+                    return!
+                        traverseAsyncResultA' (AsyncResult.error (Array.append [| e |] errs)) f xs
                 | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [| e |]) f xs
                 | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
             }
@@ -787,7 +809,9 @@ module ArrayOriginal =
 
     let rec private traverseAsyncOptionM' (state: Async<_ option>) (f: _ -> Async<_ option>) xs =
         match xs with
-        | [||] -> state |> AsyncOption.map Array.rev
+        | [||] ->
+            state
+            |> AsyncOption.map Array.rev
         | arr ->
             let x = Array.head arr
             let xs = Array.skip 1 arr
@@ -812,12 +836,13 @@ module ArrayOriginal =
 type ArrayTraverseBenchmarks() =
     let allOk = Array.init 1000 id
 
-    let halfError =
-        Array.init 1000 (fun i -> if i = 500 then -1 else i)
+    let halfError = Array.init 1000 (fun i -> if i = 500 then -1 else i)
 
     let toResult x = if x < 0 then Error x else Ok(x + 1)
     let toOption x = if x < 0 then None else Some(x + 1)
-    let toValidation x = if x < 0 then Error [| x |] else Ok(x + 1)
+
+    let toValidation x =
+        if x < 0 then Error [| x |] else Ok(x + 1)
 
     [<Benchmark(Baseline = true)>]
     member _.Array_Original_ResultM_AllOk() =
@@ -895,10 +920,10 @@ type ArrayTraverseBenchmarks() =
 type ArrayVOptionTraverseBenchmarks() =
     let allSome = Array.init 1000 id
 
-    let halfNone =
-        Array.init 1000 (fun i -> if i = 500 then -1 else i)
+    let halfNone = Array.init 1000 (fun i -> if i = 500 then -1 else i)
 
-    let toVOption x = if x < 0 then ValueNone else ValueSome(x + 1)
+    let toVOption x =
+        if x < 0 then ValueNone else ValueSome(x + 1)
 
     [<Benchmark(Baseline = true)>]
     member _.Array_Original_VOptionM_AllSome() =
@@ -928,8 +953,7 @@ type ArrayVOptionTraverseBenchmarks() =
 type ArrayAsyncTraverseBenchmarks() =
     let allOk = Array.init 1000 id
 
-    let halfError =
-        Array.init 1000 (fun i -> if i = 500 then -1 else i)
+    let halfError = Array.init 1000 (fun i -> if i = 500 then -1 else i)
 
     let toAsyncResult x =
         async { return if x < 0 then Error x else Ok(x + 1) }
@@ -1033,32 +1057,28 @@ type TaskOptionApplyBenchmarks() =
     let noneX: Task<int option> = Task.FromResult None
 
     [<Benchmark(Baseline = true)>]
-    member _.TaskOption_Original_Apply_SomeSome() =
-        TaskOptionOriginal.apply someF someX
+    member _.TaskOption_Original_Apply_SomeSome() = TaskOptionOriginal.apply someF someX
 
     [<Benchmark>]
     member _.TaskOption_Current_Apply_SomeSome() =
         FsToolkit.ErrorHandling.TaskOption.apply someF someX
 
     [<Benchmark>]
-    member _.TaskOption_Original_Apply_NoneFunction() =
-        TaskOptionOriginal.apply noneF someX
+    member _.TaskOption_Original_Apply_NoneFunction() = TaskOptionOriginal.apply noneF someX
 
     [<Benchmark>]
     member _.TaskOption_Current_Apply_NoneFunction() =
         FsToolkit.ErrorHandling.TaskOption.apply noneF someX
 
     [<Benchmark>]
-    member _.TaskOption_Original_Apply_NoneValue() =
-        TaskOptionOriginal.apply someF noneX
+    member _.TaskOption_Original_Apply_NoneValue() = TaskOptionOriginal.apply someF noneX
 
     [<Benchmark>]
     member _.TaskOption_Current_Apply_NoneValue() =
         FsToolkit.ErrorHandling.TaskOption.apply someF noneX
 
     [<Benchmark>]
-    member _.TaskOption_Original_Some() =
-        TaskOptionOriginal.some 1
+    member _.TaskOption_Original_Some() = TaskOptionOriginal.some 1
 
     [<Benchmark>]
     member _.TaskOption_Current_Some() =
@@ -1112,8 +1132,7 @@ type TaskValueOptionApplyBenchmarks() =
         FsToolkit.ErrorHandling.TaskValueOption.apply someF noneX
 
     [<Benchmark>]
-    member _.TaskValueOption_Original_ValueSome() =
-        TaskValueOptionOriginal.valueSome 1
+    member _.TaskValueOption_Original_ValueSome() = TaskValueOptionOriginal.valueSome 1
 
     [<Benchmark>]
     member _.TaskValueOption_Current_ValueSome() =
@@ -1125,7 +1144,9 @@ type TaskValueOptionApplyBenchmarks() =
 
     [<Benchmark>]
     member _.TaskValueOption_Current_Bind_ValueSome() =
-        FsToolkit.ErrorHandling.TaskValueOption.bind (fun x -> Task.FromResult(ValueSome(x + 1))) someX
+        FsToolkit.ErrorHandling.TaskValueOption.bind
+            (fun x -> Task.FromResult(ValueSome(x + 1)))
+            someX
 
     [<Benchmark>]
     member _.TaskValueOption_Original_Bind_ValueNone() =
@@ -1133,7 +1154,9 @@ type TaskValueOptionApplyBenchmarks() =
 
     [<Benchmark>]
     member _.TaskValueOption_Current_Bind_ValueNone() =
-        FsToolkit.ErrorHandling.TaskValueOption.bind (fun x -> Task.FromResult(ValueSome(x + 1))) noneX
+        FsToolkit.ErrorHandling.TaskValueOption.bind
+            (fun x -> Task.FromResult(ValueSome(x + 1)))
+            noneX
 
 module JobOptionOriginal =
 
@@ -1258,7 +1281,9 @@ module ListOriginal =
 type ListTaskResultTraverseBenchmarks() =
     let allOk = List.init 1000 id
     let halfError = List.init 1000 (fun i -> if i = 500 then -1 else i)
-    let toTaskResult x = Task.FromResult(if x < 0 then Error x else Ok(x + 1))
+
+    let toTaskResult x =
+        Task.FromResult(if x < 0 then Error x else Ok(x + 1))
 
     [<Benchmark(Baseline = true)>]
     member _.List_Original_TaskResultM_AllOk() =
