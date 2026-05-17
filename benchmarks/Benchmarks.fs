@@ -6,7 +6,6 @@ open BenchmarkDotNet.Attributes
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 open Hopac
-// open FsToolkit.ErrorHandling
 
 let okF x = x + 2
 let errorF x = x - 4
@@ -903,6 +902,18 @@ type ArrayTraverseBenchmarks() =
     [<Benchmark>]
     member _.Array_Candidate_OptionM_AllSome() =
         ArrayCandidates.traverseOptionM toOption allOk
+
+    [<Benchmark>]
+    member _.Array_Original_ValidationA_AllOk() =
+        ArrayOriginal.traverseValidationA toValidation allOk
+
+    [<Benchmark>]
+    member _.Array_Current_ValidationA_AllOk() =
+        FsToolkit.ErrorHandling.Array.traverseValidationA toValidation allOk
+
+    [<Benchmark>]
+    member _.Array_Candidate_ValidationA_AllOk() =
+        ArrayCandidates.traverseValidationA toValidation allOk
 
     [<Benchmark>]
     member _.Array_Original_ValidationA_Errors() =
