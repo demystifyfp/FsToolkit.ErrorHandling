@@ -10,6 +10,7 @@ open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
 open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 open Microsoft.FSharp.Control
 open Microsoft.FSharp.Collections
+open IcedTasks
 
 /// ValueTask<'T voption>
 type ValueTaskValueOption<'T> = ValueTask<'T voption>
@@ -431,12 +432,10 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
             (t: ^TaskLike)
             : ValueTaskValueOption<'T> =
 
-            ValueTask<'T voption>(
-                task {
-                    let! r = t
-                    return ValueSome r
-                }
-            )
+            valueTask {
+                let! r = t
+                return ValueSome r
+            }
 
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> ValueTaskValueOptionCode<'TOverall, 'T>)
@@ -533,31 +532,28 @@ module ValueTaskValueOptionCEExtensionsMediumPriority =
     type ValueTaskValueOptionBuilderBase with
 
         member inline this.Source(t: Task<'T>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(Task.map ValueSome t)
+            valueTask {
+                let! r = t
+                return ValueSome r
+            }
 
         member inline this.Source(t: Task) : ValueTaskValueOption<unit> =
-            ValueTask<unit voption>(
-                task {
-                    do! t
-                    return ValueSome()
-                }
-            )
+            valueTask {
+                do! t
+                return ValueSome()
+            }
 
         member inline this.Source(t: ValueTask<'T>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(
-                task {
-                    let! r = t
-                    return ValueSome r
-                }
-            )
+            valueTask {
+                let! r = t
+                return ValueSome r
+            }
 
         member inline this.Source(t: ValueTask) : ValueTaskValueOption<unit> =
-            ValueTask<unit voption>(
-                task {
-                    do! t
-                    return ValueSome()
-                }
-            )
+            valueTask {
+                do! t
+                return ValueSome()
+            }
 
         member inline this.Source(opt: 'T voption) : ValueTaskValueOption<'T> =
             ValueTask<'T voption>(opt)

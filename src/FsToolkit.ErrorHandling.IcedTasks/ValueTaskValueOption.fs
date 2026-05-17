@@ -1,32 +1,26 @@
 namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
+open IcedTasks
 
 
 [<RequireQualifiedAccess>]
 module ValueTaskValueOption =
 
     let inline map ([<InlineIfLambda>] f) (ar: ValueTask<_ voption>) =
-        ValueTask<_ voption>(
-            task {
-                let! opt = ar
-                return ValueOption.map f opt
-            }
-        )
+        valueTask {
+            let! opt = ar
+            return ValueOption.map f opt
+        }
 
     let inline bind ([<InlineIfLambda>] f) (ar: ValueTask<_ voption>) =
-        ValueTask<_ voption>(
-            task {
-                let! opt = ar
+        valueTask {
+            let! opt = ar
 
-                let t =
-                    match opt with
-                    | ValueSome x -> f x
-                    | ValueNone -> ValueTask<_ voption>(ValueNone)
-
-                return! t
-            }
-        )
+            match opt with
+            | ValueSome x -> return! f x
+            | ValueNone -> return ValueNone
+        }
 
     let inline valueSome x = ValueTask<_ voption>(ValueSome x)
 
@@ -34,13 +28,11 @@ module ValueTaskValueOption =
         bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f
 
     let inline zip (x1: ValueTask<'a voption>) (x2: ValueTask<'b voption>) =
-        ValueTask<('a * 'b) voption>(
-            task {
-                let! r1 = x1
-                let! r2 = x2
-                return ValueOption.zip r1 r2
-            }
-        )
+        valueTask {
+            let! r1 = x1
+            let! r2 = x2
+            return ValueOption.zip r1 r2
+        }
 
     /// <summary>
     /// Returns result of running <paramref name="onValueSome"/> if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onValueNone"/>
@@ -56,15 +48,13 @@ module ValueTaskValueOption =
         ([<InlineIfLambda>] onValueNone: unit -> ValueTask<'output>)
         (input: ValueTask<'input voption>)
         : ValueTask<'output> =
-        ValueTask<'output>(
-            task {
-                let! opt = input
+        valueTask {
+            let! opt = input
 
-                match opt with
-                | ValueSome v -> return! onValueSome v
-                | ValueNone -> return! onValueNone ()
-            }
-        )
+            match opt with
+            | ValueSome v -> return! onValueSome v
+            | ValueNone -> return! onValueNone ()
+        }
 
     /// <summary>
     ///  Gets the value of the voption if the voption is <c>ValueSome</c>, otherwise returns the specified default value.
@@ -75,12 +65,10 @@ module ValueTaskValueOption =
     /// The voption if the voption is <c>ValueSome</c>, else the default value.
     /// </returns>
     let inline defaultValue (value: 'value) (valueTaskValueOption: ValueTask<'value voption>) =
-        ValueTask<'value>(
-            task {
-                let! opt = valueTaskValueOption
-                return ValueOption.defaultValue value opt
-            }
-        )
+        valueTask {
+            let! opt = valueTaskValueOption
+            return ValueOption.defaultValue value opt
+        }
 
     /// <summary>
     ///  Gets the value of the voption if the voption is <c>ValueSome</c>, otherwise evaluates <paramref name="defThunk"/> and returns the result.
@@ -94,9 +82,7 @@ module ValueTaskValueOption =
         ([<InlineIfLambda>] defThunk: unit -> 'value)
         (valueTaskValueOption: ValueTask<'value voption>)
         : ValueTask<'value> =
-        ValueTask<'value>(
-            task {
-                let! opt = valueTaskValueOption
-                return ValueOption.defaultWith defThunk opt
-            }
-        )
+        valueTask {
+            let! opt = valueTaskValueOption
+            return ValueOption.defaultWith defThunk opt
+        }
