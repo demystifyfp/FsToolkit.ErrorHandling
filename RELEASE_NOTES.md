@@ -1,3 +1,12 @@
+### 6.0.0-beta001 - May 18, 2026
+
+- BREAKING: [Move `ValueTaskValueOption` to the IcedTasks package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/363) Credits @TheAngryByrd
+    - This was misplaced originally as it depends on IcedTasks since it's using valueTasks. If you were using this before, add 
+FsToolkit.ErrorHandling.IcedTasks as a dependency.
+- [Add `partitionResults` with single-pass implementations for Array, List, and Seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/359) Credits @bpe-incom
+- [Fix exception handling in task dynamic invocation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/360) Credits Eugene Auduchinok
+- [Improve performance of task applicative helpers, array traversal helpers, option workflows, and list task traversal](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/364) Credits @TheAngryByrd
+
 ### 5.2.0 - February 27, 2026
 
 - [Add IAsyncEnumerable support to task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/347) Credits @Copilot
