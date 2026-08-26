@@ -396,10 +396,11 @@ module CancellableValueTaskOptionCE =
                         let mutable awaiter = compensation ()
 
                         let cont =
-                            CancellableValueTaskOptionBuilderBaseResumptionFunc<'TOverall>(fun sm ->
-                                Awaiter.GetResult awaiter
-                                true
-                            )
+                            CancellableValueTaskOptionBuilderBaseResumptionFunc<'TOverall>
+                                (fun sm ->
+                                    Awaiter.GetResult awaiter
+                                    true
+                                )
 
                         // shortcut to continue immediately
                         if Awaiter.IsCompleted awaiter then
@@ -494,10 +495,11 @@ module CancellableValueTaskOptionCE =
                         let mutable awaiter = condition ()
 
                         let cont =
-                            CancellableValueTaskOptionBuilderBaseResumptionFunc<'TOverall>(fun sm ->
-                                condition_res <- Awaiter.GetResult awaiter
-                                if condition_res then body.Invoke(&sm) else true
-                            )
+                            CancellableValueTaskOptionBuilderBaseResumptionFunc<'TOverall>
+                                (fun sm ->
+                                    condition_res <- Awaiter.GetResult awaiter
+                                    if condition_res then body.Invoke(&sm) else true
+                                )
 
                         if Awaiter.IsCompleted awaiter then
                             cont.Invoke(&sm)

@@ -332,7 +332,8 @@ let traverseAsyncResultMTests =
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
                 |> Seq.toArray
 
-            let! actual = Seq.traverseAsyncResultM (notifyNewPostSuccess (PostId newPostId)) userIds
+            let! actual =
+                Seq.traverseAsyncResultM (notifyNewPostSuccess (PostId newPostId)) userIds
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
@@ -562,7 +563,8 @@ let traverseAsyncResultATests =
                 |> Seq.map (fun (UserId user) -> (newPostId, user))
                 |> Seq.toArray
 
-            let! actual = Seq.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
+            let! actual =
+                Seq.traverseAsyncResultA (notifyNewPostSuccess (PostId newPostId)) userIds
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
