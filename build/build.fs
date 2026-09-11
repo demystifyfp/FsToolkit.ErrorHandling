@@ -35,7 +35,7 @@ let project = "FsToolkit.ErrorHandling"
 let publishUrl = "https://www.nuget.org"
 
 let summary =
-    "FsToolkit.ErrorHandling is a utility library to work with the Result type in F#, and allows you to do clear, simple and powerful error handling."
+    "FsToolkit.ErrorHandling is a utility library to work with the Result type in F# enabling you to do clear, simple and powerful error handling."
 
 let isCI = lazy (environVarAsBoolOrDefault "CI" false)
 
