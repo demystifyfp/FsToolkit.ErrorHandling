@@ -6,6 +6,8 @@ FsToolkit.ErrorHandling.IcedTasks as a dependency.
 - [Add `partitionResults` with single-pass implementations for Array, List, and Seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/359) Credits @bpe-incom
 - [Fix exception handling in task dynamic invocation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/360) Credits Eugene Auduchinok
 - [Improve performance of task applicative helpers, array traversal helpers, option workflows, and list task traversal](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/364) Credits @TheAngryByrd
+- Obsolete Result.valueOr (same signature/impl as FSharp.Core defaultWith)
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: Result.map, mapError, bind, isOk, isError, defaultWith, defaultValue
 
 ### 5.2.0 - February 27, 2026
 

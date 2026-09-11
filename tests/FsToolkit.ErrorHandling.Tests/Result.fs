@@ -579,13 +579,29 @@ let defaultWithTests =
 
             Expect.equal v 42 ""
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultWith returns the value if Ok"
         <| fun _ ->
-            let v = Result.defaultWith (fun _ -> 42) (Error err)
+            let res = Ok "foo"
 
-            Expect.equal v 42 ""
+            let value =
+                res
+                |> Result.defaultWith (fun _ -> "bar")
+
+            Expect.equal value "foo" ""
+
+        testCase "defaultWith returns the function's result if Error"
+        <| fun _ ->
+            let res = Error "bar"
+
+            let value =
+                res
+                |> Result.defaultWith (fun err ->
+                    "foo"
+                    + err
+                )
+
+            Expect.equal value "foobar" ""
     ]
-
 
 let ignoreErrorTests =
     testList "ignoreError Tests" [
@@ -847,32 +863,6 @@ let sequenceTaskTests =
 
 #endif
 
-let valueOrTests =
-    testList "valueOrTests Tests" [
-        testCase "valueOrTests returns the value if Ok"
-        <| fun _ ->
-            let res = Ok "foo"
-
-            let value =
-                res
-                |> Result.valueOr (fun _ -> "bar")
-
-            Expect.equal value "foo" ""
-
-        testCase "valueOrTests returns the function's result if Error"
-        <| fun _ ->
-            let res = Error "bar"
-
-            let value =
-                res
-                |> Result.valueOr (fun err ->
-                    "foo"
-                    + err
-                )
-
-            Expect.equal value "foobar" ""
-    ]
-
 let zipTests =
     testList "zip tests" [
         testCase "Ok, Ok"
@@ -995,7 +985,6 @@ let allTests =
 #if !FABLE_COMPILER
         sequenceTaskTests
 #endif
-        valueOrTests
         zipTests
         zipErrorTests
         checkTests

@@ -4,7 +4,7 @@
     <PropertyGroup>
         <Description>FsToolkit.ErrorHandling is an extensive utility library based around the F# Result type, enabling consistent and powerful error handling.</Description>
         <Authors>demystifyfp, TheAngryByrd</Authors>
-        <Copyright>Copyright © 2018-24</Copyright>
+        <Copyright>Copyright © 2018-26</Copyright>
         <PackageProjectUrl>https://demystifyfp.gitbook.io/fstoolkit-errorhandling</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
@@ -30,6 +30,11 @@
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
   <Choose>
+    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0'))">
+      <ItemGroup>
+        <PackageReference Include="FSharp.Core" VersionOverride="11.0.101-rc1.26425.128" />
+      </ItemGroup>
+    </When>
     <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
       <ItemGroup>
       <PackageReference Include="FSharp.Core" VersionOverride="9.0.300" />
