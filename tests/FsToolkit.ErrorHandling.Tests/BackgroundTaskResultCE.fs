@@ -369,6 +369,50 @@ let ``BackgroundTaskResultCE using Tests`` =
             }
     ]
 
+let ``BackgroundTaskResultCE while error async disposal Tests`` =
+    testList "BackgroundTaskResultCE while error async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileErrorWaitsForAsyncDisposal
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicBackgroundTaskResult {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Error "error"
+                                }
+                            else
+                                backgroundTaskResult {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Error "error"
+                                }
+                        )
+    ]
+
 let ``BackgroundTaskResultCE loop Tests`` =
     testList "BackgroundTaskResultCE loop Tests" [
         yield! [
@@ -757,6 +801,7 @@ let allTests =
         ``BackgroundTaskResultCE combine/zero/delay/run Tests``
         ``BackgroundTaskResultCE try Tests``
         ``BackgroundTaskResultCE using Tests``
+        ``BackgroundTaskResultCE while error async disposal Tests``
         ``BackgroundTaskResultCE loop Tests``
         ``BackgroundTaskResultCE applicative tests``
         ``BackgroundTaskResultCE inference checks``
