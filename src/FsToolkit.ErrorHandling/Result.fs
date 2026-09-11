@@ -7,6 +7,7 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Result =
 
+#if !NET_10_0_OR_GREATER
     /// <summary>
     /// Applies a transformation to the value of a <c>Result</c> to a new value using the specified mapper function.
     ///
@@ -81,6 +82,7 @@ module Result =
         match value with
         | Ok _ -> false
         | Error _ -> true
+#endif
 
     /// <summary>
     /// Applies the appropriate function based on the result of the input.
@@ -499,6 +501,7 @@ module Result =
         result
         |> mapError (fun () -> error)
 
+#if !NET_10_0_OR_GREATER
     /// <summary>
     /// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
     ///
@@ -512,6 +515,7 @@ module Result =
         | Ok x -> x
         | Error _ -> ifError
 
+#endif
     /// <summary>
     /// Returns the contained value if <c>Error</c>, otherwise returns the provided value
     ///
@@ -525,6 +529,7 @@ module Result =
         | Error error -> error
         | Ok _ -> ifOk
 
+#if !NET_10_0_OR_GREATER
     /// <summary>
     /// Returns the contained value if <c>Ok</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
     ///
@@ -541,6 +546,7 @@ module Result =
         | Ok x -> x
         | Error e -> ifErrorThunk e
 
+#endif
     /// <summary>
     /// Same as <c>defaultValue</c> for a result where the Ok value is unit. The name
     /// describes better what is actually happening in this case.
@@ -660,6 +666,7 @@ module Result =
         }
 #endif
 
+#if !NET_10_0_OR_GREATER // NOTE duplicate of defaultWith
     /// <summary>
     /// Returns the <c>Ok</c> value or runs the specified function over the error value.
     ///
@@ -673,6 +680,7 @@ module Result =
         | Ok x -> x
         | Error x -> f x
 
+#endif
     /// <summary>
     /// Takes two results and returns a tuple of the pair
     ///
