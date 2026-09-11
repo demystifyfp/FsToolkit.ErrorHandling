@@ -4,6 +4,7 @@
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Result
 
+#if !NET_10_0_OR_GREATER
 /// Applies a transformation to the value of a <c>Result</c> to a new value using the specified mapper function.
 ///
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/map</href>
@@ -77,6 +78,7 @@ let inline isError (value: Result<'ok, 'error>) : bool =
     match value with
     | Ok _ -> false
     | Error _ -> true
+#endif
 
 /// <summary>
 /// Applies the appropriate function based on the result of the input.
@@ -301,6 +303,7 @@ let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, '
     result
     |> mapError (fun () -> error)
 
+#if !NET_10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
 ///
@@ -313,6 +316,7 @@ let inline defaultValue (ifError: 'ok) (result: Result<'ok, 'error>) : 'ok =
     match result with
     | Ok x -> x
     | Error _ -> ifError
+#endif
 
 /// <summary>
 /// Returns the contained value if <c>Error</c>, otherwise returns the provided value
@@ -327,6 +331,7 @@ let inline defaultError (ifOk: 'error) (result: Result<'ok, 'error>) : 'error =
     | Error error -> error
     | Ok _ -> ifOk
 
+#if !NET_10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
 ///
@@ -342,6 +347,7 @@ let inline defaultWith
     match result with
     | Ok x -> x
     | Error e -> ifErrorThunk e
+#endif
 
 /// <summary>
 /// Same as <c>defaultValue</c> for a result where the Ok value is unit. The name
@@ -458,6 +464,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
     }
 #endif
 
+#if !NET_10_0_OR_GREATER // NOTE duplicate of defaultWith
 /// <summary>
 /// Returns the <c>Ok</c> value or runs the specified function over the error value.
 /// </summary>
@@ -467,6 +474,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
 [<System.Obsolete "Please use defaultWith instead of valueOr">]
 let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
     defaultWith f res
+#endif
 
 /// <summary>
 /// Takes two results and returns a tuple of the pair
