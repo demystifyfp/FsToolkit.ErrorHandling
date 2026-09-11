@@ -97,7 +97,6 @@ type TaskResultBuilderBase() =
             TaskResultCode<_, _, _>(fun sm ->
                 if sm.Data.IsResultError then
                     keepGoing <- false
-                    sm.Data.MethodBuilder.SetResult sm.Data.Result
                     true
                 else
                     body.Invoke(&sm)
@@ -308,7 +307,7 @@ type TaskResultBuilder() =
                         let step = info.ResumptionFunc.Invoke(&sm)
                         // printfn "RunDynamic AfterInvoke Data --> %A %A" sm.Data.Result sm.Data.MethodBuilder.Task.Status
 
-                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        // If the `sm.Data.MethodBuilder` has already completed, we shouldn't continue
                         if sm.Data.IsTaskCompleted then
                             ()
                         elif step then
@@ -350,7 +349,7 @@ type TaskResultBuilder() =
                         // printfn "Run BeforeInvoke Task.Status  --> %A" sm.Data.MethodBuilder.Task.Status
                         let __stack_code_fin = code.Invoke(&sm)
                         // printfn "Run Task.Status --> %A" sm.Data.MethodBuilder.Task.Status
-                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        // If the `sm.Data.MethodBuilder` has already completed, we shouldn't continue
                         if
                             __stack_code_fin
                             && not sm.Data.IsTaskCompleted

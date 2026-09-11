@@ -663,6 +663,51 @@ let ceTestsApplicative =
             }
     ]
 
+let ``TaskValueOptionCE while ValueNone async disposal Tests`` =
+    testList "TaskValueOptionCE while ValueNone async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        ValueNone
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicTaskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                            else
+                                taskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                        )
+    ]
+
 let ``TaskValueOptionCE inference checks`` =
     testList "TaskValueOptionCE inference checks" [
         testCase "Inference checks"
@@ -678,5 +723,6 @@ let allTests =
     testList "TaskValueOption CE Tests" [
         ceTests
         ceTestsApplicative
+        ``TaskValueOptionCE while ValueNone async disposal Tests``
         ``TaskValueOptionCE inference checks``
     ]

@@ -798,6 +798,93 @@ let ``TaskValidationCE applicative tests`` =
             }
     ]
 
+let ``TaskValidationCE while Error async disposal Tests`` =
+    testList "TaskValidationCE while Error async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "taskValidation %s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        (Validation.error "error")
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicTaskValidation {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Validation.error "error"
+                                }
+                            else
+                                taskValidation {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Validation.error "error"
+                                }
+                        )
+
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "backgroundTaskValidation %s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        (Validation.error "error")
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicBackgroundTaskValidation {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Validation.error "error"
+                                }
+                            else
+                                backgroundTaskValidation {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Validation.error "error"
+                                }
+                        )
+    ]
+
 let ``TaskValidationCE inference checks`` =
     testList "TaskValidationCE inference checks" [
         testCase "Inference checks"
@@ -819,5 +906,6 @@ let allTests =
         ``TaskValidationCE using Tests``
         ``TaskValidationCE loop Tests``
         ``TaskValidationCE applicative tests``
+        ``TaskValidationCE while Error async disposal Tests``
         ``TaskValidationCE inference checks``
     ]
