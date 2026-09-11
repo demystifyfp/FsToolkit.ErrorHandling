@@ -84,12 +84,12 @@ let applyTests =
             |> Expect.hasTaskNoneValue
     ]
 
-let retnTests =
-    testList "TaskOption.retn Tests" [
-        testCase "retn with x"
+let someTests =
+    testList "TaskOption.some Tests" [
+        testCase "some with x"
         <| fun _ ->
             TaskOption.some 267
-            |> Expect.hasTaskSomeValue (267)
+            |> Expect.hasTaskSomeValue 267
     ]
 
 let taskOptionOperatorTests =
@@ -193,7 +193,7 @@ let allTests =
         mapTests
         bindTests
         applyTests
-        retnTests
+        someTests
         taskOptionOperatorTests
         eitherTests
         defaultValueTests

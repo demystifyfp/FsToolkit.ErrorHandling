@@ -823,7 +823,3 @@ let bindRequireValueOptionTests =
                 |> Expect.hasJobOkValue "john_doe"
         }
     ]
-
-type CreatePostResult =
-    | PostSuccess of NotifyNewPostRequest
-    | NotAllowedToPost

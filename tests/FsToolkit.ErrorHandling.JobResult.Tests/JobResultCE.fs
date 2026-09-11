@@ -2,8 +2,6 @@ module JobResultCETests
 
 
 open Expecto
-open SampleDomain
-open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 open Hopac
@@ -33,7 +31,7 @@ let ``JobResultCE return! Tests`` =
             let data = Result.Ok innerData
             let! actual = jobResult { return! data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Ok Choice"
         <| job {
@@ -49,7 +47,7 @@ let ``JobResultCE return! Tests`` =
             let data = Result.Ok innerData
             let! actual = jobResult { return! Async.singleton data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Ok TaskResult"
         <| job {
@@ -57,7 +55,7 @@ let ``JobResultCE return! Tests`` =
             let data = Result.Ok innerData
             let! actual = jobResult { return! Task.FromResult data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Async"
         <| job {
@@ -97,7 +95,7 @@ let ``JobResultCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
 
         }
         testCaseJob "Bind Ok Choice"
@@ -149,7 +147,7 @@ let ``JobResultCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data.Result) "Should be ok"
+            Expect.equal actual data.Result "Should be ok"
         }
         testCaseJob "Bind Async"
         <| job {
@@ -262,7 +260,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use d = makeDisposable ()
+                    use _d = makeDisposable ()
                     return data
                 }
 
@@ -274,7 +272,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use! d =
+                    use! _d =
                         makeDisposable ()
                         |> Result.Ok
 
@@ -289,7 +287,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use d = null
+                    use _d = null
                     return data
                 }
 
@@ -308,8 +306,7 @@ let ``JobResultCE loop Tests`` =
             ]
 
             for maxIndex in maxIndices do
-                testCaseJob
-                <| sprintf "While - %i" maxIndex
+                testCaseJob $"While - %i{maxIndex}"
                 <| job {
                     let data = 42
                     let mutable index = 0
@@ -351,7 +348,7 @@ let ``JobResultCE loop Tests`` =
             let! actual =
                 jobResult {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! _x = data[loopCount]
 
                         loopCount <-
                             loopCount
@@ -370,7 +367,7 @@ let ``JobResultCE loop Tests`` =
 
             let! actual =
                 jobResult {
-                    for i in [ 1..10 ] do
+                    for _ in [ 1..10 ] do
                         ()
 
                     return data
@@ -384,7 +381,7 @@ let ``JobResultCE loop Tests`` =
 
             let! actual =
                 jobResult {
-                    for i = 1 to 10 do
+                    for _ = 1 to 10 do
                         ()
 
                     return data
@@ -408,7 +405,7 @@ let ``JobResultCE loop Tests`` =
             let! actual =
                 jobResult {
                     for i in data do
-                        let! x = i
+                        let! _ = i
 
                         loopCount <-
                             loopCount
