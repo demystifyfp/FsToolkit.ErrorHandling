@@ -4,11 +4,9 @@ open Fake.IO
 open Fake.DotNet
 open Fake.IO.FileSystemOperators
 open Fake.Core.TargetOperators
-open Fake.DotNet.Testing
 open Fake.IO.Globbing.Operators
 open Fake.Tools
 open Fake.JavaScript
-open System
 open System.IO
 open Fake.BuildServer
 open FsToolkit.Build
@@ -41,7 +39,7 @@ let isCI = lazy (environVarAsBoolOrDefault "CI" false)
 
 let isRelease (targets: Target list) =
     targets
-    |> Seq.map (fun t -> t.Name)
+    |> Seq.map _.Name
     |> Seq.exists ((=) "Release")
 
 let configuration (targets: Target list) =
@@ -341,7 +339,7 @@ let generateAssemblyInfo ctx =
         AssemblyInfo.Description summary
         AssemblyInfo.Version release.AssemblyVersion
         AssemblyInfo.FileVersion release.AssemblyVersion
-        AssemblyInfo.Configuration(string (configuration (ctx.Context.AllExecutingTargets)))
+        AssemblyInfo.Configuration(string (configuration ctx.Context.AllExecutingTargets))
     ]
 
     let getProjectDetails (projectPath: string) =
@@ -592,7 +590,6 @@ let main argv =
     |> Context.setExecutionContext
 
     initTargets ()
-    |> ignore
 
     Target.runOrDefaultWithArguments "DotnetPack"
 
