@@ -4,6 +4,13 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
+type private DynamicValueTaskValueOptionBuilder() =
+    inherit ValueTaskValueOptionBuilderBase()
+
+    member _.Run(code: ValueTaskValueOptionCode<'T, 'T>) =
+        ValueTaskValueOptionBuilder.RunDynamic(code)
+
+let private dynamicValueTaskValueOption = DynamicValueTaskValueOptionBuilder()
 
 module TestFuncs =
     let testFunctionTO<'Dto> () =
@@ -593,6 +600,53 @@ let ceTestsApplicative =
             }
     ]
 
+let ``ValueTaskValueOptionCE while ValueNone async disposal Tests`` =
+    testList "ValueTaskValueOptionCE while ValueNone async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        ValueNone
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                dynamicValueTaskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                                |> _.AsTask()
+                            else
+                                valueTaskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                                |> _.AsTask()
+                        )
+    ]
+
 let ``ValueTaskValueOptionCE inference checks`` =
     testList "ValueTaskValueOptionCE inference checks" [
         testCase "Inference checks"
@@ -609,5 +663,6 @@ let allTests =
     testList "ValueTaskValueOption CE Tests" [
         ceTests
         ceTestsApplicative
+        ``ValueTaskValueOptionCE while ValueNone async disposal Tests``
         ``ValueTaskValueOptionCE inference checks``
     ]

@@ -93,7 +93,6 @@ type TaskValidationBuilderBase() =
             TaskValidationCode<_, _, _>(fun sm ->
                 if sm.Data.IsValidationError then
                     keepGoing <- false
-                    sm.Data.MethodBuilder.SetResult sm.Data.Validation
                     true
                 else
                     body.Invoke(&sm)
@@ -304,7 +303,7 @@ type TaskValidationBuilder() =
                         sm.ResumptionDynamicInfo.ResumptionData <- null
                         let step = info.ResumptionFunc.Invoke(&sm)
 
-                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        // If the `sm.Data.MethodBuilder` has already completed, we shouldn't continue
                         if sm.Data.IsTaskCompleted then
                             ()
                         elif step then
@@ -342,7 +341,7 @@ type TaskValidationBuilder() =
 
                     try
                         let __stack_code_fin = code.Invoke(&sm)
-                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        // If the `sm.Data.MethodBuilder` has already completed, we shouldn't continue
                         if
                             __stack_code_fin
                             && not sm.Data.IsTaskCompleted

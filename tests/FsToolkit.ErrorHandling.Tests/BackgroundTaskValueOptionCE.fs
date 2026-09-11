@@ -532,6 +532,51 @@ let ceTestsApplicative =
             }
     ]
 
+let ``BackgroundTaskValueOptionCE while ValueNone async disposal Tests`` =
+    testList "BackgroundTaskValueOptionCE while ValueNone async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        ValueNone
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicBackgroundTaskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                            else
+                                backgroundTaskValueOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! ValueNone
+                                }
+                        )
+    ]
+
 let ``BackgroundTaskValueOptionCE inference checks`` =
     testList "BackgroundTaskValueOptionCE inference checks" [
         testCase "Inference checks"
@@ -548,5 +593,6 @@ let allTests =
     testList "BackgroundTaskValueOptionCE CE Tests" [
         ceTests
         ceTestsApplicative
+        ``BackgroundTaskValueOptionCE while ValueNone async disposal Tests``
         ``BackgroundTaskValueOptionCE inference checks``
     ]

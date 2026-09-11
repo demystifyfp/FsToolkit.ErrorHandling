@@ -53,16 +53,60 @@ module TestHelpers =
         member _.Run(code: TaskResultCode<'T, 'Error, 'T>) =
             BackgroundTaskResultBuilder.RunDynamic(code)
 
+    type DynamicTaskOptionBuilder() =
+        inherit TaskOptionBuilderBase()
+
+        member _.Run(code: TaskOptionCode<'T, 'T>) = TaskOptionBuilder.RunDynamic(code)
+
+    type DynamicBackgroundTaskOptionBuilder() =
+        inherit TaskOptionBuilderBase()
+
+        member _.Run(code: TaskOptionCode<'T, 'T>) =
+            BackgroundTaskOptionBuilder.RunDynamic(code)
+
+    type DynamicTaskValueOptionBuilder() =
+        inherit TaskValueOptionBuilderBase()
+
+        member _.Run(code: TaskValueOptionCode<'T, 'T>) = TaskValueOptionBuilder.RunDynamic(code)
+
+    type DynamicBackgroundTaskValueOptionBuilder() =
+        inherit TaskValueOptionBuilderBase()
+
+        member _.Run(code: TaskValueOptionCode<'T, 'T>) =
+            BackgroundTaskValueOptionBuilder.RunDynamic(code)
+
+    type DynamicTaskValidationBuilder() =
+        inherit TaskValidationBuilderBase()
+
+        member _.Run(code: TaskValidationCode<'T, 'Error, 'T>) =
+            TaskValidationBuilder.RunDynamic(code)
+
+    type DynamicBackgroundTaskValidationBuilder() =
+        inherit TaskValidationBuilderBase()
+
+        member _.Run(code: TaskValidationCode<'T, 'Error, 'T>) =
+            BackgroundTaskValidationBuilder.RunDynamic(code)
+
     let dynamicTaskResult = DynamicTaskResultBuilder()
     let dynamicBackgroundTaskResult = DynamicBackgroundTaskResultBuilder()
 
-    let assertWhileErrorWaitsForAsyncDisposal
+    let dynamicTaskOption = DynamicTaskOptionBuilder()
+    let dynamicBackgroundTaskOption = DynamicBackgroundTaskOptionBuilder()
+
+    let dynamicTaskValueOption = DynamicTaskValueOptionBuilder()
+
+    let dynamicBackgroundTaskValueOption = DynamicBackgroundTaskValueOptionBuilder()
+
+    let dynamicTaskValidation = DynamicTaskValidationBuilder()
+
+    let dynamicBackgroundTaskValidation = DynamicBackgroundTaskValidationBuilder()
+
+    let assertWhileShortCircuitWaitsForAsyncDisposal
+        (expected: 'Result)
         (hasEarlierSuspension: bool)
-        (start: Task -> System.IAsyncDisposable -> Task<Result<unit, string>>)
+        (start: Task -> System.IAsyncDisposable -> Task<'Result>)
         =
         task {
-            let expected = Error "error"
-
             let earlierSuspension =
                 TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
 
@@ -110,8 +154,11 @@ module TestHelpers =
                 completedBeforeDisposal
                 "The result task must wait for asynchronous disposal"
 
-            Expecto.Expect.equal actual expected "The loop error must be preserved"
+            Expecto.Expect.equal actual expected "The short-circuit result must be preserved"
         }
+
+    let assertWhileErrorWaitsForAsyncDisposal hasEarlierSuspension start =
+        assertWhileShortCircuitWaitsForAsyncDisposal (Error "error") hasEarlierSuspension start
 #endif
 
 #if !FABLE_COMPILER
