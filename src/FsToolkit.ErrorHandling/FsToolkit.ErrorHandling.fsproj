@@ -19,6 +19,7 @@
     <Compile Include="ResultOptionCE.fs" />
     <Compile Include="ResultOptionOp.fs" />
     <Compile Include="Async.fs" />
+    <Compile Include="Task.FSharpCore11.fs" />
     <Compile Include="Task.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="AsyncResult.fs" />
