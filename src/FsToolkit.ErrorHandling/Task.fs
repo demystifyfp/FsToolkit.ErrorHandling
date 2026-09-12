@@ -1,7 +1,11 @@
 namespace FsToolkit.ErrorHandling
 
-
 open System.Threading.Tasks
+
+// FsToolkit v5 had singleton, map, bind, catch and ignore with the following diffs:
+// - result replaces singleton (Obsoleted)
+// - catch yields Result (was choice; source+binary breaking change)
+// - ignore gains [<RequiresExplicitTypeArguments>] (source breaking change)
 
 [<RequireQualifiedAccess>]
 module Task =
@@ -14,6 +18,7 @@ module Task =
         |> Task.FromResult
 #endif
 
+    // NOTE FSharp.Core Task.bind is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control Task module).
     let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
         task {
             let! x = x
@@ -33,12 +38,8 @@ module Task =
             return f' x'
         }
 
-    let inline map ([<InlineIfLambda>] f) x =
-        x
-        |> bind (
-            f
-            >> singleton
-        )
+    // NOTE FSharp.Core Task.map is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
+    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
 
     let inline mapV ([<InlineIfLambda>] f) x =
         x
@@ -62,12 +63,9 @@ module Task =
             return f x' y' z'
         }
 
-    /// Allows us to call `do!` syntax inside a computation expression
-    [<RequiresExplicitTypeArguments>]
-    let inline ignore<'a> (x: Task<'a>) =
-        x
-        |> map ignore
-
+    // NOTE FSharp.Core Task.ignore is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
+    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
+    // NOTE Breaking change vs V5: [<RequiresExplicitTypeArguments>] has been added, so source changes may be required.
 
     /// Takes two tasks and returns a tuple of the pair
     let zip (a1: Task<_>) (a2: Task<_>) =
@@ -79,18 +77,9 @@ module Task =
 
     let ofUnit (t: Task) = task { return! t }
 
-    /// Creates a `Task` that attempts to execute the provided task,
-    /// returning `Choice1Of2` with the result if the task completes
-    /// without exceptions, or `Choice2Of2` with the exception if an
-    /// exception is thrown.
-    let catch (x: Task<_>) =
-        task {
-            try
-                let! r = x
-                return Choice1Of2 r
-            with e ->
-                return Choice2Of2 e
-        }
+    // NOTE FSharp.Core Task.catch is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
+    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
+    // NOTE Breaking change vs V5: the signature has changed to Task<Result<'T, exn>> (was Task<Choice<'T, exn>>)
 
     /// Bind the Task with a synchronous Result-returning function.
     let inline bindResult
