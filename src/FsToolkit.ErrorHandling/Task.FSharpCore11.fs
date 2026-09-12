@@ -2,7 +2,7 @@
 // - namespace is FsToolkit.ErrorHandling instead of Microsoft.FSharp.Control
 #if !NET_10_0_OR_GREATER
 [<AutoOpen>]
-module FsToolkit.ErrorHandling.FSharpCore11Shims
+module FsToolkit.ErrorHandling.FSharpCore11TaskShims
 
 open FSharp.Core.CompilerServices
 open System.Threading
