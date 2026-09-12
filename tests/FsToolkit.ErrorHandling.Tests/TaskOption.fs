@@ -30,7 +30,7 @@ let mapTests =
     testList "TaskOption.map Tests" [
         testCase "map with Task(Some x)"
         <| fun _ ->
-            Task.singleton (Some validTweet)
+            Task.result (Some validTweet)
             |> TaskOption.map remainingCharacters
             |> Expect.hasTaskSomeValue 267
 

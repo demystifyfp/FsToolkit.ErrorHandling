@@ -226,9 +226,7 @@ module TaskResult =
         |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
-    let inline ofResult (x: Result<_, _>) =
-        x
-        |> Task.singleton
+    let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns a task-wrapped Ok result or if the task-wrapped result is Error.
     /// If the checkFunc returns a task-wrapped Error result, returns the task-wrapped Error result.

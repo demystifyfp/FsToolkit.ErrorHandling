@@ -65,7 +65,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Task.singleton innerData }
+                let! actual = taskValidation { return! Task.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -154,7 +154,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let data =
                     Validation.ok innerData
-                    |> Task.singleton
+                    |> Task.result
 
                 let! actual =
                     taskValidation {

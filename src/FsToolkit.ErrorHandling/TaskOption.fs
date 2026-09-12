@@ -23,7 +23,7 @@ module TaskOption =
             let t =
                 match opt with
                 | Some x -> f x
-                | None -> Task.singleton None
+                | None -> Task.result None
 
             return! t
         }

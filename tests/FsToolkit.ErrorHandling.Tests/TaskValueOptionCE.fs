@@ -410,7 +410,7 @@ let ceTests =
                 let items = [
                     TaskValueOption.some 3
                     TaskValueOption.some 4
-                    Task.singleton ValueNone
+                    TaskValueOption.none
                 ]
 
                 let mutable index = 0

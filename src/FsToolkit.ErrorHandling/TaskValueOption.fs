@@ -15,7 +15,7 @@ module TaskValueOption =
             let t =
                 match opt with
                 | ValueSome x -> f x
-                | ValueNone -> Task.singleton ValueNone
+                | ValueNone -> Task.result ValueNone
 
             return! t
         }
