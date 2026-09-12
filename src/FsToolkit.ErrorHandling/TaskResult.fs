@@ -236,13 +236,7 @@ module TaskResult =
     /// Catches exceptions and maps them to the Error case using the provided function.
     let inline catch ([<InlineIfLambda>] f) x =
         x
-        |> Task.catch
-        |> Task.map (
-            function
-            | Choice1Of2(Ok v) -> Ok v
-            | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(f ex)
-        )
+        |> Task.catchWith (fun ex -> Error(f ex))
 
     /// <summary>
     /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
@@ -277,7 +271,6 @@ module TaskResult =
     let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
         x
         |> Task.catch
-        |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
     let inline ofResult (x: Result<_, _>) = Task.result x
