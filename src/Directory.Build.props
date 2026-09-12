@@ -42,7 +42,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="FSharp.Core" VersionOverride="6.0.4" />
+        <!-- Workaround for malformed FSharp.Core packages https://github.com/dotnet/fsharp/issues/12706 via https://github.com/fsprojects/Paket/issues/4149-->
+        <!-- Removal triggers issues in dotnet publish, e.g. for Lambda projects -->
+        <!-- Also avoids Rider search finding stuff in FSharp.Core.xml -->
+        <PackageReference Include="FSharp.Core" VersionOverride="6.0.4" ExcludeAssets="contentfiles" />
       </ItemGroup>
     </Otherwise>
   </Choose>
