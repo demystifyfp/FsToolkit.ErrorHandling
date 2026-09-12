@@ -30,7 +30,7 @@ let asyncOption : Async<int option> =
 ```fsharp
 let asyncOption : Async<int option> =
     AsyncOption.some 1
-    |> AsyncOption.orElse (Async.singleton None)
+    |> AsyncOption.orElse (Async.result None)
     
 // async { Some 1 }
 ```
@@ -39,7 +39,7 @@ let asyncOption : Async<int option> =
 
 ```fsharp
 let asyncOption : Async<int option> =
-    Async.singleton None
+    Async.result None
     |> AsyncOption.orElse (Some 2)
     
 // async { Some 2 }
@@ -49,8 +49,8 @@ let asyncOption : Async<int option> =
 
 ```fsharp
 let asyncOption : Async<int option> =
-    Async.singleton None
-    |> AsyncOption.orElse (Async.singleton None)
+    Async.result None
+    |> AsyncOption.orElse (Async.result None)
 
 // async { None }
 ```
@@ -94,7 +94,7 @@ let asyncOption : Async<int option> =
 
 ```fsharp
 let asyncOption : Async<int option> =
-    Async.singleton None
+    Async.result None
     |> AsyncOption.orElseWith (fun () -> AsyncOption.some 2)
 
 // async { Some 2 }
@@ -104,8 +104,8 @@ let asyncOption : Async<int option> =
 
 ```fsharp
 let asyncOption : Async<int option> =
-    Async.singleton None
-    |> AsyncOption.orElseWith (fun () -> Async.singleton None)
+    Async.result None
+    |> AsyncOption.orElseWith (fun () -> Async.result None)
 
 // async { None }
 ```

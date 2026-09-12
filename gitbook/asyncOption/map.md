@@ -23,7 +23,7 @@ AsyncOption.map (fun x -> x + 1) (AsyncOption.some 1)
 ### Example 2
 
 ```fsharp
-AsyncOption.map (fun x -> x + 1) (Async.singleton None)
+AsyncOption.map (fun x -> x + 1) (Async.result None)
 
 // async { None }
 ```

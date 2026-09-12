@@ -129,7 +129,7 @@ module ParallelAsyncResultCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(result: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
-                Async.singleton result
+                Async.result result
 
             /// <summary>
             /// Method lets us transform data types into our internal representation.
@@ -137,7 +137,7 @@ module ParallelAsyncResultCE =
             member inline _.Source(choice: Choice<'ok, 'error>) : Async<Result<'ok, 'error>> =
                 choice
                 |> Result.ofChoice
-                |> Async.singleton
+                |> Async.result
 
             /// <summary>
             /// Method lets us transform data types into our internal representation.

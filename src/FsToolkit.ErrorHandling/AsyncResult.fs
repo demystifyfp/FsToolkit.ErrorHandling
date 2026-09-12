@@ -10,11 +10,11 @@ module AsyncResult =
 
     let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
 
-        Async.singleton (Ok value)
+        Async.result (Ok value)
 
     let inline error (error: 'error) : Async<Result<'ok, 'error>> =
 
-        Async.singleton (Error error)
+        Async.result (Error error)
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -302,7 +302,7 @@ module AsyncResult =
     /// Lift Result to AsyncResult
     let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
         x
-        |> Async.singleton
+        |> Async.result
 
     /// Returns the async-wrapped result if it is Ok and the checker returns a async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checker returns a async-wrapped Error result, returns the async-wrapped Error result.
