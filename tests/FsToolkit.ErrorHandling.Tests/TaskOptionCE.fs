@@ -621,7 +621,7 @@ let ceTestsApplicative =
 
                         let! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
                         let! c = specialCaseTask (Some 3)
                         let! d = ValueTask.FromResult(Some 5)
@@ -643,7 +643,7 @@ let ceTestsApplicative =
 
                         and! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = specialCaseTask None
                         and! d = ValueTask.FromResult(Some 5)

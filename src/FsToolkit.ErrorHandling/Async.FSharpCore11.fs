@@ -24,8 +24,7 @@ module Async =
     /// computation |> Async.RunSynchronouslyImmediate // evaluates to 42
     /// </code>
     /// </example>
-    let inline result (value: 'T) : Async<'T> =
-        async.Return value
+    let inline result (value: 'T) : Async<'T> = async.Return value
 
     /// <summary>Creates an asynchronous computation that applies the mapping function to the result of the given computation.</summary>
     /// <param name="mapping">The function to apply to the result.</param>
@@ -38,7 +37,11 @@ module Async =
     /// </code>
     /// </example>
     let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (computation: Async<'T>) : Async<'U> =
-        async.Bind(computation, mapping >> async.Return)
+        async.Bind(
+            computation,
+            mapping
+            >> async.Return
+        )
 
     /// <summary>Creates an asynchronous computation that passes the result of the given computation to the binder function.</summary>
     /// <param name="binder">A function that takes the result of the computation and returns a new asynchronous computation.</param>
@@ -50,7 +53,10 @@ module Async =
     /// computation |> Async.RunSynchronouslyImmediate // evaluates to 42
     /// </code>
     /// </example>
-    let inline bind ([<InlineIfLambda>] binder: 'T -> Async<'U>) (computation: Async<'T>) : Async<'U> =
+    let inline bind
+        ([<InlineIfLambda>] binder: 'T -> Async<'U>)
+        (computation: Async<'T>)
+        : Async<'U> =
         async.Bind(computation, binder)
 
     /// <summary>Creates an asynchronous computation that runs the given computation and ignores its result.</summary>
@@ -72,8 +78,7 @@ module Async =
     /// </code>
     /// </example>
     [<RequiresExplicitTypeArguments>]
-    let inline ignore<'T> (computation: Async<'T>) : Async<unit> =
-        Async.Ignore computation
+    let inline ignore<'T> (computation: Async<'T>) : Async<unit> = Async.Ignore computation
 
     /// <summary>Creates an asynchronous computation that yields the original result on success, or the result of
     /// <c>handler exn</c> for non-cancellation exceptions.</summary>
@@ -146,7 +151,8 @@ module Async =
     /// </code>
     /// </example>
     let sequentialDo (computations: seq<Async<unit>>) : Async<unit> =
-        Async.Sequential computations |> ignore<unit[]>
+        Async.Sequential computations
+        |> ignore<unit[]>
 
     /// <summary>Creates an asynchronous computation that executes all the supplied asynchronous computations
     /// with concurrency limited to at most <c>maxDegreeOfParallelism</c>,
@@ -180,6 +186,10 @@ module Async =
     /// |> Async.RunSynchronouslyImmediate
     /// </code>
     /// </example>
-    let parallelDoLimit (maxDegreeOfParallelism: int) (computations: seq<Async<unit>>) : Async<unit> =
-        parallelLimit maxDegreeOfParallelism computations |> ignore<unit[]>
+    let parallelDoLimit
+        (maxDegreeOfParallelism: int)
+        (computations: seq<Async<unit>>)
+        : Async<unit> =
+        parallelLimit maxDegreeOfParallelism computations
+        |> ignore<unit[]>
 #endif

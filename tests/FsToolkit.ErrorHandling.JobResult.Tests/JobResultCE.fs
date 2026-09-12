@@ -45,7 +45,7 @@ let ``JobResultCE return! Tests`` =
         <| job {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = jobResult { return! Async.singleton data }
+            let! actual = jobResult { return! Async.result data }
 
             Expect.equal actual data "Should be ok"
         }
@@ -60,7 +60,7 @@ let ``JobResultCE return! Tests`` =
         testCaseJob "Return Async"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { return! Async.singleton innerData }
+            let! actual = jobResult { return! Async.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -119,7 +119,7 @@ let ``JobResultCE bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Async.singleton
+                |> Async.result
 
             let! actual =
                 jobResult {
@@ -155,7 +155,7 @@ let ``JobResultCE bind Tests`` =
 
             let! actual =
                 jobResult {
-                    let! data = Async.singleton innerData
+                    let! data = Async.result innerData
                     return data
                 }
 
@@ -494,9 +494,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
-                    and! c = Async.singleton 1 //: Async<int>
+                    let! a = Async.result 3 //: Async<int>
+                    and! b = Async.result 2 //: Async<int>
+                    and! c = Async.result 1 //: Async<int>
                     return a + b - c
                 }
 
@@ -507,8 +507,8 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
+                    let! a = Async.result 3 //: Async<int>
+                    and! b = Async.result 2 //: Async<int>
                     return a + b
                 }
 
@@ -536,7 +536,7 @@ let ``AsyncResultCE applicative tests`` =
 
                     and! c =
                         Ok 1
-                        |> Async.singleton
+                        |> Async.result
 
                     return a + b - c
                 }
@@ -584,7 +584,7 @@ let ``AsyncResultCE applicative tests`` =
 
                     and! b =
                         Ok 2
-                        |> Async.singleton
+                        |> Async.result
 
                     and! c = Error errorMsg
                     return a + b - c

@@ -10,11 +10,11 @@ module AsyncResult =
 
     let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
         Ok value
-        |> Async.singleton
+        |> Async.result
 
     let inline error (error: 'error) : Async<Result<'ok, 'error>> =
         Error error
-        |> Async.singleton
+        |> Async.result
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -390,7 +390,7 @@ module AsyncResult =
     /// Lift Result to AsyncResult
     let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
         x
-        |> Async.singleton
+        |> Async.result
 
     /// Bind the AsyncResult with a synchronous Result-returning function.
     let inline bindResult
