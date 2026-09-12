@@ -289,9 +289,7 @@ module TaskResult =
         |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
-    let inline ofResult (x: Result<_, _>) =
-        x
-        |> Task.singleton
+    let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Bind the TaskResult with a synchronous Result-returning function.
     let inline bindResult

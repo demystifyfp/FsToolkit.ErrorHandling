@@ -5,9 +5,14 @@ open System.Threading.Tasks
 
 [<RequireQualifiedAccess>]
 module Task =
+
+#if !NET_10_0_OR_GREATER
+    /// <summary>Creates a task that returns the given value.</summary>
+    [<System.Obsolete("Use the built in FSharp.Core Task.result instead")>]
     let inline singleton value =
         value
         |> Task.FromResult
+#endif
 
     let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
         task {
@@ -40,7 +45,7 @@ module Task =
         x
         |> bindV (
             f
-            >> singleton
+            >> Task.result
         )
 
     let inline map2 ([<InlineIfLambda>] f) x y =
