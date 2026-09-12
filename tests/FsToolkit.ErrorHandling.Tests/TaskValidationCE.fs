@@ -40,7 +40,7 @@ let ``TaskValidationCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Validation.ok innerData
-                let! actual = taskValidation { return! Async.singleton data }
+                let! actual = taskValidation { return! Async.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -57,7 +57,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Async.singleton innerData }
+                let! actual = taskValidation { return! Async.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -133,7 +133,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let data =
                     Validation.ok innerData
-                    |> Async.singleton
+                    |> Async.result
 
                 let! actual =
                     taskValidation {
@@ -171,7 +171,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = Async.singleton innerData
+                        let! data = Async.result innerData
                         return data
                     }
 
@@ -653,9 +653,9 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
-                        and! c = Async.singleton 1 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
+                        and! c = Async.result 1 //: Async<int>
                         return a + b - c
                     }
 
@@ -667,8 +667,8 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
                         return a + b
                     }
 
@@ -699,7 +699,7 @@ let ``TaskValidationCE applicative tests`` =
 
                         and! c =
                             Validation.ok 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! d = specialCaseTask (Validation.ok 3)
                         and! e = ValueTask.FromResult(Validation.ok 5)
@@ -782,7 +782,7 @@ let ``TaskValidationCE applicative tests`` =
 
                         and! b =
                             Validation.ok 2
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = Validation.error errorMsg
                         return a + b - c

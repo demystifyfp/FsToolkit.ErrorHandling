@@ -40,7 +40,7 @@ let ``TaskResultCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Result.Ok innerData
-                let! actual = taskResult { return! Async.singleton data }
+                let! actual = taskResult { return! Async.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -57,7 +57,7 @@ let ``TaskResultCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! Async.singleton innerData }
+                let! actual = taskResult { return! Async.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -133,7 +133,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Async.singleton
+                    |> Async.result
 
                 let! actual =
                     taskResult {
@@ -171,7 +171,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let! actual =
                     taskResult {
-                        let! data = Async.singleton innerData
+                        let! data = Async.result innerData
                         return data
                     }
 
@@ -654,9 +654,9 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
-                        and! c = Async.singleton 1 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
+                        and! c = Async.result 1 //: Async<int>
                         return a + b - c
                     }
 
@@ -668,8 +668,8 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
                         return a + b
                     }
 
@@ -700,7 +700,7 @@ let ``TaskResultCE applicative tests`` =
 
                         and! c =
                             Ok 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! d = specialCaseTask (Ok 3)
                         and! e = ValueTask.FromResult(Ok 5)
@@ -758,7 +758,7 @@ let ``TaskResultCE applicative tests`` =
 
                         and! b =
                             Ok 2
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = Error errorMsg
                         return a + b - c

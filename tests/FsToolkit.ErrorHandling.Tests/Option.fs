@@ -446,7 +446,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 id
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)
@@ -461,7 +461,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 (fun i -> string i)
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)
@@ -476,7 +476,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 id
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)

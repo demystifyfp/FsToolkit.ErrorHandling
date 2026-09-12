@@ -211,7 +211,7 @@ module ParallelAsyncValidationCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Validation<'ok, 'error>) : AsyncValidation<'ok, 'error> =
-                Async.singleton s
+                Async.result s
 
 #if !FABLE_COMPILER
 

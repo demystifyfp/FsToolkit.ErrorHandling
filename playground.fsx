@@ -120,7 +120,7 @@ module Result =
 module AsyncResult =
 
     type AsyncResultBuilder() =
-        member inline _.Return x = Async.singleton (Result.singleton x)
+        member inline _.Return x = Async.result (Result.singleton x)
 
         member inline _.Bind(m, f: 'a -> Async<Result<'b, 'c>>) =
             m
@@ -146,7 +146,7 @@ module AsyncResult =
                 }
                 |> Async.AwaitTask
 
-            member inline _.Source(x: Result<_, _>) = Async.singleton x
+            member inline _.Source(x: Result<_, _>) = Async.result x
 
     let asyncResult = AsyncResultBuilder()
 
@@ -157,7 +157,7 @@ module AsyncResult =
         asyncResult {
             let! x = singleton 1
             let! y = singleton 2
-            let! z = Async.singleton 3
+            let! z = Async.result 3
             let! a = Result.singleton 4
 
             return

@@ -26,11 +26,11 @@ module AsyncResultOption =
 
     let inline ok x =
         Ok(Some x)
-        |> Async.singleton
+        |> Async.result
 
     let inline error x : Async<Result<'ok option, 'error>> =
         Error x
-        |> Async.singleton
+        |> Async.result
 
     let inline map2
         ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
@@ -70,7 +70,7 @@ module AsyncResultOption =
     let inline ofResult (r: Result<'ok, 'error>) =
         r
         |> Result.map Some
-        |> Async.singleton
+        |> Async.result
 
 
     let inline ofAsyncResult (r: Async<Result<'ok, 'error>>) =
@@ -80,7 +80,7 @@ module AsyncResultOption =
     let inline ofOption (r: 'ok option) =
         r
         |> Ok
-        |> Async.singleton
+        |> Async.result
 
     let inline ofAsyncOption (r: Async<'ok option>) =
         r
