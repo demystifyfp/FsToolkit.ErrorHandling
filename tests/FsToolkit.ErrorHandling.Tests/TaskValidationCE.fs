@@ -24,7 +24,7 @@ let ``TaskValidationCE return! Tests`` =
                 let data = Validation.ok innerData
                 let! actual = taskValidation { return! data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Ok Choice"
         <| fun () ->
@@ -42,7 +42,7 @@ let ``TaskValidationCE return! Tests`` =
                 let data = Validation.ok innerData
                 let! actual = taskValidation { return! Async.singleton data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Ok TaskValidation"
         <| fun () ->
@@ -51,7 +51,7 @@ let ``TaskValidationCE return! Tests`` =
                 let data = Validation.ok innerData
                 let! actual = taskValidation { return! Task.FromResult data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Async"
         <| fun () ->
@@ -108,8 +108,7 @@ let ``TaskValidationCE bind Tests`` =
                         return data
                     }
 
-                Expect.equal actual (data) "Should be ok"
-
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Bind Ok Choice"
         <| fun () ->
@@ -163,7 +162,7 @@ let ``TaskValidationCE bind Tests`` =
                         return data
                     }
 
-                Expect.equal actual (data.Result) "Should be ok"
+                Expect.equal actual data.Result "Should be ok"
             }
         testCaseTask "Bind Async"
         <| fun () ->
@@ -254,12 +253,12 @@ let ``TaskValidationCE combine/zero/delay/run Tests`` =
             task {
                 let data = 42
 
-                let taskVal (call: unit -> Task) maybeCall : Task<Validation<int, unit>> =
+                let _taskVal (call: unit -> Task) maybeCall : Task<Validation<int, unit>> =
                     taskValidation {
                         if true then
                             do! call ()
 
-                        let! (res: string) = maybeCall (): Task<Validation<string, unit>>
+                        let! (_res: string) = maybeCall (): Task<Validation<string, unit>>
                         return data
                     }
 
@@ -319,7 +318,7 @@ let ``TaskValidationCE using Tests`` =
 
                 let! actual =
                     taskValidation {
-                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        use _d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         return data
                     }
 
@@ -334,7 +333,7 @@ let ``TaskValidationCE using Tests`` =
 
                 let! actual =
                     taskValidation {
-                        use! d =
+                        use! _d =
                             TestHelpers.makeDisposable (fun () -> isFinished <- true)
                             |> Validation.ok
 
@@ -351,13 +350,13 @@ let ``TaskValidationCE using Tests`` =
 
                 let! actual =
                     taskValidation {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
                 Expect.equal actual (Validation.ok data) "Should be ok"
             }
-        testCaseTask "use sync asyncdisposable"
+        testCaseTask "use sync asyncDisposable"
         <| fun () ->
             task {
                 let data = 42
@@ -365,12 +364,10 @@ let ``TaskValidationCE using Tests`` =
 
                 let! actual =
                     taskValidation {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    isFinished <- true
-                                    ValueTask()
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                isFinished <- true
+                                ValueTask()
                             )
 
                         return data
@@ -380,7 +377,7 @@ let ``TaskValidationCE using Tests`` =
                 Expect.isTrue isFinished ""
             }
 
-        testCaseTask "use async asyncdisposable"
+        testCaseTask "use async asyncDisposable"
         <| fun () ->
             task {
                 let data = 42
@@ -388,16 +385,14 @@ let ``TaskValidationCE using Tests`` =
 
                 let! actual =
                     taskValidation {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    task {
-                                        do! Task.Yield()
-                                        isFinished <- true
-                                    }
-                                    :> Task
-                                    |> ValueTask
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                task {
+                                    do! Task.Yield()
+                                    isFinished <- true
+                                }
+                                :> Task
+                                |> ValueTask
                             )
 
                         return data
@@ -417,8 +412,7 @@ let ``TaskValidationCE loop Tests`` =
             ]
 
             for maxIndex in maxIndices do
-                testCaseTask
-                <| sprintf "While - %i" maxIndex
+                testCaseTask $"While - %i{maxIndex}"
                 <| fun () ->
                     task {
                         let data = 42
@@ -463,7 +457,7 @@ let ``TaskValidationCE loop Tests`` =
                 let! actual =
                     taskValidation {
                         while loopCount < data.Length do
-                            let! x = data.[loopCount]
+                            let! _ = data[loopCount]
 
                             loopCount <-
                                 loopCount
@@ -483,7 +477,7 @@ let ``TaskValidationCE loop Tests`` =
 
                 let! actual =
                     taskValidation {
-                        for i in [ 1..10 ] do
+                        for _ in [ 1..10 ] do
                             ()
 
                         return data
@@ -498,7 +492,7 @@ let ``TaskValidationCE loop Tests`` =
 
                 let! actual =
                     taskValidation {
-                        for i = 1 to 10 do
+                        for _ = 1 to 10 do
                             ()
 
                         return data
@@ -525,7 +519,7 @@ let ``TaskValidationCE loop Tests`` =
                 let! actual =
                     taskValidation {
                         for i in data do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -579,7 +573,7 @@ let ``TaskValidationCE loop Tests`` =
                 let! actual =
                     taskValidation {
                         for i in asyncSeq do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -805,7 +799,7 @@ let ``TaskValidationCE inference checks`` =
             // Compilation is success
             let f res = taskValidation { return! res () }
 
-            f (TaskValidation.ok)
+            f TaskValidation.ok
             |> ignore
     ]
 
