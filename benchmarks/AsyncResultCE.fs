@@ -68,7 +68,7 @@ module AsyncResultCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(result: Result<_, _>) : Async<Result<_, _>> = Async.singleton result
+        member inline _.Source(result: Result<_, _>) : Async<Result<_, _>> = Async.result result
 
     let rec fib n =
         if n < 2L then

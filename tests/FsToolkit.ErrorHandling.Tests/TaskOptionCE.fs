@@ -233,12 +233,12 @@ let ceTests =
             task {
                 let data = 42
 
-                let taskRes (call: unit -> Task) maybeCall : Task<Option<int>> =
+                let _taskRes (call: unit -> Task) maybeCall : Task<Option<int>> =
                     taskOption {
                         if true then
                             do! call ()
 
-                        let! (res: string) = maybeCall (): Task<Option<string>>
+                        let! (_res: string) = maybeCall (): Task<Option<string>>
                         return data
                     }
 
@@ -281,7 +281,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
@@ -296,7 +296,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        use _d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         return data
                     }
 
@@ -311,7 +311,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use! d =
+                        use! _d =
                             TestHelpers.makeDisposable (fun () -> isFinished <- true)
                             |> Some
 
@@ -328,7 +328,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
@@ -342,12 +342,10 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    isFinished <- true
-                                    ValueTask()
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                isFinished <- true
+                                ValueTask()
                             )
 
                         return data
@@ -365,16 +363,14 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    task {
-                                        do! Task.Yield()
-                                        isFinished <- true
-                                    }
-                                    :> Task
-                                    |> ValueTask
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                task {
+                                    do! Task.Yield()
+                                    isFinished <- true
+                                }
+                                :> Task
+                                |> ValueTask
                             )
 
                         return data
@@ -390,8 +386,7 @@ let ceTests =
             ]
 
             for maxIndex in maxIndices do
-                testCaseTask
-                <| sprintf "While - %i" maxIndex
+                testCaseTask $"While - %i{maxIndex}"
                 <| fun () ->
                     task {
                         let data = 42
@@ -416,7 +411,7 @@ let ceTests =
                 let items = [
                     TaskOption.some 3
                     TaskOption.some 4
-                    Task.singleton (None)
+                    Task.result None
                 ]
 
                 let mutable index = 0
@@ -436,7 +431,7 @@ let ceTests =
                      - 1)
                     "Index should reach maxIndex"
 
-                Expect.equal actual (None) "Should be NOPE"
+                Expect.equal actual None "Should be NOPE"
             }
         testCaseTask "while fail"
         <| fun () ->
@@ -463,7 +458,7 @@ let ceTests =
                 let! actual =
                     taskOption {
                         while loopCount < data.Length do
-                            let! x = data.[loopCount]
+                            let! _ = data[loopCount]
 
                             loopCount <-
                                 loopCount
@@ -483,7 +478,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        for i in [ 1..10 ] do
+                        for _ in [ 1..10 ] do
                             ()
 
                         return data
@@ -498,7 +493,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        for i = 1 to 10 do
+                        for _ = 1 to 10 do
                             ()
 
                         return data
@@ -531,7 +526,7 @@ let ceTests =
                 let! actual =
                     taskOption {
                         for i in data do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -586,7 +581,7 @@ let ceTests =
                 let! actual =
                     taskOption {
                         for i in asyncSeq do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -626,7 +621,7 @@ let ceTestsApplicative =
 
                         let! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
                         let! c = specialCaseTask (Some 3)
                         let! d = ValueTask.FromResult(Some 5)
@@ -648,9 +643,9 @@ let ceTestsApplicative =
 
                         and! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
-                        and! c = specialCaseTask (None)
+                        and! c = specialCaseTask None
                         and! d = ValueTask.FromResult(Some 5)
 
                         return

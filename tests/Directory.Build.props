@@ -10,20 +10,25 @@
         <PackageReference Include="Expecto"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="YoloDev.Expecto.TestSdk" />
-      
+
         <PackageReference Include="Fable.Pyxpecto"/>
     </ItemGroup>
 
-      <Choose>
-    <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
-      <ItemGroup>
-      <PackageReference Include="FSharp.Core" VersionOverride="9.0.300" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="FSharp.Core" VersionOverride="7.0.200" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+    <Choose>
+        <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0'))">
+            <ItemGroup>
+                <PackageReference Include="FSharp.Core" VersionOverride="11.0.101-rc1.26425.128" />
+            </ItemGroup>
+        </When>
+        <When Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0'))">
+            <ItemGroup>
+                <PackageReference Include="FSharp.Core" VersionOverride="9.0.300" />
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <PackageReference Include="FSharp.Core" VersionOverride="7.0.200" />
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 </Project>

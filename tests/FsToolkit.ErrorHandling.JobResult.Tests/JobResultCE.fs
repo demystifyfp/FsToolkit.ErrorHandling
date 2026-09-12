@@ -2,8 +2,6 @@ module JobResultCETests
 
 
 open Expecto
-open SampleDomain
-open TestData
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 open Hopac
@@ -33,7 +31,7 @@ let ``JobResultCE return! Tests`` =
             let data = Result.Ok innerData
             let! actual = jobResult { return! data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Ok Choice"
         <| job {
@@ -47,9 +45,9 @@ let ``JobResultCE return! Tests`` =
         <| job {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = jobResult { return! Async.singleton data }
+            let! actual = jobResult { return! Async.result data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Ok TaskResult"
         <| job {
@@ -57,19 +55,19 @@ let ``JobResultCE return! Tests`` =
             let data = Result.Ok innerData
             let! actual = jobResult { return! Task.FromResult data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseJob "Return Async"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { return! Async.singleton innerData }
+            let! actual = jobResult { return! Async.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseJob "Return Task Generic"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { return! Task.singleton innerData }
+            let! actual = jobResult { return! Task.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -97,7 +95,7 @@ let ``JobResultCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
 
         }
         testCaseJob "Bind Ok Choice"
@@ -121,7 +119,7 @@ let ``JobResultCE bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Async.singleton
+                |> Async.result
 
             let! actual =
                 jobResult {
@@ -141,7 +139,7 @@ let ``JobResultCE bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Task.singleton
+                |> Task.result
 
             let! actual =
                 jobResult {
@@ -149,7 +147,7 @@ let ``JobResultCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data.Result) "Should be ok"
+            Expect.equal actual data.Result "Should be ok"
         }
         testCaseJob "Bind Async"
         <| job {
@@ -157,7 +155,7 @@ let ``JobResultCE bind Tests`` =
 
             let! actual =
                 jobResult {
-                    let! data = Async.singleton innerData
+                    let! data = Async.result innerData
                     return data
                 }
 
@@ -262,7 +260,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use d = makeDisposable ()
+                    use _d = makeDisposable ()
                     return data
                 }
 
@@ -274,7 +272,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use! d =
+                    use! _d =
                         makeDisposable ()
                         |> Result.Ok
 
@@ -289,7 +287,7 @@ let ``JobResultCE using Tests`` =
 
             let! actual =
                 jobResult {
-                    use d = null
+                    use _d = null
                     return data
                 }
 
@@ -308,8 +306,7 @@ let ``JobResultCE loop Tests`` =
             ]
 
             for maxIndex in maxIndices do
-                testCaseJob
-                <| sprintf "While - %i" maxIndex
+                testCaseJob $"While - %i{maxIndex}"
                 <| job {
                     let data = 42
                     let mutable index = 0
@@ -351,7 +348,7 @@ let ``JobResultCE loop Tests`` =
             let! actual =
                 jobResult {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! _x = data[loopCount]
 
                         loopCount <-
                             loopCount
@@ -370,7 +367,7 @@ let ``JobResultCE loop Tests`` =
 
             let! actual =
                 jobResult {
-                    for i in [ 1..10 ] do
+                    for _ in [ 1..10 ] do
                         ()
 
                     return data
@@ -384,7 +381,7 @@ let ``JobResultCE loop Tests`` =
 
             let! actual =
                 jobResult {
-                    for i = 1 to 10 do
+                    for _ = 1 to 10 do
                         ()
 
                     return data
@@ -408,7 +405,7 @@ let ``JobResultCE loop Tests`` =
             let! actual =
                 jobResult {
                     for i in data do
-                        let! x = i
+                        let! _ = i
 
                         loopCount <-
                             loopCount
@@ -497,9 +494,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
-                    and! c = Async.singleton 1 //: Async<int>
+                    let! a = Async.result 3 //: Async<int>
+                    and! b = Async.result 2 //: Async<int>
+                    and! c = Async.result 1 //: Async<int>
                     return a + b - c
                 }
 
@@ -510,8 +507,8 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = Async.singleton 3 //: Async<int>
-                    and! b = Async.singleton 2 //: Async<int>
+                    let! a = Async.result 3 //: Async<int>
+                    and! b = Async.result 2 //: Async<int>
                     return a + b
                 }
 
@@ -539,7 +536,7 @@ let ``AsyncResultCE applicative tests`` =
 
                     and! c =
                         Ok 1
-                        |> Async.singleton
+                        |> Async.result
 
                     return a + b - c
                 }
@@ -587,7 +584,7 @@ let ``AsyncResultCE applicative tests`` =
 
                     and! b =
                         Ok 2
-                        |> Async.singleton
+                        |> Async.result
 
                     and! c = Error errorMsg
                     return a + b - c

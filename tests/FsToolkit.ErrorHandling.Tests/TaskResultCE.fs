@@ -24,7 +24,7 @@ let ``TaskResultCE return! Tests`` =
                 let data = Result.Ok innerData
                 let! actual = taskResult { return! data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Ok Choice"
         <| fun () ->
@@ -40,9 +40,9 @@ let ``TaskResultCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Result.Ok innerData
-                let! actual = taskResult { return! Async.singleton data }
+                let! actual = taskResult { return! Async.result data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Ok TaskResult"
         <| fun () ->
@@ -51,13 +51,13 @@ let ``TaskResultCE return! Tests`` =
                 let data = Result.Ok innerData
                 let! actual = taskResult { return! Task.FromResult data }
 
-                Expect.equal actual (data) "Should be ok"
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Return Async"
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! Async.singleton innerData }
+                let! actual = taskResult { return! Async.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -65,7 +65,7 @@ let ``TaskResultCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! Task.singleton innerData }
+                let! actual = taskResult { return! Task.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -108,8 +108,7 @@ let ``TaskResultCE bind Tests`` =
                         return data
                     }
 
-                Expect.equal actual (data) "Should be ok"
-
+                Expect.equal actual data "Should be ok"
             }
         testCaseTask "Bind Ok Choice"
         <| fun () ->
@@ -134,7 +133,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Async.singleton
+                    |> Async.result
 
                 let! actual =
                     taskResult {
@@ -155,7 +154,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Task.singleton
+                    |> Task.result
 
                 let! actual =
                     taskResult {
@@ -163,7 +162,7 @@ let ``TaskResultCE bind Tests`` =
                         return data
                     }
 
-                Expect.equal actual (data.Result) "Should be ok"
+                Expect.equal actual data.Result "Should be ok"
             }
         testCaseTask "Bind Async"
         <| fun () ->
@@ -172,7 +171,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let! actual =
                     taskResult {
-                        let! data = Async.singleton innerData
+                        let! data = Async.result innerData
                         return data
                     }
 
@@ -254,12 +253,12 @@ let ``TaskResultCE combine/zero/delay/run Tests`` =
             task {
                 let data = 42
 
-                let taskRes (call: unit -> Task) maybeCall : Task<Result<int, unit>> =
+                let _taskRes (call: unit -> Task) maybeCall : Task<Result<int, unit>> =
                     taskResult {
                         if true then
                             do! call ()
 
-                        let! (res: string) = maybeCall (): Task<Result<string, unit>>
+                        let! (_res: string) = maybeCall (): Task<Result<string, unit>>
                         return data
                     }
 
@@ -320,7 +319,7 @@ let ``TaskResultCE using Tests`` =
 
                 let! actual =
                     taskResult {
-                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        use _d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         return data
                     }
 
@@ -335,7 +334,7 @@ let ``TaskResultCE using Tests`` =
 
                 let! actual =
                     taskResult {
-                        use! d =
+                        use! _d =
                             TestHelpers.makeDisposable (fun () -> isFinished <- true)
                             |> Result.Ok
 
@@ -352,13 +351,13 @@ let ``TaskResultCE using Tests`` =
 
                 let! actual =
                     taskResult {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
                 Expect.equal actual (Result.Ok data) "Should be ok"
             }
-        testCaseTask "use sync asyncdisposable"
+        testCaseTask "use sync asyncDisposable"
         <| fun () ->
             task {
                 let data = 42
@@ -366,12 +365,10 @@ let ``TaskResultCE using Tests`` =
 
                 let! actual =
                     taskResult {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    isFinished <- true
-                                    ValueTask()
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                isFinished <- true
+                                ValueTask()
                             )
 
                         return data
@@ -381,7 +378,7 @@ let ``TaskResultCE using Tests`` =
                 Expect.isTrue isFinished ""
             }
 
-        testCaseTask "use async asyncdisposable"
+        testCaseTask "use async asyncDisposable"
         <| fun () ->
             task {
                 let data = 42
@@ -389,16 +386,14 @@ let ``TaskResultCE using Tests`` =
 
                 let! actual =
                     taskResult {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    task {
-                                        do! Task.Yield()
-                                        isFinished <- true
-                                    }
-                                    :> Task
-                                    |> ValueTask
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                task {
+                                    do! Task.Yield()
+                                    isFinished <- true
+                                }
+                                :> Task
+                                |> ValueTask
                             )
 
                         return data
@@ -418,8 +413,7 @@ let ``TaskResultCE loop Tests`` =
             ]
 
             for maxIndex in maxIndices do
-                testCaseTask
-                <| sprintf "While - %i" maxIndex
+                testCaseTask $"While - %i{maxIndex}"
                 <| fun () ->
                     task {
                         let data = 42
@@ -464,7 +458,7 @@ let ``TaskResultCE loop Tests`` =
                 let! actual =
                     taskResult {
                         while loopCount < data.Length do
-                            let! x = data.[loopCount]
+                            let! _x = data[loopCount]
 
                             loopCount <-
                                 loopCount
@@ -484,7 +478,7 @@ let ``TaskResultCE loop Tests`` =
 
                 let! actual =
                     taskResult {
-                        for i in [ 1..10 ] do
+                        for _ in [ 1..10 ] do
                             ()
 
                         return data
@@ -499,7 +493,7 @@ let ``TaskResultCE loop Tests`` =
 
                 let! actual =
                     taskResult {
-                        for i = 1 to 10 do
+                        for _ = 1 to 10 do
                             ()
 
                         return data
@@ -526,7 +520,7 @@ let ``TaskResultCE loop Tests`` =
                 let! actual =
                     taskResult {
                         for i in data do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -580,7 +574,7 @@ let ``TaskResultCE loop Tests`` =
                 let! actual =
                     taskResult {
                         for i in asyncSeq do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -660,9 +654,9 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
-                        and! c = Async.singleton 1 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
+                        and! c = Async.result 1 //: Async<int>
                         return a + b - c
                     }
 
@@ -674,8 +668,8 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
                         return a + b
                     }
 
@@ -706,7 +700,7 @@ let ``TaskResultCE applicative tests`` =
 
                         and! c =
                             Ok 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! d = specialCaseTask (Ok 3)
                         and! e = ValueTask.FromResult(Ok 5)
@@ -764,7 +758,7 @@ let ``TaskResultCE applicative tests`` =
 
                         and! b =
                             Ok 2
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = Error errorMsg
                         return a + b - c
@@ -781,7 +775,7 @@ let ``TaskResultCE inference checks`` =
             // Compilation is success
             let f res = taskResult { return! res () }
 
-            f (TaskResult.ok)
+            f TaskResult.ok
             |> ignore
     ]
 

@@ -47,14 +47,14 @@ let ``AsyncResultCE return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = asyncResult { return! Async.singleton data }
+            let! actual = asyncResult { return! Async.result data }
 
             Expect.equal actual (data) "Should be ok"
         }
         testCaseAsync "Return Async"
         <| async {
             let innerData = "Foo"
-            let! actual = asyncResult { return! Async.singleton innerData }
+            let! actual = asyncResult { return! Async.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -123,7 +123,7 @@ let ``AsyncResultCE bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Async.singleton
+                |> Async.result
 
             let! actual =
                 asyncResult {
@@ -138,7 +138,7 @@ let ``AsyncResultCE bind Tests`` =
         testCaseAsync "Bind Async"
         <| async {
             let innerData = "Foo"
-            let d = Async.singleton innerData
+            let d = Async.result innerData
 
             let! actual =
                 asyncResult {

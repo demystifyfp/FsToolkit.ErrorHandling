@@ -773,7 +773,7 @@ module ArrayOriginal =
                     }
 
                 match r with
-                | Ok _ -> return! traverseAsyncResultM' (Async.singleton r) f xs
+                | Ok _ -> return! traverseAsyncResultM' (Async.result r) f xs
                 | Error _ -> return r
             }
 
@@ -824,7 +824,7 @@ module ArrayOriginal =
                     }
 
                 match o with
-                | Some _ -> return! traverseAsyncOptionM' (Async.singleton o) f xs
+                | Some _ -> return! traverseAsyncOptionM' (Async.result o) f xs
                 | None -> return o
             }
 

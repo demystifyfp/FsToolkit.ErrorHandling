@@ -15,7 +15,7 @@ module TaskResult =
             Result.either
                 f
                 (Error
-                 >> Task.singleton)
+                 >> Task.result)
         )
 
     let inline ofAsync aAsync =
@@ -26,11 +26,11 @@ module TaskResult =
 
     let inline ok x =
         Ok x
-        |> Task.singleton
+        |> Task.result
 
     let inline error x =
         Error x
-        |> Task.singleton
+        |> Task.result
 
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 
@@ -234,15 +234,12 @@ module TaskResult =
         |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch ([<InlineIfLambda>] f) x =
+    let inline catchWith ([<InlineIfLambda>] f) x =
         x
-        |> Task.catch
-        |> Task.map (
-            function
-            | Choice1Of2(Ok v) -> Ok v
-            | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(f ex)
-        )
+        |> Task.catchWith (fun ex -> Error(f ex))
+
+    [<System.Obsolete "Use TaskResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline catch ([<InlineIfLambda>] f) x = catchWith f x
 
     /// <summary>
     /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
@@ -274,22 +271,24 @@ module TaskResult =
     ///     // Returns: task { return Error (System.Exception("something went wrong")) }
     /// </code>
     /// </example>
+    [<System.Obsolete "Use Task.catch instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
         x
         |> Task.catch
-        |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
-    let inline ofResult (x: Result<_, _>) =
-        x
-        |> Task.singleton
+    let inline result (x: Result<_, _>) = Task.result x
+
+    /// Lift Result to TaskResult
+    [<System.Obsolete "Use TaskResult.result instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Bind the TaskResult and requireSome on the inner option value.
     let inline bindRequireSome error x =
         x
         |> bind (
             Result.requireSome error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNone on the inner option value.
@@ -297,7 +296,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNone error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireValueSome on the inner voption value.
@@ -305,7 +304,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireValueSome error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireValueNone on the inner voption value.
@@ -313,7 +312,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireValueNone error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireTrue on the inner value.
@@ -321,7 +320,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireTrue error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireFalse on the inner value.
@@ -329,7 +328,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireFalse error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNotNull on the inner value.
@@ -337,7 +336,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNotNull error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireEequal on the inner value.
@@ -345,7 +344,7 @@ module TaskResult =
         x
         |> bind (fun x ->
             Result.requireEqual x y error
-            |> Task.singleton
+            |> Task.result
         )
 
     /// Bind the TaskResult and requireEmpty on the inner value.
@@ -353,7 +352,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireEmpty error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNotEmpty on the inner value.
@@ -361,7 +360,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNotEmpty error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireHead on the inner value
@@ -369,7 +368,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireHead error
-            >> Task.singleton
+            >> Task.result
         )
 
     let inline foldResult

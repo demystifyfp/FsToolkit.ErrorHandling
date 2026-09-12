@@ -664,9 +664,9 @@ module TaskResultCEExtensionsHighPriority2 =
 
         member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
 
-        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
+        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.result result
 
         member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
             result
             |> Result.ofChoice
-            |> Task.singleton
+            |> Task.result

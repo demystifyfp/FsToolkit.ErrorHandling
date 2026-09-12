@@ -10,11 +10,11 @@ module AsyncResult =
 
     let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
         Ok value
-        |> Async.singleton
+        |> Async.result
 
     let inline error (error: 'error) : Async<Result<'ok, 'error>> =
         Error error
-        |> Async.singleton
+        |> Async.result
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -383,14 +383,14 @@ module AsyncResult =
     /// Lift Result to AsyncResult
     let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
         x
-        |> Async.singleton
+        |> Async.result
 
     /// Bind the AsyncResult and requireSome on the inner option value.
     let inline bindRequireSome error x =
         x
         |> bind (
             Result.requireSome error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireNone on the inner option value.
@@ -398,7 +398,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireNone error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireValueSome on the inner voption value.
@@ -406,7 +406,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireValueSome error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireValueNone on the inner voption value.
@@ -414,7 +414,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireValueNone error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireTrue on the inner value.
@@ -422,7 +422,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireTrue error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireFalse on the inner value.
@@ -430,7 +430,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireFalse error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireNotNull on the inner value.
@@ -438,7 +438,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireNotNull error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireEequal on the inner value.
@@ -446,7 +446,7 @@ module AsyncResult =
         x
         |> bind (fun x ->
             Result.requireEqual x y error
-            |> Async.singleton
+            |> Async.result
         )
 
     /// Bind the AsyncResult and requireEmpty on the inner value.
@@ -454,7 +454,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireEmpty error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireNotEmpty on the inner value.
@@ -462,7 +462,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireNotEmpty error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Bind the AsyncResult and requireHead on the inner value
@@ -470,7 +470,7 @@ module AsyncResult =
         x
         |> bind (
             Result.requireHead error
-            >> Async.singleton
+            >> Async.result
         )
 
     /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.

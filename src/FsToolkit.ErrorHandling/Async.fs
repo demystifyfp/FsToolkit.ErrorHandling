@@ -6,14 +6,15 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
+#if !NET_10_0_OR_GREATER
     /// <summary>
     /// Converts a value to an <c>Async</c> value
     /// </summary>
     /// <param name="value">The value to convert to an <c>Async</c> value.</param>
     /// <returns>The <c>Async</c> value.</returns>
-    let inline singleton (value: 'value) : Async<'value> =
-        value
-        |> async.Return
+    [<System.Obsolete("Use the built in FSharp.Core Async.result instead")>]
+    let inline singleton (value: 'value) : Async<'value> = Async.result value
+#endif
 
     /// <summary>
     /// Takes a transformation function and applies it to the value of an <c>Async</c> value.
@@ -34,7 +35,7 @@ module Async =
     /// <param name="input">The <c>Async</c> value to apply the function to.</param>
     /// <returns>The result of applying the function to the value.</returns>
     let inline apply (applier: Async<'input -> 'output>) (input: Async<'input>) : Async<'output> =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) input) applier
+        bind (fun f' -> bind (fun x' -> Async.result (f' x')) input) applier
 
     /// <summary>
     /// Applies a transformation to the value of an <c>Async</c> value to a new <c>Async</c> value using the provided function.
@@ -49,7 +50,7 @@ module Async =
         bind
             (fun x' ->
                 mapper x'
-                |> singleton
+                |> Async.result
             )
             input
 
@@ -70,7 +71,7 @@ module Async =
                 bind
                     (fun y ->
                         mapper x y
-                        |> singleton
+                        |> Async.result
                     )
                     input2
             )
@@ -97,7 +98,7 @@ module Async =
                         bind
                             (fun z ->
                                 mapper x y z
-                                |> singleton
+                                |> Async.result
                             )
                             input3
                     )
@@ -112,7 +113,7 @@ module Async =
     /// <param name="right">The second async value.</param>
     /// <returns>The tuple of the pair.</returns>
     let inline zip (left: Async<'left>) (right: Async<'right>) : Async<'left * 'right> =
-        bind (fun l -> bind (fun r -> singleton (l, r)) right) left
+        bind (fun l -> bind (fun r -> Async.result (l, r)) right) left
 
     /// <summary>
     /// Executes two asyncs concurrently <see cref='M:Microsoft.FSharp.Control.FSharpAsync.Parallel``1'/> and returns a mapping of the values
@@ -127,31 +128,15 @@ module Async =
         (input2: Async<'input2>)
         : Async<'output> =
 
-#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
         Async.Parallel(
             [|
                 map box input1
                 map box input2
             |]
         )
-#else
-        Async.Parallel(
-            [|
-                map box input1
-                map box input2
-            |],
-            maxDegreeOfParallelism = 2
-        )
-#endif
         |> map (fun results ->
-            let a =
-                results[0]
-                |> unbox<'input1>
-
-            let b =
-                results[1]
-                |> unbox<'input2>
-
+            let a = unbox<'input1> results[0]
+            let b = unbox<'input2> results[1]
             mapper a b
         )
 
@@ -169,7 +154,6 @@ module Async =
         (input2: Async<'input2>)
         (input3: Async<'input3>)
         : Async<'output> =
-#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
         Async.Parallel(
             [|
                 map box input1
@@ -177,29 +161,10 @@ module Async =
                 map box input3
             |]
         )
-#else
-        Async.Parallel(
-            [|
-                map box input1
-                map box input2
-                map box input3
-            |],
-            maxDegreeOfParallelism = 3
-        )
-#endif
         |> map (fun results ->
-            let a =
-                results[0]
-                |> unbox<'input1>
-
-            let b =
-                results[1]
-                |> unbox<'input2>
-
-            let c =
-                results[2]
-                |> unbox<'input3>
-
+            let a = unbox<'input1> results[0]
+            let b = unbox<'input2> results[1]
+            let c = unbox<'input3> results[2]
             mapper a b c
         )
 

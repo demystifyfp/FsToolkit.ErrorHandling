@@ -58,7 +58,7 @@ let asyncOpt : Async<Account option> =
 
 ```fsharp
 let asyncOpt : Async<Account option> =
-    Async.singleton None // Async<string option>
+    Async.result None // Async<string option>
     |> AsyncOption.bind lookupAccountByEmail // Async<Account option>
 
 // async { None }
