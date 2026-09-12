@@ -234,9 +234,12 @@ module TaskResult =
         |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch ([<InlineIfLambda>] f) x =
+    let inline catchWith ([<InlineIfLambda>] f) x =
         x
         |> Task.catchWith (fun ex -> Error(f ex))
+
+    [<System.Obsolete "Use TaskResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline catch ([<InlineIfLambda>] f) x = catchWith f x
 
     /// <summary>
     /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
@@ -268,11 +271,16 @@ module TaskResult =
     ///     // Returns: task { return Error (System.Exception("something went wrong")) }
     /// </code>
     /// </example>
+    [<System.Obsolete "Use Task.catch instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
         x
         |> Task.catch
 
     /// Lift Result to TaskResult
+    let inline result (x: Result<_, _>) = Task.result x
+
+    /// Lift Result to TaskResult
+    [<System.Obsolete "Use TaskResult.result instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Bind the TaskResult and requireSome on the inner option value.

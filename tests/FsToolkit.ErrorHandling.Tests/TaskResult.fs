@@ -709,7 +709,7 @@ let teeErrorIfTests =
             Expect.equal foo "foo" ""
     ]
 
-let catchTests =
+let catchWithTests =
     let f (e: exn) = e.Message
 
     let taskThrow () =
@@ -718,16 +718,18 @@ let catchTests =
             return Error ""
         }
 
-    testList "TaskResult.catch tests" [
-        testCase "catch returns success for Ok"
-        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.catch f (toTask (Ok 42)))
+    testList "TaskResult.catchWith tests" [
+        testCase "catchWith returns success for Ok"
+        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.catchWith f (toTask (Ok 42)))
 
-        testCase "catch returns mapped Error for exception"
-        <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catch f (taskThrow ()))
+        testCase "catchWith returns mapped Error for exception"
+        <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catchWith f (taskThrow ()))
 
-        testCase "catch returns unmapped error without exception"
+        testCase "catchWith returns unmapped error without exception"
         <| fun _ ->
-            Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
+            Expect.hasTaskErrorValueSync
+                "unmapped"
+                (TaskResult.catchWith f (toTask (Error "unmapped")))
     ]
 
 let ofCatchTaskTests =
@@ -738,13 +740,13 @@ let ofCatchTaskTests =
         }
 
     testList "TaskResult.ofCatchTask tests" [
-        testCase "ofCatchTask returns Ok for a successful task"
-        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.ofCatchTask (task { return 42 }))
+        testCase "ofCatchTask replacement(Task.catch) returns Ok for a successful task"
+        <| fun _ -> Expect.hasTaskOkValueSync 42 (Task.catch (task { return 42 }))
 
-        testCase "ofCatchTask returns Error for a throwing task"
+        testCase "ofCatchTask replacement(Task.catch) returns Error for a throwing task"
         <| fun _ ->
             let result =
-                TaskResult.ofCatchTask (taskThrow ())
+                Task.catch (taskThrow ())
                 |> Async.AwaitTask
                 |> Async.RunSynchronously
 
