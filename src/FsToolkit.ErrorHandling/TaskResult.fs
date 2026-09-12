@@ -15,7 +15,7 @@ module TaskResult =
             Result.either
                 f
                 (Error
-                 >> Task.singleton)
+                 >> Task.result)
         )
 
     let inline ofAsync aAsync =
@@ -26,11 +26,11 @@ module TaskResult =
 
     let inline ok x =
         Ok x
-        |> Task.singleton
+        |> Task.result
 
     let inline error x =
         Error x
-        |> Task.singleton
+        |> Task.result
 
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 
@@ -280,16 +280,14 @@ module TaskResult =
         |> Task.map Result.ofChoice
 
     /// Lift Result to TaskResult
-    let inline ofResult (x: Result<_, _>) =
-        x
-        |> Task.singleton
+    let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Bind the TaskResult and requireSome on the inner option value.
     let inline bindRequireSome error x =
         x
         |> bind (
             Result.requireSome error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNone on the inner option value.
@@ -297,7 +295,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNone error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireValueSome on the inner voption value.
@@ -305,7 +303,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireValueSome error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireValueNone on the inner voption value.
@@ -313,7 +311,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireValueNone error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireTrue on the inner value.
@@ -321,7 +319,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireTrue error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireFalse on the inner value.
@@ -329,7 +327,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireFalse error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNotNull on the inner value.
@@ -337,7 +335,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNotNull error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireEequal on the inner value.
@@ -345,7 +343,7 @@ module TaskResult =
         x
         |> bind (fun x ->
             Result.requireEqual x y error
-            |> Task.singleton
+            |> Task.result
         )
 
     /// Bind the TaskResult and requireEmpty on the inner value.
@@ -353,7 +351,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireEmpty error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireNotEmpty on the inner value.
@@ -361,7 +359,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireNotEmpty error
-            >> Task.singleton
+            >> Task.result
         )
 
     /// Bind the TaskResult and requireHead on the inner value
@@ -369,7 +367,7 @@ module TaskResult =
         x
         |> bind (
             Result.requireHead error
-            >> Task.singleton
+            >> Task.result
         )
 
     let inline foldResult

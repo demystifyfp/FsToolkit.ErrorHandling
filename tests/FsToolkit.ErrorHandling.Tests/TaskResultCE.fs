@@ -65,7 +65,7 @@ let ``TaskResultCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! Task.singleton innerData }
+                let! actual = taskResult { return! Task.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -155,7 +155,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Task.singleton
+                    |> Task.result
 
                 let! actual =
                     taskResult {

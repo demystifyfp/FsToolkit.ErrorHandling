@@ -69,7 +69,7 @@ let ``JobResultCE return! Tests`` =
         testCaseJob "Return Task Generic"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { return! Task.singleton innerData }
+            let! actual = jobResult { return! Task.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -141,7 +141,7 @@ let ``JobResultCE bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Task.singleton
+                |> Task.result
 
             let! actual =
                 jobResult {

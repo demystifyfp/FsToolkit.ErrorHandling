@@ -645,7 +645,7 @@ module TaskValidationCEExtensionsMediumPriority =
         member inline _.Source(result: Result<_, _>) : Task<Validation<_, _>> =
             result
             |> Validation.ofResult
-            |> Task.singleton
+            |> Task.result
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsHighPriority2 =
@@ -662,9 +662,9 @@ module TaskValidationCEExtensionsHighPriority2 =
             task { return! t }
 
         member inline _.Source(result: Validation<_, _>) : Task<Validation<_, _>> =
-            Task.singleton result
+            Task.result result
 
         member inline _.Source(result: Choice<_, _>) : Task<Validation<_, _>> =
             result
             |> Validation.ofChoice
-            |> Task.singleton
+            |> Task.result

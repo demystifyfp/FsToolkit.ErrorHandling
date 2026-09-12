@@ -266,7 +266,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     id
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
@@ -282,7 +282,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     string
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
@@ -298,7 +298,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     id
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
