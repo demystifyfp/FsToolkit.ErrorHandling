@@ -1099,7 +1099,7 @@ let allTests =
         teeIfTests
         teeErrorTests
         teeErrorIfTests
-        catchTests
+        catchWithTests
         ofCatchTaskTests
         zipTests
         zipErrorTests

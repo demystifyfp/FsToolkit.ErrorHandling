@@ -57,16 +57,14 @@ module AsyncResult =
         async.Delay(fun () ->
             aTask
             |> Async.AwaitTask
-            |> Async.Catch
-            |> Async.map Result.ofChoice
+            |> Async.catch
         )
 
     let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
         async.Delay(fun () ->
             aTask
             |> Async.AwaitTask
-            |> Async.Catch
-            |> Async.map Result.ofChoice
+            |> Async.catch
         )
 
 #endif
@@ -355,18 +353,20 @@ module AsyncResult =
         |> Async.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch
+    let inline catchWith
         ([<InlineIfLambda>] exnMapper: exn -> 'error)
         (input: Async<Result<'ok, 'error>>)
         : Async<Result<'ok, 'error>> =
         input
-        |> Async.Catch
-        |> Async.map (
-            function
-            | Choice1Of2(Ok v) -> Ok v
-            | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(exnMapper ex)
-        )
+        |> Async.catchWith (fun exn -> Error(exnMapper exn))
+
+    /// Catches exceptions and maps them to the Error case using the provided function.
+    [<System.Obsolete "Use AsyncResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline catch
+        ([<InlineIfLambda>] exnMapper: exn -> 'error)
+        (input: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
+        catchWith exnMapper input
 
     /// Gets the value in the Ok case or re-raises the exception in the Error case
     let inline getOrReraise (input: Async<Result<'ok, exn>>) : Async<'ok> =

@@ -4,8 +4,8 @@ open System.Threading.Tasks
 
 // FsToolkit v5 had singleton, map, bind, catch and ignore with the following diffs:
 // - Task.result replaces singleton (Obsoleted)
-// - catch yields Result (was choice; source+binary breaking change)
-// - ignore gains [<RequiresExplicitTypeArguments>] (source breaking change)
+// - Task.catchWith replaces catch (Obsoleted), with return type changed to Result (was choice; source+binary breaking change)
+// - Task.ignore replaces ignore, though note it gains [<RequiresExplicitTypeArguments>] (source breaking change)
 
 [<RequireQualifiedAccess>]
 module Task =
@@ -73,6 +73,6 @@ module Task =
 
     let ofUnit (t: Task) = task { return! t }
 
-    // NOTE FSharp.Core Task.catch is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
+    // NOTE FSharp.Core Task.catchWith is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
     // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
     // NOTE Breaking change vs V5: the signature has changed to Task<Result<'T, exn>> (was Task<Choice<'T, exn>>)

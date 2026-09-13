@@ -251,7 +251,7 @@ module JobResult =
         |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch f x =
+    let inline catchWith f x =
         x
         |> Job.catch
         |> Job.map (
@@ -260,6 +260,10 @@ module JobResult =
             | Choice1Of2(Error err) -> Error err
             | Choice2Of2 ex -> Error(f ex)
         )
+
+    /// Catches exceptions and maps them to the Error case using the provided function.
+    [<System.Obsolete "Use JobResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline catch f x = catchWith f x
 
     /// Lift Job to JobResult
     let inline ofJob x =

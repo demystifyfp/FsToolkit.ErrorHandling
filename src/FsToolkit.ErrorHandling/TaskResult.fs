@@ -19,9 +19,8 @@ module TaskResult =
 
     let inline ofAsync aAsync =
         aAsync
-        |> Async.Catch
-        |> Async.StartImmediateAsTask
-        |> Task.map Result.ofChoice
+        |> Async.catch
+        |> Task.startAsyncImmediate System.Threading.CancellationToken.None
 
     let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) = Task.bind (Result.either f error) tr
 
@@ -253,7 +252,7 @@ module TaskResult =
     /// <summary>
     /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
     /// Any exceptions thrown by the task will not be caught and will propagate as-is.
-    /// To catch exceptions and map them to the <c>Error</c> case, use <see cref="ofCatchTask"/>.
+    /// To catch exceptions and map them to the <c>Error</c> case, use <see cref="catchWith"/>.
     /// </summary>
     /// <param name="x">The task to lift.</param>
     /// <returns>A task containing <c>Ok</c> of the task's result value.</returns>
