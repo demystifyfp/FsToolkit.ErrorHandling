@@ -66,7 +66,7 @@ let ``AsyncResultOptionCE return! Tests`` =
         testCaseAsync "Return Ok AsyncResultOption"
         <| async {
             let innerData = "Foo"
-            let data = AsyncResultOption.singleton innerData
+            let data = AsyncResultOption.some innerData
             let! actual = asyncResultOption { return! data }
 
             Expect.equal actual (OkSome innerData) "Should be ok"
@@ -268,7 +268,7 @@ let ``AsyncResultOptionCE bind Tests`` =
         <| async {
             let innerData = "Foo"
 
-            let data = AsyncResultOption.singleton innerData
+            let data = AsyncResultOption.some innerData
 
             let! actual =
                 asyncResultOption {
@@ -708,7 +708,7 @@ let ``AsyncResultOptionCE inference checks`` =
             // Compilation is success
             let f res = asyncResultOption { return! res }
 
-            f (AsyncResultOption.singleton ())
+            f (AsyncResultOption.some ())
             |> ignore
     ]
 

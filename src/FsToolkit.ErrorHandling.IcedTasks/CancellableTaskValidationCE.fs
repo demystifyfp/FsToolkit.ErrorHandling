@@ -309,8 +309,14 @@ module CancellableTaskValidation =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskValidation<'item, 'Error> =
+        fun _ -> TaskResult.ok item
+
+    /// <summary>Lifts an item to a CancellableTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableTask.</param>
+    /// <returns>A CancellableTask with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableTaskValidation.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> = ok item
 
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>
@@ -328,7 +334,7 @@ module CancellableTaskValidation =
 
     let inline ofResult (result: Result<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         let x = Result.mapError List.singleton result
-        fun _ -> Task.FromResult(x)
+        fun _ -> Task.result x
 
     /// <summary>Lifts an item to a CancellableTaskValidation.</summary>
     /// <param name="error">The item to be the error result of the CancellableTaskValidation.</param>
@@ -339,7 +345,7 @@ module CancellableTaskValidation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> singleton x
+        | Choice1Of2 x -> ok x
         | Choice2Of2 x -> error x
 
 
@@ -479,7 +485,7 @@ module CancellableTaskValidation =
 
             return!
                 result
-                |> Result.either singleton (fun _ -> ifError)
+                |> Result.either ok (fun _ -> ifError)
         }
 
     let inline orElseWith
@@ -492,7 +498,7 @@ module CancellableTaskValidation =
 
             return!
                 match result with
-                | Ok x -> singleton x
+                | Ok x -> ok x
                 | Error err -> ifErrorFunc err
         }
 

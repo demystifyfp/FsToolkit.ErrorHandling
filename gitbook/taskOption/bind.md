@@ -58,7 +58,7 @@ let taskOpt : Task<Account option> =
 
 ```fsharp
 let taskOpt : Task<Account option> =
-    Task.singleton None // Task<string option>
+    Task.result None // Task<string option>
     |> TaskOption.bind lookupAccountByEmail // Task<Account option>
 
 // task { None }

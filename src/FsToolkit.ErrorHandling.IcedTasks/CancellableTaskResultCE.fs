@@ -293,9 +293,13 @@ module CancellableTaskResult =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskResult<'item, 'Error> = fun _ -> TaskResult.ok item
 
+    /// <summary>Lifts an item to a CancellableTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableTask.</param>
+    /// <returns>A CancellableTask with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableTaskResult.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> = ok item
 
     let inline either
         ([<InlineIfLambda>] onSuccess: 'input -> 'output)

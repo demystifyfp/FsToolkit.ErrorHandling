@@ -31,7 +31,7 @@ let result =
 
 ```fsharp
 let result =
-    Task.singleton ValueNone // Task<string voption>
+    Task.result ValueNone // Task<string voption>
     |> TaskValueOption.apply (TaskValueOption.valueSome characterCount) // Task<int voption>
 
 // task { ValueNone }
@@ -42,7 +42,7 @@ let result =
 ```fsharp
 let result : Task<int voption> =
     TaskValueOption.valueSome "foo" // Task<string voption>
-    |> TaskValueOption.apply (Task.singleton ValueNone) // Task<int voption>
+    |> TaskValueOption.apply (Task.result ValueNone) // Task<int voption>
 
 // task { ValueNone }
 ```

@@ -20,30 +20,30 @@ let tryFindUser : string -> Job<User option>
 // Job<string>
 tryFindUser "alice"
 |> JobOption.either
-    (fun user -> Job.singleton (sprintf "Found user: %s" user.Name))
-    (Job.singleton "User not found")
+    (fun user -> Job.result $"Found user: {user.Name}"))
+    (Job.result "User not found")
 ```
 
 ### Example 2
 
 ```fsharp
-let maybeValue : Job<int option> = Job.singleton (Some 42)
+let maybeValue : Job<int option> = Job.result (Some 42)
 
 maybeValue
 |> JobOption.either
-    (fun x -> Job.singleton (x * 2))
-    (Job.singleton 0)
+    (fun x -> Job.result (x * 2))
+    (Job.result 0)
 // job { return 84 }
 ```
 
 ### Example 3
 
 ```fsharp
-let emptyJob : Job<int option> = Job.singleton None
+let emptyJob : Job<int option> = Job.result None
 
 emptyJob
 |> JobOption.either
-    (fun x -> Job.singleton (x * 2))
-    (Job.singleton 0)
+    (fun x -> Job.result (x * 2))
+    (Job.result 0)
 // job { return 0 }
 ```

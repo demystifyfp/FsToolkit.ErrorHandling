@@ -26,7 +26,7 @@ TaskValueOption.zip left right
 
 ```fsharp
 let left = TaskValueOption.valueSome 123
-let right = Task.singleton ValueNone
+let right = Task.result ValueNone
 
 TaskValueOption.zip left right
 // task { ValueNone }

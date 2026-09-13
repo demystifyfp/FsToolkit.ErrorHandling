@@ -13,8 +13,8 @@ Job<('a -> 'b) option> -> Job<'a option> -> Job<'b option>
 ### Example 1
 
 ```fsharp
-let f = Job.singleton (Some (fun x -> x + 1))
-let x = Job.singleton (Some 41)
+let f = Job.result (Some (fun x -> x + 1))
+let x = Job.result (Some 41)
 
 JobOption.apply f x
 // job { return Some 42 }
@@ -23,8 +23,8 @@ JobOption.apply f x
 ### Example 2
 
 ```fsharp
-let f = Job.singleton None
-let x = Job.singleton (Some 41)
+let f = Job.result None
+let x = Job.result (Some 41)
 
 JobOption.apply f x
 // job { return None }

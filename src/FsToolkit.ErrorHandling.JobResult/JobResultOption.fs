@@ -9,7 +9,7 @@ module JobResultOption =
         let binder opt =
             match opt with
             | Some x -> f x
-            | None -> JobResult.singleton None
+            | None -> JobResult.ok None
 
         JobResult.bind binder jro
 
@@ -19,10 +19,12 @@ module JobResultOption =
     let inline map3 ([<InlineIfLambda>] f) xJRO yJRO zJRO =
         JobResult.map3 (Option.map3 f) xJRO yJRO zJRO
 
-    let inline singleton value =
+    let inline some value =
         Some value
-        |> Ok
-        |> Job.result
+        |> JobResult.ok
+
+    [<System.Obsolete "Use JobResultOption.some instead (aligns with AsyncResult naming)">]
+    let inline singleton value = some value
 
     let apply fJRO xJRO = map2 (fun f x -> f x) fJRO xJRO
 

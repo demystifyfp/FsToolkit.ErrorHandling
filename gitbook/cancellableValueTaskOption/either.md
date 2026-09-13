@@ -26,7 +26,7 @@ CancellableValueTaskOption.either (fun x -> cancellableValueTask { return x * 2 
 ### Example 2
 
 ```fsharp
-CancellableValueTaskOption.either (fun x -> cancellableValueTask { return x * 2 }) (fun () -> cancellableValueTask { return 0 }) (CancellableValueTask.singleton None)
+CancellableValueTaskOption.either (fun x -> cancellableValueTask { return x * 2 }) (fun () -> cancellableValueTask { return 0 }) (CancellableValueTask.result None)
 
 // cancellableValueTask { 0 }
 ```

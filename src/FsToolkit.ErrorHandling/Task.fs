@@ -3,7 +3,7 @@ namespace FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
 // FsToolkit v5 had singleton, map, bind, catch and ignore with the following diffs:
-// - result replaces singleton (Obsoleted)
+// - Task.result replaces singleton (Obsoleted)
 // - catch yields Result (was choice; source+binary breaking change)
 // - ignore gains [<RequiresExplicitTypeArguments>] (source breaking change)
 

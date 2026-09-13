@@ -26,7 +26,7 @@ CancellableTaskOption.zip left right
 
 ```fsharp
 let left = CancellableTaskOption.some 123
-let right = CancellableTaskOption.singleton None
+let right = CancellableTaskOption.result None
 
 CancellableTaskOption.zip left right
 // cancellableTask { None }

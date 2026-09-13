@@ -429,9 +429,9 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = JobResult.singleton 3
-                    and! b = JobResult.singleton 2
-                    and! c = JobResult.singleton 1
+                    let! a = JobResult.ok 3
+                    and! b = JobResult.ok 2
+                    and! c = JobResult.ok 1
                     return a + b - c
                 }
 
@@ -603,6 +603,6 @@ let ``JobResultCE inference checks`` =
             // Compilation is success
             let f res = jobResult { return! res }
 
-            f (JobResult.singleton ())
+            f (JobResult.ok ())
             |> ignore
     ]

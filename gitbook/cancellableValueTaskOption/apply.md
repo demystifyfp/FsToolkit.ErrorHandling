@@ -31,7 +31,7 @@ let result =
 
 ```fsharp
 let result =
-    CancellableValueTask.singleton None // CancellableValueTask<string option>
+    CancellableValueTask.result None // CancellableValueTask<string option>
     |> CancellableValueTaskOption.apply (CancellableValueTaskOption.some characterCount) // CancellableValueTask<int option>
 
 // cancellableValueTask { None }
@@ -42,7 +42,7 @@ let result =
 ```fsharp
 let result : CancellableValueTask<int option> =
     CancellableValueTaskOption.some "foo" // CancellableValueTask<string option>
-    |> CancellableValueTaskOption.apply (CancellableValueTask.singleton None) // CancellableValueTask<int option>
+    |> CancellableValueTaskOption.apply (CancellableValueTask.result None) // CancellableValueTask<int option>
 
 // cancellableValueTask { None }
 ```

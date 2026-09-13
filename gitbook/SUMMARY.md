@@ -307,7 +307,7 @@
     * [map](cancellableTaskResult/map.md)
     * [Operators](cancellableTaskResult/operators.md)
     * [Other Functions](cancellableTaskResult/others.md)
-    * [singleton](cancellableTaskResult/singleton.md)
+    * [ok](cancellableTaskResult/ok.md)
     * [zip](cancellableTaskResult/zip.md)
     * [parallelZip](cancellableTaskResult/parallelZip.md)
 
@@ -324,7 +324,7 @@
     * [mapErrors](cancellableTaskValidation/mapErrors.md)
     * [Operators](cancellableTaskValidation/operators.md)
     * [orElse Functions](cancellableTaskValidation/orElse.md)
-    * [singleton](cancellableTaskValidation/singleton.md)
+    * [ok](cancellableTaskValidation/ok.md)
     * [zip](cancellableTaskValidation/zip.md)
     * [parallelZip](cancellableTaskValidation/parallelZip.md)
     * Transforms
@@ -361,7 +361,7 @@
     * [apply](job/apply.md)
     * [map2](job/map2.md)
     * [map3](job/map3.md)
-    * [singleton](job/singleton.md)
+    * [result](job/result.md)
     * [zip](job/zip.md)
 
   * JobOption

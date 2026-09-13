@@ -286,10 +286,6 @@ module TaskResult =
         |> Task.catch
 
     /// Lift Result to TaskResult
-    let inline result (x: Result<_, _>) = Task.result x
-
-    /// Lift Result to TaskResult
-    [<System.Obsolete "Use TaskResult.result instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Bind the TaskResult with a synchronous Result-returning function.

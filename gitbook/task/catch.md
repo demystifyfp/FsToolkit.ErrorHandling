@@ -25,7 +25,7 @@ let taskThrow () =
 ### Example 1
 
 ```fsharp
-let result = Task.catch (Task.singleton 42)
+let result = Task.catch (Task.result 42)
 // task { Choice1Of2(42) }
 ```
 

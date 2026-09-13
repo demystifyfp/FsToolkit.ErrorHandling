@@ -23,7 +23,7 @@ CancellableTaskOption.map (fun x -> x + 1) (CancellableTaskOption.some 1)
 ### Example 2
 
 ```fsharp
-CancellableTaskOption.map (fun x -> x + 1) (CancellableTask.singleton None)
+CancellableTaskOption.map (fun x -> x + 1) (CancellableTask.result None)
 
 // cancellableTask { None }
 ```

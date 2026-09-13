@@ -59,6 +59,7 @@ module JobResult =
         |> Job.catch
         |> Job.map Result.ofChoice
 
+    [<System.Obsolete "Use JobResult.ok instead (aligns with AsyncResult naming)">]
     let inline singleton x = ok x
 
     let inline apply fJR xJR = map2 (fun f x -> f x) fJR xJR

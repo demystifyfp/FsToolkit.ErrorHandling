@@ -8,15 +8,15 @@ module AsyncValidation =
 
     let inline ok (value: 'ok) : AsyncValidation<'ok, 'error> =
         Ok value
-        |> async.Return
+        |> Async.result
 
     let inline error (error: 'error) : AsyncValidation<'ok, 'error> =
         Error [ error ]
-        |> async.Return
+        |> Async.result
 
     let inline ofResult (result: Result<'ok, 'error>) : AsyncValidation<'ok, 'error> =
         Result.mapError List.singleton result
-        |> async.Return
+        |> Async.result
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : AsyncValidation<'ok, 'error> =
         match choice with

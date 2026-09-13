@@ -23,7 +23,7 @@ TaskOption.map (fun x -> x + 1) (TaskOption.some 1)
 ### Example 2
 
 ```fsharp
-TaskOption.map (fun x -> x + 1) (Task.singleton None)
+TaskOption.map (fun x -> x + 1) (Task.result None)
 
 // task { None }
 ```
