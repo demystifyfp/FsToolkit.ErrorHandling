@@ -219,7 +219,7 @@
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
     * Transforms
       * [ofAsync](taskResult/ofAsync.md)
-      * [ofCatchTask](taskResult/ofCatchTask.md)
+      * [catch](taskResult/catch.md)
       * [ofResult](taskResult/ofResult.md)
       * [ofTask](taskResult/ofTask.md)
 
@@ -364,7 +364,7 @@
     * [apply](job/apply.md)
     * [map2](job/map2.md)
     * [map3](job/map3.md)
-    * [result](job/result.md)
+    * [result](job/result.md) (from Hopac)
     * [zip](job/zip.md)
 
   * JobOption
