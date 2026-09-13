@@ -33,7 +33,7 @@ getUserById sampleUserId
 
 ```fsharp
 // Job<Result<int option, string>>
-let parseFirstItem = JobResult.singleton (Some "42")
+let parseFirstItem = JobResult.ok (Some "42")
 
 parseFirstItem
 |> JobResultOption.map int

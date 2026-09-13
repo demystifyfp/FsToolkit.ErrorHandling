@@ -46,7 +46,7 @@ let ceTests =
         <| fun () ->
             task {
                 let expected = ValueNone
-                let! actual = valueTaskValueOption { return! (async.Return ValueNone) }
+                let! actual = valueTaskValueOption { return! Async.result ValueNone }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom Async"

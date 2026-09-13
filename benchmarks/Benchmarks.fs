@@ -1181,10 +1181,10 @@ module JobOptionOriginal =
             return! t
         }
 
-    let inline singleton x = job { return Some x }
+    let inline some x = job { return Some x }
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+        bind (fun f' -> bind (fun x' -> some (f' x')) x) f
 
 [<MemoryDiagnoser>]
 type JobOptionApplyBenchmarks() =
@@ -1224,13 +1224,13 @@ type JobOptionApplyBenchmarks() =
         |> Hopac.run
 
     [<Benchmark>]
-    member _.JobOption_Original_Singleton() =
-        JobOptionOriginal.singleton 1
+    member _.JobOption_Original_Some() =
+        JobOptionOriginal.some 1
         |> Hopac.run
 
     [<Benchmark>]
-    member _.JobOption_Current_Singleton() =
-        FsToolkit.ErrorHandling.JobOption.singleton 1
+    member _.JobOption_Current_Some() =
+        FsToolkit.ErrorHandling.JobOption.some 1
         |> Hopac.run
 
     [<Benchmark>]

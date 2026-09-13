@@ -124,7 +124,7 @@ module JobOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(r: 't option) = Job.singleton r
+        member inline _.Source(r: 't option) = Job.result r
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.

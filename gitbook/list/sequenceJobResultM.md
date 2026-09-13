@@ -20,9 +20,9 @@ See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpfo
 
 ```fsharp
 let jobs =
-    [ JobResult.singleton 1
-      JobResult.singleton 2
-      JobResult.singleton 3 ]
+    [ JobResult.ok 1
+      JobResult.ok 2
+      JobResult.ok 3 ]
 
 jobs |> List.sequenceJobResultM
 // job { return Ok [1; 2; 3] }
@@ -32,9 +32,9 @@ jobs |> List.sequenceJobResultM
 
 ```fsharp
 let jobs =
-    [ JobResult.singleton 1
+    [ JobResult.ok 1
       JobResult.error "oops"
-      JobResult.singleton 3 ]
+      JobResult.ok 3 ]
 
 jobs |> List.sequenceJobResultM
 // job { return Error "oops" }

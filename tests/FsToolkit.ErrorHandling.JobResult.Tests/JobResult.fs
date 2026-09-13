@@ -285,7 +285,7 @@ let ignoreTests =
     ]
 
 let err = "foobar"
-let toJob = Job.singleton
+let toJob = Job.result
 
 [<Tests>]
 let requireTrueTests =

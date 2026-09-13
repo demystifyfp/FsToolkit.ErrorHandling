@@ -28,13 +28,13 @@ let mapTests =
     testList "JobOption.map Tests" [
         testCase "map with Job(Some x)"
         <| fun _ ->
-            Job.singleton (Some validTweet)
+            Job.result (Some validTweet)
             |> JobOption.map remainingCharacters
             |> Expect.hasJobSomeValue 267
 
         testCase "map with Job(None)"
         <| fun _ ->
-            Job.singleton None
+            Job.result None
             |> JobOption.map remainingCharacters
             |> Expect.hasJobNoneValue
     ]
@@ -71,14 +71,14 @@ let applyTests =
     testList "JobOption.apply Tests" [
         testCase "apply with Job(Some x)"
         <| fun _ ->
-            Job.singleton (Some validTweet)
+            Job.result (Some validTweet)
             |> JobOption.apply (Job.singleton (Some remainingCharacters))
             |> Expect.hasJobSomeValue 267
 
         testCase "apply with Job(None)"
         <| fun _ ->
-            Job.singleton None
-            |> JobOption.apply (Job.singleton (Some remainingCharacters))
+            Job.result None
+            |> JobOption.apply (Job.result (Some remainingCharacters))
             |> Expect.hasJobNoneValue
     ]
 
@@ -86,7 +86,7 @@ let resultTests =
     testList "JobOption.result Tests" [
         testCase "result with x"
         <| fun _ ->
-            JobOption.singleton 267
+            JobOption.some 267
             |> Expect.hasJobSomeValue 267
     ]
 
@@ -112,7 +112,7 @@ let jobOptionOperatorTests =
                 if isAllowed then
                     createPostSome validCreatePostRequest
                 else
-                    Job.singleton None
+                    Job.result None
             )
             |> Expect.hasJobSomeValue (PostId newPostId)
     ]
@@ -122,7 +122,7 @@ let eitherTests =
     testList "JobOption.eitherBind Tests" [
         testCaseJob "Some"
         <| job {
-            let value1 = JobOption.singleton 5
+            let value1 = JobOption.some 5
             let f () = 42
             let add2 x = x + 2
 

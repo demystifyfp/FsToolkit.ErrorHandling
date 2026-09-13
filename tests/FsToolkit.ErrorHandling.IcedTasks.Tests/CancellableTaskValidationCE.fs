@@ -27,6 +27,7 @@ module ValidationCompileTests =
 
 module CancellableTaskValidationCE =
 
+    // open CancellableTask
     let lift = CancellableTaskValidation.ofResult
 
     let makeDisposable () =
@@ -899,7 +900,7 @@ module CancellableTaskValidationCE =
                         let ctr =
                             cancellableTaskValidation {
                                 while loopCount < data.Length do
-                                    let! x = data.[loopCount]
+                                    let! x = data[loopCount]
 
                                     loopCount <-
                                         loopCount
@@ -1325,7 +1326,7 @@ module CancellableTaskValidationCE =
                             cancellableTaskValidation {
                                 let! a = Ok 3
                                 and! b = Choice1Of2 2
-                                and! c = CancellableTaskValidation.singleton 1
+                                and! c = CancellableTaskValidation.ok 1
                                 return a + b - c
                             }
 
@@ -1399,8 +1400,8 @@ module CancellableTaskValidationCE =
 
                         let actual =
                             cancellableTaskValidation {
-                                let! a = CancellableTaskValidation.singleton 3
-                                and! b = CancellableTaskValidation.singleton 2
+                                let! a = CancellableTaskValidation.ok 3
+                                and! b = CancellableTaskValidation.ok 2
                                 and! c = expected
                                 return a + b - c
                             }
@@ -1612,7 +1613,7 @@ module CancellableTaskValidationCE =
             testList "singleton" [
                 testCaseAsync "Simple"
                 <| async {
-                    let innerCall = CancellableTaskValidation.singleton "lol"
+                    let innerCall = CancellableTaskValidation.ok "lol"
 
                     let! someTask = innerCall
 
@@ -2089,7 +2090,7 @@ module CancellableTaskValidationCE =
                 let f res =
                     cancellableTaskValidation { return! res }
 
-                f (CancellableTaskValidation.singleton (()))
+                f (CancellableTaskValidation.ok ())
                 |> ignore
         ]
 
