@@ -302,100 +302,52 @@ module TaskResult =
         x
         |> Task.singleton
 
+    /// Bind the TaskResult with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Task<Result<'input, 'error>>)
+        : Task<Result<'output, 'error>> =
+        Task.map (Result.bind binder) input
+
     /// Bind the TaskResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Task.singleton
-        )
+    let inline bindRequireSome error x = bindResult (Result.requireSome error) x
 
     /// Bind the TaskResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Task.singleton
-        )
+    let inline bindRequireNone error x = bindResult (Result.requireNone error) x
 
     /// Bind the TaskResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Task.singleton
-        )
+        bindResult (Result.requireValueSome error) x
 
     /// Bind the TaskResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Task.singleton
-        )
+        bindResult (Result.requireValueNone error) x
 
     /// Bind the TaskResult and requireTrue on the inner value.
-    let inline bindRequireTrue error x =
-        x
-        |> bind (
-            Result.requireTrue error
-            >> Task.singleton
-        )
+    let inline bindRequireTrue error x = bindResult (Result.requireTrue error) x
 
     /// Bind the TaskResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
-        x
-        |> bind (
-            Result.requireFalse error
-            >> Task.singleton
-        )
+        bindResult (Result.requireFalse error) x
 
     /// Bind the TaskResult and requireNotNull on the inner value.
     let inline bindRequireNotNull error x =
-        x
-        |> bind (
-            Result.requireNotNull error
-            >> Task.singleton
-        )
+        bindResult (Result.requireNotNull error) x
 
     /// Bind the TaskResult and requireEequal on the inner value.
     let inline bindRequireEqual y error x =
-        x
-        |> bind (fun x ->
-            Result.requireEqual x y error
-            |> Task.singleton
-        )
+        bindResult (fun x -> Result.requireEqual x y error) x
 
     /// Bind the TaskResult and requireEmpty on the inner value.
     let inline bindRequireEmpty error x =
-        x
-        |> bind (
-            Result.requireEmpty error
-            >> Task.singleton
-        )
+        bindResult (Result.requireEmpty error) x
 
     /// Bind the TaskResult and requireNotEmpty on the inner value.
     let inline bindRequireNotEmpty error x =
-        x
-        |> bind (
-            Result.requireNotEmpty error
-            >> Task.singleton
-        )
+        bindResult (Result.requireNotEmpty error) x
 
     /// Bind the TaskResult and requireHead on the inner value
-    let inline bindRequireHead error x =
-        x
-        |> bind (
-            Result.requireHead error
-            >> Task.singleton
-        )
-
-    let inline foldResult
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
-        ([<InlineIfLambda>] onError: 'inputError -> 'output)
-        (input: Task<Result<'input, 'inputError>>)
-        : Task<'output> =
-        Task.map (Result.either onSuccess onError) input
+    let inline bindRequireHead error x = bindResult (Result.requireHead error) x
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns an task-wrapped Ok result or if the task-wrapped result is Error.
     /// If the checkFunc returns an task-wrapped Error result, returns the task-wrapped Error result.

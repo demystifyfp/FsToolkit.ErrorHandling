@@ -14,6 +14,8 @@
 - BREAKING((Task|Async|Job)Result.foldResult): Rename to either (To align with Result)
 - (Task|Async|Job)Result: Add eitherMap
 - (Task|Async|Job)Result: Add bindResult
+- (Task|Async)Result: Add bindResult
+- (Task|Async|Job)Result: Add bindResult
 
 ### 6.0.0-beta002 - September 16, 2026
 

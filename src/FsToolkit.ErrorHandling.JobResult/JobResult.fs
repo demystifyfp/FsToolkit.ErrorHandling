@@ -1,24 +1,46 @@
 ﻿namespace FsToolkit.ErrorHandling
 
+open System.Threading.Tasks
 open Hopac
 open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module JobResult =
 
+    let inline ok x =
+        Ok x
+        |> Job.result
+
+    let inline error x =
+        Error x
+        |> Job.result
+
     let inline map ([<InlineIfLambda>] f) jr = Job.map (Result.map f) jr
+
+    let inline map2 ([<InlineIfLambda>] f) xJR yJR = Job.map2 (Result.map2 f) xJR yJR
+
+    let inline map3 ([<InlineIfLambda>] f) xJR yJR zJR = Job.map3 (Result.map3 f) xJR yJR zJR
 
     let inline mapError ([<InlineIfLambda>] f) jr = Job.map (Result.mapError f) jr
 
-    let inline bind ([<InlineIfLambda>] f: 'a -> Job<Result<'c, 'b>>) (jr: Job<Result<'a, 'b>>) =
-        Job.bind
-            (Result.either
-                f
-                (Error
-                 >> Job.result))
-            jr
+    let inline bind
+        ([<InlineIfLambda>] f: 'a -> Job<Result<'c, 'b>>)
+        (jr: Job<Result<'a, 'b>>)
+        : Job<Result<'c, 'b>> =
+        Job.bind (Result.either f error) jr
 
-    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'c -> 'b)
+        (jr: Job<Result<'a, 'c>>)
+        : Job<'b> =
+        Job.map (Result.either onSuccess onError) jr
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'c -> 'd)
+        (jr: Job<Result<'a, 'c>>)
+        : Job<Result<'b, 'd>> =
         Job.map (Result.eitherMap onSuccess onError) jr
 
     let inline ofAsync aAsync =
@@ -39,20 +61,9 @@ module JobResult =
         |> Job.catch
         |> Job.map Result.ofChoice
 
-    let inline singleton x =
-        Ok x
-        |> Job.result
-
-    let inline error x =
-        Error x
-        |> Job.result
-
-    let inline map2 ([<InlineIfLambda>] f) xJR yJR = Job.map2 (Result.map2 f) xJR yJR
-
-    let inline map3 ([<InlineIfLambda>] f) xJR yJR zJR = Job.map3 (Result.map3 f) xJR yJR zJR
+    let inline singleton x = ok x
 
     let inline apply fJR xJR = map2 (fun f x -> f x) fJR xJR
-
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -263,34 +274,23 @@ module JobResult =
         x
         |> Job.singleton
 
+    /// Bind the JobResult with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Job<Result<'input, 'error>>)
+        : Job<Result<'output, 'error>> =
+        Job.map (Result.bind binder) input
+
     /// Bind the JobResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Job.singleton
-        )
+    let inline bindRequireSome error x = bindResult (Result.requireSome error) x
 
     /// Bind the JobResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Job.singleton
-        )
+    let inline bindRequireNone error x = bindResult (Result.requireNone error) x
 
     /// Bind the JobResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Job.singleton
-        )
+        bindResult (Result.requireValueSome error) x
 
     /// Bind the JobResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Job.singleton
-        )
+        bindResult (Result.requireValueNone error) x

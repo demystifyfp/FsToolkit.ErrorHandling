@@ -392,93 +392,60 @@ module AsyncResult =
         x
         |> Async.singleton
 
+    /// Bind the AsyncResult with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.map (Result.bind binder) input
+
     /// Bind the AsyncResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Async.singleton
-        )
+    let inline bindRequireSome
+        (error: 'error)
+        (x: Async<Result<'b option, 'error>>)
+        : Async<Result<'b, 'error>> =
+        bindResult (Result.requireSome error) x
 
     /// Bind the AsyncResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Async.singleton
-        )
+    let inline bindRequireNone
+        (error: 'error)
+        (x: Async<Result<'b option, 'error>>)
+        : Async<Result<unit, 'error>> =
+        bindResult (Result.requireNone error) x
 
     /// Bind the AsyncResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Async.singleton
-        )
+        bindResult (Result.requireValueSome error) x
 
     /// Bind the AsyncResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Async.singleton
-        )
+        bindResult (Result.requireValueNone error) x
 
     /// Bind the AsyncResult and requireTrue on the inner value.
-    let inline bindRequireTrue error x =
-        x
-        |> bind (
-            Result.requireTrue error
-            >> Async.singleton
-        )
+    let inline bindRequireTrue error x = bindResult (Result.requireTrue error) x
 
     /// Bind the AsyncResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
-        x
-        |> bind (
-            Result.requireFalse error
-            >> Async.singleton
-        )
+        bindResult (Result.requireFalse error) x
 
     /// Bind the AsyncResult and requireNotNull on the inner value.
     let inline bindRequireNotNull error x =
-        x
-        |> bind (
-            Result.requireNotNull error
-            >> Async.singleton
-        )
+        bindResult (Result.requireNotNull error) x
 
-    /// Bind the AsyncResult and requireEequal on the inner value.
+    /// Bind the AsyncResult and requireEqual on the inner value.
     let inline bindRequireEqual y error x =
-        x
-        |> bind (fun x ->
-            Result.requireEqual x y error
-            |> Async.singleton
-        )
+        bindResult (fun x -> Result.requireEqual x y error) x
 
     /// Bind the AsyncResult and requireEmpty on the inner value.
     let inline bindRequireEmpty error x =
-        x
-        |> bind (
-            Result.requireEmpty error
-            >> Async.singleton
-        )
+        bindResult (Result.requireEmpty error) x
 
     /// Bind the AsyncResult and requireNotEmpty on the inner value.
     let inline bindRequireNotEmpty error x =
-        x
-        |> bind (
-            Result.requireNotEmpty error
-            >> Async.singleton
-        )
+        bindResult (Result.requireNotEmpty error) x
 
     /// Bind the AsyncResult and requireHead on the inner value
-    let inline bindRequireHead error x =
-        x
-        |> bind (
-            Result.requireHead error
-            >> Async.singleton
-        )
+    let inline bindRequireHead error x = bindResult (Result.requireHead error) x
 
     /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checkFunc returns an async-wrapped Error result, returns the async-wrapped Error result.
