@@ -28,7 +28,7 @@ module AsyncResultOptionCE =
 
         member inline _.Delay([<InlineIfLambda>] f: unit -> Async<'a>) : Async<'a> = async.Delay f
 
-        member inline _.Zero() = AsyncResultOption.ok (Some())
+        member inline _.Zero() = AsyncResultOption.some ()
 
         member inline _.TryWith
             (
