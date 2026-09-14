@@ -7,11 +7,11 @@ module TaskResult =
 
     let inline ok x =
         Ok x
-        |> Task.singleton
+        |> Task.result
 
     let inline error x =
         Error x
-        |> Task.singleton
+        |> Task.result
 
     let inline map ([<InlineIfLambda>] f) tr = Task.map (Result.map f) tr
 
