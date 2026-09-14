@@ -84,14 +84,14 @@ let map2Tests =
         }
     ]
 
-let foldResultTests =
+let eitherTests =
 
-    testList "AsyncResult.foldResult tests" [
-        testCaseAsync "foldResult with Async(Ok x)"
+    testList "AsyncResult.either tests" [
+        testCaseAsync "either with Async(Ok x)"
         <| async {
             let! actual =
                 createPostSuccess validCreatePostRequest
-                |> AsyncResult.foldResult (fun (PostId id) -> id.ToString()) string
+                |> AsyncResult.either (fun (PostId id) -> id.ToString()) string
 
             Expect.same (newPostId.ToString()) actual
         }
@@ -100,9 +100,9 @@ let foldResultTests =
         <| async {
             let! actual =
                 createPostFailure validCreatePostRequest
-                |> AsyncResult.foldResult string (fun ex -> ex.Message)
+                |> AsyncResult.either string _.Message
 
-            Expect.same (commonEx.Message) actual
+            Expect.same commonEx.Message actual
         }
     ]
 
@@ -1053,7 +1053,7 @@ let allTests =
     testList "Async Result tests" [
         mapTests
         map2Tests
-        foldResultTests
+        eitherTests
         mapErrorTests
         bindTests
         orElseTests

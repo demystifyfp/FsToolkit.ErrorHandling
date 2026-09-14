@@ -25,6 +25,7 @@ let result : Async<Result<string, int>> =
   |> AsyncResult.eitherMap
        (fun n -> sprintf "Got %d" n)
        (fun err -> -1)
+  |> Async.RunSynchronously
 // evaluates to Ok "Got 42"
 ```
 
@@ -38,18 +39,21 @@ let result : Async<Result<string, string>> =
   |> AsyncResult.eitherMap
        (fun s -> s.ToUpper())
        (fun code -> sprintf "Error code: %d" code)
+  |> Async.RunSynchronously
 // evaluates to Error "Error code: 404"
 ```
 
 ### Example 3
 
-Normalising both branches to the same type before consuming:
+Normalising both branches to the same type before consuming is done using `either`; earlier processing can involve `eitherMap`:
 
 ```fsharp
 let displayMessage : Async<string> =
   fetchData ()
   |> AsyncResult.eitherMap
-       (fun data -> sprintf "Success: %s" data)
-       (fun err  -> sprintf "Failed: %s" err)
-  |> AsyncResult.foldResult id id
+       (fun data -> data.Body) // Result.Ok of data : 'a
+       (fun exn  -> {exn.Message}) // Result.Error of string
+  |> AsyncResult.either
+       (fun body -> $"Success: {Body.length body} chars")
+       (fun msg -> $"Failed: {msg}")
 ```

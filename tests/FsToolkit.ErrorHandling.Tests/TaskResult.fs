@@ -919,27 +919,26 @@ let TaskResultBindRequireValueOptionTests =
             }
     ]
 
-let foldResultTests =
-    testList "TaskResult.foldResult tests" [
-        testCaseTask "foldResult with Task(Ok x)"
+let eitherTests =
+    testList "TaskResult.either tests" [
+        testCaseTask "either with Task(Ok x)"
         <| fun _ ->
             task {
                 let! actual =
                     createPostSuccess validCreatePostRequest
-                    |> TaskResult.foldResult (fun (PostId id) -> id.ToString()) string
+                    |> TaskResult.either (fun (PostId id) -> id.ToString()) string
 
                 Expect.same (newPostId.ToString()) actual
             }
 
-        testCaseTask "foldResult with Task(Error x)"
+        testCaseTask "either with Task(Error x)"
         <| fun _ ->
             task {
                 let! actual =
                     createPostFailure validCreatePostRequest
-                    |> TaskResult.foldResult string (fun ex -> ex.Message)
+                    |> TaskResult.either string _.Message
 
-                Expect.same (commonEx.Message) actual
-
+                Expect.same commonEx.Message actual
             }
     ]
 
@@ -1107,7 +1106,7 @@ let allTests =
         TaskResultOperatorTests
         TaskResultBindRequireTests
         TaskResultBindRequireValueOptionTests
-        foldResultTests
+        eitherTests
         taskResultBindRequireTrueTests
         taskResultBindRequireNotNullTests
         taskResultBindRequireEqualTests

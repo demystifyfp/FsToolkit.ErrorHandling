@@ -10,6 +10,10 @@
 - BREAKING(TaskResult.ofCatchTask): Rename to `catch` to align with FSharp.Core Task/Async
 - BREAKING(Result.valueOr): Obsolete in favor of FSharp.Core name, `defaultWith`
 - BREAKING(Task.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
+- BREAKING((Task|Async)Result.foldResult): Rename to either (To align with Result)
+- BREAKING((Task|Async|Job)Result.foldResult): Rename to either (To align with Result)
+- (Task|Async|Job)Result: Add eitherMap
+- (Task|Async|Job)Result: Add bindResult
 
 ### 6.0.0-beta002 - September 16, 2026
 

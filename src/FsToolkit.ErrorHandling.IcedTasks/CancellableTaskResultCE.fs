@@ -299,6 +299,23 @@ module CancellableTaskResult =
         fun _ -> Task.FromResult(Ok item)
 
 
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: CancellableTask<Result<'input, 'inputError>>)
+        : CancellableTask<'output> =
+        CancellableTask.map (Result.either onSuccess onError) input
+
+    [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
+    let foldResult = either
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'b -> 'd)
+        (input: CancellableTask<Result<'a, 'b>>)
+        : CancellableTask<Result<'b, 'd>> =
+        CancellableTask.map (Result.eitherMap onSuccess onError) input
+
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>
     /// <param name="cTask">The value.</param>

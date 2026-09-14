@@ -32,12 +32,30 @@ module TaskResult =
         Error x
         |> Task.singleton
 
+    let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) = Task.bind (Result.either f error) tr
+
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        Task.map (Result.either onSuccess onError) input
+
+    [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
+    let foldResult = either
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'b -> 'd)
+        (input: Task<Result<'a, 'b>>)
+        : Task<Result<'b, 'd>> =
+        Task.map (Result.eitherMap onSuccess onError) input
+
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 
     let inline map3 ([<InlineIfLambda>] f) xTR yTR zTR = Task.map3 (Result.map3 f) xTR yTR zTR
 
     let inline apply fTR xTR = map2 (fun f x -> f x) fTR xTR
-
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -381,8 +399,8 @@ module TaskResult =
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns an task-wrapped Ok result or if the task-wrapped result is Error.
     /// If the checkFunc returns an task-wrapped Error result, returns the task-wrapped Error result.
-    let inline check ([<InlineIfLambda>] checkFunc) (result) =
-        result
+    let inline check ([<InlineIfLambda>] checkFunc) x =
+        x
         |> bind (fun o ->
             checkFunc o
             |> map (fun _ -> o)

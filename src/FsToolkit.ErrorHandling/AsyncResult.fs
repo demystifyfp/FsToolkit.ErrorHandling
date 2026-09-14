@@ -34,14 +34,21 @@ module AsyncResult =
         : Async<Result<'output, 'error>> =
         Async.bind (Result.either binder error) input
 
-    let inline foldResult
+    let inline either
         ([<InlineIfLambda>] onSuccess: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Async<Result<'input, 'inputError>>)
         : Async<'output> =
         Async.map (Result.either onSuccess onError) input
 
-    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) input =
+    [<System.Obsolete "Use AsyncResult.either instead (renamed to align with Result naming)">]
+    let foldResult = either
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess)
+        ([<InlineIfLambda>] onError)
+        input
+        : Async<Result<'b, 'd>> =
         Async.map (Result.eitherMap onSuccess onError) input
 
 #if !FABLE_COMPILER
@@ -475,8 +482,8 @@ module AsyncResult =
 
     /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checkFunc returns an async-wrapped Error result, returns the async-wrapped Error result.
-    let inline check ([<InlineIfLambda>] checkFunc) (result) =
-        result
+    let inline check ([<InlineIfLambda>] checkFunc) x =
+        x
         |> bind (fun o ->
             checkFunc o
             |> map (fun _ -> o)
