@@ -66,16 +66,14 @@ module Async =
         (input1: Async<'input1>)
         (input2: Async<'input2>)
         : Async<'output> =
-        bind
-            (fun x ->
-                bind
-                    (fun y ->
-                        mapper x y
-                        |> Async.result
-                    )
-                    input2
+        input1
+        |> bind (fun x ->
+            input2
+            |> bind (fun y ->
+                mapper x y
+                |> Async.result
             )
-            input1
+        )
 
     /// <summary>
     /// Applies a transformation to the values of three <c>Async</c> values to a new <c>Async</c> value using the provided function.
