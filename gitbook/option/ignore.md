@@ -48,9 +48,9 @@ let result : unit option =
 ### Example 4
 
 ```fsharp
-let result = resultOption {
+let result = result {
     // do! Some "a" |> Option.ignore<int> // WOULD NOT COMPILE
-    do! Some 21 |> Option.ignore<int> // resultOption binds to Option<unit>
+    do! Some 21 |> Option.ignore<int> // Compiles, as an Option<unit> is equivalent to a function returning unit
     return 42
 }
 

@@ -1,3 +1,14 @@
+### 6.0.0-beta004 - tba
+
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Result.map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Task.map`, `bind`
+- BREAKING((Cancellable)?(Value)?(Task|Job)(Result|Validation).singleton): Rename to `ok`
+- BREAKING((Task|Async|Job)?(Result)?Option.singleton): Rename to `some` to align with TaskResult.ok, ValueTaskOption.valueSome
+- BREAKING((Task|Async|Job).singleton): Obsolete in favor of builtin `result` to align with FSharp.Core Task/Async
+- BREAKING((Task|Async|Job)Result.catch): Rename to `catchWith` to align with FSharp.Core Task/Async
+- BREAKING((Task|Async|Job)Result.catchWith): Change result type to `Result<_,_>`, was: `Choice<_,_>` to align with FSharp.Core Task/Async
+- BREAKING(TaskResult.ofCatchTask): Rename to `catch` to align with FSharp.Core Task/Async
+
 ### 6.0.0-beta003 - October 12, 2026
 
 - [Consistency cleanups: `req`, `Req`, `bindResult`, `eitherBind`, `eitherMap`, `ok`, `ignore` and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/376) Credits @bartelink
@@ -47,6 +58,8 @@ FsToolkit.ErrorHandling.IcedTasks as a dependency.
 - [Add `partitionResults` with single-pass implementations for Array, List, and Seq](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/359) Credits @bpe-incom
 - [Fix exception handling in task dynamic invocation](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/360) Credits Eugene Auduchinok
 - [Improve performance of task applicative helpers, array traversal helpers, option workflows, and list task traversal](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/364) Credits @TheAngryByrd
+- Obsolete Result.valueOr (same signature/impl as FSharp.Core defaultWith)
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: Result.map, mapError, bind, isOk, isError, defaultWith, defaultValue
 
 ### 5.2.0 - February 27, 2026
 
