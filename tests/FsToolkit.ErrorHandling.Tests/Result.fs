@@ -480,8 +480,7 @@ let requireTests =
     testList "require tests" [
         testCase "False, Error"
         <| fun () ->
-            let output =
-                Result.require (fun _ -> false) "Error" (Error("Something went wrong"))
+            let output = Result.require (fun _ -> false) "Error" (Error "Something went wrong")
 
             Expect.equal output (Error("Something went wrong")) "Should be Error"
 
@@ -575,17 +574,35 @@ let defaultWithTests =
     testList "defaultWith Tests" [
         testCase "defaultWith returns the ok value"
         <| fun _ ->
-            let v = Ok 42 |> Result.defaultWith (fun _ -> 43)
+            let v =
+                Ok 42
+                |> Result.defaultWith (fun _ -> 43)
 
             Expect.equal v 42 ""
 
-        testCase "defaultValue invokes the given thunk for Error"
+        testCase "defaultWith returns the value if Ok"
         <| fun _ ->
-            let v = Error err |> Result.defaultWith (fun e -> e + string 42)
+            let res = Ok "foo"
 
-            Expect.equal v "foobar42" ""
+            let value =
+                res
+                |> Result.defaultWith (fun _ -> "bar")
+
+            Expect.equal value "foo" ""
+
+        testCase "defaultWith returns the function's result if Error"
+        <| fun _ ->
+            let res = Error "bar"
+
+            let value =
+                res
+                |> Result.defaultWith (fun err ->
+                    "foo"
+                    + err
+                )
+
+            Expect.equal value "foobar" ""
     ]
-
 
 let ignoreErrorTests =
     testList "ignoreError Tests" [

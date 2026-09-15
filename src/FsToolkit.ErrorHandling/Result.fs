@@ -667,7 +667,8 @@ module Result =
     /// <param name="res">The input result.</param>
     /// <returns>The <c>Ok</c> value if the result is <c>Ok</c>, otherwise the result of running the function over the error value.</returns>
     [<System.Obsolete("valueOr is obsolete. Use defaultWith instead.")>]
-    let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok = defaultWith f res
+    let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
+        defaultWith f res
 
     /// <summary>
     /// Takes two results and returns a tuple of the pair
