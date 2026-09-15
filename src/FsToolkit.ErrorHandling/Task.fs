@@ -59,6 +59,7 @@ module Task =
         }
 
     /// Allows us to call `do!` syntax inside a computation expression
+    [<RequiresExplicitTypeArguments>]
     let inline ignore<'a> (x: Task<'a>) =
         x
         |> map ignore

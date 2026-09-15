@@ -17,9 +17,9 @@ open System
 open FsToolkit.ErrorHandling
 
 let tryParseInt (str: string) =
-    match Int32.TryParse str with
-    | true, x -> Ok x
-    | false, _ -> Error(sprintf "unable to parse '%s' to integer" str)
+    match Option.tryParse<int> str with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 
 [
     "1"

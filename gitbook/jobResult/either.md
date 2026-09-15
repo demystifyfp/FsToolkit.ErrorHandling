@@ -24,7 +24,7 @@ let createPost (req : CreatePostRequest) = job {
   // ...
 }
 
-// Job<HttpResponse>
+// Job<HttpResponse<PostId, exn>>
 let handler (httpReq : HttpRequest) = 
   // ... 
   

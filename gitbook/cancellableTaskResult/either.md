@@ -24,7 +24,7 @@ let createPost (req : CreatePostRequest) = cancellableTask {
   // ...
 }
 
-// CancellableTask<HttpResponse<_, _>>
+// CancellableTask<HttpResponse<PostId, exn>>
 let handler (httpReq : HttpRequest) = 
   // ... 
   

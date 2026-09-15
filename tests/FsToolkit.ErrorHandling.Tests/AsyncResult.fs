@@ -96,7 +96,7 @@ let eitherTests =
             Expect.same (newPostId.ToString()) actual
         }
 
-        testCaseAsync "foldResult with Async(Error x)"
+        testCaseAsync "either with Async(Error x)"
         <| async {
             let! actual =
                 createPostFailure validCreatePostRequest

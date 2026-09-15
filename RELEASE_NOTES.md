@@ -1,21 +1,14 @@
 ### 6.0.0-beta003 - tba
 
-- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Result.map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
-- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Task.map`, `bind`
-- BREAKING((Cancellable)?(Value)?(Task|Job)(Result|Validation).singleton): Rename to `ok`
-- BREAKING((Task|Async|Job)?(Result)?Option.singleton): Rename to `some` to align with TaskResult.ok, ValueTaskOption.valueSome
-- BREAKING((Task|Async|Job).singleton): Obsolete in favor of builtin `result` to align with FSharp.Core Task/Async
-- BREAKING((Task|Async|Job)Result.catch): Rename to `catchWith` to align with FSharp.Core Task/Async
-- BREAKING((Task|Async|Job)Result.catchWith): Change result type to `Result<_,_>`, was: `Choice<_,_>` to align with FSharp.Core Task/Async
-- BREAKING(TaskResult.ofCatchTask): Rename to `catch` to align with FSharp.Core Task/Async
-- BREAKING(Result.valueOr): Obsolete in favor of FSharp.Core name, `defaultWith`
-- BREAKING(Task.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
-- BREAKING((Task|Async)Result.foldResult): Rename to either (To align with Result)
-- BREAKING((Task|Async|Job)Result.foldResult): Rename to either (To align with Result)
-- (Task|Async|Job)Result: Add eitherMap
-- (Task|Async|Job)Result: Add bindResult
-- (Task|Async)Result: Add bindResult
-- (Task|Async|Job)Result: Add bindResult
+- fix: Remove erroneous FSharp.Core xmldoc files from pre-`net9.0` packages 
+- feat(Async): Add `ignore`
+- feat(AsyncResult): Add `bindResult`, `either`
+- feat(CancellableTaskResult): Add `either`, `eitherMap`
+- feat(JobResult): Add `bindResult`, `either`, `ok`
+- feat(Result): Add `bindResult`, `either`, `eitherMap``
+- OBSOLETE(AsyncResult,CancellableTaskResult,TaskResult): `foldResult` (-> `either`)
+- OBSOLETE(Result): `valueOr` (-> `defaultWith`)
+- BREAKING(Task.ignore, Option.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
 
 ### 6.0.0-beta002 - September 16, 2026
 

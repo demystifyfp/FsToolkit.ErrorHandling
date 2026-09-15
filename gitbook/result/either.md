@@ -32,17 +32,17 @@ Given the following function:
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
-  match System.Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ -> Error $"unable to parse '{str}' to integer"
+    match str |> Option.tryParse<int> with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 ```
 
 And the following fake HTTP response type:
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | Ok of 'a
-  | BadRequest of 'b
+    | Ok of 'a
+    | BadRequest of 'b
 ```
 
 Then using `Result.either`, we can do the following
@@ -50,7 +50,7 @@ Then using `Result.either`, we can do the following
 ```fsharp
 // HttpRequest -> HttpResponse<int,string>
 let handler httpRequest =
-  // reading the input from the HTTP request
-  let inputStr = httpRequest ... 
-  inputStr |> tryParseInt |> Result.either Ok BadRequest
+    // reading the input from the HTTP request
+    let inputStr = httpRequest ... 
+    inputStr |> tryParseInt |> Result.either Ok BadRequest
 ```

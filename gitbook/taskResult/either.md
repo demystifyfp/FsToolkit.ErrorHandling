@@ -24,7 +24,7 @@ let createPost (req : CreatePostRequest) = task {
   // ...
 }
 
-// Task<HttpResponse>
+// Task<HttpResponse<PostId, exn>>
 let handler (httpReq : HttpRequest) = 
   // ... 
   

@@ -19,9 +19,9 @@ See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpfo
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
-  match Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ -> Error $"unable to parse '{str}' to integer"
+    match str |> Option.tryParse<int> with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 
 ["1"; "2"; "3"]
 |> Seq.map tryParseInt
