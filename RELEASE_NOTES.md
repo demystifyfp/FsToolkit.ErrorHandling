@@ -1,3 +1,16 @@
+### 6.0.0-beta003 - tba
+
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Result.map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
+- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Task.map`, `bind`
+- BREAKING((Cancellable)?(Value)?(Task|Job)(Result|Validation).singleton): Rename to `ok`
+- BREAKING((Task|Async|Job)?(Result)?Option.singleton): Rename to `some` to align with TaskResult.ok, ValueTaskOption.valueSome
+- BREAKING((Task|Async|Job).singleton): Obsolete in favor of builtin `result` to align with FSharp.Core Task/Async
+- BREAKING((Task|Async|Job)Result.catch): Rename to `catchWith` to align with FSharp.Core Task/Async
+- BREAKING((Task|Async|Job)Result.catchWith): Change result type to `Result<_,_>`, was: `Choice<_,_>` to align with FSharp.Core Task/Async
+- BREAKING(TaskResult.ofCatchTask): Rename to `catch` to align with FSharp.Core Task/Async
+- BREAKING(Result.valueOr): Obsolete in favor of FSharp.Core name, `defaultWith`
+- BREAKING(Task.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
+
 ### 6.0.0-beta002 - September 16, 2026
 
 - [Fix premature task computation expression completion during asynchronous disposal](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/374) Credits @TheAngryByrd
