@@ -985,6 +985,7 @@ let allTests =
         defaultValueTests
         defaultErrorTests
         defaultWithTests
+        valueOrTests // deprecated in favor of defaultWith
         ignoreErrorTests
         teeTests
         teeIfTests
@@ -995,7 +996,6 @@ let allTests =
 #if !FABLE_COMPILER
         sequenceTaskTests
 #endif
-        valueOrTests
         zipTests
         zipErrorTests
         checkTests

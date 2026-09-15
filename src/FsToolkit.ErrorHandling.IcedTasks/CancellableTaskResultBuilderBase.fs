@@ -450,9 +450,9 @@ module CancellableTaskResultBuilderBase =
         ///
         member inline this.Using
             (
-                resource: #IAsyncDisposable,
+                resource: #IAsyncDisposableNull,
                 binder:
-                    #IAsyncDisposable
+                    #IAsyncDisposableNull
                         -> CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder>
             ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder> =
             this.TryFinallyAsync(

@@ -435,8 +435,8 @@ module CancellableTaskOptionBuilderBase =
         ///
         member inline this.Using
             (
-                resource: #IAsyncDisposable,
-                binder: #IAsyncDisposable -> CancellableTaskOptionBuilderBaseCode<'TOverall, 'T>
+                resource: #IAsyncDisposableNull,
+                binder: #IAsyncDisposableNull -> CancellableTaskOptionBuilderBaseCode<'TOverall, 'T>
             ) : CancellableTaskOptionBuilderBaseCode<'TOverall, 'T> =
             this.TryFinallyAsync(
                 (fun sm -> (binder resource).Invoke(&sm)),
