@@ -5,7 +5,7 @@
 - feat(AsyncResult): Add `bindResult`, `either`
 - feat(CancellableTaskResult): Add `either`, `eitherMap`
 - feat(JobResult): Add `bindResult`, `either`, `ok`
-- feat(Result): Add `bindResult`, `either`, `eitherMap``
+- feat(TaskResult): Add `bindResult`, `either`, `eitherMap`
 - OBSOLETE(AsyncResult,CancellableTaskResult,TaskResult): `foldResult` (-> `either`)
 - OBSOLETE(Result): `valueOr` (-> `defaultWith`)
 - BREAKING(Task.ignore, Option.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async

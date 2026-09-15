@@ -52,7 +52,7 @@ let displayMessage : Async<string> =
   fetchData ()
   |> AsyncResult.eitherMap
        (fun data -> data.Body) // Result.Ok of data : 'a
-       (fun exn  -> {exn.Message}) // Result.Error of string
+       (fun exn  -> exn.Message) // Result.Error of string
   |> AsyncResult.either
        (fun body -> $"Success: {Body.length body} chars")
        (fun msg -> $"Failed: {msg}")

@@ -198,7 +198,6 @@
     * [Computation Expression](taskResult/ce.md)
     * [either](taskResult/either.md)
     * [error](taskResult/error.md)
-    * [foldResult](taskResult/foldResult.md)
     * [ignore](taskResult/ignore.md)
     * [map](taskResult/map.md)
     * [map2](taskResult/map2.md)

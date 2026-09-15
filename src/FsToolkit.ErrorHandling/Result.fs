@@ -196,7 +196,7 @@ module Result =
     /// <param name="fieldName">The name of the field</param>
     /// <param name="x">The value to create a result from.</param>
     /// <returns>A <c>Result</c> containing the value or an error tuple of the field name and the original error type</returns>
-    let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, (string * 'c) > =
+    let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, string * 'c > =
         let tryCreate' x =
             (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
@@ -662,8 +662,6 @@ module Result =
 
     /// <summary>
     /// Returns the <c>Ok</c> value or runs the specified function over the error value.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#valueor</href>
     /// </summary>
     /// <param name="f">The function to run over the error value.</param>
     /// <param name="res">The input result.</param>
