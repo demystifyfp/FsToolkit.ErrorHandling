@@ -532,6 +532,51 @@ let ceTestsApplicative =
             }
     ]
 
+let ``BackgroundTaskOptionCE while None async disposal Tests`` =
+    testList "BackgroundTaskOptionCE while None async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        None
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicBackgroundTaskOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! None
+                                }
+                            else
+                                backgroundTaskOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! None
+                                }
+                        )
+    ]
+
 let ``BackgroundTaskOptionCE inference checks`` =
     testList "BackgroundTaskOptionCE inference checks" [
         testCase "Inference checks"
@@ -547,5 +592,6 @@ let allTests =
     testList "BackgroundTaskOptionCE CE Tests" [
         ceTests
         ceTestsApplicative
+        ``BackgroundTaskOptionCE while None async disposal Tests``
         ``BackgroundTaskOptionCE inference checks``
     ]

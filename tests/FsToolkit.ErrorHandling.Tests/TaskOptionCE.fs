@@ -663,6 +663,51 @@ let ceTestsApplicative =
             }
     ]
 
+let ``TaskOptionCE while None async disposal Tests`` =
+    testList "TaskOptionCE while None async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileShortCircuitWaitsForAsyncDisposal
+                        None
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicTaskOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! None
+                                }
+                            else
+                                taskOption {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! None
+                                }
+                        )
+    ]
+
 let ``TaskOptionCE inference checks`` =
     testList "TaskOptionCE inference checks" [
         testCase "Inference checks"
@@ -678,5 +723,6 @@ let allTests =
     testList "TaskOption CE Tests" [
         ceTests
         ceTestsApplicative
+        ``TaskOptionCE while None async disposal Tests``
         ``TaskOptionCE inference checks``
     ]

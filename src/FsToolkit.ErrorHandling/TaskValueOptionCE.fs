@@ -105,7 +105,6 @@ type TaskValueOptionBuilderBase() =
             TaskValueOptionCode<_, _>(fun sm ->
                 if sm.Data.IsResultNone then
                     keepGoing <- false
-                    sm.Data.SetResult()
                     true
                 else
                     body.Invoke(&sm)
@@ -303,7 +302,7 @@ type TaskValueOptionBuilder() =
                         sm.ResumptionDynamicInfo.ResumptionData <- null
                         let step = info.ResumptionFunc.Invoke(&sm)
 
-                        // If the `sm.Data.MethodBuilder` has already been set somewhere else (like While/WhileDynamic), we shouldn't continue
+                        // If the `sm.Data.MethodBuilder` has already completed, we shouldn't continue
                         if sm.Data.IsTaskCompleted then
                             ()
                         elif step then

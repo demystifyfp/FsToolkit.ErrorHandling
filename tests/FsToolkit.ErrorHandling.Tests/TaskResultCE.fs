@@ -409,6 +409,50 @@ let ``TaskResultCE using Tests`` =
             }
     ]
 
+let ``TaskResultCE while error async disposal Tests`` =
+    testList "TaskResultCE while error async disposal Tests" [
+        for isDynamic in
+            [
+                false
+                true
+            ] do
+            for hasEarlierSuspension in
+                [
+                    false
+                    true
+                ] do
+                testCaseTask
+                <| sprintf
+                    "%s execution, %s earlier suspension"
+                    (if isDynamic then "dynamic" else "static")
+                    (if hasEarlierSuspension then "with" else "without")
+                <| fun () ->
+                    TestHelpers.assertWhileErrorWaitsForAsyncDisposal
+                        hasEarlierSuspension
+                        (fun earlierSuspension disposable ->
+                            if isDynamic then
+                                TestHelpers.dynamicTaskResult {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Error "error"
+                                }
+                            else
+                                taskResult {
+                                    if hasEarlierSuspension then
+                                        do! earlierSuspension
+
+                                    use resource = disposable
+
+                                    while true do
+                                        do! Error "error"
+                                }
+                        )
+    ]
+
 let ``TaskResultCE loop Tests`` =
     testList "TaskResultCE loop Tests" [
         yield! [
@@ -793,6 +837,7 @@ let allTests =
         ``TaskResultCE combine/zero/delay/run Tests``
         ``TaskResultCE try Tests``
         ``TaskResultCE using Tests``
+        ``TaskResultCE while error async disposal Tests``
         ``TaskResultCE loop Tests``
         ``TaskResultCE applicative tests``
         ``TaskResultCE inference checks``
