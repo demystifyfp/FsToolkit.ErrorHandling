@@ -1,3 +1,7 @@
+### 6.0.0-beta002 - September 16, 2026
+
+- [Fix premature task computation expression completion during asynchronous disposal](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/374) Credits @TheAngryByrd
+
 ### 6.0.0-beta001 - May 18, 2026
 
 - BREAKING: [Move `ValueTaskValueOption` to the IcedTasks package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/363) Credits @TheAngryByrd
