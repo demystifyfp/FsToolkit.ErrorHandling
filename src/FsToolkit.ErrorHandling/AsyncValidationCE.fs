@@ -1,7 +1,5 @@
 ﻿namespace FsToolkit.ErrorHandling
 
-open System
-
 [<AutoOpen>]
 module AsyncValidationCE =
 
@@ -141,9 +139,8 @@ module AsyncValidationCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Task<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
-                Async.AwaitTask s
+                Async.Await s
                 |> AsyncResult.mapError List.singleton
-
 #endif
 
     [<AutoOpen>]
@@ -169,8 +166,7 @@ module AsyncValidationCE =
             member inline _.Source
                 (result: Task<Validation<'ok, 'error>>)
                 : AsyncValidation<'ok, 'error> =
-                Async.AwaitTask result
-
+                Async.Await result
 #endif
 
             /// <summary>

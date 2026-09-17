@@ -4,11 +4,100 @@
 [<AutoOpen>]
 module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 
-// open FSharp.Core.CompilerServices
-// open System.Threading
-// open System.Threading.Tasks
+open FSharp.Core.CompilerServices
+open System.Runtime.CompilerServices
+open System.Threading
+open System.Threading.Tasks
 
-/// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.Task`1"/> computations.</p>
+(* START FSharp.Core v7 shims *)
+
+// NOTE each Await overload fails on including level2Task in the stacktrace in AsyncAwaitStackTraceTests
+
+#nowarn "3261" // error FS3261: Nullness warning: The types 'System.AggregateException' and 'System.AggregateException | null' do not have compatible nullability.
+type Async with
+
+    /// <summary>
+    ///     Gets the result of given task so that in the event of exception
+    ///     the actual user exception is raised as opposed to being wrapped
+    ///     in a System.AggregateException.
+    /// </summary>
+    /// <param name="task">Task to be awaited.</param>
+    [<System.Diagnostics.DebuggerStepThrough>]
+    static member Await(task: Task<'T>) : Async<'T> =
+        Async.FromContinuations(fun (sc, ec, _cc) ->
+            task.ContinueWith(fun (t: Task<'T>) ->
+                if t.IsFaulted then
+                    let e = t.Exception
+
+                    if e.InnerExceptions.Count = 1 then
+                        ec e.InnerExceptions[0]
+                    else
+                        ec e
+                elif t.IsCanceled then
+                    ec (TaskCanceledException(task))
+                else
+                    sc t.Result
+            )
+            |> ignore
+        )
+
+    /// <summary>
+    ///     Gets the result of given task so that in the event of exception
+    ///     the actual user exception is raised as opposed to being wrapped
+    ///     in a System.AggregateException.
+    /// </summary>
+    /// <param name="task">Task to be awaited.</param>
+    [<System.Diagnostics.DebuggerStepThrough>]
+    static member Await(task: Task) : Async<unit> =
+        Async.FromContinuations(fun (sc, ec, _cc) ->
+            task.ContinueWith(fun (task: Task) ->
+                if task.IsFaulted then
+                    let e = task.Exception
+
+                    if e.InnerExceptions.Count = 1 then
+                        ec e.InnerExceptions[0]
+                    else
+                        ec e
+                elif task.IsCanceled then
+                    ec (TaskCanceledException(task))
+                else
+                    sc ()
+            )
+            |> ignore
+        )
+
+    static member Await(task: ValueTask) : Async<unit> = Async.Await(task.AsTask())
+    static member Await(task: ValueTask<'t>) : Async<'t> = Async.Await(task.AsTask())
+
+    static member StartTaskImmediate(createTask: CancellationToken -> Task<'T>) : Async<'T> =
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
+
+    static member StartTaskImmediate(createTask: CancellationToken -> Task) : Async<unit> =
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
+
+    static member StartTaskImmediate(createTask: CancellationToken -> ValueTask<'T>) : Async<'T> =
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
+
+    static member StartTaskImmediate(createTask: CancellationToken -> ValueTask) : Async<unit> =
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
+
+/// <summary><p>Contains camelCase module-level functions for <see cref="T:Task`1"/> computations.</p>
 /// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
 /// </summary>
 [<RequireQualifiedAccess>]

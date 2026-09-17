@@ -1127,32 +1127,20 @@ module CancellableTaskResultBuilderBase =
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                fun ct -> Task.startAsyncImmediate ct computation
 
         type AsyncEx with
 
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                fun ct -> Task.startAsyncImmediate ct computation
 
 
         type AsyncResultBuilder with

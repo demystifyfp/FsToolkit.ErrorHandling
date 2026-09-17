@@ -55,15 +55,7 @@ module AsyncResult =
 
     let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
         async.Delay(fun () ->
-            aTask
-            |> Async.AwaitTask
-            |> Async.catch
-        )
-
-    let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
-        async.Delay(fun () ->
-            aTask
-            |> Async.AwaitTask
+            Async.Await aTask
             |> Async.catch
         )
 

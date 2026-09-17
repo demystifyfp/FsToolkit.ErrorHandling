@@ -745,8 +745,9 @@ let ofCatchTaskTests =
         testCase "ofCatchTask replacement(Task.catch) returns Error for a throwing task"
         <| fun _ ->
             let result =
-                Task.catch (taskThrow ())
-                |> Async.AwaitTask
+                taskThrow ()
+                |> Task.catch
+                |> Async.Await
                 |> Async.RunSynchronously
 
             match result with

@@ -247,16 +247,10 @@ module AsyncExtensions =
         static member inline AwaitCancellableTaskValidation
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             =
-            async {
-                let! ct = Async.CancellationToken
-
-                return!
-                    t ct
-                    |> Async.AwaitTask
-            }
+            Async.StartTaskImmediate t
 
         static member inline AsCancellableTaskValidation(computation: Async<'T>) =
-            fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+            fun ct -> Task.startAsyncImmediate ct computation
 
     type AsyncValidationBuilder with
 
