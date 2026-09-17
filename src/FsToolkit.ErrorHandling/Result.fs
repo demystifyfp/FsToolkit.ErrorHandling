@@ -196,7 +196,7 @@ module Result =
     /// <param name="fieldName">The name of the field</param>
     /// <param name="x">The value to create a result from.</param>
     /// <returns>A <c>Result</c> containing the value or an error tuple of the field name and the original error type</returns>
-    let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, (string * 'c) > =
+    let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, string * 'c > =
         let tryCreate' x =
             (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
@@ -662,16 +662,13 @@ module Result =
 
     /// <summary>
     /// Returns the <c>Ok</c> value or runs the specified function over the error value.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#valueor</href>
     /// </summary>
     /// <param name="f">The function to run over the error value.</param>
     /// <param name="res">The input result.</param>
     /// <returns>The <c>Ok</c> value if the result is <c>Ok</c>, otherwise the result of running the function over the error value.</returns>
+    [<System.Obsolete("valueOr is obsolete. Use defaultWith instead.")>]
     let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
-        match res with
-        | Ok x -> x
-        | Error x -> f x
+        defaultWith f res
 
     /// <summary>
     /// Takes two results and returns a tuple of the pair

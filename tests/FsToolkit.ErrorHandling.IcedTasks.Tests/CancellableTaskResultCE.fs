@@ -733,7 +733,7 @@ module CancellableTaskResultCE =
                         cancellableTaskResult {
                             use! d =
                                 makeDisposable ()
-                                |> async.Return
+                                |> Async.result
 
                             return data
                         }
@@ -1039,7 +1039,7 @@ module CancellableTaskResultCE =
             testList "singleton" [
                 testCaseAsync "Simple"
                 <| async {
-                    let innerCall = CancellableTaskResult.singleton "lol"
+                    let innerCall = CancellableTaskResult.ok "lol"
 
                     let! someTask = innerCall
 
@@ -1123,7 +1123,7 @@ module CancellableTaskResultCE =
                 // Compilation is success
                 let f res = cancellableTaskResult { return! res }
 
-                f (CancellableTaskResult.singleton ())
+                f (CancellableTaskResult.ok ())
                 |> ignore
         ]
 

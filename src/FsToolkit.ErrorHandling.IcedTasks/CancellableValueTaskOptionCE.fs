@@ -537,9 +537,9 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -767,6 +767,7 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
 
@@ -1046,14 +1047,7 @@ module CancellableValueTaskOptionCE =
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> (fun vt -> vt.AsTask())
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
@@ -1061,7 +1055,7 @@ module CancellableValueTaskOptionCE =
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
-                        Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                        Task.startAsyncImmediate ct computation
                         |> Task.map Some
                     )
 
@@ -1071,14 +1065,7 @@ module CancellableValueTaskOptionCE =
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> (fun vt -> vt.AsTask())
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
@@ -1086,7 +1073,7 @@ module CancellableValueTaskOptionCE =
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
-                        Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                        Task.startAsyncImmediate ct computation
                         |> Task.map Some
                     )
 

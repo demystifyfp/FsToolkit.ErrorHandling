@@ -4,7 +4,6 @@
 [<AutoOpen>]
 module CancellableTaskResultCE =
 
-    open System
     open System.Runtime.CompilerServices
     open System.Threading
     open System.Threading.Tasks
@@ -12,7 +11,6 @@ module CancellableTaskResultCE =
     open Microsoft.FSharp.Core.CompilerServices
     open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
     open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
-    open Microsoft.FSharp.Collections
     open IcedTasks
 
 
@@ -74,7 +72,7 @@ module CancellableTaskResultCE =
                         MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
                 }
 
-            fun (ct) ->
+            fun ct ->
                 if ct.IsCancellationRequested then
                     Task.FromCanceled<_>(ct)
                 else
@@ -118,7 +116,7 @@ module CancellableTaskResultCE =
                     (AfterCode<_, _>(fun sm ->
                         let sm = sm
 
-                        fun (ct) ->
+                        fun ct ->
                             if ct.IsCancellationRequested then
                                 Task.FromCanceled<_>(ct)
                             else
@@ -151,7 +149,7 @@ module CancellableTaskResultCE =
         static member inline RunDynamic
             (code: CancellableTaskResultBuilderBaseCode<'T, 'T, 'Error, _>)
             : CancellableTaskResult<'T, 'Error> =
-            // backgroundTask { .. } escapes to a background thread where necessary
+            // backgroundTask { ... } escapes to a background thread where necessary
             // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
             if
                 isNull SynchronizationContext.Current
@@ -159,9 +157,9 @@ module CancellableTaskResultCE =
             then
                 CancellableTaskResultBuilder.RunDynamic(code)
             else
-                fun (ct) ->
+                fun ct ->
                     Task.Run<Result<'T, 'Error>>(
-                        (fun () -> CancellableTaskResultBuilder.RunDynamic (code) (ct)),
+                        (fun () -> CancellableTaskResultBuilder.RunDynamic code ct),
                         ct
                     )
 
@@ -198,7 +196,7 @@ module CancellableTaskResultCE =
                         MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
                     ))
                     (AfterCode<_, CancellableTaskResult<'T, 'Error>>(fun sm ->
-                        // backgroundTask { .. } escapes to a background thread where necessary
+                        // backgroundTask { ... } escapes to a background thread where necessary
                         // See spec of ConfigureAwait(false) at https://devblogs.microsoft.com/dotnet/configureawait-faq/
                         if
                             isNull SynchronizationContext.Current
@@ -206,7 +204,7 @@ module CancellableTaskResultCE =
                         then
                             let mutable sm = sm
 
-                            fun (ct) ->
+                            fun ct ->
                                 if ct.IsCancellationRequested then
                                     Task.FromCanceled<_>(ct)
                                 else
@@ -220,7 +218,7 @@ module CancellableTaskResultCE =
                         else
                             let sm = sm // copy contents of state machine so we can capture it
 
-                            fun (ct) ->
+                            fun ct ->
                                 if ct.IsCancellationRequested then
                                     Task.FromCanceled<_>(ct)
                                 else
@@ -295,9 +293,30 @@ module CancellableTaskResult =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskResult<'item, 'Error> = fun _ -> TaskResult.ok item
 
+    /// <summary>Lifts an item to a CancellableTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableTask.</param>
+    /// <returns>A CancellableTask with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableTaskResult.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> = ok item
+
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: CancellableTask<Result<'input, 'inputError>>)
+        : CancellableTask<'output> =
+        CancellableTask.map (Result.either onSuccess onError) input
+
+    [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
+    let foldResult = either
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'b -> 'd)
+        (input: CancellableTask<Result<'a, 'b>>)
+        : CancellableTask<Result<'b, 'd>> =
+        CancellableTask.map (Result.eitherMap onSuccess onError) input
 
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>

@@ -1,4 +1,4 @@
-# Job.singleton
+# Job.result
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -15,14 +15,14 @@ Function Signature:
 ### Example 1
 
 ```fsharp
-Job.singleton 42
+Job.result 42
 // job { return 42 }
 ```
 
 ### Example 2
 
 ```fsharp
-Job.singleton "hello"
+Job.result "hello"
 // job { return "hello" }
 ```
 
@@ -31,6 +31,6 @@ Job.singleton "hello"
 ```fsharp
 // Lift an existing value into the Job context for use with other Job functions
 let value = { Name = "Alice"; Age = 30 }
-Job.singleton value
+Job.result value
 // job { return { Name = "Alice"; Age = 30 } }
 ```

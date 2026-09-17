@@ -359,8 +359,8 @@ module CancellableValueTaskOptionCE =
                                 async {
                                     try
                                         let! _ =
-                                            (ctr cts.Token).AsTask()
-                                            |> Async.AwaitTask
+                                            ctr cts.Token
+                                            |> Async.Await
 
                                         return None
                                     with ex ->

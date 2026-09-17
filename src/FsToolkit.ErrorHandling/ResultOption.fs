@@ -11,6 +11,14 @@ module ResultOption =
     /// </summary>
     /// <param name="x">The value to convert.</param>
     /// <returns>The value wrapped in an <c>Option</c> and then wrapped in a <c>Result</c>.</returns>
+    let inline some x = Ok(Some x)
+
+    /// <summary>
+    /// Converts a value to a value into a <c>Result</c> which contains the value wrapped in an <c>Option</c>.
+    /// </summary>
+    /// <param name="x">The value to convert.</param>
+    /// <returns>The value wrapped in an <c>Option</c> and then wrapped in a <c>Result</c>.</returns>
+    [<System.Obsolete "Use ResultOption.some instead (aligns with AsyncResult naming)">]
     let inline singleton x = Ok(Some x)
 
     /// <summary>

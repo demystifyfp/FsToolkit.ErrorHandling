@@ -20,10 +20,17 @@ module JobOption =
             return! t
         }
 
-    let inline singleton x = Job.result (Some x)
+    let inline some x = Job.result (Some x)
+
+    [<System.Obsolete "Use JobOption.some instead (aligns with AsyncResult naming)">]
+    let inline singleton x = some x
+
+    //TODO should these be added alongside all `some` ?
+    let none<'t> = Job.result None
+
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+        bind (fun f' -> bind (fun x' -> some (f' x')) x) f
 
 
     /// <summary>

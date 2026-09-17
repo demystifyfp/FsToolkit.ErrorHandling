@@ -60,7 +60,7 @@ module Operators =
 module Async =
     let inline bind ([<InlineIfLambda>] f) x = Operators.bindM async x f
     let inline delay x = Operators.delayM async x
-    let inline singleton x = Operators.returnM async x
+    let inline result x = Operators.returnM async x
     let inline returnFrom x = Operators.returnFromM async x
     let inline bindReturn ([<InlineIfLambda>] f) x = Operators.liftM async x f
     let inline map ([<InlineIfLambda>] f) x = bindReturn f x
@@ -120,7 +120,7 @@ module Result =
 module AsyncResult =
 
     type AsyncResultBuilder() =
-        member inline _.Return x = Async.singleton (Result.singleton x)
+        member inline _.Return x = Async.result (Result.ok x)
 
         member inline _.Bind(m, f: 'a -> Async<Result<'b, 'c>>) =
             m
@@ -146,19 +146,19 @@ module AsyncResult =
                 }
                 |> Async.AwaitTask
 
-            member inline _.Source(x: Result<_, _>) = Async.singleton x
+            member inline _.Source(x: Result<_, _>) = Async.result x
 
     let asyncResult = AsyncResultBuilder()
 
     let inline bind ([<InlineIfLambda>] f) x = Operators.bindM asyncResult x f
-    let inline singleton x = Operators.returnM asyncResult x
+    let inline result x = Operators.returnM asyncResult x
 
     let example () =
         asyncResult {
-            let! x = singleton 1
-            let! y = singleton 2
-            let! z = Async.singleton 3
-            let! a = Result.singleton 4
+            let! x = result 1
+            let! y = result 2
+            let! z = Async.result 3
+            let! a = Result.ok 4
 
             return
                 x

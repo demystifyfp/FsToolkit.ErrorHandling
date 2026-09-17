@@ -4,7 +4,7 @@ Namespace: `FsToolkit.ErrorHandling`
 
 Transforms a `Task<'T>` into a `Task<Result<'T, exn>>` by wrapping the value in `Ok`.
 
-> **Note:** This function does **not** catch exceptions thrown by the task. Any exceptions will propagate as-is. To catch exceptions and map them to the `Error` case, use [`ofCatchTask`](ofCatchTask.md).
+> **Note:** This function does **not** catch exceptions thrown by the task. Any exceptions will propagate as-is. To catch exceptions and map them to the `Error` case, use [`catch`](catch.md).
 
 ## Function Signature
 

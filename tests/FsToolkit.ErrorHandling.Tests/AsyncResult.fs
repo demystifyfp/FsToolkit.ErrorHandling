@@ -84,25 +84,25 @@ let map2Tests =
         }
     ]
 
-let foldResultTests =
+let eitherTests =
 
-    testList "AsyncResult.foldResult tests" [
-        testCaseAsync "foldResult with Async(Ok x)"
+    testList "AsyncResult.either tests" [
+        testCaseAsync "either with Async(Ok x)"
         <| async {
             let! actual =
                 createPostSuccess validCreatePostRequest
-                |> AsyncResult.foldResult (fun (PostId id) -> id.ToString()) string
+                |> AsyncResult.either (fun (PostId id) -> id.ToString()) string
 
             Expect.same (newPostId.ToString()) actual
         }
 
-        testCaseAsync "foldResult with Async(Error x)"
+        testCaseAsync "either with Async(Error x)"
         <| async {
             let! actual =
                 createPostFailure validCreatePostRequest
-                |> AsyncResult.foldResult string (fun ex -> ex.Message)
+                |> AsyncResult.either string _.Message
 
-            Expect.same (commonEx.Message) actual
+            Expect.same commonEx.Message actual
         }
     ]
 
@@ -731,15 +731,17 @@ let catchTests =
             return Error ""
         }
 
-    testList "AsyncResult.catch tests" [
+    testList "AsyncResult.catch Replacement (AsyncResult.catchWith) tests" [
         testCaseAsync "catch returns success for Ok"
-        <| Expect.hasAsyncOkValue 42 (AsyncResult.catch f (toAsync (Ok 42)))
+        <| Expect.hasAsyncOkValue 42 (AsyncResult.catchWith f (toAsync (Ok 42)))
 
         testCaseAsync "catch returns mapped Error for exception"
-        <| Expect.hasAsyncErrorValue err (AsyncResult.catch f (asyncThrow ()))
+        <| Expect.hasAsyncErrorValue err (AsyncResult.catchWith f (asyncThrow ()))
 
         testCaseAsync "catch returns unmapped error without exception"
-        <| Expect.hasAsyncErrorValue "unmapped" (AsyncResult.catch f (toAsync (Error "unmapped")))
+        <| Expect.hasAsyncErrorValue
+            "unmapped"
+            (AsyncResult.catchWith f (toAsync (Error "unmapped")))
     ]
 
 let getOrReraiseTests =
@@ -1053,7 +1055,7 @@ let allTests =
     testList "Async Result tests" [
         mapTests
         map2Tests
-        foldResultTests
+        eitherTests
         mapErrorTests
         bindTests
         orElseTests

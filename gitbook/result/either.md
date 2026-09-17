@@ -1,4 +1,4 @@
-# Result.fold
+# Result.either
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -13,13 +13,13 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-`fold` can be used to convert `Result` to another similar type, such as `Choice`:
+`either` can be used to convert `Result` to another similar type, such as `Choice`:
 
 ```fsharp
-let choice1 = Ok 42 |> Result.fold Choice1Of2 Choice2Of2
+let choice1 = Ok 42 |> Result.either Choice1Of2 Choice2Of2
 // Choice1Of2 42
 
-let choice2 = Error "An error occurred" |> Result.fold Choice1Of2 Choice2Of2
+let choice2 = Error "An error occurred" |> Result.either Choice1Of2 Choice2Of2
 // Choice2Of2 "An error occurred"
 ```
 
@@ -32,28 +32,25 @@ Given the following function:
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
-  match System.Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ -> 
-    Error (sprintf "unable to parse '%s' to integer" str)
+    match str |> Option.tryParse<int> with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 ```
 
 And the following fake HTTP response type:
 
 ```fsharp
 type HttpResponse<'a, 'b> =
-  | Ok of 'a
-  | BadRequest of 'b
+    | Ok of 'a
+    | BadRequest of 'b
 ```
 
-Then using `Result.fold`, we can do the following
+Then using `Result.either`, we can do the following
 
 ```fsharp
 // HttpRequest -> HttpResponse<int,string>
 let handler httpRequest =
-  // reading the input from the HTTP request
-  let inputStr = httpRequest ... 
-  inputStr |> tryParseInt |> Result.fold Ok BadRequest
+    // reading the input from the HTTP request
+    let inputStr = httpRequest ... 
+    inputStr |> tryParseInt |> Result.either Ok BadRequest
 ```
-
-

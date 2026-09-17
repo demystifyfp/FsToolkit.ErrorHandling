@@ -313,8 +313,14 @@ module CancellableValueTaskResult =
     /// <summary>Lifts an item to a CancellableValueTaskResult.</summary>
     /// <param name="item">The item to be the result of the CancellableValueTaskResult.</param>
     /// <returns>A CancellableValueTaskResult with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableValueTaskResult<'item, 'Error> =
+    let inline ok (item: 'item) : CancellableValueTaskResult<'item, 'Error> =
         fun _ -> ValueTask<Result<'item, 'Error>>(Ok item)
+
+    /// <summary>Lifts an item to a CancellableValueTaskResult.</summary>
+    /// <param name="item">The item to be the result of the CancellableValueTaskResult.</param>
+    /// <returns>A CancellableValueTaskResult with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableValueTaskResult.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableValueTaskResult<'item, 'Error> = ok item
 
 
     /// <summary>Allows chaining of CancellableValueTaskResults.</summary>

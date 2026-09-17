@@ -30,13 +30,13 @@ let mapTests =
     testList "TaskOption.map Tests" [
         testCase "map with Task(Some x)"
         <| fun _ ->
-            Task.singleton (Some validTweet)
+            Task.result (Some validTweet)
             |> TaskOption.map remainingCharacters
             |> Expect.hasTaskSomeValue 267
 
         testCase "map with Task(None)"
         <| fun _ ->
-            Task.singleton (None)
+            Task.result None
             |> TaskOption.map remainingCharacters
             |> Expect.hasTaskNoneValue
     ]
@@ -73,23 +73,23 @@ let applyTests =
     testList "TaskOption.apply Tests" [
         testCase "apply with Task(Some x)"
         <| fun _ ->
-            Task.singleton (Some validTweet)
-            |> TaskOption.apply (Task.singleton (Some remainingCharacters))
-            |> Expect.hasTaskSomeValue (267)
+            Task.result (Some validTweet)
+            |> TaskOption.apply (Task.result (Some remainingCharacters))
+            |> Expect.hasTaskSomeValue 267
 
         testCase "apply with Task(None)"
         <| fun _ ->
-            Task.singleton None
-            |> TaskOption.apply (Task.singleton (Some remainingCharacters))
+            Task.result None
+            |> TaskOption.apply (Task.result (Some remainingCharacters))
             |> Expect.hasTaskNoneValue
     ]
 
-let retnTests =
-    testList "TaskOption.retn Tests" [
-        testCase "retn with x"
+let someTests =
+    testList "TaskOption.some Tests" [
+        testCase "some with x"
         <| fun _ ->
             TaskOption.some 267
-            |> Expect.hasTaskSomeValue (267)
+            |> Expect.hasTaskSomeValue 267
     ]
 
 let taskOptionOperatorTests =
@@ -114,7 +114,7 @@ let taskOptionOperatorTests =
                 if isAllowed then
                     createPostSome validCreatePostRequest
                 else
-                    Task.singleton None
+                    Task.result None
             )
             |> Expect.hasTaskSomeValue (PostId newPostId)
     ]
@@ -159,7 +159,7 @@ let defaultValueTests =
         <| fun () ->
             task {
                 let expectedValue = 10
-                let taskOption = Task.singleton None
+                let taskOption = Task.result None
                 let! result = TaskOption.defaultValue expectedValue taskOption
                 Expect.equal result expectedValue ""
             }
@@ -182,7 +182,7 @@ let defaultWithTests =
         <| fun () ->
             task {
                 let expectedValue = 10
-                let taskOption = Task.singleton None
+                let taskOption = Task.result None
                 let! result = TaskOption.defaultWith (fun () -> expectedValue) taskOption
                 Expect.equal result expectedValue ""
             }
@@ -193,7 +193,7 @@ let allTests =
         mapTests
         bindTests
         applyTests
-        retnTests
+        someTests
         taskOptionOperatorTests
         eitherTests
         defaultValueTests

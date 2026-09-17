@@ -26,11 +26,11 @@ module AsyncResultOption =
 
     let inline ok x =
         Ok(Some x)
-        |> Async.singleton
+        |> Async.result
 
     let inline error x : Async<Result<'ok option, 'error>> =
         Error x
-        |> Async.singleton
+        |> Async.result
 
     let inline map2
         ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
@@ -47,8 +47,12 @@ module AsyncResultOption =
         : Async<Result<'okOutput option, 'error>> =
         AsyncResult.map3 (Option.map3 mapper) input1 input2 input3
 
-    let inline singleton (value: 'ok) : Async<Result<'ok option, 'error>> =
-        AsyncResult.ok (Some value)
+    let inline some value =
+        Some value
+        |> AsyncResult.ok
+
+    [<System.Obsolete "Use AsyncResultOption.some instead (aligns with AsyncResult naming)">]
+    let inline singleton value = some value
 
     let apply
         (applier: Async<Result<('okInput -> 'okOutput) option, 'error>>)
@@ -70,7 +74,7 @@ module AsyncResultOption =
     let inline ofResult (r: Result<'ok, 'error>) =
         r
         |> Result.map Some
-        |> Async.singleton
+        |> Async.result
 
 
     let inline ofAsyncResult (r: Async<Result<'ok, 'error>>) =
@@ -80,7 +84,7 @@ module AsyncResultOption =
     let inline ofOption (r: 'ok option) =
         r
         |> Ok
-        |> Async.singleton
+        |> Async.result
 
     let inline ofAsyncOption (r: Async<'ok option>) =
         r

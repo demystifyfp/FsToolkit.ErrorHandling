@@ -2,13 +2,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net8.0</TargetFrameworks>
         <NoWarn>$(NoWarn); FS3511</NoWarn>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <!-- Error FS3261 : Nullness warning: The types 'System.IAsyncDisposable' and 'System.IAsyncDisposable | null' do not have compatible nullability. -->
+        <NoWarn>$(NoWarn); FS3261</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="SampleDomain.fs" />
         <Compile Include="TestData.fs" />
-        <Compile Include="Expect.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />

@@ -47,9 +47,7 @@
 [<AutoOpen>]
 module CancellableTaskValidationCE =
 
-    open System
     open System.Runtime.CompilerServices
-    open System.Threading
     open System.Threading.Tasks
     open Microsoft.FSharp.Core
     open Microsoft.FSharp.Core.CompilerServices
@@ -138,7 +136,6 @@ module CancellableTaskValidationCE =
                     sm.Data.MethodBuilder <- AsyncTaskMethodBuilder<Validation<'T, 'Error>>.Create()
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
-
 
         /// Hosts the task code in a state machine and starts the task.
         member inline _.Run
@@ -250,19 +247,12 @@ module AsyncExtensions =
         static member inline AwaitCancellableTaskValidation
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             =
-            async {
-                let! ct = Async.CancellationToken
-
-                return!
-                    t ct
-                    |> Async.AwaitTask
-            }
+            Async.StartTaskImmediate t
 
         static member inline AsCancellableTaskValidation(computation: Async<'T>) =
-            fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+            fun ct -> Task.startAsyncImmediate ct computation
 
-
-    type FsToolkit.ErrorHandling.AsyncValidationCE.AsyncValidationBuilder with
+    type AsyncValidationBuilder with
 
         member inline this.Source
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
@@ -313,8 +303,14 @@ module CancellableTaskValidation =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskValidation<'item, 'Error> =
+        fun _ -> TaskResult.ok item
+
+    /// <summary>Lifts an item to a CancellableTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableTask.</param>
+    /// <returns>A CancellableTask with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableTaskValidation.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> = ok item
 
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>
@@ -332,7 +328,7 @@ module CancellableTaskValidation =
 
     let inline ofResult (result: Result<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         let x = Result.mapError List.singleton result
-        fun _ -> Task.FromResult(x)
+        fun _ -> Task.result x
 
     /// <summary>Lifts an item to a CancellableTaskValidation.</summary>
     /// <param name="error">The item to be the error result of the CancellableTaskValidation.</param>
@@ -343,7 +339,7 @@ module CancellableTaskValidation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> singleton x
+        | Choice1Of2 x -> ok x
         | Choice2Of2 x -> error x
 
 
@@ -483,7 +479,7 @@ module CancellableTaskValidation =
 
             return!
                 result
-                |> Result.either singleton (fun _ -> ifError)
+                |> Result.either ok (fun _ -> ifError)
         }
 
     let inline orElseWith
@@ -496,7 +492,7 @@ module CancellableTaskValidation =
 
             return!
                 match result with
-                | Ok x -> singleton x
+                | Ok x -> ok x
                 | Error err -> ifErrorFunc err
         }
 
@@ -610,7 +606,6 @@ module CTVMergeSourcesExtensionsCV1CV2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCT1T2 =
 
@@ -643,7 +638,6 @@ module CTVMergeSourcesExtensionsCV1T2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCT1TV2 =
 
@@ -659,7 +653,6 @@ module CTVMergeSourcesExtensionsCT1TV2 =
                     return Validation.zip (Ok l1) r1
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCV1TV2 =
@@ -709,7 +702,6 @@ module CTVMergeSourcesExtensionsTV1CT2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1CV2 =
 
@@ -728,7 +720,6 @@ module CTVMergeSourcesExtensionsT1CV2 =
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsTV1CV2 =
-    open System.Runtime.CompilerServices
 
     type CancellableTaskValidationBuilder with
 
@@ -743,7 +734,6 @@ module CTVMergeSourcesExtensionsTV1CV2 =
                     return Validation.zip l1 r1
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1T2 =
@@ -772,7 +762,6 @@ module CTVMergeSourcesExtensionsTV1T2 =
                     return Validation.zip l1 (Ok r1)
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1TV2 =
@@ -804,7 +793,6 @@ module CTVMergeSourcesExtensionsTV1TV2 =
 
 [<AutoOpen>]
 module CancellableTaskResultBuilderPriority1 =
-    open System.Threading.Tasks
 
     type CancellableTaskValidationBuilder with
 
@@ -818,7 +806,6 @@ module CancellableTaskResultBuilderPriority1 =
 
 [<AutoOpen>]
 module CancellableTaskResultBuilderPriority3 =
-    open System.Threading.Tasks
 
     type CancellableTaskValidationBuilder with
 

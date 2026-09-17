@@ -187,7 +187,7 @@ let resultOptionCETests =
                         invalidLatR
                         |> Result.map Some
 
-                    Tests.failtestf "this should not get executed!"
+                    failtestf "this should not get executed!"
                     let! lng = Ok(Some validLng)
 
                     let! tweet =

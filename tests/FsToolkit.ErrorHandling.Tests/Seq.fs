@@ -377,7 +377,7 @@ let traverseTaskResultMTests =
 
             let! actual =
                 Seq.traverseTaskResultM (notifyNewPostSuccess (PostId newPostId)) userIds
-                |> Async.AwaitTask
+                |> Async.Await
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
@@ -393,7 +393,7 @@ let traverseTaskResultMTests =
 
             do!
                 Expect.hasTaskErrorValue expected actual
-                |> Async.AwaitTask
+                |> Async.Await
         }
     ]
 
@@ -469,7 +469,7 @@ let traverseTaskResultATests =
 
             let! actual =
                 Seq.traverseTaskResultA (notifyNewPostSuccess (PostId newPostId)) userIds
-                |> Async.AwaitTask
+                |> Async.Await
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
@@ -485,7 +485,7 @@ let traverseTaskResultATests =
 
             let! actual =
                 Seq.traverseTaskResultA (notifyFailure (PostId newPostId)) userIds
-                |> Async.AwaitTask
+                |> Async.Await
 
             let actual = Expect.wantError actual "Expected result to be Error"
 
@@ -620,7 +620,7 @@ let sequenceTaskResultMTests =
             let! actual =
                 Seq.map (notifyNewPostSuccess (PostId newPostId)) userIds
                 |> Seq.sequenceTaskResultM
-                |> Async.AwaitTask
+                |> Async.Await
 
             let actual = Expect.wantOk actual "Expected result to be Ok"
 
@@ -635,7 +635,7 @@ let sequenceTaskResultMTests =
                 userIds
                 |> Seq.map (notifyFailure (PostId newPostId))
                 |> Seq.sequenceTaskResultM
-                |> Async.AwaitTask
+                |> Async.Await
 
             do! Expect.hasAsyncErrorValue expected actual
         }
@@ -762,7 +762,7 @@ let sequenceTaskResultATests =
 
             do!
                 Expect.hasTaskOkValue expected actual
-                |> Async.AwaitTask
+                |> Async.Await
         }
 
         testCaseAsync "sequenceTaskResultA with few invalid data"
@@ -775,7 +775,7 @@ let sequenceTaskResultATests =
             let! actual =
                 Seq.map (notifyFailure (PostId newPostId)) userIds
                 |> Seq.sequenceTaskResultA
-                |> Async.AwaitTask
+                |> Async.Await
 
             let actual = Expect.wantError actual "Expected result to be Error"
             Expect.equal actual expected "Should have a sequence of errors"

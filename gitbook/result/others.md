@@ -124,16 +124,6 @@ Returns the contained value if Ok, otherwise evaluates the given function and re
 ```
 
 
-## valueOr
-
-Returns the Ok value or runs the specified function over the error value.
-
-### Function Signature
-
-```fsharp
-('b -> 'a) -> Result<'a, 'b> -> 'a
-```
-
 ## ignore
 
 Ignores the value of the input result and returns unit instead

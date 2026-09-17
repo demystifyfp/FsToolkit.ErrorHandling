@@ -87,15 +87,16 @@ module OptionCE =
                 )
             )
 
-
     [<AutoOpen>]
     module BuilderExtensions =
+
         type OptionBuilderBase with
             member inline _.Source(o) = ValueOption.ofObj o
             member inline _.Source(o: Nullable<'a>) = ValueOption.ofNullable o
 
     [<AutoOpen>]
     module BuilderExtensions3 =
+
         type OptionBuilderBase with
             /// <summary>
             /// Needed to allow `for..in` and `for..do` functionality

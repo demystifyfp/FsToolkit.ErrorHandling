@@ -1,6 +1,5 @@
 module TaskResultTests
 
-
 open Expecto
 open SampleDomain
 open TestData
@@ -102,7 +101,7 @@ let mapErrorTests =
         <| fun _ ->
             createPostFailure validCreatePostRequest
             |> TaskResult.mapError (fun ex -> ex.Message)
-            |> Expect.hasTaskErrorValueSync (commonEx.Message)
+            |> Expect.hasTaskErrorValueSync commonEx.Message
     ]
 
 let bindTests =
@@ -115,7 +114,7 @@ let bindTests =
                     if isAllowed then
                         return! createPostSuccess validCreatePostRequest
                     else
-                        return (Error(Exception "not allowed to post"))
+                        return Error(Exception "not allowed to post")
                 }
             )
             |> Expect.hasTaskOkValueSync (PostId newPostId)
@@ -432,32 +431,32 @@ let taskResultRequireTests =
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.ok (1))
-                    |> Expect.hasTaskOkValue (1)
+                    TaskResult.require (fun _ -> true) "Error!" (TaskResult.ok 1)
+                    |> Expect.hasTaskOkValue 1
             }
 
         testCaseTask "True, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.error ("AHH"))
-                    |> Expect.hasTaskErrorValue ("AHH")
+                    TaskResult.require (fun _ -> true) "Error!" (TaskResult.error "AHH")
+                    |> Expect.hasTaskErrorValue "AHH"
             }
 
         testCaseTask "False, Ok"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.ok (1))
-                    |> Expect.hasTaskErrorValue ("Error!")
+                    TaskResult.require (fun _ -> false) "Error!" (TaskResult.ok 1)
+                    |> Expect.hasTaskErrorValue "Error!"
             }
 
         testCaseTask "False, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.error ("Ahh"))
-                    |> Expect.hasTaskErrorValue ("Ahh")
+                    TaskResult.require (fun _ -> false) "Error!" (TaskResult.error "Ahh")
+                    |> Expect.hasTaskErrorValue "Ahh"
             }
     ]
 
@@ -529,7 +528,7 @@ let defaultWithTests =
 
             Expect.hasTaskValue 42 v
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultValue invokes the given thunk for Error"
         <| fun _ ->
             let v = TaskResult.defaultWith (fun _ -> 42) (toTask (Error err))
 
@@ -709,7 +708,7 @@ let teeErrorIfTests =
             Expect.equal foo "foo" ""
     ]
 
-let catchTests =
+let catchWithTests =
     let f (e: exn) = e.Message
 
     let taskThrow () =
@@ -718,16 +717,18 @@ let catchTests =
             return Error ""
         }
 
-    testList "TaskResult.catch tests" [
-        testCase "catch returns success for Ok"
-        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.catch f (toTask (Ok 42)))
+    testList "TaskResult.catchWith tests" [
+        testCase "catchWith returns success for Ok"
+        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.catchWith f (toTask (Ok 42)))
 
-        testCase "catch returns mapped Error for exception"
-        <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catch f (taskThrow ()))
+        testCase "catchWith returns mapped Error for exception"
+        <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catchWith f (taskThrow ()))
 
-        testCase "catch returns unmapped error without exception"
+        testCase "catchWith returns unmapped error without exception"
         <| fun _ ->
-            Expect.hasTaskErrorValueSync "unmapped" (TaskResult.catch f (toTask (Error "unmapped")))
+            Expect.hasTaskErrorValueSync
+                "unmapped"
+                (TaskResult.catchWith f (toTask (Error "unmapped")))
     ]
 
 let ofCatchTaskTests =
@@ -738,19 +739,20 @@ let ofCatchTaskTests =
         }
 
     testList "TaskResult.ofCatchTask tests" [
-        testCase "ofCatchTask returns Ok for a successful task"
-        <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.ofCatchTask (task { return 42 }))
+        testCase "ofCatchTask replacement(Task.catch) returns Ok for a successful task"
+        <| fun _ -> Expect.hasTaskOkValueSync 42 (Task.catch (task { return 42 }))
 
-        testCase "ofCatchTask returns Error for a throwing task"
+        testCase "ofCatchTask replacement(Task.catch) returns Error for a throwing task"
         <| fun _ ->
             let result =
-                TaskResult.ofCatchTask (taskThrow ())
-                |> Async.AwaitTask
+                taskThrow ()
+                |> Task.catch
+                |> Async.Await
                 |> Async.RunSynchronously
 
             match result with
             | Error ex -> Expect.equal ex.Message err "Expected exception message to match"
-            | Ok _ -> Tests.failtestf "Expected Error, was Ok"
+            | Ok _ -> failtestf "Expected Error, was Ok"
     ]
 
 let zipTests =
@@ -842,7 +844,7 @@ let TaskResultCETests =
 
         testCase "bind with an Error"
         <| fun _ ->
-            createPost (UserId(System.Guid.NewGuid()))
+            createPost (UserId(Guid.NewGuid()))
             |> Expect.hasTaskErrorValueSync commonEx
     ]
 
@@ -919,27 +921,26 @@ let TaskResultBindRequireValueOptionTests =
             }
     ]
 
-let foldResultTests =
-    testList "TaskResult.foldResult tests" [
-        testCaseTask "foldResult with Task(Ok x)"
+let eitherTests =
+    testList "TaskResult.either tests" [
+        testCaseTask "either with Task(Ok x)"
         <| fun _ ->
             task {
                 let! actual =
                     createPostSuccess validCreatePostRequest
-                    |> TaskResult.foldResult (fun (PostId id) -> id.ToString()) string
+                    |> TaskResult.either (fun (PostId id) -> id.ToString()) string
 
                 Expect.same (newPostId.ToString()) actual
             }
 
-        testCaseTask "foldResult with Task(Error x)"
+        testCaseTask "either with Task(Error x)"
         <| fun _ ->
             task {
                 let! actual =
                     createPostFailure validCreatePostRequest
-                    |> TaskResult.foldResult string (fun ex -> ex.Message)
+                    |> TaskResult.either string _.Message
 
-                Expect.same (commonEx.Message) actual
-
+                Expect.same commonEx.Message actual
             }
     ]
 
@@ -1037,32 +1038,32 @@ let taskResultCheckTests =
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.ok (1))
-                    |> Expect.hasTaskOkValue (1)
+                    TaskResult.check (fun _ -> TaskResult.ok ()) (TaskResult.ok 1)
+                    |> Expect.hasTaskOkValue 1
             }
 
         testCaseTask "Ok, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.error (2))
-                    |> Expect.hasTaskErrorValue (2)
+                    TaskResult.check (fun _ -> TaskResult.ok ()) (TaskResult.error 2)
+                    |> Expect.hasTaskErrorValue 2
             }
 
         testCaseTask "Error, OK"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.error ()) (TaskResult.ok (2))
-                    |> Expect.hasTaskErrorValue (())
+                    TaskResult.check (fun _ -> TaskResult.error ()) (TaskResult.ok 2)
+                    |> Expect.hasTaskErrorValue ()
             }
 
         testCaseTask "Error, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.error (1)) (TaskResult.error (2))
-                    |> Expect.hasTaskErrorValue (2)
+                    TaskResult.check (fun _ -> TaskResult.error 1) (TaskResult.error 2)
+                    |> Expect.hasTaskErrorValue 2
             }
     ]
 
@@ -1099,7 +1100,7 @@ let allTests =
         teeIfTests
         teeErrorTests
         teeErrorIfTests
-        catchTests
+        catchWithTests
         ofCatchTaskTests
         zipTests
         zipErrorTests
@@ -1107,7 +1108,7 @@ let allTests =
         TaskResultOperatorTests
         TaskResultBindRequireTests
         TaskResultBindRequireValueOptionTests
-        foldResultTests
+        eitherTests
         taskResultBindRequireTrueTests
         taskResultBindRequireNotNullTests
         taskResultBindRequireEqualTests

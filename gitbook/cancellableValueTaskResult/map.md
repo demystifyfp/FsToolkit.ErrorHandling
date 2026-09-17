@@ -15,7 +15,7 @@ Apply a function to the `Ok` value of a `CancellableValueTask<Result<'a, 'b>>` a
 ### Example 1
 
 ```fsharp
-CancellableValueTaskResult.map (fun x -> x + 1) (CancellableValueTaskResult.singleton 1)
+CancellableValueTaskResult.map (fun x -> x + 1) (CancellableValueTaskResult.ok 1)
 
 // cancellableValueTask { Ok 2 }
 ```

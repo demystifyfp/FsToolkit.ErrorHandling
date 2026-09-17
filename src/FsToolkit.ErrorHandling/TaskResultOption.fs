@@ -21,9 +21,12 @@ module TaskResultOption =
     let inline map3 ([<InlineIfLambda>] f) xTRO yTRO zTRO =
         TaskResult.map3 (Option.map3 f) xTRO yTRO zTRO
 
-    let inline singleton value = TaskResult.ok (Some value)
+    let inline some value = TaskResult.ok (Some value)
 
-    let inline ok x = singleton x
+    [<System.Obsolete "Use TaskResultOption.some instead (aligns with AsyncResult naming)">]
+    let inline singleton value = some value
+
+    let inline ok x = some x
 
     let inline error x : TaskResult<'ok option, 'error> = TaskResult.error x
 
@@ -40,7 +43,7 @@ module TaskResultOption =
     let inline ofResult (result: Result<'ok, 'error>) : Task<Result<'ok option, 'error>> =
         result
         |> Result.map Some
-        |> Task.singleton
+        |> Task.result
 
     /// <summary>
     /// Transforms a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.
@@ -57,7 +60,7 @@ module TaskResultOption =
     let inline ofOption (option: 'ok option) : Task<Result<'ok option, 'error>> =
         option
         |> Ok
-        |> Task.singleton
+        |> Task.result
 
     /// <summary>
     /// Transforms a <c>Task&lt;'ok option&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.

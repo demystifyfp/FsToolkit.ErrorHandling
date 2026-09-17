@@ -19,12 +19,12 @@ module List =
                     }
 
                 match r with
-                | Ok _ -> return! traverseJobResultM' (Job.singleton r) f xs
+                | Ok _ -> return! traverseJobResultM' (Job.result r) f xs
                 | Error _ -> return r
             }
 
     let traverseJobResultM f xs =
-        traverseJobResultM' (JobResult.singleton []) f xs
+        traverseJobResultM' (JobResult.ok []) f xs
 
     let sequenceJobResultM xs = traverseJobResultM id xs
 
@@ -40,7 +40,7 @@ module List =
                 let! fR = f x
 
                 match s, fR with
-                | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.singleton (y :: ys)) f xs
+                | Ok ys, Ok y -> return! traverseJobResultA' (JobResult.ok (y :: ys)) f xs
                 | Error errs, Error e ->
                     return! traverseJobResultA' (JobResult.error (e :: errs)) f xs
                 | Ok _, Error e -> return! traverseJobResultA' (JobResult.error [ e ]) f xs
@@ -49,6 +49,6 @@ module List =
 
 
     let traverseJobResultA f xs =
-        traverseJobResultA' (JobResult.singleton []) f xs
+        traverseJobResultA' (JobResult.ok []) f xs
 
     let sequenceJobResultA xs = traverseJobResultA id xs

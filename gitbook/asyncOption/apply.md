@@ -32,7 +32,7 @@ let result =
 
 ```fsharp
 let result =
-    Async.singleton None // Async<string option>
+    Async.result None // Async<string option>
     |> AsyncOption.apply (AsyncOption.some characterCount) // Async<int option>
 
 // async { None }
@@ -43,7 +43,7 @@ let result =
 ```fsharp
 let result : Async<int option> =
     AsyncOption.some "foo" // Async<string option>
-    |> AsyncOption.apply (Async.singleton None) // Async<int option>
+    |> AsyncOption.apply (Async.result None) // Async<int option>
 
 // async { None }
 ```

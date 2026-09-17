@@ -1,4 +1,4 @@
-## JobResult.catch
+## JobResult.catchWith
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -19,7 +19,7 @@ let riskyJob : Job<Result<int, string>> =
     job { return failwith "unexpected failure" }
 
 riskyJob
-|> JobResult.catch (fun ex -> ex.Message)
+|> JobResult.catchWith (fun ex -> ex.Message)
 // job { return Error "unexpected failure" }
 ```
 
@@ -30,7 +30,7 @@ let safeDivide (x: int) (y: int) : Job<Result<int, string>> =
     job { return Ok (x / y) }
 
 safeDivide 10 0
-|> JobResult.catch (fun ex -> sprintf "Division error: %s" ex.Message)
+|> JobResult.catchWith (fun ex -> sprintf "Division error: %s" ex.Message)
 // job { return Error "Division error: Attempted to divide by zero." }
 ```
 
@@ -40,7 +40,7 @@ safeDivide 10 0
 let fetchData : Job<Result<string, AppError>> = // ...
 
 fetchData
-|> JobResult.catch (fun ex -> AppError.Unexpected ex)
+|> JobResult.catchWith (fun ex -> AppError.Unexpected ex)
 // Exceptions become Error(AppError.Unexpected ex)
 // Existing errors pass through unchanged
 ```

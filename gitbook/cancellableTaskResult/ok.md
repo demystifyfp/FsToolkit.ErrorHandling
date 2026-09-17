@@ -1,4 +1,4 @@
-## CancellableTaskResult.singleton
+## CancellableTaskResult.ok
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -16,7 +16,7 @@ Lifts a value into a `CancellableTaskResult`, wrapping it as an `Ok` result.
 
 ```fsharp
 let result : CancellableTaskResult<int, string> =
-  CancellableTaskResult.singleton 42
+  CancellableTaskResult.ok 42
 ```
 
 ### Example 2
@@ -25,5 +25,5 @@ Using `singleton` inside a pipeline to return a successful value:
 
 ```fsharp
 let getDefaultConfig () : CancellableTaskResult<Config, string> =
-  CancellableTaskResult.singleton defaultConfig
+  CancellableTaskResult.ok defaultConfig
 ```

@@ -435,8 +435,8 @@ module CancellableTaskOptionBuilderBase =
         ///
         member inline this.Using
             (
-                resource: #IAsyncDisposable,
-                binder: #IAsyncDisposable -> CancellableTaskOptionBuilderBaseCode<'TOverall, 'T>
+                resource: #IAsyncDisposableNull,
+                binder: #IAsyncDisposableNull -> CancellableTaskOptionBuilderBaseCode<'TOverall, 'T>
             ) : CancellableTaskOptionBuilderBaseCode<'TOverall, 'T> =
             this.TryFinallyAsync(
                 (fun sm -> (binder resource).Invoke(&sm)),
@@ -539,9 +539,9 @@ module CancellableTaskOptionBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableTaskOptionBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -765,6 +765,7 @@ module CancellableTaskOptionBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableTaskOptionBuilderBase with
 
@@ -1044,33 +1045,20 @@ module CancellableTaskOptionBuilderBase =
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             static member inline AsCancellableTaskOption(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                fun ct -> Task.startAsyncImmediate ct computation
 
         type AsyncEx with
 
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             static member inline AsCancellableTaskOption(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
-
+                fun ct -> Task.startAsyncImmediate ct computation
 
         type AsyncOptionBuilder with
 

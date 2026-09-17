@@ -1,4 +1,4 @@
-## AsyncResult.catch
+## AsyncResult.catchWith
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -20,7 +20,7 @@ Catching any exception and converting it to a string error:
 let result : Async<Result<int, string>> =
   async { return failwith "something went wrong" }
   |> Async.map Ok
-  |> AsyncResult.catch (fun ex -> ex.Message)
+  |> AsyncResult.catchWith (fun ex -> ex.Message)
 // evaluates to Error "something went wrong"
 ```
 
@@ -34,7 +34,7 @@ let safeFetch (url: string) : Async<Result<string, string>> =
     use client = new System.Net.Http.HttpClient()
     return! client.GetStringAsync(url) |> Async.AwaitTask |> Async.map Ok
   }
-  |> AsyncResult.catch (fun ex -> sprintf "HTTP error: %s" ex.Message)
+  |> AsyncResult.catchWith (fun ex -> sprintf "HTTP error: %s" ex.Message)
 ```
 
 ### Example 3
@@ -43,6 +43,6 @@ When no exception is thrown, the result passes through unchanged:
 
 ```fsharp
 AsyncResult.ok 42
-|> AsyncResult.catch (fun _ -> "error")
+|> AsyncResult.catchWith (fun _ -> "error")
 // evaluates to Ok 42
 ```

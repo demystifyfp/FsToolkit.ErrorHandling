@@ -253,6 +253,7 @@ module TaskResultOptionCE =
 
 [<AutoOpen>]
 module TaskResultOptionCEExtensionsLowPriority =
+
     // Low priority extensions - generic catch-alls
     type TaskResultOptionBuilder with
 
@@ -272,6 +273,7 @@ module TaskResultOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskResultOptionCEExtensions =
+
     // Medium-low priority extensions
     type TaskResultOptionBuilder with
 
@@ -300,6 +302,7 @@ module TaskResultOptionCEExtensions =
 
 [<AutoOpen>]
 module TaskResultOptionCEExtensionsMediumPriority =
+
     // Medium priority extensions - more specific than generic Task/Async
     type TaskResultOptionBuilder with
 
@@ -329,6 +332,7 @@ module TaskResultOptionCEExtensionsMediumPriority =
 
 [<AutoOpen>]
 module TaskResultOptionCEExtensionsHighPriority =
+
     // High priority extensions - identity for the self type
     type TaskResultOptionBuilder with
 

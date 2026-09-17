@@ -20,7 +20,7 @@ CancellableTaskValidation<'ok, 'errorOutput>
 
 ```fsharp
 CancellableTaskValidation.error "First"
-|> CancellableTaskValidation.orElse (CancellableTaskValidation.singleton "Second")
+|> CancellableTaskValidation.orElse (CancellableTaskValidation.ok "Second")
 // evaluates to Ok "Second"
 ```
 
@@ -29,7 +29,7 @@ CancellableTaskValidation.error "First"
 When the input is already `Ok`, the alternative is ignored:
 
 ```fsharp
-CancellableTaskValidation.singleton "First"
+CancellableTaskValidation.ok "First"
 |> CancellableTaskValidation.orElse (CancellableTaskValidation.error "Second")
 // evaluates to Ok "First"
 ```

@@ -31,7 +31,7 @@ tryFindPersonById 42
 ### Example 2
 
 ```fsharp
-let maybeValue : Job<int option> = Job.singleton (Some 10)
+let maybeValue : Job<int option> = Job.result (Some 10)
 
 maybeValue
 |> JobOption.map (fun x -> x * 2)

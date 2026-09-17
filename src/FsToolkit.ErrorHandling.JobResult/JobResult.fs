@@ -1,24 +1,45 @@
 ﻿namespace FsToolkit.ErrorHandling
 
+open System.Threading.Tasks
 open Hopac
-open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module JobResult =
 
+    let inline ok x =
+        Ok x
+        |> Job.result
+
+    let inline error x =
+        Error x
+        |> Job.result
+
     let inline map ([<InlineIfLambda>] f) jr = Job.map (Result.map f) jr
+
+    let inline map2 ([<InlineIfLambda>] f) xJR yJR = Job.map2 (Result.map2 f) xJR yJR
+
+    let inline map3 ([<InlineIfLambda>] f) xJR yJR zJR = Job.map3 (Result.map3 f) xJR yJR zJR
 
     let inline mapError ([<InlineIfLambda>] f) jr = Job.map (Result.mapError f) jr
 
-    let inline bind ([<InlineIfLambda>] f: 'a -> Job<Result<'c, 'b>>) (jr: Job<Result<'a, 'b>>) =
-        Job.bind
-            (Result.either
-                f
-                (Error
-                 >> Job.result))
-            jr
+    let inline bind
+        ([<InlineIfLambda>] f: 'a -> Job<Result<'c, 'b>>)
+        (jr: Job<Result<'a, 'b>>)
+        : Job<Result<'c, 'b>> =
+        Job.bind (Result.either f error) jr
 
-    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) jr =
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'c -> 'b)
+        (jr: Job<Result<'a, 'c>>)
+        : Job<'b> =
+        Job.map (Result.either onSuccess onError) jr
+
+    let inline eitherMap
+        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
+        ([<InlineIfLambda>] onError: 'c -> 'd)
+        (jr: Job<Result<'a, 'c>>)
+        : Job<Result<'b, 'd>> =
         Job.map (Result.eitherMap onSuccess onError) jr
 
     let inline ofAsync aAsync =
@@ -39,20 +60,10 @@ module JobResult =
         |> Job.catch
         |> Job.map Result.ofChoice
 
-    let inline singleton x =
-        Ok x
-        |> Job.result
-
-    let inline error x =
-        Error x
-        |> Job.result
-
-    let inline map2 ([<InlineIfLambda>] f) xJR yJR = Job.map2 (Result.map2 f) xJR yJR
-
-    let inline map3 ([<InlineIfLambda>] f) xJR yJR zJR = Job.map3 (Result.map3 f) xJR yJR zJR
+    [<System.Obsolete "Use JobResult.ok instead (aligns with AsyncResult naming)">]
+    let inline singleton x = ok x
 
     let inline apply fJR xJR = map2 (fun f x -> f x) fJR xJR
-
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -64,9 +75,9 @@ module JobResult =
     /// <example>
     /// <code>
     ///     JobResult.error "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Error ("Second")
-    ///     JobResult.error "First" |> JobResult.orElse (JobResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     JobResult.singleton "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Ok ("First")
-    ///     JobResult.singleton "First" |> JobResult.orElse (JobResult.singleton "Second") // evaluates to Ok ("First")
+    ///     JobResult.error "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("Second")
+    ///     JobResult.ok "First" |> JobResult.orElse (JobResult.error "Second") // evaluates to Ok ("First")
+    ///     JobResult.ok "First" |> JobResult.orElse (JobResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -74,7 +85,7 @@ module JobResult =
     /// </returns>
     let inline orElse (ifError: Job<Result<'ok, 'error2>>) (result: Job<Result<'ok, 'error>>) =
         result
-        |> Job.bind (Result.either singleton (fun _ -> ifError))
+        |> Job.bind (Result.either ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -87,9 +98,9 @@ module JobResult =
     /// <example>
     /// <code>
     ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Error ("Second")
-    ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second") // evaluates to Ok ("Second")
-    ///     JobResult.singleton "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Ok ("First")
-    ///     JobResult.singleton "First" |> JobResult.orElseWith (fun _ -> JobResult.singleton "Second") // evaluates to Ok ("First")
+    ///     JobResult.error "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("Second")
+    ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.error "Second") // evaluates to Ok ("First")
+    ///     JobResult.ok "First" |> JobResult.orElseWith (fun _ -> JobResult.ok "Second") // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -100,10 +111,10 @@ module JobResult =
         (result: Job<Result<'ok, 'error>>)
         =
         result
-        |> Job.bind (Result.either singleton ifErrorFunc)
+        |> Job.bind (Result.either ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
-    let inline ignore<'ok, 'error> (jr: Job<Result<'ok, 'error>>) =
+    let inline ignore<'ok, 'error> (jr: Job<Result<'ok, 'error>>) : Job<Result<unit, 'error>> =
         jr
         |> map ignore<'ok>
 
@@ -117,32 +128,32 @@ module JobResult =
         value
         |> Job.map (Result.requireFalse error)
 
-    // Converts an job-wrapped Option to a Result, using the given error if None.
+    // Converts a job-wrapped Option to a Result, using the given error if None.
     let inline requireSome error option =
         option
         |> Job.map (Result.requireSome error)
 
-    // Converts an job-wrapped Option to a Result, using the given error factory if None.
+    // Converts a job-wrapped Option to a Result, using the given error factory if None.
     let inline requireSomeWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
         option
         |> Job.map (Result.requireSomeWith errorFactory)
 
-    // Converts an job-wrapped Option to a Result, using the given error if Some.
+    // Converts a job-wrapped Option to a Result, using the given error if Some.
     let inline requireNone error option =
         option
         |> Job.map (Result.requireNone error)
 
-    // Converts an job-wrapped Option to a Result, using the given error factory if Some.
+    // Converts a job-wrapped Option to a Result, using the given error factory if Some.
     let inline requireNoneWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
         option
         |> Job.map (Result.requireNoneWith errorFactory)
 
-    // Converts an job-wrapped ValueOption to a Result, using the given error if ValueNone.
+    // Converts a job-wrapped ValueOption to a Result, using the given error if ValueNone.
     let inline requireValueSome error voption =
         voption
         |> Job.map (Result.requireValueSome error)
 
-    // Converts an job-wrapped ValueOption to a Result, using the given error if ValueSome.
+    // Converts a job-wrapped ValueOption to a Result, using the given error if ValueSome.
     let inline requireValueNone error voption =
         voption
         |> Job.map (Result.requireValueNone error)
@@ -173,31 +184,29 @@ module JobResult =
         xs
         |> Job.map (Result.requireHead error)
 
-    /// Replaces an error value of an job-wrapped result with a custom error
+    /// Replaces an error value of a job-wrapped result with a custom error
     /// value.
     let inline setError error jobResult =
         jobResult
         |> Job.map (Result.setError error)
 
-    /// Replaces a unit error value of an job-wrapped result with a custom
-    /// error value. Safer than setError since you're not losing any information.
+    /// Replaces a unit error value of a job-wrapped result with a custom error value.
+    /// Safer than setError since you're not losing any information.
     let inline withError error jobResult =
         jobResult
         |> Job.map (Result.withError error)
 
-    /// Extracts the contained value of an job-wrapped result if Ok, otherwise
-    /// uses ifError.
+    /// Extracts the contained value of a job-wrapped result if Ok, otherwise uses ifError.
     let inline defaultValue ifError jobResult =
         jobResult
         |> Job.map (Result.defaultValue ifError)
 
-    /// Extracts the contained value of an job-wrapped result if Error, otherwise
-    /// uses ifOk.
+    /// Extracts the contained value of a job-wrapped result if Error, otherwise uses ifOk.
     let inline defaultError ifOk jobResult =
         jobResult
         |> Job.map (Result.defaultError ifOk)
 
-    /// Extracts the contained value of an job-wrapped result if Ok, otherwise
+    /// Extracts the contained value of a job-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
     let inline defaultWith ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok) jobResult =
         jobResult
@@ -243,7 +252,7 @@ module JobResult =
         |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch f x =
+    let inline catchWith f x =
         x
         |> Job.catch
         |> Job.map (
@@ -253,6 +262,10 @@ module JobResult =
             | Choice2Of2 ex -> Error(f ex)
         )
 
+    /// Catches exceptions and maps them to the Error case using the provided function.
+    [<System.Obsolete "Use JobResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    let inline catch f x = catchWith f x
+
     /// Lift Job to JobResult
     let inline ofJob x =
         x
@@ -261,36 +274,25 @@ module JobResult =
     /// Lift Result to JobResult
     let inline ofResult (x: Result<_, _>) =
         x
-        |> Job.singleton
+        |> Job.result
+
+    /// Bind the JobResult with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Job<Result<'input, 'error>>)
+        : Job<Result<'output, 'error>> =
+        Job.map (Result.bind binder) input
 
     /// Bind the JobResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Job.singleton
-        )
+    let inline bindRequireSome error x = bindResult (Result.requireSome error) x
 
     /// Bind the JobResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Job.singleton
-        )
+    let inline bindRequireNone error x = bindResult (Result.requireNone error) x
 
     /// Bind the JobResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Job.singleton
-        )
+        bindResult (Result.requireValueSome error) x
 
     /// Bind the JobResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Job.singleton
-        )
+        bindResult (Result.requireValueNone error) x

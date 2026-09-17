@@ -459,9 +459,9 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 
 [<AutoOpen>]
 module TaskResultCEExtensionsLowPriority =
+
     // Low priority extensions
     type TaskResultBuilderBase with
-
 
         [<NoEagerConstraintApplication>]
         static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
@@ -604,9 +604,9 @@ module TaskResultCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskResultCEExtensionsHighPriority =
+
     // High priority extensions
     type TaskResultBuilderBase with
-
 
         member inline this.Bind
             (
@@ -656,16 +656,15 @@ module TaskResultCEExtensionsHighPriority2 =
     // Medium priority extensions
     type TaskResultBuilderBase with
 
-
         member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
             result
             |> Async.StartImmediateAsTask
 
         member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
 
-        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
+        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.result result
 
         member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
             result
             |> Result.ofChoice
-            |> Task.singleton
+            |> Task.result
