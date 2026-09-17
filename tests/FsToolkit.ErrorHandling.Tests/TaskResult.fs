@@ -1,6 +1,5 @@
 module TaskResultTests
 
-
 open Expecto
 open SampleDomain
 open TestData
@@ -102,7 +101,7 @@ let mapErrorTests =
         <| fun _ ->
             createPostFailure validCreatePostRequest
             |> TaskResult.mapError (fun ex -> ex.Message)
-            |> Expect.hasTaskErrorValueSync (commonEx.Message)
+            |> Expect.hasTaskErrorValueSync commonEx.Message
     ]
 
 let bindTests =
@@ -115,7 +114,7 @@ let bindTests =
                     if isAllowed then
                         return! createPostSuccess validCreatePostRequest
                     else
-                        return (Error(Exception "not allowed to post"))
+                        return Error(Exception "not allowed to post")
                 }
             )
             |> Expect.hasTaskOkValueSync (PostId newPostId)
@@ -432,32 +431,32 @@ let taskResultRequireTests =
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.ok (1))
-                    |> Expect.hasTaskOkValue (1)
+                    TaskResult.require (fun _ -> true) "Error!" (TaskResult.ok 1)
+                    |> Expect.hasTaskOkValue 1
             }
 
         testCaseTask "True, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> true) ("Error!") (TaskResult.error ("AHH"))
-                    |> Expect.hasTaskErrorValue ("AHH")
+                    TaskResult.require (fun _ -> true) "Error!" (TaskResult.error "AHH")
+                    |> Expect.hasTaskErrorValue "AHH"
             }
 
         testCaseTask "False, Ok"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.ok (1))
-                    |> Expect.hasTaskErrorValue ("Error!")
+                    TaskResult.require (fun _ -> false) "Error!" (TaskResult.ok 1)
+                    |> Expect.hasTaskErrorValue "Error!"
             }
 
         testCaseTask "False, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.require (fun _ -> false) ("Error!") (TaskResult.error ("Ahh"))
-                    |> Expect.hasTaskErrorValue ("Ahh")
+                    TaskResult.require (fun _ -> false) "Error!" (TaskResult.error "Ahh")
+                    |> Expect.hasTaskErrorValue "Ahh"
             }
     ]
 
@@ -529,7 +528,7 @@ let defaultWithTests =
 
             Expect.hasTaskValue 42 v
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultValue invokes the given thunk for Error"
         <| fun _ ->
             let v = TaskResult.defaultWith (fun _ -> 42) (toTask (Error err))
 
@@ -750,7 +749,7 @@ let ofCatchTaskTests =
 
             match result with
             | Error ex -> Expect.equal ex.Message err "Expected exception message to match"
-            | Ok _ -> Tests.failtestf "Expected Error, was Ok"
+            | Ok _ -> failtestf "Expected Error, was Ok"
     ]
 
 let zipTests =
@@ -842,7 +841,7 @@ let TaskResultCETests =
 
         testCase "bind with an Error"
         <| fun _ ->
-            createPost (UserId(System.Guid.NewGuid()))
+            createPost (UserId(Guid.NewGuid()))
             |> Expect.hasTaskErrorValueSync commonEx
     ]
 
@@ -1036,32 +1035,32 @@ let taskResultCheckTests =
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.ok (1))
-                    |> Expect.hasTaskOkValue (1)
+                    TaskResult.check (fun _ -> TaskResult.ok ()) (TaskResult.ok 1)
+                    |> Expect.hasTaskOkValue 1
             }
 
         testCaseTask "Ok, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.ok ()) (TaskResult.error (2))
-                    |> Expect.hasTaskErrorValue (2)
+                    TaskResult.check (fun _ -> TaskResult.ok ()) (TaskResult.error 2)
+                    |> Expect.hasTaskErrorValue 2
             }
 
         testCaseTask "Error, OK"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.error ()) (TaskResult.ok (2))
-                    |> Expect.hasTaskErrorValue (())
+                    TaskResult.check (fun _ -> TaskResult.error ()) (TaskResult.ok 2)
+                    |> Expect.hasTaskErrorValue ()
             }
 
         testCaseTask "Error, Error"
         <| fun _ ->
             task {
                 do!
-                    TaskResult.check (fun number -> TaskResult.error (1)) (TaskResult.error (2))
-                    |> Expect.hasTaskErrorValue (2)
+                    TaskResult.check (fun _ -> TaskResult.error 1) (TaskResult.error 2)
+                    |> Expect.hasTaskErrorValue 2
             }
     ]
 

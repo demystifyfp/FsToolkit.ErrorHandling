@@ -33,7 +33,6 @@ let ftestCaseTask name test =
         })
 
 module Expect =
-    open Expecto
 
     /// Expects the passed function to throw `'texn`.
     [<RequiresExplicitTypeArguments>]
@@ -50,20 +49,19 @@ module Expect =
 
             match thrown with
             | Choice1Of2 e when not (typeof<'texn>.IsAssignableFrom(e.GetType())) ->
-                Tests.failtestf
+                failtestf
                     "%s. Expected f to throw an exn of type %s, but one of type %s was thrown."
                     message
-                    (typeof<'texn>.FullName)
+                    typeof<'texn>.FullName
                     (e.GetType().FullName)
             | Choice1Of2 _ -> ()
-            | Choice2Of2 result ->
-                Tests.failtestf "%s. Expected f to throw. returned %A" message result
+            | Choice2Of2 result -> failtestf "%s. Expected f to throw. returned %A" message result
         }
 
 type Expect =
 
     static member CancellationRequested(operation: Async<'a>) =
-        Expect.throwsTAsync<'a, OperationCanceledException> (operation) "Should have been cancelled"
+        Expect.throwsTAsync<'a, OperationCanceledException> operation "Should have been cancelled"
 
     static member CancellationRequested(operation: Task<_>) =
         Expect.CancellationRequested(Async.AwaitTask operation)
