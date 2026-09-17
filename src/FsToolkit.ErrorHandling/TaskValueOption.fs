@@ -23,10 +23,10 @@ module TaskValueOption =
     /// <summary>Lifts an item to a Task.</summary>
     /// <param name="x">The item to be the result of the Task.</param>
     /// <returns>A Task with the item as the result.</returns>
-    let inline some x = Task.singleton (ValueSome x)
+    let inline some x = Task.result (ValueSome x)
     /// <summary>A Task that yields ValueNone.</summary>
     /// <returns>A Task with ValueNone as the result.</returns>
-    let inline none<'a> : Task<'a voption> = Task.singleton ValueNone
+    let inline none<'a> : Task<'a voption> = Task.result ValueNone
 
     [<System.Obsolete "Please use some instead of valueSome">]
     let inline valueSome x = some x

@@ -86,7 +86,7 @@ module Task =
         ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
         (input: Task<'input>)
         : Task<Result<'output, 'error>> =
-        map binder input
+        Task.map binder input
 
     let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
     let inline reqFilter predicate error value = req (Req.filter predicate) error value

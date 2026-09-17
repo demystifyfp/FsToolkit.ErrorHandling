@@ -1047,14 +1047,7 @@ module CancellableValueTaskOptionCE =
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> (fun vt -> vt.AsTask())
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
@@ -1062,7 +1055,7 @@ module CancellableValueTaskOptionCE =
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
-                        Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                        Task.startAsyncImmediate ct computation
                         |> Task.map Some
                     )
 
@@ -1072,14 +1065,7 @@ module CancellableValueTaskOptionCE =
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> (fun vt -> vt.AsTask())
-                        |> Async.AwaitTask
-                }
+                Async.StartTaskImmediate t
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
@@ -1087,7 +1073,7 @@ module CancellableValueTaskOptionCE =
             static member inline AsCancellableValueTaskOption(computation: Async<'T>) =
                 fun ct ->
                     ValueTask<'T option>(
-                        Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                        Task.startAsyncImmediate ct computation
                         |> Task.map Some
                     )
 

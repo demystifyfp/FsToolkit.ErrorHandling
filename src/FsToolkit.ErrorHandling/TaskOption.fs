@@ -9,10 +9,10 @@ module TaskOption =
     /// <summary>Lifts an item to a Task.</summary>
     /// <param name="x">The item to be the result of the Task.</param>
     /// <returns>A Task with the item as the result.</returns>
-    let inline some x = Task.singleton (Some x)
+    let inline some x = Task.result (Some x)
     /// <summary>A Task that yields None.</summary>
     /// <returns>A Task with None as the result.</returns>
-    let inline none<'a> : Task<'a option> = Task.singleton None
+    let inline none<'a> : Task<'a option> = Task.result None
 
     let inline map ([<InlineIfLambda>] f) ar = Task.map (Option.map f) ar
 

@@ -1076,7 +1076,7 @@ module CancellableTaskResultCE =
                 testCaseAsync "eitherBind Ok"
                 <| async {
                     let! actual =
-                        CancellableTaskResult.singleton 5
+                        CancellableTaskResult.ok 5
                         |> CancellableTaskResult.eitherBind string id
 
                     Expect.equal "5" actual ""
@@ -1094,7 +1094,7 @@ module CancellableTaskResultCE =
                 testCaseAsync "eitherMap Ok"
                 <| async {
                     let! actual =
-                        CancellableTaskResult.singleton 5
+                        CancellableTaskResult.ok 5
                         |> CancellableTaskResult.eitherMap ((+) 1) String.length
 
                     Expect.equal (Ok 6) actual ""

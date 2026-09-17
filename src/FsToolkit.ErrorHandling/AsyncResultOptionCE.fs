@@ -56,9 +56,7 @@ module AsyncResultOptionCE =
                     if vTask.IsCompletedSuccessfully then
                         return ()
                     else
-                        return!
-                            vTask.AsTask()
-                            |> Async.AwaitTask
+                        return! Async.Await vTask
                 }
 
             Async.TryFinallyAsync(computation, compensation)
@@ -166,16 +164,14 @@ module AsyncResultOptionCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline this.Source(async: Task<'ok>) : AsyncResultOption<'ok, 'error> =
-            async
-            |> Async.AwaitTask
+            Async.Await async
             |> Async.map (Some >> Ok)
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline this.Source(async: Task) : AsyncResultOption<unit, 'error> =
-            async
-            |> Async.AwaitTask
+            Async.Await async
             |> Async.map (Some >> Ok)
 #endif
 [<AutoOpen>]
@@ -203,16 +199,14 @@ module AsyncResultOptionCEExtensionsHighPriority =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(result: Task<Result<'ok, 'error>>) : AsyncResultOption<'ok, 'error> =
-            result
-            |> Async.AwaitTask
+            Async.Await result
             |> AsyncResultOption.ofAsyncResult
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(result: Task<'ok option>) : AsyncResultOption<'ok, 'error> =
-            result
-            |> Async.AwaitTask
+            Async.Await result
             |> AsyncResultOption.ofAsyncOption
 #endif
 
@@ -222,7 +216,6 @@ module AsyncResultOptionCEExtensionsHighPriority2 =
 
     type AsyncResultOptionBuilder with
 
-
         /// <summary>
         /// Method lets us transform data types into our internal representation.  This is the identity method to recognize the self type.
         ///
@@ -231,6 +224,5 @@ module AsyncResultOptionCEExtensionsHighPriority2 =
         member inline _.Source
             (result: Task<Result<'ok option, 'error>>)
             : AsyncResultOption<'ok, 'error> =
-            result
-            |> Async.AwaitTask
+            Async.Await result
 #endif

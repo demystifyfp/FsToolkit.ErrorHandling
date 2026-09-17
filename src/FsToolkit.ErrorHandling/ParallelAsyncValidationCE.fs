@@ -130,14 +130,14 @@ module ParallelAsyncValidationCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Task<'ok>) : AsyncValidation<'ok, 'error> =
-                Async.AwaitTask s
+                Async.Await s
                 |> Async.map Result.Ok
 
             /// <summary>
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Task) : AsyncValidation<unit, 'error> =
-                Async.AwaitTask s
+                Async.Await s
                 |> Async.map Result.Ok
 
             member inline _.TryFinallyAsync
@@ -152,9 +152,7 @@ module ParallelAsyncValidationCE =
                         if vTask.IsCompletedSuccessfully then
                             return ()
                         else
-                            return!
-                                vTask.AsTask()
-                                |> Async.AwaitTask
+                            return! Async.Await vTask
                     }
 
                 Async.TryFinallyAsync(computation, compensation)
@@ -194,10 +192,8 @@ module ParallelAsyncValidationCE =
             /// Method lets us transform data types into our internal representation.
             /// </summary>
             member inline _.Source(s: Task<Result<'ok, 'error>>) : AsyncValidation<'ok, 'error> =
-                Async.AwaitTask s
+                Async.Await s
                 |> AsyncResult.mapError List.singleton
-
-
 #endif
 
     [<AutoOpen>]
@@ -221,8 +217,7 @@ module ParallelAsyncValidationCE =
             member inline _.Source
                 (result: Task<Validation<'ok, 'error>>)
                 : AsyncValidation<'ok, 'error> =
-                Async.AwaitTask result
-
+                Async.Await result
 #endif
 
 

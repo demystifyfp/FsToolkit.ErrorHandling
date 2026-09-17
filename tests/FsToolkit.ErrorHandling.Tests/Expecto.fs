@@ -5,32 +5,19 @@ open System
 open System.Threading.Tasks
 
 #if !FABLE_COMPILER
+open FsToolkit.ErrorHandling.FSharpCore11AsyncShims
+
 let testCaseTask name test =
-    testCaseAsync
-        name
-        (async {
-            return!
-                test ()
-                |> Async.AwaitTask
-        })
+    Async.Await(test (): Task)
+    |> testCaseAsync name
 
 let ptestCaseTask name test =
-    ptestCaseAsync
-        name
-        (async {
-            return!
-                test ()
-                |> Async.AwaitTask
-        })
+    Async.Await(test (): Task)
+    |> ptestCaseAsync name
 
 let ftestCaseTask name test =
-    ftestCaseAsync
-        name
-        (async {
-            return!
-                test ()
-                |> Async.AwaitTask
-        })
+    Async.Await(test (): Task)
+    |> ftestCaseAsync name
 
 module Expect =
 
@@ -64,7 +51,7 @@ type Expect =
         Expect.throwsTAsync<'a, OperationCanceledException> operation "Should have been cancelled"
 
     static member CancellationRequested(operation: Task<_>) =
-        Expect.CancellationRequested(Async.AwaitTask operation)
+        Expect.CancellationRequested(Async.Await operation)
         |> Async.StartImmediateAsTask
 
 #endif

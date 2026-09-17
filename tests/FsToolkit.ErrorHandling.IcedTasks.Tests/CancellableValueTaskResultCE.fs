@@ -320,8 +320,8 @@ module CancellableValueTaskResultCE =
                                 async {
                                     try
                                         let! _ =
-                                            (ctr cts.Token).AsTask()
-                                            |> Async.AwaitTask
+                                            ctr cts.Token
+                                            |> Async.Await
 
                                         return None
                                     with ex ->
@@ -393,7 +393,7 @@ module CancellableValueTaskResultCE =
                 testCase "eitherBind Ok"
                 <| fun () ->
                     let computation =
-                        CancellableValueTaskResult.singleton 5
+                        CancellableValueTaskResult.ok 5
                         |> CancellableValueTaskResult.eitherBind (fun x -> string (x + 2)) id
 
                     let actual = (computation CancellationToken.None).Result
