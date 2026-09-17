@@ -275,7 +275,6 @@ module CancellableValueTaskResultCE =
         let backgroundCancellableValueTaskResult =
             BackgroundCancellableValueTaskResultBuilder()
 
-
 [<RequireQualifiedAccess>]
 module CancellableValueTaskResult =
     open System.Threading.Tasks
@@ -356,6 +355,27 @@ module CancellableValueTaskResult =
             let! (cResult: 'input) = cTask
             return applier cResult
         }
+
+    let inline either
+        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: CancellableValueTask<Result<'input, 'inputError>>)
+        : CancellableValueTask<'output> =
+        CancellableValueTask.map (Result.either onSuccess onError) input
+
+    /// <summary>
+    /// Maps the values of an <c>CancellableValueTaskResult</c> to a new <c>CancellableValueTaskResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>CancellableValueTaskResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>CancellableValueTaskResult</c>.</param>
+    /// <param name="input">The input <c>CancellableValueTaskResult</c> to map.</param>
+    /// <returns>A new <c>CancellableValueTaskResult</c> with the mapped values.</returns>
+    let inline eitherMap
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: CancellableValueTask<Result<'okInput, 'errorInput>>)
+        : CancellableValueTask<Result<'okOutput, 'errorOutput>> =
+        CancellableValueTask.map (Result.eitherMap onOk onError) input
 
     /// <summary>Takes two CancellableValueTaskResults, starts them serially in order of left to right, and returns a tuple of the pair.</summary>
     /// <param name="left">The left value.</param>

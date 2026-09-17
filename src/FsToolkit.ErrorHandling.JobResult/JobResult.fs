@@ -34,12 +34,19 @@ module JobResult =
         : Job<'b> =
         Job.map (Result.either onSuccess onError) jr
 
+    /// <summary>
+    /// Maps the values of an <c>JobResult</c>  to a new <c>JobResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>JobResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>JobResult</c>.</param>
+    /// <param name="input">The input <c>AsyncResult</c> to map.</param>
+    /// <returns>A new <c>AsyncResult</c> with the mapped values.</returns>
     let inline eitherMap
-        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
-        ([<InlineIfLambda>] onError: 'c -> 'd)
-        (jr: Job<Result<'a, 'c>>)
-        : Job<Result<'b, 'd>> =
-        Job.map (Result.eitherMap onSuccess onError) jr
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Job<Result<'okInput, 'errorInput>>)
+        : Job<Result<'okOutput, 'errorOutput>> =
+        Job.map (Result.eitherMap onOk onError) input
 
     let inline ofAsync aAsync =
         aAsync

@@ -296,7 +296,6 @@ module CancellableTaskResult =
     let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
         fun _ -> Task.FromResult(Ok item)
 
-
     let inline either
         ([<InlineIfLambda>] onSuccess: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
@@ -304,15 +303,22 @@ module CancellableTaskResult =
         : CancellableTask<'output> =
         CancellableTask.map (Result.either onSuccess onError) input
 
-    [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
+    [<System.Obsolete "Use CancellableTaskResult.either instead (renamed to align with Result naming)">]
     let foldResult = either
 
+    /// <summary>
+    /// Maps the values of an <c>CancellableTaskResult</c>  to a new <c>CancellableTaskResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>CancellableTaskResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>CancellableTaskResult</c>.</param>
+    /// <param name="input">The input <c>CancellableTaskResult</c> to map.</param>
+    /// <returns>A new <c>CancellableTaskResult</c> with the mapped values.</returns>
     let inline eitherMap
-        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
-        ([<InlineIfLambda>] onError: 'b -> 'd)
-        (input: CancellableTask<Result<'a, 'b>>)
-        : CancellableTask<Result<'b, 'd>> =
-        CancellableTask.map (Result.eitherMap onSuccess onError) input
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: CancellableTask<Result<'okInput, 'errorInput>>)
+        : CancellableTask<Result<'okOutput, 'errorOutput>> =
+        CancellableTask.map (Result.eitherMap onOk onError) input
 
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>

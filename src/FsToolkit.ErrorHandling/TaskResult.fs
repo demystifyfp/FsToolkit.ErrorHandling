@@ -35,12 +35,19 @@ module TaskResult =
     [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
     let foldResult = either
 
+    /// <summary>
+    /// Maps the values of an <c>TaskResult</c>  to a new <c>TaskResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>TaskResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>TaskResult</c>.</param>
+    /// <param name="input">The input <c>TaskResult</c> to map.</param>
+    /// <returns>A new <c>TaskResult</c> with the mapped values.</returns>
     let inline eitherMap
-        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
-        ([<InlineIfLambda>] onError: 'b -> 'd)
-        (input: Task<Result<'a, 'b>>)
-        : Task<Result<'b, 'd>> =
-        Task.map (Result.eitherMap onSuccess onError) input
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Task<Result<'okInput, 'errorInput>>)
+        : Task<Result<'okOutput, 'errorOutput>> =
+        Task.map (Result.eitherMap onOk onError) input
 
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 

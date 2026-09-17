@@ -44,12 +44,21 @@ module AsyncResult =
     [<System.Obsolete "Use AsyncResult.either instead (renamed to align with Result naming)">]
     let foldResult = either
 
+    /// <summary>
+    /// Maps the values of an <c>AsyncResult</c>  to a new <c>AsyncResult</c>  using the provided functions.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/asyncResult/eitherMap</href>
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="input">The input <c>AsyncResult</c> to map.</param>
+    /// <returns>A new <c>AsyncResult</c> with the mapped values.</returns>
     let inline eitherMap
-        ([<InlineIfLambda>] onSuccess)
-        ([<InlineIfLambda>] onError)
-        input
-        : Async<Result<'b, 'd>> =
-        Async.map (Result.eitherMap onSuccess onError) input
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Async<Result<'okInput, 'errorInput>>)
+        : Async<Result<'okOutput, 'errorOutput>> =
+        Async.map (Result.eitherMap onOk onError) input
 
 #if !FABLE_COMPILER
 

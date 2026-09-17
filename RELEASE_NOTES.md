@@ -3,6 +3,7 @@
 - fix: Remove erroneous FSharp.Core xmldoc files from pre-`net9.0` packages 
 - feat(Async): Add `ignore`
 - feat(AsyncResult): Add `bindResult`, `either`
+- feat(CancellableTaskResult, CancellableValueTaskResult): Add `either`, `eitherMap`
 - feat(CancellableTaskResult): Add `either`, `eitherMap`
 - feat(JobResult): Add `bindResult`, `either`, `ok`
 - feat(TaskResult): Add `bindResult`, `either`, `eitherMap`
