@@ -410,9 +410,9 @@ type TaskOptionBuilder() =
 //     let taskOption = ValueTaskValueOptionBuilder()
 // let backgroundTaskOption = BackgroundTaskOptionBuilder()
 
-
 [<AutoOpen>]
 module TaskOptionCEExtensionsLowPriority =
+
     // Low priority extensions
     type ValueTaskValueOptionBuilderBase with
 
@@ -531,6 +531,7 @@ module TaskOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskOptionCEExtensionsHighPriority =
+
     // High priority extensions
     type ValueTaskValueOptionBuilderBase with
 

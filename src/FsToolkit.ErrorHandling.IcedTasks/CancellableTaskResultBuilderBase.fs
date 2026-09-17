@@ -4,7 +4,7 @@ namespace FsToolkit.ErrorHandling
 /// Contains methods to build Tasks using the F# computation expression syntax
 [<AutoOpen>]
 module CancellableTaskResultBuilderBase =
-    open System
+
     open System.Runtime.CompilerServices
     open System.Threading
     open System.Threading.Tasks
@@ -15,7 +15,6 @@ module CancellableTaskResultBuilderBase =
     open Microsoft.FSharp.Collections
     open System.Collections.Generic
     open IcedTasks
-
 
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
@@ -72,7 +71,7 @@ module CancellableTaskResultBuilderBase =
         /// <param name="generator">The function to run</param>
         /// <returns>A CancellableTasks that runs generator</returns>
         member inline _.Delay
-            ([<InlineIfLambdaAttribute>] generator:
+            ([<InlineIfLambda>] generator:
                 unit -> CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder>)
             : CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder> =
             ResumableCode.Delay(fun () -> generator ())
@@ -126,9 +125,9 @@ module CancellableTaskResultBuilderBase =
             ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder> =
             ResumableCode.Combine(
                 task1,
-                (CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder>(fun sm ->
+                CancellableTaskResultBuilderBaseCode<'TOverall, 'T, 'Error, 'Builder>(fun sm ->
                     if sm.Data.IsResultError then true else task2.Invoke(&sm)
-                ))
+                )
             )
 
         /// <summary>Creates A CancellableTasks that runs computation repeatedly
@@ -233,20 +232,20 @@ module CancellableTaskResultBuilderBase =
                      >,
                 [<InlineIfLambda>] getAwaiter: CancellationToken -> 'Awaiter,
                 continuation:
-                    ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<
-                                'TOverall,
-                                'TResult2,
-                                'Error,
-                                'Builder
-                                >)
+                    'TResult1
+                        -> CancellableTaskResultBuilderBaseCode<
+                            'TOverall,
+                            'TResult2,
+                            'Error,
+                            'Builder
+                            >
             ) : bool =
             sm.Data.ThrowIfCancellationRequested()
 
             let mutable awaiter = getAwaiter sm.Data.CancellationToken
 
             let cont =
-                (CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, _>(fun sm ->
+                CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, _>(fun sm ->
                     let result = Awaiter.GetResult awaiter
 
                     match result with
@@ -254,7 +253,7 @@ module CancellableTaskResultBuilderBase =
                     | Error e ->
                         sm.Data.Result <- Error e
                         true
-                ))
+                )
 
             // shortcut to continue immediately
             if Awaiter.IsCompleted awaiter then
@@ -273,7 +272,7 @@ module CancellableTaskResultBuilderBase =
         /// The existence of this method permits the use of let! in the
         /// cancellableTask { ... } computation expression syntax.</remarks>
         ///
-        /// <param name="getAwaiter">The computation to provide an unbound result.</param>
+        /// <param name="getAwaiterTResult">The computation to provide an unbound result.</param>
         /// <param name="continuation">The function to bind the result of computation.</param>
         ///
         /// <returns>A CancellableTask that performs a monadic bind on the result
@@ -283,13 +282,13 @@ module CancellableTaskResultBuilderBase =
             (
                 [<InlineIfLambda>] getAwaiterTResult: CancellationToken -> 'Awaiter,
                 continuation:
-                    ('TResult1
-                            -> CancellableTaskResultBuilderBaseCode<
-                                'TOverall,
-                                'TResult2,
-                                'Error,
-                                'Builder
-                                >)
+                    'TResult1
+                        -> CancellableTaskResultBuilderBaseCode<
+                            'TOverall,
+                            'TResult2,
+                            'Error,
+                            'Builder
+                            >
             ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
             CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>(fun sm ->
@@ -563,9 +562,9 @@ module CancellableTaskResultBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableTaskResultBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -585,24 +584,24 @@ module CancellableTaskResultBuilderBase =
                          >,
                     [<InlineIfLambda>] getAwaiter: CancellationToken -> 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
 
                 let mutable awaiter = getAwaiter sm.Data.CancellationToken
 
                 let cont =
-                    (CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, _>(fun sm ->
+                    CancellableTaskResultBuilderBaseResumptionFunc<'TOverall, 'Error, _>(fun sm ->
                         let result = Awaiter.GetResult awaiter
 
                         (continuation result).Invoke(&sm)
-                    ))
+                    )
 
                 // shortcut to continue immediately
                 if Awaiter.IsCompleted awaiter then
@@ -622,7 +621,7 @@ module CancellableTaskResultBuilderBase =
             /// The existence of this method permits the use of let! in the
             /// cancellableTask { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The computation to provide an unbound result.</param>
+            /// <param name="getAwaiterT">The computation to provide an unbound result.</param>
             /// <param name="continuation">The function to bind the result of computation.</param>
             ///
             /// <returns>A CancellableTask that performs a monadic bind on the result
@@ -632,13 +631,13 @@ module CancellableTaskResultBuilderBase =
                 (
                     [<InlineIfLambda>] getAwaiterT: CancellationToken -> 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>
@@ -686,7 +685,7 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>The existence of this method permits the use of return! in the
             /// cancellableTask { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The input computation.</param>
+            /// <param name="getAwaiterT">The input computation.</param>
             ///
             /// <returns>The input computation.</returns>
             [<NoEagerConstraintApplication>]
@@ -716,13 +715,13 @@ module CancellableTaskResultBuilderBase =
                          >,
                     awaiter: 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
                 let mutable awaiter = awaiter
@@ -753,7 +752,7 @@ module CancellableTaskResultBuilderBase =
             /// The existence of this method permits the use of let! in the
             /// cancellableTask { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The computation to provide an unbound result.</param>
+            /// <param name="awaiterT">The computation to provide an unbound result.</param>
             /// <param name="continuation">The function to bind the result of computation.</param>
             ///
             /// <returns>A CancellableTask that performs a monadic bind on the result
@@ -763,13 +762,13 @@ module CancellableTaskResultBuilderBase =
                 (
                     awaiterT: 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>
@@ -816,7 +815,7 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>The existence of this method permits the use of return! in the
             /// task { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The input computation.</param>
+            /// <param name="awaiterT">The input computation.</param>
             ///
             /// <returns>The input computation.</returns>
             [<NoEagerConstraintApplication>]
@@ -828,6 +827,7 @@ module CancellableTaskResultBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableTaskResultBuilderBase with
 
@@ -836,7 +836,7 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>The existence of this method permits the use of return! in the
             /// cancellableTask { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The input computation.</param>
+            /// <param name="getAwaiterTResult">The input computation.</param>
             ///
             /// <returns>The input computation.</returns>
             [<NoEagerConstraintApplication>]
@@ -884,7 +884,7 @@ module CancellableTaskResultBuilderBase =
                 when Awaitable<'Awaitable, 'Awaiter, 'TResult1>>
                 ([<InlineIfLambda>] coldAwaitable: unit -> 'Awaitable)
                 : CancellationToken -> 'Awaiter =
-                (fun ct -> Awaitable.GetAwaiter(coldAwaitable ()))
+                (fun _ -> Awaitable.GetAwaiter(coldAwaitable ()))
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -904,13 +904,13 @@ module CancellableTaskResultBuilderBase =
                          >,
                     awaiter: 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : bool =
                 sm.Data.ThrowIfCancellationRequested()
                 let mutable awaiter = awaiter
@@ -945,7 +945,7 @@ module CancellableTaskResultBuilderBase =
             /// The existence of this method permits the use of let! in the
             /// cancellableTask { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The computation to provide an unbound result.</param>
+            /// <param name="awaiterTResult">The computation to provide an unbound result.</param>
             /// <param name="continuation">The function to bind the result of computation.</param>
             ///
             /// <returns>A CancellableTask that performs a monadic bind on the result
@@ -955,13 +955,13 @@ module CancellableTaskResultBuilderBase =
                 (
                     awaiterTResult: 'Awaiter,
                     continuation:
-                        ('TResult1
-                                -> CancellableTaskResultBuilderBaseCode<
-                                    'TOverall,
-                                    'TResult2,
-                                    'Error,
-                                    'Builder
-                                    >)
+                        'TResult1
+                            -> CancellableTaskResultBuilderBaseCode<
+                                'TOverall,
+                                'TResult2,
+                                'Error,
+                                'Builder
+                                >
                 ) : CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder> =
 
                 CancellableTaskResultBuilderBaseCode<'TOverall, 'TResult2, 'Error, 'Builder>
@@ -1012,7 +1012,7 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>The existence of this method permits the use of return! in the
             /// task { ... } computation expression syntax.</remarks>
             ///
-            /// <param name="getAwaiter">The input computation.</param>
+            /// <param name="awaiterTResult">The input computation.</param>
             ///
             /// <returns>The input computation.</returns>
             [<NoEagerConstraintApplication>]
@@ -1036,7 +1036,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into 'Awaiter</summary>
             ///
-            /// <remarks>This turns a ^Awaitable into a 'Awaiter.</remarks>
+            /// <remarks>This turns a ^Awaitable into an 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
             [<NoEagerConstraintApplication>]
@@ -1155,7 +1155,7 @@ module CancellableTaskResultBuilderBase =
                 fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
 
 
-        type AsyncResultCE.AsyncResultBuilder with
+        type AsyncResultBuilder with
 
             member inline this.Source
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
@@ -1181,7 +1181,7 @@ module CancellableTaskResultBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> TaskAwaiter<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun (ct: CancellationToken) -> (task ()))
+                (fun (_: CancellationToken) -> (task ()))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1191,7 +1191,7 @@ module CancellableTaskResultBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> Task<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun (ct: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
+                (fun (_: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///

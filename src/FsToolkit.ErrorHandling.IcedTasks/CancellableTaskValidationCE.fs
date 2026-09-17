@@ -47,9 +47,7 @@
 [<AutoOpen>]
 module CancellableTaskValidationCE =
 
-    open System
     open System.Runtime.CompilerServices
-    open System.Threading
     open System.Threading.Tasks
     open Microsoft.FSharp.Core
     open Microsoft.FSharp.Core.CompilerServices
@@ -138,7 +136,6 @@ module CancellableTaskValidationCE =
                     sm.Data.MethodBuilder <- AsyncTaskMethodBuilder<Validation<'T, 'Error>>.Create()
                     sm.Data.MethodBuilder.Start(&sm)
                     sm.Data.MethodBuilder.Task
-
 
         /// Hosts the task code in a state machine and starts the task.
         member inline _.Run
@@ -261,8 +258,7 @@ module AsyncExtensions =
         static member inline AsCancellableTaskValidation(computation: Async<'T>) =
             fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
 
-
-    type FsToolkit.ErrorHandling.AsyncValidationCE.AsyncValidationBuilder with
+    type AsyncValidationBuilder with
 
         member inline this.Source
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
@@ -610,7 +606,6 @@ module CTVMergeSourcesExtensionsCV1CV2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCT1T2 =
 
@@ -643,7 +638,6 @@ module CTVMergeSourcesExtensionsCV1T2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCT1TV2 =
 
@@ -659,7 +653,6 @@ module CTVMergeSourcesExtensionsCT1TV2 =
                     return Validation.zip (Ok l1) r1
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsCV1TV2 =
@@ -709,7 +702,6 @@ module CTVMergeSourcesExtensionsTV1CT2 =
                 }
             )
 
-
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1CV2 =
 
@@ -728,7 +720,6 @@ module CTVMergeSourcesExtensionsT1CV2 =
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsTV1CV2 =
-    open System.Runtime.CompilerServices
 
     type CancellableTaskValidationBuilder with
 
@@ -743,7 +734,6 @@ module CTVMergeSourcesExtensionsTV1CV2 =
                     return Validation.zip l1 r1
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1T2 =
@@ -772,7 +762,6 @@ module CTVMergeSourcesExtensionsTV1T2 =
                     return Validation.zip l1 (Ok r1)
                 }
             )
-
 
 [<AutoOpen>]
 module CTVMergeSourcesExtensionsT1TV2 =
@@ -804,7 +793,6 @@ module CTVMergeSourcesExtensionsTV1TV2 =
 
 [<AutoOpen>]
 module CancellableTaskResultBuilderPriority1 =
-    open System.Threading.Tasks
 
     type CancellableTaskValidationBuilder with
 
@@ -818,7 +806,6 @@ module CancellableTaskResultBuilderPriority1 =
 
 [<AutoOpen>]
 module CancellableTaskResultBuilderPriority3 =
-    open System.Threading.Tasks
 
     type CancellableTaskValidationBuilder with
 

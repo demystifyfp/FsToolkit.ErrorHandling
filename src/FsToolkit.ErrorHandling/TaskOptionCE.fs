@@ -438,6 +438,7 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 
 [<AutoOpen>]
 module TaskOptionCEExtensionsLowPriority =
+
     // Low priority extensions
     type TaskOptionBuilderBase with
 
@@ -556,6 +557,7 @@ module TaskOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskOptionCEExtensionsHighPriority =
+
     // High priority extensions
     type TaskOptionBuilderBase with
 

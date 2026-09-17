@@ -436,18 +436,9 @@ module TaskValueOptionBuilder =
     let taskValueOption = TaskValueOptionBuilder()
     let backgroundTaskValueOption = BackgroundTaskValueOptionBuilder()
 
-
-open Microsoft.FSharp.Control
-open System
-open System.Runtime.CompilerServices
-open System.Threading.Tasks
-open Microsoft.FSharp.Core
-open Microsoft.FSharp.Core.CompilerServices
-open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
-open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
-
 [<AutoOpen>]
 module TaskValueOptionCEExtensionsLowPriority =
+
     // Low priority extensions
     type TaskValueOptionBuilderBase with
 
@@ -570,6 +561,7 @@ module TaskValueOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskValueOptionCEExtensionsHighPriority =
+
     // High priority extensions
     type TaskValueOptionBuilderBase with
 

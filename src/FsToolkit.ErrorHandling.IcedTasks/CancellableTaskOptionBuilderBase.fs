@@ -539,9 +539,9 @@ module CancellableTaskOptionBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableTaskOptionBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -765,6 +765,7 @@ module CancellableTaskOptionBuilderBase =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableTaskOptionBuilderBase with
 
@@ -1070,7 +1071,6 @@ module CancellableTaskOptionBuilderBase =
 
             static member inline AsCancellableTaskOption(computation: Async<'T>) =
                 fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
-
 
         type AsyncOptionBuilder with
 
