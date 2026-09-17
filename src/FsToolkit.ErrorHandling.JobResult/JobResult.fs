@@ -28,11 +28,11 @@ module JobResult =
         Job.bind (Result.either f error) jr
 
     let inline either
-        ([<InlineIfLambda>] onSuccess: 'a -> 'b)
-        ([<InlineIfLambda>] onError: 'c -> 'b)
-        (jr: Job<Result<'a, 'c>>)
-        : Job<'b> =
-        Job.map (Result.either onSuccess onError) jr
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Job<Result<'input, 'inputError>>)
+        : Job<'output> =
+        Job.map (Result.either onOk onError) input
 
     /// <summary>
     /// Maps the values of an <c>JobResult</c>  to a new <c>JobResult</c>  using the provided functions.

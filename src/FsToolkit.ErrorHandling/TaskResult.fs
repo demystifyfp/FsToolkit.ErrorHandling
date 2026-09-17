@@ -26,11 +26,11 @@ module TaskResult =
     let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) = Task.bind (Result.either f error) tr
 
     let inline either
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Task<Result<'input, 'inputError>>)
         : Task<'output> =
-        Task.map (Result.either onSuccess onError) input
+        Task.map (Result.either onOk onError) input
 
     [<System.Obsolete "Use TaskResult.either instead (renamed to align with Result naming)">]
     let foldResult = either

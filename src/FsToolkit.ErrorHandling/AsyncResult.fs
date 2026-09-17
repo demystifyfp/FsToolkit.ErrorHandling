@@ -35,11 +35,11 @@ module AsyncResult =
         Async.bind (Result.either binder error) input
 
     let inline either
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Async<Result<'input, 'inputError>>)
         : Async<'output> =
-        Async.map (Result.either onSuccess onError) input
+        Async.map (Result.either onOk onError) input
 
     [<System.Obsolete "Use AsyncResult.either instead (renamed to align with Result naming)">]
     let foldResult = either

@@ -297,11 +297,11 @@ module CancellableTaskResult =
         fun _ -> Task.FromResult(Ok item)
 
     let inline either
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: CancellableTask<Result<'input, 'inputError>>)
         : CancellableTask<'output> =
-        CancellableTask.map (Result.either onSuccess onError) input
+        CancellableTask.map (Result.either onOk onError) input
 
     [<System.Obsolete "Use CancellableTaskResult.either instead (renamed to align with Result naming)">]
     let foldResult = either

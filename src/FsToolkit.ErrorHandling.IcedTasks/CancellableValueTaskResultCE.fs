@@ -357,11 +357,11 @@ module CancellableValueTaskResult =
         }
 
     let inline either
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: CancellableValueTask<Result<'input, 'inputError>>)
         : CancellableValueTask<'output> =
-        CancellableValueTask.map (Result.either onSuccess onError) input
+        CancellableValueTask.map (Result.either onOk onError) input
 
     /// <summary>
     /// Maps the values of an <c>CancellableValueTaskResult</c> to a new <c>CancellableValueTaskResult</c>  using the provided functions.
