@@ -4,8 +4,6 @@
 [<AutoOpen>]
 module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 
-open FSharp.Core.CompilerServices
-open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
 
@@ -13,6 +11,7 @@ open System.Threading.Tasks
 
 // NOTE each Await overload fails on including level2Task in the stacktrace in AsyncAwaitStackTraceTests
 
+#if !FABLE_COMPILER
 #nowarn "3261" // error FS3261: Nullness warning: The types 'System.AggregateException' and 'System.AggregateException | null' do not have compatible nullability.
 type Async with
 
@@ -96,6 +95,7 @@ type Async with
             createTask
             >> Async.Await
         )
+#endif
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:Task`1"/> computations.</p>
 /// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
