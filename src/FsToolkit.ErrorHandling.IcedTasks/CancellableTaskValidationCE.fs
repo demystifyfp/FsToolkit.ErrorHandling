@@ -507,7 +507,6 @@ module CancellableTaskValidation =
         cancellableTask {
             let! r1 = left
             let! r2 = right
-
             return Validation.zip r1 r2
         }
 

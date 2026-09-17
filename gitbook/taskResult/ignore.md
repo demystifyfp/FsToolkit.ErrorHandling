@@ -23,6 +23,6 @@ Note the type being ignored may be pinned to prevent accidental variances in ret
 
 ```fsharp
 let makePost = taskResult {
-  do! savePost createPostRequest |> TaskResult.ignore<PostId>
+    do! savePost createPostRequest |> TaskResult.ignore<PostId, _>
 }
 ```

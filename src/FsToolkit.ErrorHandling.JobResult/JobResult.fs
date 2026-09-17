@@ -247,13 +247,13 @@ module JobResult =
         |> Job.map (Result.teeErrorIf predicate f)
 
     /// Takes two results and returns a tuple of the pair
-    let inline zip j1 j2 =
-        Job.zip j1 j2
+    let inline zip left right =
+        Job.zip left right
         |> Job.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
-    let inline zipError j1 j2 =
-        Job.zip j1 j2
+    let inline zipError left right =
+        Job.zip left right
         |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.

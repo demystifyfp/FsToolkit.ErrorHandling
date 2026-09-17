@@ -68,20 +68,18 @@ module ValueOption =
     /// <summary>
     /// Takes two voptions and returns a tuple of the pair or none if either are none
     /// </summary>
-    /// <param name="voption1">The input option</param>
-    /// <param name="voption2">The input option</param>
+    /// <param name="left">The first input option</param>
+    /// <param name="right">The second input option</param>
     /// <returns></returns>
     let inline zip (left: 'left voption) (right: 'right voption) : ('left * 'right) voption =
         match left, right with
         | ValueSome v1, ValueSome v2 -> ValueSome(v1, v2)
         | _ -> ValueNone
 
-
     let inline ofResult (result: Result<'ok, 'error>) : 'ok voption =
         match result with
         | Ok v -> ValueSome v
         | Error _ -> ValueNone
-
 
     /// <summary>
     /// Convert a potentially null value to an ValueOption.

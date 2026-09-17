@@ -25,8 +25,8 @@ module TaskOption =
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> some (f' x')) x) f
 
-    let inline zip x1 x2 =
-        Task.zip x1 x2
+    let inline zip left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> Option.zip r1 r2)
 
 

@@ -15,7 +15,7 @@ This is a shortcut for `Task.map ignore`.
 ### Example 1
 
 ```fsharp
-let savePost : CreatePostRequest -> Task<PostId, exn>
+let savePost : CreatePostRequest -> Task<PostId>
 ```
 
 We can call this with the `do!` syntax inside a computation expression using `Task.ignore` as below. 
@@ -23,6 +23,6 @@ Note the type being ignored must be specified to prevent accidental variances in
 
 ```fsharp
 let makePost = task {
-    do! savePost createPostRequest |> Task.ignore<PostRequest>
+    do! savePost createPostRequest |> Task.ignore<PostId>
 }
 ```

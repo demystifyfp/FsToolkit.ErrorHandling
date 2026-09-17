@@ -261,9 +261,9 @@ module Option =
     /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
     /// </returns>
     let inline either
-        ([<InlineIfLambda>] onSome: 'a -> 'output)
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
-        (input: 'a option)
+        (input: 'input option)
         : 'output =
         match input with
         | Some x -> onSome x

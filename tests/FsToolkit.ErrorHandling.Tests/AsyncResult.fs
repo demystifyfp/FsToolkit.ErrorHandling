@@ -527,7 +527,7 @@ let defaultWithTests =
 
             Expect.hasAsyncValue 42 v)
 
-        testCaseAsync "defaultValue invoks the given thunk for Error"
+        testCaseAsync "defaultValue invokes the given thunk for Error"
         <| (let v = AsyncResult.defaultWith (fun _ -> 42) (toAsync (Error err))
 
             Expect.hasAsyncValue 42 v)

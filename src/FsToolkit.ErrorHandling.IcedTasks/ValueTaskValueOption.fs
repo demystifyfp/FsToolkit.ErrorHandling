@@ -27,10 +27,10 @@ module ValueTaskValueOption =
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f
 
-    let inline zip (x1: ValueTask<'a voption>) (x2: ValueTask<'b voption>) =
+    let inline zip (left: ValueTask<'a voption>) (right: ValueTask<'b voption>) =
         valueTask {
-            let! r1 = x1
-            let! r2 = x2
+            let! r1 = left
+            let! r2 = right
             return ValueOption.zip r1 r2
         }
 

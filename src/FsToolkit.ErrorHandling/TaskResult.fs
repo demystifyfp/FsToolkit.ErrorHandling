@@ -240,13 +240,13 @@ module TaskResult =
         |> Task.map (Result.teeErrorIf predicate f)
 
     /// Takes two results and returns a tuple of the pair
-    let inline zip x1 x2 =
-        Task.zip x1 x2
+    let inline zip left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
-    let inline zipError x1 x2 =
-        Task.zip x1 x2
+    let inline zipError left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.

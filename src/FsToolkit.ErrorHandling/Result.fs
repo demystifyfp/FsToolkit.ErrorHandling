@@ -684,7 +684,7 @@ module Result =
         : Result<'leftOk * 'rightOk, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-        | Error e, _ -> Error e
+        | Error e, _
         | _, Error e -> Error e
 
     /// <summary>
@@ -701,7 +701,7 @@ module Result =
         : Result<'ok, 'leftError * 'rightError> =
         match left, right with
         | Error x1res, Error x2res -> Error(x1res, x2res)
-        | Ok e, _ -> Ok e
+        | Ok e, _
         | _, Ok e -> Ok e
 
 

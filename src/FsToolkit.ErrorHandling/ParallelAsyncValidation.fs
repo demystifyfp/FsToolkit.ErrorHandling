@@ -28,7 +28,7 @@ module ParallelAsyncValidation =
             input2
 
     let inline zip
-        (a: AsyncValidation<'a, 'error>)
-        (b: AsyncValidation<'b, 'error>)
+        (left: AsyncValidation<'a, 'error>)
+        (right: AsyncValidation<'b, 'error>)
         : AsyncValidation<'a * 'b, 'error> =
-        map2 (fun a b -> a, b) a b
+        map2 (fun a b -> a, b) left right
