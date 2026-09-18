@@ -31,6 +31,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsToolkit.ErrorHandling.Ice
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsToolkit.ErrorHandling.IcedTasks.Tests", "tests\FsToolkit.ErrorHandling.IcedTasks.Tests\FsToolkit.ErrorHandling.IcedTasks.Tests.fsproj", "{73643FCA-7EBB-42DA-B1AA-A74B49A1E1A0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{EED8F2F1-BC20-4BA6-882D-66BA9D82D60D}"
+	ProjectSection(SolutionItems) = preProject
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+		global.json = global.json
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

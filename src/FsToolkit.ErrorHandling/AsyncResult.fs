@@ -408,34 +408,54 @@ module AsyncResult =
         : Async<Result<'output, 'error>> =
         Async.map (Result.bind binder) input
 
+
     /// Bind the AsyncResult and requireSome on the inner option value.
-    let inline bindRequireSome
-        (error: 'error)
-        (x: Async<Result<'b option, 'error>>)
-        : Async<Result<'b, 'error>> =
-        bindResult (Result.requireSome error) x
+    let inline bindRequireSome error x = bindResult (Result.requireSome error) x
+
+    /// Bind the AsyncResult and requireSomeWith on the inner option value.
+    let inline bindRequireSomeWith errorF x =
+        bindResult (Result.requireSomeWith errorF) x
 
     /// Bind the AsyncResult and requireNone on the inner option value.
-    let inline bindRequireNone
-        (error: 'error)
-        (x: Async<Result<'b option, 'error>>)
-        : Async<Result<unit, 'error>> =
-        bindResult (Result.requireNone error) x
+    let inline bindRequireNone error x = bindResult (Result.requireNone error) x
+
+    /// Bind the AsyncResult and requireNoneWith on the inner option value.
+    let inline bindRequireNoneWith errorF x =
+        bindResult (Result.requireNoneWith errorF) x
+
 
     /// Bind the AsyncResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
         bindResult (Result.requireValueSome error) x
 
+    /// Bind the AsyncResult and requireValueSomeWith on the inner voption value.
+    let inline bindRequireValueSomeWith errorF x =
+        bindResult (Result.requireValueSomeWith errorF) x
+
     /// Bind the AsyncResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
         bindResult (Result.requireValueNone error) x
 
+    /// Bind the AsyncResult and requireValueNoneWith on the inner voption value.
+    let inline bindRequireValueNoneWith errorF x =
+        bindResult (Result.requireValueNoneWith errorF) x
+
+
     /// Bind the AsyncResult and requireTrue on the inner value.
     let inline bindRequireTrue error x = bindResult (Result.requireTrue error) x
+
+    /// Bind the AsyncResult and requireTrueWith on the inner value.
+    let inline bindRequireTrueWith errorF x =
+        bindResult (Result.requireTrueWith errorF) x
 
     /// Bind the AsyncResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
         bindResult (Result.requireFalse error) x
+
+    /// Bind the AsyncResult and requireFalseWith on the inner value.
+    let inline bindRequireFalseWith errorF x =
+        bindResult (Result.requireFalseWith errorF) x
+
 
     /// Bind the AsyncResult and requireNotNull on the inner value.
     let inline bindRequireNotNull error x =

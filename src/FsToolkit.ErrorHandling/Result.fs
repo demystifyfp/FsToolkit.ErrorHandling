@@ -273,7 +273,7 @@ module Result =
         | Error e -> Error e
 
     /// <summary>
-    /// Requires a boolean value to be true, otherwise returns an error result.
+    /// Requires a boolean value to be <c>true</c>, otherwise returns an error result.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requiretrue</href>
     /// </summary>
@@ -281,10 +281,23 @@ module Result =
     /// <param name="value">The boolean value to check.</param>
     /// <returns>An <c>Ok</c> result if the condition is true, otherwise an Error result with the specified error value.</returns>
     let inline requireTrue (error: 'error) (value: bool) : Result<unit, 'error> =
-        if value then Ok() else Error error
+        if not value then Error error else Ok()
 
     /// <summary>
-    /// Requires a boolean value to be false, otherwise returns an error result.
+    /// Requires a boolean value to be <c>true</c>, otherwise returns an error result using the given error factory.
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requiretrue</href>
+    /// </summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>false</c>.</param>
+    /// <param name="value">The boolean value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>true</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireTrueWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (value: bool)
+        : Result<unit, 'error> =
+        if value then Error(errorFactory ()) else Ok()
+
+    /// <summary>
+    /// Requires a boolean value to be <c>false</c>, otherwise returns an error result.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirefalse</href>
     /// </summary>
@@ -292,7 +305,20 @@ module Result =
     /// <param name="value">The boolean value to check.</param>
     /// <returns>An <c>Ok</c> result if the condition is false, otherwise an Error result with the specified error value.</returns>
     let inline requireFalse (error: 'error) (value: bool) : Result<unit, 'error> =
-        if not value then Ok() else Error error
+        if value then Error error else Ok()
+
+    /// <summary>
+    /// Requires a boolean value to be <c>false</c>, otherwise returns an error result using the given error factory.
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirefalse</href>
+    /// </summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>true</c>.</param>
+    /// <param name="value">The boolean value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>false</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireFalseWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (value: bool)
+        : Result<unit, 'error> =
+        if value then Error(errorFactory ()) else Ok()
 
     /// <summary>
     /// Requires a value to be <c>Some</c>, otherwise returns an error result.
@@ -307,9 +333,7 @@ module Result =
         | Some x -> Ok x
         | None -> Error error
 
-    /// <summary>
-    /// Requires a value to be <c>Some</c>, otherwise returns an error result using the given error factory.
-    /// </summary>
+    /// <summary>Requires a value to be <c>Some</c>, otherwise returns an error result using the given error factory.</summary>
     /// <param name="errorFactory">A function to produce the error value if the value is <c>None</c>.</param>
     /// <param name="option">The <c>Option</c> value to check.</param>
     /// <returns>An <c>Ok</c> result if the value is <c>Some</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
@@ -318,12 +342,10 @@ module Result =
         (option: 'ok option)
         : Result<'ok, 'error> =
         match option with
-        | Some x -> Ok x
         | None -> Error(errorFactory ())
+        | Some x -> Ok x
 
-    /// <summary>
-    /// Requires a value to be <c>None</c>, otherwise returns an error result.
-    ///
+    /// <summary>Requires a value to be <c>None</c>, otherwise returns an error result.
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirenone</href>
     /// </summary>
     /// <param name="error">The error value to return if the value is <c>Some</c>.</param>
@@ -334,9 +356,8 @@ module Result =
         | Some _ -> Error error
         | None -> Ok()
 
-    /// <summary>
-    /// Requires a value to be <c>None</c>, otherwise returns an error result using the given error factory.
-    /// </summary>
+    /// <summary>Requires a value to be <c>None</c>, otherwise returns an error result using the given error factory.
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirenone</href></summary>
     /// <param name="errorFactory">A function to produce the error value if the value is <c>Some</c>.</param>
     /// <param name="option">The <c>Option</c> value to check.</param>
     /// <returns>An <c>Ok</c> result if the value is <c>None</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
@@ -348,9 +369,7 @@ module Result =
         | Some _ -> Error(errorFactory ())
         | None -> Ok()
 
-    /// <summary>
-    /// Requires a value to be <c>ValueSome</c>, otherwise returns an error result.
-    ///
+    /// <summary>Requires a value to be <c>ValueSome</c>, otherwise returns an error result.<br/>
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirevaluesome</href>
     /// </summary>
     /// <param name="error">The error value to return if the value is <c>ValueNone</c>.</param>
@@ -358,20 +377,43 @@ module Result =
     /// <returns>An <c>Ok</c> result if the value is <c>ValueSome</c>, otherwise an <c>Error</c> result with the specified error value.</returns>
     let inline requireValueSome (error: 'error) (voption: 'ok voption) : Result<'ok, 'error> =
         match voption with
-        | ValueSome x -> Ok x
         | ValueNone -> Error error
+        | ValueSome x -> Ok x
 
-    /// <summary>
-    /// Requires a value to be <c>ValueNone</c>, otherwise returns an error result.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirevaluenone</href>
-    /// </summary>
+    /// <summary>Requires a value to be <c>ValueSome</c>, otherwise returns an error result using the given error factory.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirevaluesome</href></summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>ValueNone</c>.</param>
+    /// <param name="voption">The <c>voption</c> value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>ValueSome</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireValueSomeWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (voption: 'ok voption)
+        : Result<'ok, 'error> =
+        match voption with
+        | ValueNone -> Error(errorFactory ())
+        | ValueSome x -> Ok x
+
+    /// <summary>Requires a value to be <c>ValueNone</c>, otherwise returns an error result.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirevaluenone</href></summary>
     /// <param name="error">The error value to return if the value is <c>ValueSome</c>.</param>
     /// <param name="voption">The <c>ValueOption</c> value to check.</param>
     /// <returns>An <c>Ok</c> result if the value is <c>ValueNone</c>, otherwise an <c>Error</c> result with the specified error value.</returns>
     let inline requireValueNone (error: 'error) (voption: 'value voption) : Result<unit, 'error> =
         match voption with
         | ValueSome _ -> Error error
+        | ValueNone -> Ok()
+
+    /// <summary>Requires a value to be <c>ValueSome</c>, otherwise returns an error result using the given error factory.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/requirefunctions#requirevaluenone</href></summary>
+    /// <param name="errorFactory">A function to produce the error value if the value is <c>ValueSome</c>.</param>
+    /// <param name="voption">The <c>voption</c> value to check.</param>
+    /// <returns>An <c>Ok</c> result if the value is <c>ValueNone</c>, otherwise an Error result with the value produced by <paramref name="errorFactory" />.</returns>
+    let inline requireValueNoneWith
+        ([<InlineIfLambda>] errorFactory: unit -> 'error)
+        (voption: 'ok voption)
+        : Result<unit, 'error> =
+        match voption with
+        | ValueSome _ -> Error(errorFactory ())
         | ValueNone -> Ok()
 
     /// <summary>

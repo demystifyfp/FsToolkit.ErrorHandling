@@ -310,23 +310,50 @@ module TaskResult =
     /// Bind the TaskResult and requireSome on the inner option value.
     let inline bindRequireSome error x = bindResult (Result.requireSome error) x
 
+    /// Bind the TaskResult and requireSomeWith on the inner option value.
+    let inline bindRequireSomeWith errorF x =
+        bindResult (Result.requireSomeWith errorF) x
+
     /// Bind the TaskResult and requireNone on the inner option value.
     let inline bindRequireNone error x = bindResult (Result.requireNone error) x
 
-    /// Bind the TaskResult and requireValueSome on the inner voption value.
+    /// Bind the TaskResult and requireNoneWith on the inner option value.
+    let inline bindRequireNoneWith errorF x =
+        bindResult (Result.requireNoneWith errorF) x
+
+    /// Bind the AsyncResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
         bindResult (Result.requireValueSome error) x
+
+
+    /// Bind the TaskResult and requireValueSomeWith on the inner voption value.
+    let inline bindRequireValueSomeWith errorF x =
+        bindResult (Result.requireValueSomeWith errorF) x
 
     /// Bind the TaskResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
         bindResult (Result.requireValueNone error) x
 
+    /// Bind the TaskResult and requireValueNoneWith on the inner voption value.
+    let inline bindRequireValueNoneWith errorF x =
+        bindResult (Result.requireValueNoneWith errorF) x
+
+
     /// Bind the TaskResult and requireTrue on the inner value.
     let inline bindRequireTrue error x = bindResult (Result.requireTrue error) x
+
+    /// Bind the TaskResult and requireTrueWith on the inner value.
+    let inline bindRequireTrueWith errorF x =
+        bindResult (Result.requireTrueWith errorF) x
 
     /// Bind the TaskResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
         bindResult (Result.requireFalse error) x
+
+    /// Bind the TaskResult and requireFalseWith on the inner value.
+    let inline bindRequireFalseWith errorF x =
+        bindResult (Result.requireFalseWith errorF) x
+
 
     /// Bind the TaskResult and requireNotNull on the inner value.
     let inline bindRequireNotNull error x =
