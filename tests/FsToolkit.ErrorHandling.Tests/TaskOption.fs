@@ -126,18 +126,26 @@ let eitherTests =
         <| fun () ->
             task {
                 let value1 = TaskOption.some 5
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskOption.either add2 f
+
                 Expect.equal result 7 ""
             }
         testCaseTask "None"
         <| fun () ->
             task {
                 let value1 = Task.FromResult None
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskOption.either add2 f
+
                 Expect.equal result 42 ""
             }
     ]

@@ -307,7 +307,7 @@ module CancellableTaskResult =
     let foldResult = either
 
     /// <summary>
-    /// Maps the values of an <c>CancellableTaskResult</c>  to a new <c>CancellableTaskResult</c>  using the provided functions.
+    /// Maps the values of an <c>CancellableTaskResult</c> to a new <c>CancellableTaskResult</c> using the provided functions.
     /// </summary>
     /// <param name="onOk">The function to apply to the 'ok' value of the input <c>CancellableTaskResult</c>.</param>
     /// <param name="onError">The function to apply to the 'error' value of the input <c>CancellableTaskResult</c>.</param>

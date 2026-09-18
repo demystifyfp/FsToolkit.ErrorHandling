@@ -109,17 +109,25 @@ let eitherTests =
         testCaseAsync "Some"
         <| async {
             let value1 = AsyncOption.some 5
-            let f = async.Return 42
-            let add2 x = async { return x + 2 }
-            let! result = (AsyncOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> AsyncOption.either add2 f
+
             Expect.equal result 7 ""
         }
         testCaseAsync "None"
         <| async {
             let value1 = async.Return None
-            let f = async.Return 42
-            let add2 x = async { return x + 2 }
-            let! result = (AsyncOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> AsyncOption.either add2 f
+
             Expect.equal result 42 ""
         }
     ]

@@ -78,7 +78,7 @@ let applyTests =
         <| fun _ ->
             Task.singleton (ValueSome validTweet)
             |> TaskValueOption.apply (Task.singleton (ValueSome remainingCharacters))
-            |> Expect.hasTaskValueSomeValue (267)
+            |> Expect.hasTaskValueSomeValue 267
 
         testCase "apply with Task(ValueNone)"
         <| fun _ ->
@@ -129,18 +129,26 @@ let eitherTests =
         <| fun () ->
             task {
                 let value1 = TaskValueOption.valueSome 5
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskValueOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskValueOption.either add2 f
+
                 Expect.equal result 7 ""
             }
         testCaseTask "ValueNone"
         <| fun () ->
             task {
                 let value1 = Task.FromResult ValueNone
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskValueOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskValueOption.either add2 f
+
                 Expect.equal result 42 ""
             }
     ]

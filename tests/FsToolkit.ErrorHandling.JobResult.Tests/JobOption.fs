@@ -124,17 +124,25 @@ let eitherTests =
         testCaseJob "Some"
         <| job {
             let value1 = JobOption.singleton 5
-            let f = job.Return 42
-            let add2 x = job { return x + 2 }
-            let! result = (JobOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> JobOption.either add2 f
+
             Expect.equal result 7 ""
         }
         testCaseJob "None"
         <| job {
             let value1 = job.Return None
-            let f = job.Return 42
-            let add2 x = job { return x + 2 }
-            let! result = (JobOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> JobOption.either add2 f
+
             Expect.equal result 42 ""
         }
     ]
