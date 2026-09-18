@@ -25,8 +25,7 @@ let result : Async<Result<string, int>> =
   |> AsyncResult.eitherMap
        (fun n -> sprintf "Got %d" n)
        (fun err -> -1)
-  |> Async.RunSynchronously
-// evaluates to Ok "Got 42"
+// yields Ok "Got 42"
 ```
 
 ### Example 2
@@ -39,8 +38,7 @@ let result : Async<Result<string, string>> =
   |> AsyncResult.eitherMap
        (fun s -> s.ToUpper())
        (fun code -> sprintf "Error code: %d" code)
-  |> Async.RunSynchronously
-// evaluates to Error "Error code: 404"
+// yields Error "Error code: 404"
 ```
 
 ### Example 3
@@ -54,6 +52,6 @@ let displayMessage : Async<string> =
        (fun data -> data.Body) // Result.Ok of data : 'a
        (fun exn  -> exn.Message) // Result.Error of string
   |> AsyncResult.either
-       (fun body -> $"Success: {Body.length body} chars")
+       (fun body -> $"Success: {body.Length} chars")
        (fun msg -> $"Failed: {msg}")
 ```
