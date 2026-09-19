@@ -134,6 +134,72 @@ let bindTests =
             |> Expect.hasTaskErrorValueSync ex
     ]
 
+let bindResultTests =
+    testList "TaskResult.bindResult and bindRequire*With tests" [
+        testCaseTask "bindResult maps Ok"
+        <| fun () ->
+            task {
+                let! actual =
+                    TaskResult.ok 1
+                    |> TaskResult.bindResult (fun value -> Ok(value + 1))
+
+                Expect.equal actual (Ok 2) ""
+            }
+        testCaseTask "bindResult preserves upstream Error"
+        <| fun () ->
+            task {
+                let! actual =
+                    TaskResult.error "upstream"
+                    |> TaskResult.bindResult Ok
+
+                Expect.equal actual (Error "upstream") ""
+            }
+        testCaseTask "bindResult returns binder Error"
+        <| fun () ->
+            task {
+                let! actual =
+                    TaskResult.ok 1
+                    |> TaskResult.bindResult (fun _ -> Error "binder")
+
+                Expect.equal actual (Error "binder") ""
+            }
+
+        testCaseTask "bindRequire*With wrappers"
+        <| fun () ->
+            task {
+                let! some =
+                    TaskResult.ok (Some 1)
+                    |> TaskResult.bindRequireSomeWith (fun () -> "none")
+
+                let! none =
+                    TaskResult.ok None
+                    |> TaskResult.bindRequireNoneWith (fun () -> "some")
+
+                let! valueSome =
+                    TaskResult.ok (ValueSome 1)
+                    |> TaskResult.bindRequireValueSomeWith (fun () -> "none")
+
+                let! valueNone =
+                    TaskResult.ok ValueNone
+                    |> TaskResult.bindRequireValueNoneWith (fun () -> "some")
+
+                let! trueValue =
+                    TaskResult.ok true
+                    |> TaskResult.bindRequireTrueWith (fun () -> "false")
+
+                let! falseValue =
+                    TaskResult.ok false
+                    |> TaskResult.bindRequireFalseWith (fun () -> "true")
+
+                Expect.equal some (Ok 1) ""
+                Expect.equal none (Ok()) ""
+                Expect.equal valueSome (Ok 1) ""
+                Expect.equal valueNone (Ok()) ""
+                Expect.equal trueValue (Ok()) ""
+                Expect.equal falseValue (Ok()) ""
+            }
+    ]
+
 let orElseTests =
     testList "TaskResult.orElseWith Tests" [
         testCaseTask "Ok Ok takes first Ok"
@@ -929,7 +995,6 @@ let eitherTests =
 
                 Expect.same (newPostId.ToString()) actual
             }
-
         testCaseTask "either with Task(Error x)"
         <| fun _ ->
             task {
@@ -938,6 +1003,25 @@ let eitherTests =
                     |> TaskResult.either string _.Message
 
                 Expect.same commonEx.Message actual
+            }
+
+        testCaseTask "eitherMap with Task(Ok x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    TaskResult.ok 1
+                    |> TaskResult.eitherMap ((+) 1) String.length
+
+                Expect.equal actual (Ok 2) ""
+            }
+        testCaseTask "eitherMap with Task(Error x)"
+        <| fun _ ->
+            task {
+                let! actual =
+                    TaskResult.error "bad"
+                    |> TaskResult.eitherMap ((+) 1) String.length
+
+                Expect.equal actual (Error 3) ""
             }
     ]
 
@@ -1070,6 +1154,7 @@ let allTests =
         map2Tests
         mapErrorTests
         bindTests
+        bindResultTests
         orElseTests
         orElseWithTests
         ignoreTests

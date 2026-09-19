@@ -287,7 +287,6 @@ let ignoreTests =
 
 let err = "foobar"
 
-
 let requireTrueTests =
     testList "requireTrue Tests" [
         testCase "requireTrue happy path"
@@ -299,8 +298,15 @@ let requireTrueTests =
         <| fun _ ->
             Result.requireTrue err false
             |> Expect.hasErrorValue err
-    ]
 
+        testCase "requireTrueWith"
+        <| fun _ ->
+            Result.requireTrueWith (fun () -> failwith "factory should not run") true
+            |> Expect.hasOkValue ()
+
+            Result.requireTrueWith (fun () -> err) false
+            |> Expect.hasErrorValue err
+    ]
 
 let requireFalseTests =
     testList "requireFalse Tests" [
@@ -313,8 +319,15 @@ let requireFalseTests =
         <| fun _ ->
             Result.requireFalse err true
             |> Expect.hasErrorValue err
-    ]
 
+        testCase "requireFalseWith"
+        <| fun _ ->
+            Result.requireFalseWith (fun () -> failwith "factory should not run") false
+            |> Expect.hasOkValue ()
+
+            Result.requireFalseWith (fun () -> err) true
+            |> Expect.hasErrorValue err
+    ]
 
 let requireSomeTests =
     testList "requireSome Tests" [
@@ -322,20 +335,15 @@ let requireSomeTests =
         <| fun _ ->
             Result.requireSome err (Some 42)
             |> Expect.hasOkValue 42
-
         testCase "requireSome error path"
         <| fun _ ->
             Result.requireSome err None
             |> Expect.hasErrorValue err
-    ]
 
-let requireSomeWithTests =
-    testList "requireSomeWith Tests" [
         testCase "requireSomeWith happy path"
         <| fun _ ->
             Result.requireSomeWith (fun () -> err) (Some 42)
             |> Expect.hasOkValue 42
-
         testCase "requireSomeWith error path"
         <| fun _ ->
             Result.requireSomeWith (fun () -> err) None
@@ -361,20 +369,15 @@ let requireNoneTests =
         <| fun _ ->
             Result.requireNone err None
             |> Expect.hasOkValue ()
-
         testCase "requireNone error path"
         <| fun _ ->
             Result.requireNone err (Some 42)
             |> Expect.hasErrorValue err
-    ]
 
-let requireNoneWithTests =
-    testList "requireNoneWith Tests" [
         testCase "requireNoneWith happy path"
         <| fun _ ->
             Result.requireNoneWith (fun () -> err) None
             |> Expect.hasOkValue ()
-
         testCase "requireNoneWith error path"
         <| fun _ ->
             Result.requireNoneWith (fun () -> err) (Some 42)
@@ -392,6 +395,14 @@ let requireValueSomeTests =
         <| fun _ ->
             Result.requireValueSome err ValueNone
             |> Expect.hasErrorValue err
+
+        testCase "requireValueSomeWith"
+        <| fun _ ->
+            Result.requireValueSomeWith (fun () -> failwith "factory should not run") (ValueSome 42)
+            |> Expect.hasOkValue 42
+
+            Result.requireValueSomeWith (fun () -> err) ValueNone
+            |> Expect.hasErrorValue err
     ]
 
 let requireValueNoneTests =
@@ -400,10 +411,17 @@ let requireValueNoneTests =
         <| fun _ ->
             Result.requireValueNone err ValueNone
             |> Expect.hasOkValue ()
-
         testCase "requireValueNone error path"
         <| fun _ ->
             Result.requireValueNone err (ValueSome 42)
+            |> Expect.hasErrorValue err
+
+        testCase "requireValueNoneWith"
+        <| fun _ ->
+            Result.requireValueNoneWith (fun () -> failwith "factory should not run") ValueNone
+            |> Expect.hasOkValue ()
+
+            Result.requireValueNoneWith (fun () -> err) (ValueSome 42)
             |> Expect.hasErrorValue err
     ]
 
@@ -501,14 +519,7 @@ let requireTests =
 
         testCase "False, Ok using Ok value in predicate"
         <| fun () ->
-            let output =
-                Result.require
-                    (fun number ->
-                        number
-                        <> 1
-                    )
-                    "Error"
-                    (Ok 1)
+            let output = Result.require (fun x -> x <> 1) "Error" (Ok 1)
 
             Expect.equal output (Error("Error")) "Should be Error"
     ]
@@ -985,9 +996,7 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
-        requireSomeWithTests
         requireNoneTests
-        requireNoneWithTests
         requireValueSomeTests
         requireValueNoneTests
         requireNotNullTests

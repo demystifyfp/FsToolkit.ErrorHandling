@@ -157,6 +157,66 @@ let bindTests =
              |> Expect.hasAsyncErrorValue ex)
     ]
 
+let bindResultTests =
+    testList "AsyncResult.bindResult and bindRequire*With tests" [
+        testCaseAsync "bindResult maps Ok"
+        <| async {
+            let! actual =
+                AsyncResult.ok 1
+                |> AsyncResult.bindResult (fun value -> Ok(value + 1))
+
+            Expect.equal actual (Ok 2) ""
+        }
+        testCaseAsync "bindResult preserves upstream Error"
+        <| async {
+            let! actual =
+                AsyncResult.error "upstream"
+                |> AsyncResult.bindResult Ok
+
+            Expect.equal actual (Error "upstream") ""
+        }
+        testCaseAsync "bindResult returns binder Error"
+        <| async {
+            let! actual =
+                AsyncResult.ok 1
+                |> AsyncResult.bindResult (fun _ -> Error "binder")
+
+            Expect.equal actual (Error "binder") ""
+        }
+        testCaseAsync "bindRequire*With wrappers"
+        <| async {
+            let! some =
+                AsyncResult.ok (Some 1)
+                |> AsyncResult.bindRequireSomeWith (fun () -> "none")
+
+            let! none =
+                AsyncResult.ok None
+                |> AsyncResult.bindRequireNoneWith (fun () -> "some")
+
+            let! valueSome =
+                AsyncResult.ok (ValueSome 1)
+                |> AsyncResult.bindRequireValueSomeWith (fun () -> "none")
+
+            let! valueNone =
+                AsyncResult.ok ValueNone
+                |> AsyncResult.bindRequireValueNoneWith (fun () -> "some")
+
+            let! trueValue =
+                AsyncResult.ok true
+                |> AsyncResult.bindRequireTrueWith (fun () -> "false")
+
+            let! falseValue =
+                AsyncResult.ok false
+                |> AsyncResult.bindRequireFalseWith (fun () -> "true")
+
+            Expect.equal some (Ok 1) ""
+            Expect.equal none (Ok()) ""
+            Expect.equal valueSome (Ok 1) ""
+            Expect.equal valueNone (Ok()) ""
+            Expect.equal trueValue (Ok()) ""
+            Expect.equal falseValue (Ok()) ""
+        }
+    ]
 
 let orElseTests =
     testList "AsyncResult.orElseWith Tests" [
@@ -1056,6 +1116,7 @@ let allTests =
         eitherTests
         mapErrorTests
         bindTests
+        bindResultTests
         orElseTests
         orElseWithTests
         ignoreTests

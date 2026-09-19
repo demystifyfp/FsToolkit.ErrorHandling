@@ -28,6 +28,12 @@ let mapTests =
             |> Expect.hasAsyncNoneValue)
     ]
 
+let ignoreTests =
+    testList "Async.ignore Tests" [
+        testCaseAsync "ignore completes the input computation"
+        <| async { do! Async.ignore<int> (async.Return 42) }
+    ]
+
 let bindTests =
     testList "AsyncOption.bind tests" [
         testCaseAsync "bind with Async(Some x)"
@@ -240,6 +246,7 @@ let orElseWithTests =
 
 let allTests =
     testList "Async Option Tests" [
+        ignoreTests
         mapTests
         bindTests
         applyTests

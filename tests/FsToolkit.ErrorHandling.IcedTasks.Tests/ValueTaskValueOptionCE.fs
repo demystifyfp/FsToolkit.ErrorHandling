@@ -42,6 +42,24 @@ let ceTests =
                 let! actual = valueTaskValueOption { return! ValueNone }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
+        testCaseTask "either ValueSome"
+        <| fun () ->
+            task {
+                let! actual =
+                    valueTaskValueOption { return 5 }
+                    |> ValueTaskValueOption.either ((+) 2) (fun () -> 42)
+
+                Expect.equal actual 7 ""
+            }
+        testCaseTask "either ValueNone"
+        <| fun () ->
+            task {
+                let! actual =
+                    (ValueTask.FromResult ValueNone: ValueTask<int voption>)
+                    |> ValueTaskValueOption.either ((+) 2) (fun () -> 42)
+
+                Expect.equal actual 42 ""
+            }
 
         testCaseTask "ReturnFrom Async ValueNone"
         <| fun () ->

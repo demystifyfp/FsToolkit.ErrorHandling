@@ -2,16 +2,15 @@
 
 - fix: Remove erroneous FSharp.Core xmldoc files from pre-`net9.0` packages 
 - feat(Async): Add `ignore`
-- feat(AsyncResult): Add `bindResult`, `either`
-- feat(CancellableTaskResult, CancellableValueTaskResult): Add `either`, `eitherMap`
-- feat(JobResult): Add `bindResult`, `either`, `ok`
-- feat(TaskResult): Add `bindResult`, `either`, `eitherMap`
+- feat(JobResult): Add `ok`
+- feat(AsyncResult, TaskResult, JobResult): Add `bindResult`, `either`
+- feat(CancellableTaskResult, CancellableValueTaskResult, TaskResult): Add `either`, `eitherMap`
 - feat(Result): Add `requireTrueWith`, `requireFalseWith`, `requireValueSomeWith`, `requireValueNoneWith`
 - feat(AsyncResult, TaskResult): Add `bindRequireTrueWith`, `bindRequireFalseWith`, `bindRequireValueSomeWith`, `bindRequireValueNoneWith`
-- fix(AsyncOption,TaskOption,TaskValueOption,ValueTaskValueOption,CancellableTaskOption,CancellableValueTaskOption,JobOption)!: Correct `either` signature
-- OBSOLETE(AsyncResult,CancellableTaskResult,TaskResult): `foldResult` (-> `either`)
+- OBSOLETE(AsyncResult, CancellableTaskResult, TaskResult): `foldResult` (-> `either`)
 - OBSOLETE(Result): `valueOr` (-> `defaultWith`)
-- BREAKING(Task.ignore, Option.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
+- BREAKING(AsyncOption, TaskOption, CancellableTaskOption, TaskValueOption, ValueTaskValueOption, CancellableValueTaskOption, JobOption)!: Correct `either` signature
+- BREAKING(Task.ignore, Option.ignore)!: Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async
 
 ### 6.0.0-beta002 - September 16, 2026
 

@@ -325,7 +325,6 @@ module TaskResult =
     let inline bindRequireValueSome error x =
         bindResult (Result.requireValueSome error) x
 
-
     /// Bind the TaskResult and requireValueSomeWith on the inner voption value.
     let inline bindRequireValueSomeWith errorF x =
         bindResult (Result.requireValueSomeWith errorF) x
