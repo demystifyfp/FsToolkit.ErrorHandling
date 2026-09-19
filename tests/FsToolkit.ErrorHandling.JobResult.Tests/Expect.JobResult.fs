@@ -1,4 +1,4 @@
-namespace Expects.JobResult
+namespace Expect.JobResult
 
 module Expect =
     open Expecto

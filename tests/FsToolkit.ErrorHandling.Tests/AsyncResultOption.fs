@@ -1,16 +1,17 @@
 module AsyncResultOptionTests
+
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
+
 open SampleDomain
 open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.AsyncResultOption
 open System
-
 
 let mapTests =
     testList "AsyncResultOption.map tests" [
@@ -29,7 +30,6 @@ let mapTests =
             |> AsyncResultOption.map (fun user -> user.Name.Value)
             |> Expect.hasAsyncErrorValue "invalid user id")
     ]
-
 
 type UserTweet = { Name: string; Tweet: string }
 

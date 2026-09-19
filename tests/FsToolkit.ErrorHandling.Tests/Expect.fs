@@ -5,7 +5,6 @@ namespace TestHelpers
 module Tests =
     let failtestf = failwithf
 #endif
-
 module Expect =
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
     open Fable.Pyxpecto
@@ -13,7 +12,6 @@ module Expect =
 #if !FABLE_COMPILER
     open Expecto
     open System.Threading.Tasks
-
 #endif
 
 #if FABLE_COMPILER

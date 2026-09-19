@@ -6,7 +6,7 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.JobResultOption
 open System
 open Hopac
-open Expects.JobResult
+open Expect.JobResult
 
 let getUserById x =
     getUserById x
@@ -15,7 +15,6 @@ let getUserById x =
 let getPostById x =
     getPostById x
     |> Job.fromAsync
-
 
 [<Tests>]
 let mapTests =

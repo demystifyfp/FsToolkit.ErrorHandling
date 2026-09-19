@@ -1,7 +1,7 @@
 module JobResultTests
 
 open Expecto
-open Expects.JobResult
+open Expect.JobResult
 open SampleDomain
 open TestData
 open FsToolkit.ErrorHandling
@@ -566,7 +566,7 @@ let defaultWithTests =
 
             Expect.hasJobValue 42 v
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultWith invokes the given thunk for Error"
         <| fun _ ->
             let v = JobResult.defaultWith (fun _ -> 42) (toJob (Error err))
 

@@ -980,20 +980,22 @@ module CancellableTaskOptionCE =
                 <| async {
                     let input = cancellableTaskOption { return 5 }
 
-                    let! actual =
+                    let computation =
                         input
                         |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
 
+                    let actual = (computation CancellationToken.None).GetAwaiter().GetResult()
                     Expect.equal 7 actual ""
                 }
                 testCaseAsync "None"
                 <| async {
                     let input: CancellableTaskOption<int> = cancellableTaskOption { return! None }
 
-                    let! actual =
+                    let computation =
                         input
                         |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
 
+                    let actual = (computation CancellationToken.None).GetAwaiter().GetResult()
                     Expect.equal 42 actual ""
                 }
             ]

@@ -1,6 +1,5 @@
 module JobResultCETests
 
-
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks

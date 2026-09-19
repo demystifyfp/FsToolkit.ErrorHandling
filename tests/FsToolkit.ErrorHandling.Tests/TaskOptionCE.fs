@@ -4,7 +4,6 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-
 module TestFuncs =
     let testFunctionTO<'Dto> () =
         taskOption {
