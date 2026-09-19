@@ -57,5 +57,5 @@ let result =
     Error 1
     |> Result.eitherMap okF errorF
     
-// 0
+// Error 0
 ```

@@ -2,10 +2,9 @@ module JobOptionTests
 
 
 open Expecto
-open Expects.JobOption
+open Expect.JobOption
 open SampleDomain
 open TestData
-open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.JobOption
 open System
@@ -35,7 +34,7 @@ let mapTests =
 
         testCase "map with Job(None)"
         <| fun _ ->
-            Job.singleton (None)
+            Job.singleton None
             |> JobOption.map remainingCharacters
             |> Expect.hasJobNoneValue
     ]
@@ -74,7 +73,7 @@ let applyTests =
         <| fun _ ->
             Job.singleton (Some validTweet)
             |> JobOption.apply (Job.singleton (Some remainingCharacters))
-            |> Expect.hasJobSomeValue (267)
+            |> Expect.hasJobSomeValue 267
 
         testCase "apply with Job(None)"
         <| fun _ ->
@@ -83,12 +82,12 @@ let applyTests =
             |> Expect.hasJobNoneValue
     ]
 
-let retnTests =
-    testList "JobOption.retn Tests" [
-        testCase "retn with x"
+let resultTests =
+    testList "JobOption.result Tests" [
+        testCase "result with x"
         <| fun _ ->
             JobOption.singleton 267
-            |> Expect.hasJobSomeValue (267)
+            |> Expect.hasJobSomeValue 267
     ]
 
 let jobOptionOperatorTests =
@@ -124,17 +123,25 @@ let eitherTests =
         testCaseJob "Some"
         <| job {
             let value1 = JobOption.singleton 5
-            let f = job.Return 42
-            let add2 x = job { return x + 2 }
-            let! result = (JobOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> JobOption.either add2 f
+
             Expect.equal result 7 ""
         }
         testCaseJob "None"
         <| job {
             let value1 = job.Return None
-            let f = job.Return 42
-            let add2 x = job { return x + 2 }
-            let! result = (JobOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> JobOption.either add2 f
+
             Expect.equal result 42 ""
         }
     ]
@@ -144,6 +151,6 @@ let allTests =
         mapTests
         bindTests
         applyTests
-        retnTests
+        resultTests
         jobOptionOperatorTests
     ]

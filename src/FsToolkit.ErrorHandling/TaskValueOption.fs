@@ -25,30 +25,26 @@ module TaskValueOption =
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f
 
-    let inline zip x1 x2 =
-        Task.zip x1 x2
+    let inline zip left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> ValueOption.zip r1 r2)
 
 
-    /// <summary>
-    /// Returns result of running <paramref name="onValueSome"/> if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onValueNone"/>
-    /// </summary>
-    /// <param name="onValueSome">The function to run if <paramref name="input"/> is <c>ValueSome</c></param>
-    /// <param name="onValueNone">The function to run if <paramref name="input"/> is <c>ValueNone</c></param>
-    /// <param name="input">The input voption.</param>
-    /// <returns>
-    /// The result of running <paramref name="onValueSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onValueNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>ValueSome</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c>.</param>
+    /// <param name="input">The input <c>Task&lt;'input voption&gt;</c>.</param>/
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.</returns>
     let inline either
-        ([<InlineIfLambda>] onValueSome: 'input -> Task<'output>)
-        ([<InlineIfLambda>] onValueNone: unit -> Task<'output>)
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Task<'input voption>)
         : Task<'output> =
         input
-        |> Task.bind (
+        |> Task.map (
             function
-            | ValueSome v -> onValueSome v
-            | ValueNone -> onValueNone ()
+            | ValueSome v -> onSome v
+            | ValueNone -> onNone ()
         )
 
     /// <summary>

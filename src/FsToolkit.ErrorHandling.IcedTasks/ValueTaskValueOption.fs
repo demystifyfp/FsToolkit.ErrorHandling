@@ -27,33 +27,27 @@ module ValueTaskValueOption =
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> valueSome (f' x')) x) f
 
-    let inline zip (x1: ValueTask<'a voption>) (x2: ValueTask<'b voption>) =
+    let inline zip (left: ValueTask<'a voption>) (right: ValueTask<'b voption>) =
         valueTask {
-            let! r1 = x1
-            let! r2 = x2
+            let! r1 = left
+            let! r2 = right
             return ValueOption.zip r1 r2
         }
 
-    /// <summary>
-    /// Returns result of running <paramref name="onValueSome"/> if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onValueNone"/>
-    /// </summary>
-    /// <param name="onValueSome">The function to run if <paramref name="input"/> is <c>ValueSome</c></param>
-    /// <param name="onValueNone">The function to run if <paramref name="input"/> is <c>ValueNone</c></param>
-    /// <param name="input">The input voption.</param>
-    /// <returns>
-    /// The result of running <paramref name="onValueSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onValueNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>ValueSome</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c>.</param>
+    /// <param name="input">The input <c>ValueTask&lt;'input voption&gt;</c>.</param>/
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.</returns>
     let inline either
-        ([<InlineIfLambda>] onValueSome: 'input -> ValueTask<'output>)
-        ([<InlineIfLambda>] onValueNone: unit -> ValueTask<'output>)
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: ValueTask<'input voption>)
         : ValueTask<'output> =
         valueTask {
-            let! opt = input
-
-            match opt with
-            | ValueSome v -> return! onValueSome v
-            | ValueNone -> return! onValueNone ()
+            match! input with
+            | ValueSome v -> return onSome v
+            | ValueNone -> return onNone ()
         }
 
     /// <summary>

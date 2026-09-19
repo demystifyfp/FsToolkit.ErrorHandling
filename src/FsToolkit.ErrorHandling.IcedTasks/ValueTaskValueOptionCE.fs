@@ -322,6 +322,7 @@ open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
 
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsLowPriority =
+
     // Low priority extensions
     type ValueTaskValueOptionBuilderBase with
 
@@ -443,6 +444,7 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsHighPriority =
+
     // High priority extensions
     type ValueTaskValueOptionBuilderBase with
 

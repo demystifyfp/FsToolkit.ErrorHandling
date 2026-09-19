@@ -1,4 +1,4 @@
-namespace Expects.JobOption
+namespace Expect.JobOption
 
 module Expect =
     open Expecto
@@ -7,16 +7,11 @@ module Expect =
     let hasJobValue v jobX =
         let x = run jobX
 
-        if v = x then
-            ()
-        else
-            Tests.failtestf "Expected %A, was %A." v x
-
+        if v = x then () else failtestf "Expected %A, was %A." v x
 
     let hasJobSomeValue v jobX =
         let x = run jobX
         TestHelpers.Expect.hasSomeValue v x
-
 
     let hasJobNoneValue jobX =
         let x = run jobX

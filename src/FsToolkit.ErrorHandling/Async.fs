@@ -90,20 +90,23 @@ module Async =
         (input2: Async<'input2>)
         (input3: Async<'input3>)
         : Async<'output> =
-        bind
-            (fun x ->
-                bind
-                    (fun y ->
-                        bind
-                            (fun z ->
-                                mapper x y z
-                                |> singleton
-                            )
-                            input3
-                    )
-                    input2
+        input1
+        |> bind (fun x ->
+            input2
+            |> bind (fun y ->
+                input3
+                |> bind (fun z ->
+                    mapper x y z
+                    |> singleton
+                )
             )
-            input1
+        )
+
+    /// Allows us to call `do!` syntax inside a computation expression
+    [<RequiresExplicitTypeArguments>]
+    let inline ignore<'a> (x: Async<'a>) =
+        x
+        |> map ignore
 
     /// <summary>
     /// Takes two asyncs and returns a tuple of the pair

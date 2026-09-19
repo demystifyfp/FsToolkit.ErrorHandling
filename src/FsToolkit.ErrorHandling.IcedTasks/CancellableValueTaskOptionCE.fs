@@ -537,9 +537,9 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -767,6 +767,7 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
 
@@ -1555,22 +1556,18 @@ module CancellableValueTaskOption =
             return Option.zip r1 r2
         }
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
+    /// <param name="input">The input <c>CancellableValueTask&lt;'input option&gt;</c>.</param>/
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
     let inline either
-        ([<InlineIfLambda>] onSome: 'input -> CancellableValueTask<'output>)
-        ([<InlineIfLambda>] onNone: unit -> CancellableValueTask<'output>)
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: CancellableValueTask<'input option>)
         : CancellableValueTask<'output> =
         input
-        |> CancellableValueTask.bind (
+        |> CancellableValueTask.map (
             function
             | Some v -> onSome v
             | None -> onNone ()

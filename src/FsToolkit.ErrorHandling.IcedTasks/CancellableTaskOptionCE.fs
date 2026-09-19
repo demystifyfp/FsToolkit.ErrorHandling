@@ -367,22 +367,18 @@ module CancellableTaskOption =
             return Option.zip r1 r2
         }
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
+    /// <param name="input">The input <c>CancellableTask&lt;'input option&gt;</c>.</param>/
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
     let inline either
-        ([<InlineIfLambda>] onSome: 'input -> CancellableTask<'output>)
-        ([<InlineIfLambda>] onNone: unit -> CancellableTask<'output>)
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: CancellableTask<'input option>)
         : CancellableTask<'output> =
         input
-        |> CancellableTask.bind (
+        |> CancellableTask.map (
             function
             | Some v -> onSome v
             | None -> onNone ()

@@ -1,12 +1,13 @@
 module OptionTests
 
-open System
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
+
+open System
 open SampleDomain
 open TestData
 open TestHelpers
@@ -83,13 +84,15 @@ let ignoreTests =
     testList "Option.ignore Tests" [
         testCase "ignore with Some"
         <| fun _ ->
-            Option.ignore (Some 1)
+            Some 1
+            |> Option.ignore<int>
             |> Expect.hasSomeValue ()
 
         testCase "ignore with None"
         <| fun _ ->
-            let opt = Option.ignore None
-            Expect.isNone opt "Should be None"
+            None
+            |> Option.ignore<_>
+            |> fun r -> Expect.isNone r "Should be None"
     ]
 
 let teeSomeTests =
@@ -310,7 +313,7 @@ let traverseTaskTests =
 
 let traverseTaskResultTests =
     testList "Option.traverseTaskResult Tests" [
-        testCaseTask "traverseTaskResult with valid latitute data"
+        testCaseTask "traverseTaskResult with valid latitude data"
         <| fun () ->
             task {
                 let tryCreateLatTask = fun l -> task { return Latitude.TryCreate l }
@@ -320,7 +323,7 @@ let traverseTaskResultTests =
                     |> Option.traverseTaskResult tryCreateLatTask
 
                 let value = Expect.wantOk valueRes "Expect to get OK"
-                Expect.equal value (Some validLat) "Expect to get valid latitute"
+                Expect.equal value (Some validLat) "Expect to get valid latitude"
             }
 
         testCaseTask "traverseTaskResult id returns async Ok value if Some"
@@ -490,7 +493,7 @@ let traverseResultTests =
     testList "Option.traverseResult Tests" [
         testCase "traverseResult with Some of valid data"
         <| fun _ ->
-            let (latitude, longitude) = (Some lat), (Some lng)
+            let latitude, longitude = (Some lat), (Some lng)
 
             latitude
             |> Option.traverseResult Latitude.TryCreate
@@ -503,7 +506,7 @@ let traverseResultTests =
 
 let traverseAsyncResultTests =
     testList "Option.traverseAsyncResult Tests" [
-        testCaseAsync "traverseAsyncResult with valid latitute data"
+        testCaseAsync "traverseAsyncResult with valid latitude data"
         <| async {
             let tryCreateLatAsync = fun l -> async { return Latitude.TryCreate l }
 
@@ -512,7 +515,7 @@ let traverseAsyncResultTests =
                 |> Option.traverseAsyncResult tryCreateLatAsync
 
             let value = Expect.wantOk valueRes "Expect to get OK"
-            Expect.equal value (Some validLat) "Expect to get valid latitute"
+            Expect.equal value (Some validLat) "Expect to get valid latitude"
         }
 
         testCaseAsync "traverseAsyncResult id returns async Ok value if Some"
@@ -617,7 +620,7 @@ let ofNullTests =
         testCase "A null value"
         <| fun _ ->
             let (someValue: StringNull) = null
-            Expect.equal (Option.ofNull someValue) (None) ""
+            Expect.equal (Option.ofNull someValue) None ""
     ]
 
 let bindNullTests =
@@ -631,12 +634,12 @@ let bindNullTests =
         <| fun _ ->
             let value1 = Some "world"
             let someBinder _ = null
-            Expect.equal (Option.bindNull someBinder value1) (None) ""
+            Expect.equal (Option.bindNull someBinder value1) None ""
         testCase "None"
         <| fun _ ->
             let value1 = None
             let someBinder _ = "won't hit here"
-            Expect.equal (Option.bindNull someBinder value1) (None) ""
+            Expect.equal (Option.bindNull someBinder value1) None ""
     ]
 
 let eitherTests =
@@ -666,7 +669,7 @@ let ofPairTests =
         <| fun _ ->
             let input = "FsToolkit.ErrorHandling"
             let pair = Int32.TryParse input
-            Expect.equal (Option.ofPair pair) (None) ""
+            Expect.equal (Option.ofPair pair) None ""
         testCase "Int64.TryParse => Some Int64"
         <| fun _ ->
             let input = "1989"
@@ -676,7 +679,7 @@ let ofPairTests =
         <| fun _ ->
             let input = "FsToolkit.ErrorHandling"
             let pair = Int64.TryParse input
-            Expect.equal (Option.ofPair pair) (None) ""
+            Expect.equal (Option.ofPair pair) None ""
         testCase "Decimal.TryParse => Some Decimal"
         <| fun _ ->
             let input = "1989"
@@ -686,7 +689,7 @@ let ofPairTests =
         <| fun _ ->
             let input = "FsToolkit.ErrorHandling"
             let pair = Decimal.TryParse input
-            Expect.equal (Option.ofPair pair) (None) ""
+            Expect.equal (Option.ofPair pair) None ""
         testCase "Guid.TryParse => Some Guid"
         <| fun _ ->
             let guid = Guid.NewGuid()
@@ -697,7 +700,7 @@ let ofPairTests =
         <| fun _ ->
             let input = "FsToolkit.ErrorHandling"
             let pair = Guid.TryParse input
-            Expect.equal (Option.ofPair pair) (None) ""
+            Expect.equal (Option.ofPair pair) None ""
     ]
 
 let optionOperatorsTests =

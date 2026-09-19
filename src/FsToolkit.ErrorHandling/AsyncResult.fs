@@ -34,15 +34,31 @@ module AsyncResult =
         : Async<Result<'output, 'error>> =
         Async.bind (Result.either binder error) input
 
-    let inline foldResult
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+    let inline either
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Async<Result<'input, 'inputError>>)
         : Async<'output> =
-        Async.map (Result.either onSuccess onError) input
+        Async.map (Result.either onOk onError) input
 
-    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) input =
-        Async.map (Result.eitherMap onSuccess onError) input
+    [<System.Obsolete "Use AsyncResult.either instead (renamed to align with Result naming)">]
+    let foldResult = either
+
+    /// <summary>
+    /// Maps the values of an <c>AsyncResult</c>  to a new <c>AsyncResult</c>  using the provided functions.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/asyncResult/eitherMap</href>
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="input">The input <c>AsyncResult</c> to map.</param>
+    /// <returns>A new <c>AsyncResult</c> with the mapped values.</returns>
+    let inline eitherMap
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Async<Result<'okInput, 'errorInput>>)
+        : Async<Result<'okOutput, 'errorOutput>> =
+        Async.map (Result.eitherMap onOk onError) input
 
 #if !FABLE_COMPILER
 
@@ -385,98 +401,85 @@ module AsyncResult =
         x
         |> Async.singleton
 
+    /// Bind the AsyncResult with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.map (Result.bind binder) input
+
+
     /// Bind the AsyncResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Async.singleton
-        )
+    let inline bindRequireSome error x = bindResult (Result.requireSome error) x
+
+    /// Bind the AsyncResult and requireSomeWith on the inner option value.
+    let inline bindRequireSomeWith errorF x =
+        bindResult (Result.requireSomeWith errorF) x
 
     /// Bind the AsyncResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Async.singleton
-        )
+    let inline bindRequireNone error x = bindResult (Result.requireNone error) x
+
+    /// Bind the AsyncResult and requireNoneWith on the inner option value.
+    let inline bindRequireNoneWith errorF x =
+        bindResult (Result.requireNoneWith errorF) x
+
 
     /// Bind the AsyncResult and requireValueSome on the inner voption value.
     let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Async.singleton
-        )
+        bindResult (Result.requireValueSome error) x
+
+    /// Bind the AsyncResult and requireValueSomeWith on the inner voption value.
+    let inline bindRequireValueSomeWith errorF x =
+        bindResult (Result.requireValueSomeWith errorF) x
 
     /// Bind the AsyncResult and requireValueNone on the inner voption value.
     let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Async.singleton
-        )
+        bindResult (Result.requireValueNone error) x
+
+    /// Bind the AsyncResult and requireValueNoneWith on the inner voption value.
+    let inline bindRequireValueNoneWith errorF x =
+        bindResult (Result.requireValueNoneWith errorF) x
+
 
     /// Bind the AsyncResult and requireTrue on the inner value.
-    let inline bindRequireTrue error x =
-        x
-        |> bind (
-            Result.requireTrue error
-            >> Async.singleton
-        )
+    let inline bindRequireTrue error x = bindResult (Result.requireTrue error) x
+
+    /// Bind the AsyncResult and requireTrueWith on the inner value.
+    let inline bindRequireTrueWith errorF x =
+        bindResult (Result.requireTrueWith errorF) x
 
     /// Bind the AsyncResult and requireFalse on the inner value.
     let inline bindRequireFalse error x =
-        x
-        |> bind (
-            Result.requireFalse error
-            >> Async.singleton
-        )
+        bindResult (Result.requireFalse error) x
+
+    /// Bind the AsyncResult and requireFalseWith on the inner value.
+    let inline bindRequireFalseWith errorF x =
+        bindResult (Result.requireFalseWith errorF) x
+
 
     /// Bind the AsyncResult and requireNotNull on the inner value.
     let inline bindRequireNotNull error x =
-        x
-        |> bind (
-            Result.requireNotNull error
-            >> Async.singleton
-        )
+        bindResult (Result.requireNotNull error) x
 
-    /// Bind the AsyncResult and requireEequal on the inner value.
+    /// Bind the AsyncResult and requireEqual on the inner value.
     let inline bindRequireEqual y error x =
-        x
-        |> bind (fun x ->
-            Result.requireEqual x y error
-            |> Async.singleton
-        )
+        bindResult (fun x -> Result.requireEqual x y error) x
 
     /// Bind the AsyncResult and requireEmpty on the inner value.
     let inline bindRequireEmpty error x =
-        x
-        |> bind (
-            Result.requireEmpty error
-            >> Async.singleton
-        )
+        bindResult (Result.requireEmpty error) x
 
     /// Bind the AsyncResult and requireNotEmpty on the inner value.
     let inline bindRequireNotEmpty error x =
-        x
-        |> bind (
-            Result.requireNotEmpty error
-            >> Async.singleton
-        )
+        bindResult (Result.requireNotEmpty error) x
 
     /// Bind the AsyncResult and requireHead on the inner value
-    let inline bindRequireHead error x =
-        x
-        |> bind (
-            Result.requireHead error
-            >> Async.singleton
-        )
+    let inline bindRequireHead error x = bindResult (Result.requireHead error) x
 
     /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checkFunc returns an async-wrapped Error result, returns the async-wrapped Error result.
-    let inline check ([<InlineIfLambda>] checkFunc) (result) =
-        result
+    let inline check ([<InlineIfLambda>] checkFunc) x =
+        x
         |> bind (fun o ->
             checkFunc o
             |> map (fun _ -> o)

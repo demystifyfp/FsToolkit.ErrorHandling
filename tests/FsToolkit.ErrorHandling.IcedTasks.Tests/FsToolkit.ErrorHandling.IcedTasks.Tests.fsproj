@@ -2,13 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <NoWarn>$(NoWarn); FS3511</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="SampleDomain.fs" />
         <Compile Include="TestData.fs" />
-        <Compile Include="Expect.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />

@@ -8,6 +8,7 @@ open Expecto
 //needed for `dotnet test` to work
 [<Tests>]
 #endif
+
 let allTests =
     testList "All Tests" [
         ResultTests.allTests
@@ -52,7 +53,7 @@ let allTests =
     ]
 
 
-// This is possibly the most magic used to make this work. 
+// This is possibly the most magic used to make this work.
 // Js and ts cannot use `Async.RunSynchronously`, instead they use `Async.StartAsPromise`.
 // Here we need the transpiler not to worry about the output type.
 #if !FABLE_COMPILER_JAVASCRIPT && !FABLE_COMPILER_TYPESCRIPT

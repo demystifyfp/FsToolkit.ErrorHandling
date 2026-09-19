@@ -1,4 +1,4 @@
-## AsyncResult.foldResult
+## AsyncResult.either
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> Async<Result<'a, 'c>> -> Async<'b>
 ```
 
-This is just a shortcut for `Async.map Result.fold`. See [Result.fold](../result/fold.md) for more.
+This is just a shortcut for `Async.map Result.either`. See [Result.either](../result/eitherFunctions.md) for more.
 
 ## Examples
 
@@ -24,7 +24,7 @@ let createPost (req : CreatePostRequest) = async {
   // ...
 }
 
-// Async<HttpResponse>
+// Async<HttpResponse<PostId, exn>>
 let handler (httpReq : HttpRequest) = 
   // ... 
   
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostAR = createPost httpReq
 
   createPostAR
-  |> AsyncResult.fold Ok InternalError
+  |> AsyncResult.either Ok InternalError
 ```

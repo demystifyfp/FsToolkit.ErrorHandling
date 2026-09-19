@@ -424,6 +424,35 @@ module CancellableValueTaskOptionCE =
                     }
             ]
 
+            testList "either" [
+                testCaseTask "Some"
+                <| fun () ->
+                    task {
+                        let input = cancellableValueTaskOption { return 5 }
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal 7 actual ""
+                    }
+                testCaseTask "None"
+                <| fun () ->
+                    task {
+                        let input = fun _ -> ValueTask<Option<int>>(None)
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal 42 actual ""
+                    }
+            ]
+
             testList "backgroundCancellableValueTaskOption" [
                 testCaseTask "return"
                 <| fun () ->

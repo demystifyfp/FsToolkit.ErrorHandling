@@ -338,7 +338,7 @@ let ceTests =
                 let! actual =
                     backgroundTaskValueOption {
                         while loopCount < data.Length do
-                            let! x = data.[loopCount]
+                            let! x = data[loopCount]
 
                             loopCount <-
                                 loopCount
@@ -519,7 +519,7 @@ let ceTestsApplicative =
                             ValueSome 1
                             |> Async.singleton
 
-                        and! c = specialCaseTask (ValueNone)
+                        and! c = specialCaseTask ValueNone
                         and! d = ValueTask.FromResult(ValueSome 5)
 
                         return

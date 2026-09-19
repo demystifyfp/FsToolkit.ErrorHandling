@@ -4,7 +4,6 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 
-
 module TestFuncs =
     let testFunctionTO<'Dto> () =
         taskValueOption {
@@ -233,12 +232,12 @@ let ceTests =
             task {
                 let data = 42
 
-                let taskRes (call: unit -> Task) maybeCall : Task<voption<int>> =
+                let _taskRes (call: unit -> Task) maybeCall : Task<voption<int>> =
                     taskValueOption {
                         if true then
                             do! call ()
 
-                        let! (res: string) = maybeCall (): Task<voption<string>>
+                        let! (_res: string) = maybeCall (): Task<voption<string>>
                         return data
                     }
 
@@ -281,7 +280,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
@@ -296,7 +295,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        use _d = TestHelpers.makeDisposable (fun () -> isFinished <- true)
                         return data
                     }
 
@@ -311,7 +310,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use! d =
+                        use! _d =
                             TestHelpers.makeDisposable (fun () -> isFinished <- true)
                             |> ValueSome
 
@@ -328,7 +327,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use d = null
+                        use _d = null
                         return data
                     }
 
@@ -342,12 +341,10 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    isFinished <- true
-                                    ValueTask()
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                isFinished <- true
+                                ValueTask()
                             )
 
                         return data
@@ -357,7 +354,7 @@ let ceTests =
                 Expect.isTrue isFinished ""
             }
 
-        testCaseTask "use async asyncdisposable"
+        testCaseTask "use async asyncDisposable"
         <| fun () ->
             task {
                 let data = 42
@@ -365,16 +362,14 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        use d =
-                            TestHelpers.makeAsyncDisposable (
-                                (fun () ->
-                                    task {
-                                        do! Task.Yield()
-                                        isFinished <- true
-                                    }
-                                    :> Task
-                                    |> ValueTask
-                                )
+                        use _d =
+                            TestHelpers.makeAsyncDisposable (fun () ->
+                                task {
+                                    do! Task.Yield()
+                                    isFinished <- true
+                                }
+                                :> Task
+                                |> ValueTask
                             )
 
                         return data
@@ -390,8 +385,7 @@ let ceTests =
             ]
 
             for maxIndex in maxIndices do
-                testCaseTask
-                <| sprintf "While - %i" maxIndex
+                testCaseTask $"While - %i{maxIndex}"
                 <| fun () ->
                     task {
                         let data = 42
@@ -463,7 +457,7 @@ let ceTests =
                 let! actual =
                     taskValueOption {
                         while loopCount < data.Length do
-                            let! x = data.[loopCount]
+                            let! _ = data[loopCount]
 
                             loopCount <-
                                 loopCount
@@ -483,7 +477,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        for i in [ 1..10 ] do
+                        for _ in [ 1..10 ] do
                             ()
 
                         return data
@@ -498,7 +492,7 @@ let ceTests =
 
                 let! actual =
                     taskValueOption {
-                        for i = 1 to 10 do
+                        for _ = 1 to 10 do
                             ()
 
                         return data
@@ -531,7 +525,7 @@ let ceTests =
                 let! actual =
                     taskValueOption {
                         for i in data do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount
@@ -586,7 +580,7 @@ let ceTests =
                 let! actual =
                     taskValueOption {
                         for i in asyncSeq do
-                            let! x = i
+                            let! _ = i
 
                             loopCount <-
                                 loopCount

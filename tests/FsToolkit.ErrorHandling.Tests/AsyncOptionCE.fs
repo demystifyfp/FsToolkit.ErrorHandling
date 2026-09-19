@@ -1,18 +1,14 @@
 module AsyncOptionCETests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
-open SampleDomain
-open TestData
-open TestHelpers
+
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-
 
 let ``AsyncOptionCE return Tests`` =
     testList "AsyncOptionCE  Tests" [
@@ -33,7 +29,7 @@ let ``AsyncOptionCE return! Tests`` =
             let data = Some innerData
             let! actual = asyncOption { return! data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
 
         testCaseAsync "Return Some AsyncOption"
@@ -42,7 +38,7 @@ let ``AsyncOptionCE return! Tests`` =
             let data = Some innerData
             let! actual = asyncOption { return! Async.singleton data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseAsync "Return Async"
         <| async {
@@ -58,7 +54,7 @@ let ``AsyncOptionCE return! Tests`` =
             let data = Some innerData
             let! actual = asyncOption { return! Task.FromResult data }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
         testCaseAsync "Return Task Generic"
         <| async {
@@ -93,7 +89,7 @@ let ``AsyncOptionCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
 
         }
 
@@ -112,7 +108,7 @@ let ``AsyncOptionCE bind Tests`` =
                 }
 
             let! data = data
-            Expect.equal actual (data) "Should be ok"
+            Expect.equal actual data "Should be ok"
         }
 
         testCaseAsync "Bind Async"
@@ -145,7 +141,7 @@ let ``AsyncOptionCE bind Tests`` =
                     return data
                 }
 
-            Expect.equal actual (data.Result) "Should be ok"
+            Expect.equal actual data.Result "Should be ok"
         }
         testCaseAsync "Bind Task Generic"
         <| async {
@@ -422,7 +418,7 @@ let ``AsyncOptionCE loop Tests`` =
             let! actual =
                 asyncOption {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! x = data[loopCount]
 
                         loopCount <-
                             loopCount
@@ -548,8 +544,6 @@ let ``AsyncOptionCE Stack Trace Tests`` =
             let! r = mainExeuctorAsyncResult ()
             ()
         }
-
-
     ]
 
 #else

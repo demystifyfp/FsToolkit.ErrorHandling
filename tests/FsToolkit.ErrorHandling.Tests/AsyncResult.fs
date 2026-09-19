@@ -1,13 +1,11 @@
 module AsyncResultTests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
-
 
 open SampleDomain
 open TestData
@@ -84,25 +82,25 @@ let map2Tests =
         }
     ]
 
-let foldResultTests =
+let eitherTests =
 
-    testList "AsyncResult.foldResult tests" [
-        testCaseAsync "foldResult with Async(Ok x)"
+    testList "AsyncResult.either tests" [
+        testCaseAsync "either with Async(Ok x)"
         <| async {
             let! actual =
                 createPostSuccess validCreatePostRequest
-                |> AsyncResult.foldResult (fun (PostId id) -> id.ToString()) string
+                |> AsyncResult.either (fun (PostId id) -> id.ToString()) string
 
             Expect.same (newPostId.ToString()) actual
         }
 
-        testCaseAsync "foldResult with Async(Error x)"
+        testCaseAsync "either with Async(Error x)"
         <| async {
             let! actual =
                 createPostFailure validCreatePostRequest
-                |> AsyncResult.foldResult string (fun ex -> ex.Message)
+                |> AsyncResult.either string _.Message
 
-            Expect.same (commonEx.Message) actual
+            Expect.same commonEx.Message actual
         }
     ]
 
@@ -157,6 +155,66 @@ let bindTests =
              |> Expect.hasAsyncErrorValue ex)
     ]
 
+let bindResultTests =
+    testList "AsyncResult.bindResult and bindRequire*With tests" [
+        testCaseAsync "bindResult maps Ok"
+        <| async {
+            let! actual =
+                AsyncResult.ok 1
+                |> AsyncResult.bindResult (fun value -> Ok(value + 1))
+
+            Expect.equal actual (Ok 2) ""
+        }
+        testCaseAsync "bindResult preserves upstream Error"
+        <| async {
+            let! actual =
+                AsyncResult.error "upstream"
+                |> AsyncResult.bindResult Ok
+
+            Expect.equal actual (Error "upstream") ""
+        }
+        testCaseAsync "bindResult returns binder Error"
+        <| async {
+            let! actual =
+                AsyncResult.ok 1
+                |> AsyncResult.bindResult (fun _ -> Error "binder")
+
+            Expect.equal actual (Error "binder") ""
+        }
+        testCaseAsync "bindRequire*With wrappers"
+        <| async {
+            let! some =
+                AsyncResult.ok (Some 1)
+                |> AsyncResult.bindRequireSomeWith (fun () -> "none")
+
+            let! none =
+                AsyncResult.ok None
+                |> AsyncResult.bindRequireNoneWith (fun () -> "some")
+
+            let! valueSome =
+                AsyncResult.ok (ValueSome 1)
+                |> AsyncResult.bindRequireValueSomeWith (fun () -> "none")
+
+            let! valueNone =
+                AsyncResult.ok ValueNone
+                |> AsyncResult.bindRequireValueNoneWith (fun () -> "some")
+
+            let! trueValue =
+                AsyncResult.ok true
+                |> AsyncResult.bindRequireTrueWith (fun () -> "false")
+
+            let! falseValue =
+                AsyncResult.ok false
+                |> AsyncResult.bindRequireFalseWith (fun () -> "true")
+
+            Expect.equal some (Ok 1) ""
+            Expect.equal none (Ok()) ""
+            Expect.equal valueSome (Ok 1) ""
+            Expect.equal valueNone (Ok()) ""
+            Expect.equal trueValue (Ok()) ""
+            Expect.equal falseValue (Ok()) ""
+        }
+    ]
 
 let orElseTests =
     testList "AsyncResult.orElseWith Tests" [
@@ -527,7 +585,7 @@ let defaultWithTests =
 
             Expect.hasAsyncValue 42 v)
 
-        testCaseAsync "defaultValue invoks the given thunk for Error"
+        testCaseAsync "defaultValue invokes the given thunk for Error"
         <| (let v = AsyncResult.defaultWith (fun _ -> 42) (toAsync (Error err))
 
             Expect.hasAsyncValue 42 v)
@@ -1053,9 +1111,10 @@ let allTests =
     testList "Async Result tests" [
         mapTests
         map2Tests
-        foldResultTests
+        eitherTests
         mapErrorTests
         bindTests
+        bindResultTests
         orElseTests
         orElseWithTests
         ignoreTests

@@ -975,6 +975,30 @@ module CancellableTaskOptionCE =
                     Expect.equal (Some "lolfooo") someTask ""
                 }
             ]
+            testList "either" [
+                testCaseAsync "Some"
+                <| async {
+                    let input = cancellableTaskOption { return 5 }
+
+                    let computation =
+                        input
+                        |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
+
+                    let actual = (computation CancellationToken.None).GetAwaiter().GetResult()
+                    Expect.equal 7 actual ""
+                }
+                testCaseAsync "None"
+                <| async {
+                    let input: CancellableTaskOption<int> = cancellableTaskOption { return! None }
+
+                    let computation =
+                        input
+                        |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
+
+                    let actual = (computation CancellationToken.None).GetAwaiter().GetResult()
+                    Expect.equal 42 actual ""
+                }
+            ]
             testList "apply" [
                 testCaseAsync "Simple"
                 <| async {

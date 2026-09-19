@@ -1,6 +1,5 @@
 module ResultOptionTests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
@@ -13,7 +12,6 @@ open TestHelpers
 open SampleDomain
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.ResultOption
-
 
 let map2Tests =
     testList "ResultOption.map2 Tests" [
@@ -187,7 +185,7 @@ let resultOptionCETests =
                         invalidLatR
                         |> Result.map Some
 
-                    Tests.failtestf "this should not get executed!"
+                    failtestf "this should not get executed!"
                     let! lng = Ok(Some validLng)
 
                     let! tweet =

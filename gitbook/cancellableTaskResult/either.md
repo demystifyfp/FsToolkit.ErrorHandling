@@ -1,4 +1,4 @@
-## CancellableTaskResult.foldResult
+## CancellableTaskResult.either
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> CancellableTask<Result<'a, 'c>> -> Task<'b>
 ```
 
-This is just a shortcut for `Task.map Result.fold`. See [Result.fold](../result/fold.md) for more.
+This is just a shortcut for `CancellableTask.map Result.either`. See [Result.either](../result/eitherFunctions.md) for more.
 
 ## Examples
 
@@ -24,7 +24,7 @@ let createPost (req : CreatePostRequest) = cancellableTask {
   // ...
 }
 
-// CancellableTask<HttpResponse>
+// CancellableTask<HttpResponse<PostId, exn>>
 let handler (httpReq : HttpRequest) = 
   // ... 
   
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostTR = createPost httpReq
 
   createPostTR
-  |> CancellableTaskResult.fold Ok InternalError
+  |> CancellableTaskResult.either Ok InternalError
 ```

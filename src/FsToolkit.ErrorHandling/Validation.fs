@@ -162,6 +162,6 @@ module Validation =
         : Validation<'left * 'right, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-        | Error e, Ok _ -> Error e
+        | Error e, Ok _
         | Ok _, Error e -> Error e
         | Error e1, Error e2 -> Error(e1 @ e2)

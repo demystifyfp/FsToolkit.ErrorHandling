@@ -21,11 +21,9 @@ See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpfo
 ```fsharp
 // string -> Job<Result<int, string>>
 let tryParseIntJob str =
-    job {
-        match System.Int32.TryParse str with
-        | true, x -> return Ok x
-        | false, _ -> return Error (sprintf "unable to parse '%s' to integer" str)
-    }
+    match str |> Option.tryParse<int> with
+    | None -> JobResult.error $"unable to parse '{str}' to integer"
+    | Some x -> JobResult.ok x
 
 ["1"; "2"; "3"]
 |> List.traverseJobResultA tryParseIntJob

@@ -1,12 +1,12 @@
 module ResultTests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
+
 open SampleDomain
 open TestData
 open TestHelpers
@@ -168,7 +168,7 @@ let resultCETests =
             let post =
                 result {
                     let! lat = invalidLatR
-                    // Tests.failtestf "this should not get executed!"
+                    failtestf "this should not get executed!"
                     let! lng = validLngR
                     let! tweet = validTweetR
                     return createPostRequest lat lng tweet
@@ -213,7 +213,7 @@ let tryCreateTests =
 
         testCase "tryCreate error path"
         <| fun _ ->
-            let r: Result<Latitude, (string * string)> = Result.tryCreate "lat" 200.
+            let r: Result<Latitude, string * string> = Result.tryCreate "lat" 200.
             Expect.hasErrorValue ("lat", invalidLatMsg) r
     ]
 
@@ -287,7 +287,6 @@ let ignoreTests =
 
 let err = "foobar"
 
-
 let requireTrueTests =
     testList "requireTrue Tests" [
         testCase "requireTrue happy path"
@@ -299,8 +298,15 @@ let requireTrueTests =
         <| fun _ ->
             Result.requireTrue err false
             |> Expect.hasErrorValue err
-    ]
 
+        testCase "requireTrueWith"
+        <| fun _ ->
+            Result.requireTrueWith (fun () -> failwith "factory should not run") true
+            |> Expect.hasOkValue ()
+
+            Result.requireTrueWith (fun () -> err) false
+            |> Expect.hasErrorValue err
+    ]
 
 let requireFalseTests =
     testList "requireFalse Tests" [
@@ -313,8 +319,15 @@ let requireFalseTests =
         <| fun _ ->
             Result.requireFalse err true
             |> Expect.hasErrorValue err
-    ]
 
+        testCase "requireFalseWith"
+        <| fun _ ->
+            Result.requireFalseWith (fun () -> failwith "factory should not run") false
+            |> Expect.hasOkValue ()
+
+            Result.requireFalseWith (fun () -> err) true
+            |> Expect.hasErrorValue err
+    ]
 
 let requireSomeTests =
     testList "requireSome Tests" [
@@ -322,20 +335,15 @@ let requireSomeTests =
         <| fun _ ->
             Result.requireSome err (Some 42)
             |> Expect.hasOkValue 42
-
         testCase "requireSome error path"
         <| fun _ ->
             Result.requireSome err None
             |> Expect.hasErrorValue err
-    ]
 
-let requireSomeWithTests =
-    testList "requireSomeWith Tests" [
         testCase "requireSomeWith happy path"
         <| fun _ ->
             Result.requireSomeWith (fun () -> err) (Some 42)
             |> Expect.hasOkValue 42
-
         testCase "requireSomeWith error path"
         <| fun _ ->
             Result.requireSomeWith (fun () -> err) None
@@ -351,7 +359,7 @@ let requireNotNullTests =
 
         testCase "requireNotNull error path"
         <| fun _ ->
-            Result.requireNotNull err (null)
+            Result.requireNotNull err null
             |> Expect.hasErrorValue err
     ]
 
@@ -361,20 +369,15 @@ let requireNoneTests =
         <| fun _ ->
             Result.requireNone err None
             |> Expect.hasOkValue ()
-
         testCase "requireNone error path"
         <| fun _ ->
             Result.requireNone err (Some 42)
             |> Expect.hasErrorValue err
-    ]
 
-let requireNoneWithTests =
-    testList "requireNoneWith Tests" [
         testCase "requireNoneWith happy path"
         <| fun _ ->
             Result.requireNoneWith (fun () -> err) None
             |> Expect.hasOkValue ()
-
         testCase "requireNoneWith error path"
         <| fun _ ->
             Result.requireNoneWith (fun () -> err) (Some 42)
@@ -392,6 +395,14 @@ let requireValueSomeTests =
         <| fun _ ->
             Result.requireValueSome err ValueNone
             |> Expect.hasErrorValue err
+
+        testCase "requireValueSomeWith"
+        <| fun _ ->
+            Result.requireValueSomeWith (fun () -> failwith "factory should not run") (ValueSome 42)
+            |> Expect.hasOkValue 42
+
+            Result.requireValueSomeWith (fun () -> err) ValueNone
+            |> Expect.hasErrorValue err
     ]
 
 let requireValueNoneTests =
@@ -400,10 +411,17 @@ let requireValueNoneTests =
         <| fun _ ->
             Result.requireValueNone err ValueNone
             |> Expect.hasOkValue ()
-
         testCase "requireValueNone error path"
         <| fun _ ->
             Result.requireValueNone err (ValueSome 42)
+            |> Expect.hasErrorValue err
+
+        testCase "requireValueNoneWith"
+        <| fun _ ->
+            Result.requireValueNoneWith (fun () -> failwith "factory should not run") ValueNone
+            |> Expect.hasOkValue ()
+
+            Result.requireValueNoneWith (fun () -> err) (ValueSome 42)
             |> Expect.hasErrorValue err
     ]
 
@@ -480,36 +498,28 @@ let requireTests =
     testList "require tests" [
         testCase "False, Error"
         <| fun () ->
-            let output =
-                Result.require (fun _ -> false) ("Error") (Error("Something went wrong"))
+            let output = Result.require (fun _ -> false) "Error" (Error "Something went wrong")
 
             Expect.equal output (Error("Something went wrong")) "Should be Error"
 
         testCase "True, Ok"
         <| fun () ->
-            let output = Result.require (fun _ -> true) ("Error") (Ok 1)
+            let output = Result.require (fun _ -> true) "Error" (Ok 1)
             Expect.equal output (Ok(1)) "Should be Ok"
 
         testCase "False, Ok"
         <| fun () ->
-            let output = Result.require (fun _ -> false) ("Error") (Ok 1)
+            let output = Result.require (fun _ -> false) "Error" (Ok 1)
             Expect.equal output (Error("Error")) "Should be Error"
 
         testCase "True, Ok using Ok value in predicate"
         <| fun () ->
-            let output = Result.require (fun number -> number = 1) ("Error") (Ok 1)
+            let output = Result.require (fun number -> number = 1) "Error" (Ok 1)
             Expect.equal output (Ok(1)) "Should be Ok"
 
         testCase "False, Ok using Ok value in predicate"
         <| fun () ->
-            let output =
-                Result.require
-                    (fun number ->
-                        number
-                        <> 1
-                    )
-                    ("Error")
-                    (Ok 1)
+            let output = Result.require (fun x -> x <> 1) "Error" (Ok 1)
 
             Expect.equal output (Error("Error")) "Should be Error"
     ]
@@ -575,17 +585,35 @@ let defaultWithTests =
     testList "defaultWith Tests" [
         testCase "defaultWith returns the ok value"
         <| fun _ ->
-            let v = Result.defaultWith (fun _ -> 43) (Ok 42)
+            let v =
+                Ok 42
+                |> Result.defaultWith (fun _ -> 43)
 
             Expect.equal v 42 ""
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultWith returns the value if Ok"
         <| fun _ ->
-            let v = Result.defaultWith (fun _ -> 42) (Error err)
+            let res = Ok "foo"
 
-            Expect.equal v 42 ""
+            let value =
+                res
+                |> Result.defaultWith (fun _ -> "bar")
+
+            Expect.equal value "foo" ""
+
+        testCase "defaultWith returns the function's result if Error"
+        <| fun _ ->
+            let res = Error "bar"
+
+            let value =
+                res
+                |> Result.defaultWith (fun err ->
+                    "foo"
+                    + err
+                )
+
+            Expect.equal value "foobar" ""
     ]
-
 
 let ignoreErrorTests =
     testList "ignoreError Tests" [
@@ -763,12 +791,12 @@ let sequenceAsyncTests =
     testList "sequenceAsync Tests" [
         testCaseAsync "sequenceAsync returns the async value if Ok"
         <| async {
-            let resAsnc =
+            let resAsync =
                 async { return "foo" }
                 |> Ok
 
             let! value =
-                resAsnc
+                resAsync
                 |> Result.sequenceAsync
 
             Expect.equal value (Ok "foo") ""
@@ -776,10 +804,10 @@ let sequenceAsyncTests =
 
         testCaseAsync "sequenceAsync returns the error value if Error"
         <| async {
-            let resAsnc = Error "foo"
+            let resAsync = Error "foo"
 
             let! value =
-                resAsnc
+                resAsync
                 |> Result.sequenceAsync
 
             Expect.equal value (Error "foo") ""
@@ -790,14 +818,14 @@ let traverseAsyncTests =
     testList "traverseAsync Tests" [
         testCaseAsync "traverseAsync returns the async value if Ok"
         <| async {
-            let resAsnc =
+            let resAsync =
                 async { return "foo" }
                 |> Ok
 
             let resFunc = id
 
             let! value =
-                (resFunc, resAsnc)
+                (resFunc, resAsync)
                 ||> Result.traverseAsync
 
             Expect.equal value (Ok "foo") ""
@@ -805,11 +833,11 @@ let traverseAsyncTests =
 
         testCaseAsync "traverseAsync returns the error value if Error"
         <| async {
-            let resAsnc = Error "foo"
+            let resAsync = Error "foo"
             let resFunc = id
 
             let! value =
-                (resFunc, resAsnc)
+                (resFunc, resAsync)
                 ||> Result.traverseAsync
 
             Expect.equal value (Error "foo") ""
@@ -848,24 +876,24 @@ let sequenceTaskTests =
 #endif
 
 let valueOrTests =
-    testList "valueOrTests Tests" [
-        testCase "valueOrTests returns the value if Ok"
+    testList "valueOr replacement Tests" [
+        testCase "valueOr returns the value if Ok"
         <| fun _ ->
             let res = Ok "foo"
 
             let value =
                 res
-                |> Result.valueOr (fun _ -> "bar")
+                |> Result.defaultWith (fun _ -> "bar")
 
             Expect.equal value "foo" ""
 
-        testCase "valueOrTests returns the function's result if Error"
+        testCase "valueOr returns the function's result if Error"
         <| fun _ ->
             let res = Error "bar"
 
             let value =
                 res
-                |> Result.valueOr (fun err ->
+                |> Result.defaultWith (fun err ->
                     "foo"
                     + err
                 )
@@ -968,9 +996,7 @@ let allTests =
         requireTrueTests
         requireFalseTests
         requireSomeTests
-        requireSomeWithTests
         requireNoneTests
-        requireNoneWithTests
         requireValueSomeTests
         requireValueNoneTests
         requireNotNullTests
@@ -985,6 +1011,7 @@ let allTests =
         defaultValueTests
         defaultErrorTests
         defaultWithTests
+        valueOrTests // deprecated in favor of defaultWith
         ignoreErrorTests
         teeTests
         teeIfTests
@@ -995,7 +1022,6 @@ let allTests =
 #if !FABLE_COMPILER
         sequenceTaskTests
 #endif
-        valueOrTests
         zipTests
         zipErrorTests
         checkTests

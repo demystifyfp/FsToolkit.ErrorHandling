@@ -1,13 +1,10 @@
 module JobResultTests
 
-
 open Expecto
-open Expects.JobResult
+open Expect.JobResult
 open SampleDomain
 open TestData
-open TestHelpers
 open FsToolkit.ErrorHandling
-// open FsToolkit.ErrorHandling.Operator.JobResult
 open System
 open Hopac
 
@@ -106,8 +103,8 @@ let mapErrorTests =
         testCase "mapError with Task(Error x)"
         <| fun _ ->
             createPostFailure validCreatePostRequest
-            |> JobResult.mapError (fun ex -> ex.Message)
-            |> Expect.hasJobErrorValueSync (commonEx.Message)
+            |> JobResult.mapError _.Message
+            |> Expect.hasJobErrorValueSync commonEx.Message
     ]
 
 [<Tests>]
@@ -121,7 +118,7 @@ let bindTests =
                     if isAllowed then
                         return! createPostSuccess validCreatePostRequest
                     else
-                        return (Error(Exception "not allowed to post"))
+                        return Error(Exception "not allowed to post")
                 }
             )
             |> Expect.hasJobOkValueSync (PostId newPostId)
@@ -141,6 +138,60 @@ let bindTests =
             |> Expect.hasJobErrorValueSync ex
     ]
 
+[<Tests>]
+let okTests =
+    testList "JobResult.ok tests" [
+        testCase "ok wraps a value"
+        <| fun _ ->
+            JobResult.ok 42
+            |> Expect.hasJobOkValueSync 42
+    ]
+
+[<Tests>]
+let bindResultTests =
+    testList "JobResult.bindResult tests" [
+        testCase "bindResult maps Ok"
+        <| fun _ ->
+            JobResult.singleton 1
+            |> JobResult.bindResult (fun value -> Ok(value + 1))
+            |> Expect.hasJobOkValueSync 2
+
+        testCase "bindResult returns binder Error"
+        <| fun _ ->
+            JobResult.singleton 1
+            |> JobResult.bindResult (fun _ -> Error "binder")
+            |> Expect.hasJobErrorValueSync "binder"
+
+        testCase "bindResult preserves upstream Error"
+        <| fun _ ->
+            JobResult.error "upstream"
+            |> JobResult.bindResult Ok
+            |> Expect.hasJobErrorValueSync "upstream"
+    ]
+
+[<Tests>]
+let eitherTests =
+    testList "JobResult.either* tests" [
+        testCase "either maps Ok and Error"
+        <| fun _ ->
+            JobResult.singleton 1
+            |> JobResult.either ((+) 1) id
+            |> Expect.hasJobValue 2
+
+            JobResult.error "bad"
+            |> JobResult.either string id
+            |> Expect.hasJobValue "bad"
+
+        testCase "eitherMap maps Ok and Error"
+        <| fun _ ->
+            JobResult.singleton 1
+            |> JobResult.eitherMap ((+) 1) String.length
+            |> Expect.hasJobValue (Ok 2)
+
+            JobResult.error "bad"
+            |> JobResult.eitherMap ((+) 1) String.length
+            |> Expect.hasJobValue (Error 3)
+    ]
 
 [<Tests>]
 let orElseTests =
@@ -515,7 +566,7 @@ let defaultWithTests =
 
             Expect.hasJobValue 42 v
 
-        testCase "defaultValue invoks the given thunk for Error"
+        testCase "defaultWith invokes the given thunk for Error"
         <| fun _ ->
             let v = JobResult.defaultWith (fun _ -> 42) (toJob (Error err))
 
@@ -823,7 +874,3 @@ let bindRequireValueOptionTests =
                 |> Expect.hasJobOkValue "john_doe"
         }
     ]
-
-type CreatePostResult =
-    | PostSuccess of NotifyNewPostRequest
-    | NotAllowedToPost

@@ -1,6 +1,5 @@
 module AsyncOptionTests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
@@ -26,6 +25,12 @@ let mapTests =
         <| (Async.singleton (None)
             |> AsyncOption.map remainingCharacters
             |> Expect.hasAsyncNoneValue)
+    ]
+
+let ignoreTests =
+    testList "Async.ignore Tests" [
+        testCaseAsync "ignore completes the input computation"
+        <| async { do! Async.ignore<int> (async.Return 42) }
     ]
 
 let bindTests =
@@ -109,17 +114,25 @@ let eitherTests =
         testCaseAsync "Some"
         <| async {
             let value1 = AsyncOption.some 5
-            let f = async.Return 42
-            let add2 x = async { return x + 2 }
-            let! result = (AsyncOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> AsyncOption.either add2 f
+
             Expect.equal result 7 ""
         }
         testCaseAsync "None"
         <| async {
             let value1 = async.Return None
-            let f = async.Return 42
-            let add2 x = async { return x + 2 }
-            let! result = (AsyncOption.either add2 f value1)
+            let f () = 42
+            let add2 x = x + 2
+
+            let! result =
+                value1
+                |> AsyncOption.either add2 f
+
             Expect.equal result 42 ""
         }
     ]
@@ -232,6 +245,7 @@ let orElseWithTests =
 
 let allTests =
     testList "Async Option Tests" [
+        ignoreTests
         mapTests
         bindTests
         applyTests

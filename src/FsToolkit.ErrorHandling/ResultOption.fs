@@ -42,7 +42,7 @@ module ResultOption =
         Result.mapError mapper input
 
     /// <summary>
-    /// Takes a transformation function and applies to to the value in a <c>Result</c> value that contains an <c>Option</c> value, if is is <c>Ok</c> and <c>Some</c>.
+    /// Takes a transformation function and applies it to the value in a <c>Result</c> value that contains an <c>Option</c> value, if it is <c>Ok</c> and <c>Some</c>.
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bind</href>
     /// </summary>
@@ -132,19 +132,17 @@ module ResultOption =
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/zip</href>
     /// </summary>
-    /// <param name="input1">The first <c>Result</c> value to combine.</param>
-    /// <param name="input2">The second <c>Result</c> value to combine.</param>
+    /// <param name="left">The first <c>Result</c> value to combine.</param>
+    /// <param name="right">The second <c>Result</c> value to combine.</param>
     /// <returns>A tuple of the two values wrapped in an <c>Option</c> and then wrapped in a <c>Result</c>.</returns>
     let zip
         (left: Result<'leftOk option, 'error>)
         (right: Result<'rightOk option, 'error>)
         : Result<('leftOk * 'rightOk) option, 'error> =
         match left, right with
-        | Ok x1res, Ok x2res ->
-            match x1res, x2res with
-            | Some x1, Some x2 -> Ok(Some(x1, x2))
-            | _ -> Ok None
-        | Error e, _ -> Error e
+        | Ok(Some x1), Ok(Some x2) -> Ok(Some(x1, x2))
+        | Ok _, Ok _ -> Ok None
+        | Error e, _
         | _, Error e -> Error e
 
     /// <summary>

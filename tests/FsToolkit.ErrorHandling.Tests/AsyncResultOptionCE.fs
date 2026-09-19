@@ -1,28 +1,15 @@
 module AsyncResultOptionCETests
+
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
-open SampleDomain
-open TestHelpers
+
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.Operator.AsyncResultOption
-open System
-
-
-#if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
-open Fable.Pyxpecto
-#endif
-#if !FABLE_COMPILER
-open Expecto
-#endif
-open SampleDomain
-open TestData
 open TestHelpers
 open System.Threading.Tasks
-open FsToolkit.ErrorHandling
 
 let inline OkSome (value: 'a) = Ok(Some(value))
 let inline OkNone _ = Ok(None)
@@ -505,15 +492,13 @@ let ``AsyncResultOptionCE using Tests`` =
             let! actual =
                 asyncResultOption {
                     use d =
-                        TestHelpers.makeAsyncDisposable (
-                            (fun () ->
-                                task {
-                                    do! Task.Yield()
-                                    isFinished <- true
-                                }
-                                :> Task
-                                |> ValueTask
-                            )
+                        makeAsyncDisposable (fun () ->
+                            task {
+                                do! Task.Yield()
+                                isFinished <- true
+                            }
+                            :> Task
+                            |> ValueTask
                         )
 
                     return data
@@ -532,7 +517,7 @@ let ``AsyncResultOptionCE using Tests`` =
             let! actual =
                 asyncResultOption {
                     use! d =
-                        TestHelpers.makeDisposable (fun () -> isFinished <- true)
+                        makeDisposable (fun () -> isFinished <- true)
                         |> Result.Ok
 
                     return data
@@ -627,7 +612,7 @@ let ``AsyncResultOptionCE loop Tests`` =
             let! actual =
                 asyncResultOption {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! x = data[loopCount]
 
                         loopCount <-
                             loopCount

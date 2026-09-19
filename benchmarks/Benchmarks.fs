@@ -1,7 +1,5 @@
 ﻿module benchmarks
 
-open System
-open BenchmarkDotNet
 open BenchmarkDotNet.Attributes
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling

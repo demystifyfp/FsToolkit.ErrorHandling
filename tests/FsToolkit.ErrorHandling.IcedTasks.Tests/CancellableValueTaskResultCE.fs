@@ -354,6 +354,61 @@ module CancellableValueTaskResultCE =
                     }
             ]
 
+            testList "branch mappers" [
+                testCaseTask "either Ok"
+                <| fun () ->
+                    task {
+                        let input = fun _ -> ValueTask<Result<int, string>>(Ok 5)
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskResult.either (fun x -> string (x + 2)) id
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal "7" actual ""
+                    }
+                testCaseTask "either Error"
+                <| fun () ->
+                    task {
+                        let input = fun _ -> ValueTask<Result<int, string>>(Error "bad")
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskResult.either string id
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal "bad" actual ""
+                    }
+                testCaseTask "eitherMap Ok"
+                <| fun () ->
+                    task {
+                        let input = fun _ -> ValueTask<Result<int, string>>(Ok 5)
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskResult.eitherMap (fun x -> x + 2) id
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal (Ok 7) actual ""
+                    }
+                testCaseTask "eitherMap Error"
+                <| fun () ->
+                    task {
+                        let input = fun _ -> ValueTask<Result<int, string>>(Error "bad")
+
+                        let! actual =
+                            input
+                            |> CancellableValueTaskResult.eitherMap id String.length
+                            |> fun value -> value CancellationToken.None
+                            |> _.AsTask()
+
+                        Expect.equal (Error 3) actual ""
+                    }
+            ]
+
             testList "try/with" [
                 testCaseTask "try/with - no exception"
                 <| fun () ->
