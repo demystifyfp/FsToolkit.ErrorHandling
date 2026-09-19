@@ -4,12 +4,11 @@
 - feat(Async): Add `ignore`
 - feat(AsyncResult): Add `bindResult`, `either`
 - feat(CancellableTaskResult, CancellableValueTaskResult): Add `either`, `eitherMap`
-- feat(CancellableTaskResult): Add `either`, `eitherMap`
 - feat(JobResult): Add `bindResult`, `either`, `ok`
 - feat(TaskResult): Add `bindResult`, `either`, `eitherMap`
-- feat(Result): Add `requireTrueWith`, `requireValueSomeWith`, `requireValueNoneWith`
+- feat(Result): Add `requireTrueWith`, `requireFalseWith`, `requireValueSomeWith`, `requireValueNoneWith`
 - feat(AsyncResult, TaskResult): Add `bindRequireTrueWith`, `bindRequireFalseWith`, `bindRequireValueSomeWith`, `bindRequireValueNoneWith`
-- fix(AsyncOption,TaskOption,ValueTaskValueOption,CancellableTaskOption,CancellableValueTaskOption,JobOption)!: Correct `either` signature
+- fix(AsyncOption,TaskOption,TaskValueOption,ValueTaskValueOption,CancellableTaskOption,CancellableValueTaskOption,JobOption)!: Correct `either` signature
 - OBSOLETE(AsyncResult,CancellableTaskResult,TaskResult): `foldResult` (-> `either`)
 - OBSOLETE(Result): `valueOr` (-> `defaultWith`)
 - BREAKING(Task.ignore, Option.ignore): Add `RequiresExplicitTypeArguments` to align with FSharp.Core Task/Async

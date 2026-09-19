@@ -21,7 +21,7 @@ See also Scott Wlaschin's [Understanding traverse and sequence](https://fsharpfo
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt str =
-    Result.tryParse<int> str
+    Option.tryParse<int> str
     |> Result.requireSomeWith (fun () -> $"unable to parse '{str}' to integer")
 
 ["1"; "2"; "3"]
