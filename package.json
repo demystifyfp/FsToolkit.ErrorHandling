@@ -2,7 +2,7 @@
   "type": "module",
   "devDependencies": {
     "@babel/cli": "^7.15.4",
-    "@babel/core": "^7.15.4",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.15.4",
     "npm-run-all": "^4.1.5",
     "rollup": "^2.80.0"
