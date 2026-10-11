@@ -35,22 +35,16 @@ module JobOption =
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Job<'input option>)
         : Job<'output> =
-        input
-        |> Job.map (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        Job.map (Option.eitherBind onSome onNone) input
 
-    [<System.Obsolete "Please use JobOption.eitherBind or Job.bind instead">]
+    [<System.Obsolete "Please use 1. `Job.bind (function Some v -> onSome v | None -> onNone)` or 2. JobOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> Job<'output>)
         (onNone: Job<'output>)
         (input: Job<'input option>)
         : Job<'output> =
-        input
-        |> Job.bind (
-            function
+        Job.bind
+            (function
             | Some v -> onSome v
-            | None -> onNone
-        )
+            | None -> onNone)
+            input

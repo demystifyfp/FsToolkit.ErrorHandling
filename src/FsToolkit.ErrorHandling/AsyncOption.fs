@@ -44,25 +44,19 @@ module AsyncOption =
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Async<'input option>)
         : Async<'output> =
-        input
-        |> Async.map (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        Async.map (Option.eitherBind onSome onNone) input
 
-    [<System.Obsolete "Please use AsyncOption.eitherBind or Async.bind instead">]
+    [<System.Obsolete "Please use 1. `Async.bind (function Some v -> onSome v | None -> onNone)` or 2. AsyncOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> Async<'output>)
         (onNone: Async<'output>)
         (input: Async<'input option>)
         : Async<'output> =
-        input
-        |> Async.bind (
-            function
+        Async.bind
+            (function
             | Some v -> onSome v
-            | None -> onNone
-        )
+            | None -> onNone)
+            input
 
     /// <summary>
     ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.

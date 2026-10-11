@@ -46,25 +46,15 @@ module TaskOption =
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Task<'input option>)
         : Task<'output> =
-        input
-        |> Task.map (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        Task.map (Option.eitherBind onSome onNone) input
 
-    [<System.Obsolete "Please use TaskOption.eitherBind or Task.bind instead">]
+    [<System.Obsolete "Please use 1. `Task.bind (Option.eitherBind onSome onNone)` or 2. TaskOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> Task<'output>)
         ([<InlineIfLambda>] onNone: unit -> Task<'output>)
         (input: Task<'input option>)
         : Task<'output> =
-        input
-        |> Task.bind (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        Task.bind (Option.eitherBind onSome onNone) input
 
     /// <summary>
     ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.

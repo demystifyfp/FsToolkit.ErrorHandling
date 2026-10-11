@@ -1570,25 +1570,15 @@ module CancellableValueTaskOption =
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: CancellableValueTask<'input option>)
         : CancellableValueTask<'output> =
-        input
-        |> CancellableValueTask.map (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        CancellableValueTask.map (Option.eitherBind onSome onNone) input
 
-    [<System.Obsolete "Please use CancellableValueTaskOption.eitherBind or CancellableValueTask.bind instead">]
+    [<System.Obsolete "Please use 1. `CancellableValueTask.bind (Option.eitherBind onSome onNone)` or 2. CancellableValueTaskOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> CancellableValueTask<'output>)
         ([<InlineIfLambda>] onNone: unit -> CancellableValueTask<'output>)
         (input: CancellableValueTask<'input option>)
         : CancellableValueTask<'output> =
-        input
-        |> CancellableValueTask.bind (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        CancellableValueTask.bind (Option.eitherBind onSome onNone) input
 
     /// <summary>
     ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.

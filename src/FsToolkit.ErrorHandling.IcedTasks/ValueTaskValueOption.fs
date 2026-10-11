@@ -63,23 +63,15 @@ module ValueTaskValueOption =
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: ValueTask<'input voption>)
         : ValueTask<'output> =
-        valueTask {
-            match! input with
-            | ValueSome v -> return onSome v
-            | ValueNone -> return onNone ()
-        }
+        ValueTask.map (ValueOption.eitherBind onSome onNone) input
 
-    [<System.Obsolete "Please use ValueTaskValueOption.eitherBind or ValueTask.bind instead">]
+    [<System.Obsolete "Please use 1. `ValueTask.bind (ValueOption.eitherBind onSome onNone) or 2. ValueTask.eitherBind (if possible; different signature) instead">]
     let inline either
-        ([<InlineIfLambda>] onValueSome: 'input -> ValueTask<'output>)
-        ([<InlineIfLambda>] onValueNone: unit -> ValueTask<'output>)
+        ([<InlineIfLambda>] onSome: 'input -> ValueTask<'output>)
+        ([<InlineIfLambda>] onNone: unit -> ValueTask<'output>)
         (input: ValueTask<'input voption>)
         : ValueTask<'output> =
-        valueTask {
-            match! input with
-            | ValueSome v -> return! onValueSome v
-            | ValueNone -> return! onValueNone ()
-        }
+        ValueTask.bind (ValueOption.eitherBind onSome onNone) input
 
     /// <summary>
     ///  Gets the value of the voption if the voption is <c>ValueSome</c>, otherwise returns the specified default value.
