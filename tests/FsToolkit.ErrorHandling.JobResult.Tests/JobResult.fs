@@ -175,11 +175,11 @@ let eitherTests =
         testCase "either maps Ok and Error"
         <| fun _ ->
             JobResult.ok 1
-            |> JobResult.either ((+) 1) id
+            |> JobResult.eitherBind ((+) 1) id
             |> Expect.hasJobValue 2
 
             JobResult.error "bad"
-            |> JobResult.either string id
+            |> JobResult.eitherBind string id
             |> Expect.hasJobValue "bad"
 
         testCase "eitherMap maps Ok and Error"

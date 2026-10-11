@@ -395,7 +395,7 @@ module CancellableValueTaskResultCE =
                 <| fun () ->
                     let computation =
                         CancellableValueTaskResult.singleton 5
-                        |> CancellableValueTaskResult.either (fun x -> string (x + 2)) id
+                        |> CancellableValueTaskResult.eitherBind (fun x -> string (x + 2)) id
 
                     let actual = (computation CancellationToken.None).Result
 
@@ -404,7 +404,7 @@ module CancellableValueTaskResultCE =
                 <| fun () ->
                     let computation =
                         CancellableValueTaskResult.error "bad"
-                        |> CancellableValueTaskResult.either string id
+                        |> CancellableValueTaskResult.eitherBind string id
 
                     let actual = (computation CancellationToken.None).Result
 

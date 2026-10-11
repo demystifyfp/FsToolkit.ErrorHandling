@@ -25,14 +25,14 @@ module JobResult =
         ([<InlineIfLambda>] f: 'a -> Job<Result<'c, 'b>>)
         (jr: Job<Result<'a, 'b>>)
         : Job<Result<'c, 'b>> =
-        Job.bind (Result.either f error) jr
+        Job.bind (Result.eitherBind f error) jr
 
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Job<Result<'input, 'inputError>>)
         : Job<'output> =
-        Job.map (Result.either onOk onError) input
+        Job.map (Result.eitherBind onOk onError) input
 
     /// <summary>
     /// Maps the values of an <c>JobResult</c>  to a new <c>JobResult</c>  using the provided functions.
@@ -91,7 +91,7 @@ module JobResult =
     /// </returns>
     let inline orElse (ifError: Job<Result<'ok, 'error2>>) (result: Job<Result<'ok, 'error>>) =
         result
-        |> Job.bind (Result.either ok (fun _ -> ifError))
+        |> Job.bind (Result.eitherBind ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -117,7 +117,7 @@ module JobResult =
         (result: Job<Result<'ok, 'error>>)
         =
         result
-        |> Job.bind (Result.either ok ifErrorFunc)
+        |> Job.bind (Result.eitherBind ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error> (jr: Job<Result<'ok, 'error>>) : Job<Result<unit, 'error>> =

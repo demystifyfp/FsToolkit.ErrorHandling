@@ -1,4 +1,4 @@
-## JobResult.either
+## JobResult.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> Job<Result<'a, 'c>> -> Job<'b>
 ```
 
-This is just a shortcut for `Job.map Result.either`. See [Result.either](../result/either.md) for more.
+This is just a shortcut for `Job.map Result.eitherBind`. See [Result.eitherBind](../result/eitherFunctions.md) for more.
 
 ## Examples
 
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostJR = createPost httpReq
 
   createPostJR
-  |> JobResult.either Ok InternalError
+  |> JobResult.eitherBind Ok InternalError
 ```

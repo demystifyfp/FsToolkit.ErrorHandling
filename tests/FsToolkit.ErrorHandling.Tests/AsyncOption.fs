@@ -110,7 +110,7 @@ let asyncOptionOperatorTests =
     ]
 
 let eitherTests =
-    testList "AsyncOption.either Tests" [
+    testList "AsyncOption.eitherBind Tests" [
         testCaseAsync "Some"
         <| async {
             let value1 = AsyncOption.some 5
@@ -119,7 +119,7 @@ let eitherTests =
 
             let! result =
                 value1
-                |> AsyncOption.either add2 f
+                |> AsyncOption.eitherBind add2 f
 
             Expect.equal result 7 ""
         }
@@ -131,7 +131,7 @@ let eitherTests =
 
             let! result =
                 value1
-                |> AsyncOption.either add2 f
+                |> AsyncOption.eitherBind add2 f
 
             Expect.equal result 42 ""
         }

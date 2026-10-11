@@ -999,13 +999,13 @@ let TaskResultBindRequireValueOptionTests =
     ]
 
 let eitherTests =
-    testList "TaskResult.either tests" [
+    testList "TaskResult.eitherBind tests" [
         testCaseTask "either with Task(Ok x)"
         <| fun _ ->
             task {
                 let! actual =
                     createPostSuccess validCreatePostRequest
-                    |> TaskResult.either (fun (PostId id) -> id.ToString()) string
+                    |> TaskResult.eitherBind (fun (PostId id) -> id.ToString()) string
 
                 Expect.same (newPostId.ToString()) actual
             }
@@ -1014,7 +1014,7 @@ let eitherTests =
             task {
                 let! actual =
                     createPostFailure validCreatePostRequest
-                    |> TaskResult.either string _.Message
+                    |> TaskResult.eitherBind string _.Message
 
                 Expect.same commonEx.Message actual
             }

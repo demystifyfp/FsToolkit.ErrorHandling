@@ -1,4 +1,4 @@
-# Result.either
+# Result.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -13,13 +13,13 @@ Namespace: `FsToolkit.ErrorHandling`
 
 ### Example 1
 
-`either` can be used to convert `Result` to another similar type, such as `Choice`:
+`eitherBind` can be used to convert `Result` to another similar type, such as `Choice`:
 
 ```fsharp
-let choice1 = Ok 42 |> Result.either Choice1Of2 Choice2Of2
+let choice1 = Ok 42 |> Result.eitherBind Choice1Of2 Choice2Of2
 // Choice1Of2 42
 
-let choice2 = Error "An error occurred" |> Result.either Choice1Of2 Choice2Of2
+let choice2 = Error "An error occurred" |> Result.eitherBind Choice1Of2 Choice2Of2
 // Choice2Of2 "An error occurred"
 ```
 
@@ -45,12 +45,12 @@ type HttpResponse<'a, 'b> =
     | BadRequest of 'b
 ```
 
-Then using `Result.either`, we can do the following
+Then using `Result.eitherBind`, we can do the following
 
 ```fsharp
 // HttpRequest -> HttpResponse<int,string>
 let handler httpRequest =
     // reading the input from the HTTP request
     let inputStr = httpRequest ... 
-    inputStr |> tryParseInt |> Result.either Ok BadRequest
+    inputStr |> tryParseInt |> Result.eitherBind Ok BadRequest
 ```

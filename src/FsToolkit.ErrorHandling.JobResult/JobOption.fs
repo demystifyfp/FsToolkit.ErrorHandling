@@ -30,7 +30,7 @@ module JobOption =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input <c>Job&lt;'input option&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Job<'input option>)
@@ -40,4 +40,17 @@ module JobOption =
             function
             | Some v -> onSome v
             | None -> onNone ()
+        )
+
+    [<System.Obsolete "Please use JobOption.eitherBind or Job.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> Job<'output>)
+        (onNone: Job<'output>)
+        (input: Job<'input option>)
+        : Job<'output> =
+        input
+        |> Job.bind (
+            function
+            | Some v -> onSome v
+            | None -> onNone
         )

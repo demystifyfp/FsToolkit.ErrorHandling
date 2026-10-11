@@ -1,4 +1,4 @@
-# ValueTaskValueOption.either
+# ValueTaskValueOption.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -19,7 +19,7 @@ Provide two functions to execute depending on the value of the voption. If the v
 
 ```fsharp
 ValueTaskValueOption.some 5
-|> ValueTaskValueOption.either (fun x -> x * 2) (fun () -> 0) 
+|> ValueTaskValueOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
 // valueTask { 10 }
 ```
@@ -28,7 +28,7 @@ ValueTaskValueOption.some 5
 
 ```fsharp
 ValueTaskValueOption.none
-|> ValueTaskValueOption.either (fun x -> x * 2) (fun () -> 0) 
+|> ValueTaskValueOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
 // valueTask { 0 }
 ```

@@ -433,7 +433,7 @@ module CancellableValueTaskOptionCE =
                 <| fun () ->
                     let computation =
                         CancellableValueTaskOption.some 5
-                        |> CancellableValueTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                        |> CancellableValueTaskOption.eitherBind (fun x -> x + 2) (fun () -> 42)
 
                     let actual = (computation CancellationToken.None).Result
 
@@ -442,7 +442,7 @@ module CancellableValueTaskOptionCE =
                 <| fun () ->
                     let computation =
                         CancellableValueTaskOption.none
-                        |> CancellableValueTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                        |> CancellableValueTaskOption.eitherBind (fun x -> x + 2) (fun () -> 42)
 
                     let actual = (computation CancellationToken.None).Result
 

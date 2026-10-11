@@ -1,4 +1,4 @@
-## JobOption.either
+## JobOption.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -19,7 +19,7 @@ let tryFindUser : string -> Job<User option>
 
 // Job<string>
 tryFindUser "alice"
-|> JobOption.either
+|> JobOption.eitherBind
     (fun user -> Job.singleton (sprintf "Found user: %s" user.Name))
     (Job.singleton "User not found")
 ```
@@ -30,7 +30,7 @@ tryFindUser "alice"
 let maybeValue : Job<int option> = Job.singleton (Some 42)
 
 maybeValue
-|> JobOption.either
+|> JobOption.eitherBind
     (fun x -> Job.singleton (x * 2))
     (Job.singleton 0)
 // job { return 84 }
@@ -42,7 +42,7 @@ maybeValue
 let emptyJob : Job<int option> = Job.singleton None
 
 emptyJob
-|> JobOption.either
+|> JobOption.eitherBind
     (fun x -> Job.singleton (x * 2))
     (Job.singleton 0)
 // job { return 0 }

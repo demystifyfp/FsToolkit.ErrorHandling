@@ -1,4 +1,4 @@
-# AsyncOption.either
+# AsyncOption.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -18,7 +18,7 @@ Provide two functions to execute depending on the value of the option. If the op
 ### Example 1
 
 ```fsharp
-AsyncOption.some 5 |> AsyncOption.either (fun x -> x * 2) (fun () -> 0)
+AsyncOption.some 5 |> AsyncOption.eitherBind (fun x -> x * 2) (fun () -> 0)
 
 // async { 10 }
 ```
@@ -26,7 +26,7 @@ AsyncOption.some 5 |> AsyncOption.either (fun x -> x * 2) (fun () -> 0)
 ### Example 2
 
 ```fsharp
-async { return None } |> AsyncOption.either (fun x -> x * 2) (fun () -> 0) 
+async { return None } |> AsyncOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
 // async { 0 }
 ```

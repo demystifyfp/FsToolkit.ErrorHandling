@@ -982,7 +982,7 @@ module CancellableTaskOptionCE =
 
                     let computation =
                         input
-                        |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                        |> CancellableTaskOption.eitherBind (fun x -> x + 2) (fun () -> 42)
 
                     let actual = (computation CancellationToken.None).Result
                     Expect.equal 7 actual ""
@@ -993,7 +993,7 @@ module CancellableTaskOptionCE =
 
                     let computation =
                         input
-                        |> CancellableTaskOption.either (fun x -> x + 2) (fun () -> 42)
+                        |> CancellableTaskOption.eitherBind (fun x -> x + 2) (fun () -> 42)
 
                     let actual = (computation CancellationToken.None).Result
                     Expect.equal 42 actual ""

@@ -32,17 +32,17 @@ module AsyncResult =
         ([<InlineIfLambda>] binder: 'input -> Async<Result<'output, 'error>>)
         (input: Async<Result<'input, 'error>>)
         : Async<Result<'output, 'error>> =
-        Async.bind (Result.either binder error) input
+        Async.bind (Result.eitherBind binder error) input
 
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Async<Result<'input, 'inputError>>)
         : Async<'output> =
-        Async.map (Result.either onOk onError) input
+        Async.map (Result.eitherBind onOk onError) input
 
-    [<System.Obsolete "Please use either instead of foldResult (renamed to align with Result naming)">]
-    let foldResult = either
+    [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
+    let foldResult = eitherBind
 
     /// <summary>
     /// Maps the values of an <c>AsyncResult</c>  to a new <c>AsyncResult</c>  using the provided functions.
@@ -125,7 +125,7 @@ module AsyncResult =
         (ifError: Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either ok (fun _ -> ifError)) input
+        Async.bind (Result.eitherBind ok (fun _ -> ifError)) input
 
     /// <summary>
     /// Returns <paramref name="input"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -150,7 +150,7 @@ module AsyncResult =
         ([<InlineIfLambda>] ifErrorFunc: 'errorInput -> Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either ok ifErrorFunc) input
+        Async.bind (Result.eitherBind ok ifErrorFunc) input
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error>

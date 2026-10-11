@@ -52,7 +52,7 @@ module AsyncValidation =
 
             return!
                 result
-                |> Result.either ok (fun _ -> ifError)
+                |> Result.eitherBind ok (fun _ -> ifError)
         }
 
     let inline orElseWith

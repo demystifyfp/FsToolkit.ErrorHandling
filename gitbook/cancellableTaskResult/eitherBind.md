@@ -1,4 +1,4 @@
-## CancellableTaskResult.either
+## CancellableTaskResult.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> CancellableTask<Result<'a, 'c>> -> Task<'b>
 ```
 
-This is just a shortcut for `CancellableTask.map Result.either`. See [Result.either](../result/eitherFunctions.md) for more.
+This is just a shortcut for `CancellableTask.map Result.eitherBind`. See [Result.eitherBind](../result/eitherFunctions.md) for more.
 
 ## Examples
 
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostTR = createPost httpReq
 
   createPostTR
-  |> CancellableTaskResult.either Ok InternalError
+  |> CancellableTaskResult.eitherBind Ok InternalError
 ```

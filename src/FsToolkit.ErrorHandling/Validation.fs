@@ -54,7 +54,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok (fun _ -> ifError)
+        |> Result.eitherBind ok (fun _ -> ifError)
 
 
     /// <summary>
@@ -81,7 +81,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok ifErrorFunc
+        |> Result.eitherBind ok ifErrorFunc
 
 
     let inline map

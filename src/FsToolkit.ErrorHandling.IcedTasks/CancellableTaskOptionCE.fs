@@ -371,13 +371,26 @@ module CancellableTaskOption =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input <c>CancellableTask&lt;'input option&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: CancellableTask<'input option>)
         : CancellableTask<'output> =
         input
         |> CancellableTask.map (
+            function
+            | Some v -> onSome v
+            | None -> onNone ()
+        )
+
+    [<System.Obsolete "Please use CancellableTaskOption.eitherBind or CancellableTask.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> CancellableTask<'output>)
+        ([<InlineIfLambda>] onNone: unit -> CancellableTask<'output>)
+        (input: CancellableTask<'input option>)
+        : CancellableTask<'output> =
+        input
+        |> CancellableTask.bind (
             function
             | Some v -> onSome v
             | None -> onNone ()

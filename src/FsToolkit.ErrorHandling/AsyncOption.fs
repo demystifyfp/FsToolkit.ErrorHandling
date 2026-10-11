@@ -39,7 +39,7 @@ module AsyncOption =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input <c>Async&lt;'input option&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Async<'input option>)
@@ -49,6 +49,19 @@ module AsyncOption =
             function
             | Some v -> onSome v
             | None -> onNone ()
+        )
+
+    [<System.Obsolete "Please use AsyncOption.eitherBind or Async.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> Async<'output>)
+        (onNone: Async<'output>)
+        (input: Async<'input option>)
+        : Async<'output> =
+        input
+        |> Async.bind (
+            function
+            | Some v -> onSome v
+            | None -> onNone
         )
 
     /// <summary>
@@ -100,7 +113,7 @@ module AsyncOption =
         (ifNone: Async<'value option>)
         (input: Async<'value option>)
         : Async<'value option> =
-        Async.bind (Option.either some (fun _ -> ifNone)) input
+        Async.bind (Option.eitherBind some (fun _ -> ifNone)) input
 
     /// <summary>
     /// Returns <paramref name="input"/> if it is <c>Some</c>, otherwise executes <paramref name="ifNoneFunc"/> and returns the result.
@@ -125,4 +138,4 @@ module AsyncOption =
         ([<InlineIfLambda>] ifNoneFunc: unit -> Async<'value option>)
         (input: Async<'value option>)
         : Async<'value option> =
-        Async.bind (Option.either some ifNoneFunc) input
+        Async.bind (Option.eitherBind some ifNoneFunc) input

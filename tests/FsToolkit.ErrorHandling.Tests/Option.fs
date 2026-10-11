@@ -643,19 +643,19 @@ let bindNullTests =
     ]
 
 let eitherTests =
-    testList "Option.either Tests" [
+    testList "Option.eitherBind Tests" [
         testCase "Some"
         <| fun _ ->
             let value1 = Some 5
             let f () = 42
             let add2 = (+) 2
-            Expect.equal (Option.either add2 f value1) 7 ""
+            Expect.equal (Option.eitherBind add2 f value1) 7 ""
         testCase "None"
         <| fun _ ->
             let value1 = None
             let f () = 42
             let add2 = (+) 2
-            Expect.equal (Option.either add2 f value1) 42 ""
+            Expect.equal (Option.eitherBind add2 f value1) 42 ""
     ]
 
 let ofPairTests =

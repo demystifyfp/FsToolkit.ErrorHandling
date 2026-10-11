@@ -19,17 +19,18 @@ module TaskResult =
         |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
-    let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) = Task.bind (Result.either f error) tr
+    let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
+        Task.bind (Result.eitherBind f error) tr
 
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Task<Result<'input, 'inputError>>)
         : Task<'output> =
-        Task.map (Result.either onOk onError) input
+        Task.map (Result.eitherBind onOk onError) input
 
-    [<System.Obsolete "Please use either instead of foldResult (renamed to align with Result naming)">]
-    let foldResult = either
+    [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
+    let foldResult = eitherBind
 
     /// <summary>
     /// Maps the values of an <c>TaskResult</c>  to a new <c>TaskResult</c>  using the provided functions.
@@ -71,7 +72,7 @@ module TaskResult =
     /// </returns>
     let inline orElse (ifError: Task<Result<'ok, 'error2>>) (result: Task<Result<'ok, 'error>>) =
         result
-        |> Task.bind (Result.either ok (fun _ -> ifError))
+        |> Task.bind (Result.eitherBind ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -97,7 +98,7 @@ module TaskResult =
         (result: Task<Result<'ok, 'error>>)
         =
         result
-        |> Task.bind (Result.either ok ifErrorFunc)
+        |> Task.bind (Result.eitherBind ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error> (tr: Task<Result<'ok, 'error>>) =

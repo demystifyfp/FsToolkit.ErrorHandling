@@ -30,18 +30,18 @@ let resultIsError =
     ]
 
 let resultEither =
-    testList "Result.either Tests" [
+    testList "Result.eitherBind Tests" [
         testCase "Ok calls okF"
         <| fun _ ->
             let okF x = x + 1
             let errorF x = x - 1
-            let actual = Result.either okF errorF (Ok 1)
+            let actual = Result.eitherBind okF errorF (Ok 1)
             Expect.equal actual 2 "Should be 2"
         testCase "Error calls errorF"
         <| fun _ ->
             let okF x = x + 1
             let errorF x = x - 1
-            let actual = Result.either okF errorF (Error 1)
+            let actual = Result.eitherBind okF errorF (Error 1)
             Expect.equal actual 0 "Should be 0"
     ]
 

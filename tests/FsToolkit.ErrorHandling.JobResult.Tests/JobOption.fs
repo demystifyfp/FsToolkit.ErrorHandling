@@ -119,7 +119,7 @@ let jobOptionOperatorTests =
 
 
 let eitherTests =
-    testList "JobOption.either Tests" [
+    testList "JobOption.eitherBind Tests" [
         testCaseJob "Some"
         <| job {
             let value1 = JobOption.singleton 5
@@ -128,7 +128,7 @@ let eitherTests =
 
             let! result =
                 value1
-                |> JobOption.either add2 f
+                |> JobOption.eitherBind add2 f
 
             Expect.equal result 7 ""
         }
@@ -140,7 +140,7 @@ let eitherTests =
 
             let! result =
                 value1
-                |> JobOption.either add2 f
+                |> JobOption.eitherBind add2 f
 
             Expect.equal result 42 ""
         }

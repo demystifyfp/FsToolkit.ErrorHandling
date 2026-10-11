@@ -121,7 +121,7 @@ let taskOptionOperatorTests =
 
 
 let eitherTests =
-    testList "TaskOption.either Tests" [
+    testList "TaskOption.eitherBind Tests" [
         testCaseTask "Some"
         <| fun () ->
             task {
@@ -131,7 +131,7 @@ let eitherTests =
 
                 let! result =
                     value1
-                    |> TaskOption.either add2 f
+                    |> TaskOption.eitherBind add2 f
 
                 Expect.equal result 7 ""
             }
@@ -144,7 +144,7 @@ let eitherTests =
 
                 let! result =
                     value1
-                    |> TaskOption.either add2 f
+                    |> TaskOption.eitherBind add2 f
 
                 Expect.equal result 42 ""
             }

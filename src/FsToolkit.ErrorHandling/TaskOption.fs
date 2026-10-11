@@ -41,13 +41,26 @@ module TaskOption =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input <c>Task&lt;'input option&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Task<'input option>)
         : Task<'output> =
         input
         |> Task.map (
+            function
+            | Some v -> onSome v
+            | None -> onNone ()
+        )
+
+    [<System.Obsolete "Please use TaskOption.eitherBind or Task.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> Task<'output>)
+        ([<InlineIfLambda>] onNone: unit -> Task<'output>)
+        (input: Task<'input option>)
+        : Task<'output> =
+        input
+        |> Task.bind (
             function
             | Some v -> onSome v
             | None -> onNone ()

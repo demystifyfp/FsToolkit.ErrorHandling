@@ -38,13 +38,12 @@ module TaskValueOption =
         Task.zip left right
         |> Task.map (fun (r1, r2) -> ValueOption.zip r1 r2)
 
-
     /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
     /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>ValueSome</c>.</param>
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c>.</param>
     /// <param name="input">The input <c>Task&lt;'input voption&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: Task<'input voption>)
@@ -54,6 +53,19 @@ module TaskValueOption =
             function
             | ValueSome v -> onSome v
             | ValueNone -> onNone ()
+        )
+
+    [<System.Obsolete "Please use TaskValueOption.eitherBind or Task.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onValueSome: 'input -> Task<'output>)
+        ([<InlineIfLambda>] onValueNone: unit -> Task<'output>)
+        (input: Task<'input voption>)
+        : Task<'output> =
+        input
+        |> Task.bind (
+            function
+            | ValueSome v -> onValueSome v
+            | ValueNone -> onValueNone ()
         )
 
     /// <summary>

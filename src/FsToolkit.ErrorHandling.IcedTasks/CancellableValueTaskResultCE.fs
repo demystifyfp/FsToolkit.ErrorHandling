@@ -375,12 +375,12 @@ module CancellableValueTaskResult =
             return applier cResult
         }
 
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: CancellableValueTask<Result<'input, 'inputError>>)
         : CancellableValueTask<'output> =
-        CancellableValueTask.map (Result.either onOk onError) input
+        CancellableValueTask.map (Result.eitherBind onOk onError) input
 
     /// <summary>
     /// Maps the values of an <c>CancellableValueTaskResult</c> to a new <c>CancellableValueTaskResult</c>  using the provided functions.

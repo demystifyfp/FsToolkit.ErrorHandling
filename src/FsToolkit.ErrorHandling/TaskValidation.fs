@@ -72,7 +72,7 @@ module TaskValidation =
 
             return!
                 validation
-                |> Result.either ok (fun _ -> ifError)
+                |> Result.eitherBind ok (fun _ -> ifError)
         }
 
     /// <summary>

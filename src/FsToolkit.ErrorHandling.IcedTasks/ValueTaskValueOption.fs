@@ -58,7 +58,7 @@ module ValueTaskValueOption =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c>.</param>
     /// <param name="input">The input <c>ValueTask&lt;'input voption&gt;</c>.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns the result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: ValueTask<'input voption>)
@@ -67,6 +67,18 @@ module ValueTaskValueOption =
             match! input with
             | ValueSome v -> return onSome v
             | ValueNone -> return onNone ()
+        }
+
+    [<System.Obsolete "Please use ValueTaskValueOption.eitherBind or ValueTask.bind instead">]
+    let inline either
+        ([<InlineIfLambda>] onValueSome: 'input -> ValueTask<'output>)
+        ([<InlineIfLambda>] onValueNone: unit -> ValueTask<'output>)
+        (input: ValueTask<'input voption>)
+        : ValueTask<'output> =
+        valueTask {
+            match! input with
+            | ValueSome v -> return! onValueSome v
+            | ValueNone -> return! onValueNone ()
         }
 
     /// <summary>

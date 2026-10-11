@@ -1,4 +1,4 @@
-## AsyncResult.either
+## AsyncResult.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> Async<Result<'a, 'c>> -> Async<'b>
 ```
 
-This is just a shortcut for `Async.map Result.either`. See [Result.either](../result/eitherFunctions.md) for more.
+This is just a shortcut for `Async.map Result.eitherBind`. See [Result.eitherBind](../result/eitherFunctions.md) for more.
 
 ## Examples
 
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostAR = createPost httpReq
 
   createPostAR
-  |> AsyncResult.either Ok InternalError
+  |> AsyncResult.eitherBind Ok InternalError
 ```

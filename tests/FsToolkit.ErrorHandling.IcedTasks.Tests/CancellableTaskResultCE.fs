@@ -1077,7 +1077,7 @@ module CancellableTaskResultCE =
                 <| async {
                     let! actual =
                         CancellableTaskResult.singleton 5
-                        |> CancellableTaskResult.either string id
+                        |> CancellableTaskResult.eitherBind string id
 
                     Expect.equal "5" actual ""
                 }
@@ -1087,7 +1087,7 @@ module CancellableTaskResultCE =
 
                     let! actual =
                         input
-                        |> CancellableTaskResult.either string id
+                        |> CancellableTaskResult.eitherBind string id
 
                     Expect.equal "bad" actual ""
                 }

@@ -254,7 +254,7 @@ module Option =
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input option.</param>
     /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: 'input option)
@@ -262,6 +262,9 @@ module Option =
         match input with
         | Some x -> onSome x
         | None -> onNone ()
+
+    [<System.Obsolete "Please use eitherBind instead">]
+    let either = eitherBind
 
     /// <summary>
     /// If the option is <c>Some</c>, executes the function on the <c>Some</c> value and passes through the input value.

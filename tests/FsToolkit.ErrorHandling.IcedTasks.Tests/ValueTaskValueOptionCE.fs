@@ -664,7 +664,7 @@ let ``ValueTaskValueOption helpers`` =
             task {
                 let! actual =
                     valueTaskValueOption { return 5 }
-                    |> ValueTaskValueOption.either ((+) 2) (fun () -> 42)
+                    |> ValueTaskValueOption.eitherBind ((+) 2) (fun () -> 42)
 
                 Expect.equal actual 7 ""
             }
@@ -673,7 +673,7 @@ let ``ValueTaskValueOption helpers`` =
             task {
                 let! actual =
                     valueTaskValueOption { return! ValueNone }
-                    |> ValueTaskValueOption.either ((+) 2) (fun () -> 42)
+                    |> ValueTaskValueOption.eitherBind ((+) 2) (fun () -> 42)
 
                 Expect.equal actual 42 ""
             }

@@ -1,4 +1,4 @@
-# CancellableTaskOption.either
+# TaskOption.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -9,8 +9,8 @@ Provide two functions to execute depending on the value of the option. If the op
 ```fsharp
 (onSome : 'input -> 'output) 
 	-> (onNone : unit -> 'output) 
-	-> (input : CancellableTask<'input option>) 
-	-> CancellableTask<'output>
+	-> (input : Task<'input option>) 
+	-> Task<'output>
 ```
 
 ## Examples
@@ -18,18 +18,15 @@ Provide two functions to execute depending on the value of the option. If the op
 ### Example 1
 
 ```fsharp
-CancellableTaskOption.some 5
-|> CancellableTaskOption.either (fun x -> x * 2) (fun () -> 0) 
+TaskOption.some 5 |> TaskOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
-// cancellableTask { 10 }
+// task { 10 }
 ```
 
 ### Example 2
 
 ```fsharp
-CancellableTaskOption.none
-|> CancellableTaskOption.either (fun x -> x * 2) (fun () -> 0) 
+TaskOption.none |> TaskOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
-// cancellableTask { 0 }
+// task { 0 }
 ```
-

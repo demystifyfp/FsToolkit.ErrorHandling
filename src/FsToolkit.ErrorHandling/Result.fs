@@ -81,13 +81,13 @@ let inline isError (value: Result<'ok, 'error>) : bool =
 /// <summary>
 /// Applies the appropriate function based on the result of the input.
 ///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/eitherfunctions#result.either</href>
+/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/eitherfunctions#result.eitherBind</href>
 /// </summary>
 /// <param name="onOk">The function to apply if the input is <c>Ok</c></param>
 /// <param name="onError">The function to apply if the input is <c>Error</c></param>
 /// <param name="input">The input result</param>
 /// <returns>The result of applying the appropriate function.</returns>
-let inline either
+let inline eitherBind
     ([<InlineIfLambda>] onOk: 'okInput -> 'output)
     ([<InlineIfLambda>] onError: 'errorInput -> 'output)
     (input: Result<'okInput, 'errorInput>)
@@ -96,10 +96,13 @@ let inline either
     | Ok x -> onOk x
     | Error err -> onError err
 
+[<System.Obsolete "Please use eitherBind instead">]
+let either = eitherBind
+
 /// <summary>
 /// Maps the values of a Result to a new Result using the provided functions.
 ///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/eitherfunctions#result.eithermap</href>
+/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/eitherfunctions#result.eitherMap</href>
 /// </summary>
 /// <param name="onOk">The function to apply to the 'ok' value of the input Result.</param>
 /// <param name="onError">The function to apply to the 'error' value of the input Result.</param>

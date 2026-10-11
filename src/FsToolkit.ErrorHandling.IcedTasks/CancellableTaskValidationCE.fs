@@ -479,7 +479,7 @@ module CancellableTaskValidation =
 
             return!
                 result
-                |> Result.either singleton (fun _ -> ifError)
+                |> Result.eitherBind singleton (fun _ -> ifError)
         }
 
     let inline orElseWith

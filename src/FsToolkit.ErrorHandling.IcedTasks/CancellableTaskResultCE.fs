@@ -308,15 +308,15 @@ module CancellableTaskResult =
     let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
         fun _ -> Task.FromResult(Ok item)
 
-    let inline either
+    let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: CancellableTask<Result<'input, 'inputError>>)
         : CancellableTask<'output> =
-        CancellableTask.map (Result.either onOk onError) input
+        CancellableTask.map (Result.eitherBind onOk onError) input
 
-    [<System.Obsolete "Please use either instead of foldResult (renamed to align with Result naming)">]
-    let foldResult = either
+    [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
+    let foldResult = eitherBind
 
     /// <summary>
     /// Maps the values of an <c>CancellableTaskResult</c> to a new <c>CancellableTaskResult</c> using the provided functions.

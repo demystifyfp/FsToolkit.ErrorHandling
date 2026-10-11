@@ -1,4 +1,4 @@
-## TaskResult.either
+## TaskResult.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -8,7 +8,7 @@ Function Signature:
 ('a -> 'b) -> ('c -> 'b) -> Task<Result<'a, 'c>> -> Task<'b>
 ```
 
-This is just a shortcut for `Task.map Result.either`. See [Result.either](../result/either.md) for more.
+This is just a shortcut for `Task.map Result.eitherBind`. See [Result.eitherBind](../result/eitherBind.md) for more.
 
 ## Examples
 
@@ -32,5 +32,5 @@ let handler (httpReq : HttpRequest) =
   let createPostTR = createPost httpReq
 
   createPostTR
-  |> TaskResult.either Ok InternalError
+  |> TaskResult.eitherBind Ok InternalError
 ```
