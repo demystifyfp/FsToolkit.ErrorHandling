@@ -40,7 +40,7 @@ module ValueTaskValueOption =
     /// <returns>A ValueTask with ValueNone as the result.</returns>
     let inline none<'a> : ValueTask<'a voption> = ValueTask.singleton ValueNone
 
-    [<System.Obsolete "Please use some instead of singleton">]
+    [<System.Obsolete "Please use some instead of valueSome">]
     let inline valueSome x = some x
 
     let inline apply f x =

@@ -164,9 +164,9 @@ let inline check
     |> Result.map (fun () -> input)
 
 /// Internal helper used to provide the <x>With associated with every <x>
-let private deferError
-    (checker: unit -> 'input -> Result<'output, unit>)
-    (errorF: unit -> 'error)
+let inline private deferError
+    ([<InlineIfLambda>] checker: unit -> 'input -> Result<'output, unit>)
+    ([<InlineIfLambda>] errorF: unit -> 'error)
     (x: 'input)
     : Result<'output, 'error> =
     checker () x
@@ -177,88 +177,88 @@ let private deferError
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let filterWith predicate errorF x = deferError (filter predicate) errorF x
+let inline filterWith predicate errorF x = deferError (filter predicate) errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let equalToWith other errorF x = deferError (equalTo other) errorF x
+let inline equalToWith other errorF x = deferError (equalTo other) errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let equalWith errorF (x1, x2) : Result<unit, 'error> = deferError equal errorF (x1, x2)
+let inline equalWith errorF (x1, x2) : Result<unit, 'error> = deferError equal errorF (x1, x2)
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let isTrueWith errorF x = deferError isTrue errorF x
+let inline isTrueWith errorF x = deferError isTrue errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let isFalseWith errorF x = deferError isFalse errorF x
+let inline isFalseWith errorF x = deferError isFalse errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let someWith errorF x = deferError some errorF x
+let inline someWith errorF x = deferError some errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let noneWith errorF x = deferError none errorF x
+let inline noneWith errorF x = deferError none errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let valueSomeWith errorF x = deferError valueSome errorF x
+let inline valueSomeWith errorF x = deferError valueSome errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let valueNoneWith errorF x = deferError valueNone errorF x
+let inline valueNoneWith errorF x = deferError valueNone errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let notNullWith errorF x = deferError notNull errorF x
+let inline notNullWith errorF x = deferError notNull errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let emptyWith errorF x = deferError empty errorF x
+let inline emptyWith errorF x = deferError empty errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let notEmptyWith errorF x = deferError notEmpty errorF x
+let inline notEmptyWith errorF x = deferError notEmpty errorF x
 
 /// <summary>A <c>*With</c> function has identical behavior to the associated function, except that the error
 /// becomes a function that is evaluated only if the underlying function has determined the check has failed.<br/>
 /// This allows expensive or side-effecting error construction to be avoided unless it is actually needed.<br/>
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/req/functions#with</href>
 /// </summary>
-let headWith errorF x = deferError head errorF x
+let inline headWith errorF x = deferError head errorF x

@@ -97,7 +97,12 @@ let inline eitherBind
     | Error err -> onError err
 
 [<System.Obsolete "Please use eitherBind instead">]
-let either = eitherBind
+let inline either
+    ([<InlineIfLambda>] onOk: 'okInput -> 'output)
+    ([<InlineIfLambda>] onError: 'errorInput -> 'output)
+    (input: Result<'okInput, 'errorInput>)
+    : 'output =
+    eitherBind onOk onError input
 
 /// <summary>
 /// Maps the values of a Result to a new Result using the provided functions.
@@ -530,37 +535,37 @@ let inline requireEqual x1 x2 error =
 let inline requireTrue error value = Req.isTrue error value
 
 [<System.Obsolete "Please use Req.isTrueWith errorF instead of requireTrueWith errorF">]
-let requireTrueWith errorF value = Req.isTrueWith errorF value
+let inline requireTrueWith errorF value = Req.isTrueWith errorF value
 
 [<System.Obsolete "Please use Req.isFalse error instead of requireFalse error">]
 let inline requireFalse error value = Req.isFalse error value
 
 [<System.Obsolete "Please use Req.isFalseWith errorF instead of requireFalseWith errorF">]
-let requireFalseWith errorF value = Req.isFalseWith errorF value
+let inline requireFalseWith errorF value = Req.isFalseWith errorF value
 
 [<System.Obsolete "Please use Req.some error instead of requireSome error">]
 let inline requireSome error value = Req.some error value
 
 [<System.Obsolete "Please use Req.someWith errorF instead of requireSomeWith errorF">]
-let requireSomeWith errorF value = Req.someWith errorF value
+let inline requireSomeWith errorF value = Req.someWith errorF value
 
 [<System.Obsolete "Please use Req.none error instead of requireNone error">]
 let inline requireNone error value = Req.none error value
 
 [<System.Obsolete "Please use Req.noneWith errorF instead of requireNoneWith errorF">]
-let requireNoneWith errorF value = Req.noneWith errorF value
+let inline requireNoneWith errorF value = Req.noneWith errorF value
 
 [<System.Obsolete "Please use Req.valueSome error instead of requireValueSome error">]
 let inline requireValueSome error value = Req.valueSome error value
 
 [<System.Obsolete "Please use Req.valueSomeWith errorF instead of requireValueSomeWith errorF">]
-let requireValueSomeWith errorF value = Req.valueSomeWith errorF value
+let inline requireValueSomeWith errorF value = Req.valueSomeWith errorF value
 
 [<System.Obsolete "Please use Req.valueNone error instead of requireValueNone error">]
 let inline requireValueNone error value = Req.valueNone error value
 
 [<System.Obsolete "Please use Req.valueNoneWith errorF instead of requireValueNoneWith errorF">]
-let requireValueNoneWith errorF value = Req.valueNoneWith errorF value
+let inline requireValueNoneWith errorF value = Req.valueNoneWith errorF value
 
 [<System.Obsolete "Please use Req.notNull error instead of requireNotNull error">]
 let inline requireNotNull error value = Req.notNull error value

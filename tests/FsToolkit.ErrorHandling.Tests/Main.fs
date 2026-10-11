@@ -11,6 +11,7 @@ open Expecto
 
 let allTests =
     testList "All Tests" [
+        ReqTests.allTests
         ResultTests.allTests
         ResultCETests.allTests
         ResultOptionTests.allTests

@@ -43,7 +43,7 @@ let result : Async<Result<string, string>> =
 
 ### Example 3
 
-Normalising both branches to the same type before consuming is done using `either`; earlier processing can involve `eitherMap`:
+Normalising both branches to the same type before consuming is done using `eitherBind`; earlier processing can involve `eitherMap`:
 
 ```fsharp
 let displayMessage : Async<string> =
@@ -51,7 +51,7 @@ let displayMessage : Async<string> =
   |> AsyncResult.eitherMap
        (fun data -> data.Body) // Result.Ok of data : 'a
        (fun exn  -> exn.Message) // Result.Error of string
-  |> AsyncResult.either
+  |> AsyncResult.eitherBind
        (fun body -> $"Success: {body.Length} chars")
        (fun msg -> $"Failed: {msg}")
 ```

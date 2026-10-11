@@ -196,14 +196,14 @@ let requireEqualTests =
     testList "requireEqual Tests" [
         testCase "requireEqual happy path"
         <| fun _ ->
-            42
-            |> Req.equalTo 42 err
+            (42, 42)
+            |> Req.equal err
             |> Expect.hasOkValue ()
 
         testCase "requireEqual error path"
         <| fun _ ->
-            43
-            |> Req.equalTo 42 err
+            (42, 43)
+            |> Req.equal err
             |> Expect.hasErrorValue err
     ]
 

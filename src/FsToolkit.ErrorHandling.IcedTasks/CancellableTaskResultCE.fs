@@ -316,7 +316,12 @@ module CancellableTaskResult =
         CancellableTask.map (Result.eitherBind onOk onError) input
 
     [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
-    let foldResult = eitherBind
+    let inline foldResult
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: CancellableTask<Result<'input, 'inputError>>)
+        : CancellableTask<'output> =
+        eitherBind onOk onError input
 
     /// <summary>
     /// Maps the values of an <c>CancellableTaskResult</c> to a new <c>CancellableTaskResult</c> using the provided functions.

@@ -30,7 +30,12 @@ module TaskResult =
         Task.map (Result.eitherBind onOk onError) input
 
     [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
-    let foldResult = eitherBind
+    let inline foldResult
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        eitherBind onOk onError input
 
     /// <summary>
     /// Maps the values of an <c>TaskResult</c>  to a new <c>TaskResult</c>  using the provided functions.
@@ -258,37 +263,37 @@ module TaskResult =
     let inline requireTrue error value = Task.req Req.isTrue error value
 
     [<System.Obsolete "Please use Task.req Req.isTrueWith errorF instead of requireTrueWith errorF">]
-    let requireTrueWith errorF value = Task.req Req.isTrueWith errorF value
+    let inline requireTrueWith errorF value = Task.req Req.isTrueWith errorF value
 
     [<System.Obsolete "Please use Task.req Req.isFalse error instead of requireFalse error">]
     let inline requireFalse error value = Task.req Req.isFalse error value
 
     [<System.Obsolete "Please use Task.req Req.isFalseWith errorF instead of requireFalseWith errorF">]
-    let requireFalseWith errorF value = Task.req Req.isFalseWith errorF value
+    let inline requireFalseWith errorF value = Task.req Req.isFalseWith errorF value
 
     [<System.Obsolete "Please use Task.req Req.some error instead of requireSome error">]
     let inline requireSome error value = Task.req Req.some error value
 
     [<System.Obsolete "Please use Task.req Req.someWith errorF instead of requireSomeWith errorF">]
-    let requireSomeWith errorF value = Task.req Req.someWith errorF value
+    let inline requireSomeWith errorF value = Task.req Req.someWith errorF value
 
     [<System.Obsolete "Please use Task.req Req.none error instead of requireNone error">]
     let inline requireNone error value = Task.req Req.none error value
 
     [<System.Obsolete "Please use Task.req Req.noneWith errorF instead of requireNoneWith errorF">]
-    let requireNoneWith errorF value = Task.req Req.noneWith errorF value
+    let inline requireNoneWith errorF value = Task.req Req.noneWith errorF value
 
     [<System.Obsolete "Please use Task.req Req.valueSome error instead of requireValueSome error">]
     let inline requireValueSome error value = Task.req Req.valueSome error value
 
     [<System.Obsolete "Please use Task.req Req.valueSomeWith errorF instead of requireValueSomeWith errorF">]
-    let requireValueSomeWith errorF value = Task.req Req.valueSomeWith errorF value
+    let inline requireValueSomeWith errorF value = Task.req Req.valueSomeWith errorF value
 
     [<System.Obsolete "Please use Task.req Req.valueNone error instead of requireValueNone error">]
     let inline requireValueNone error value = Task.req Req.valueNone error value
 
     [<System.Obsolete "Please use Task.req Req.valueNoneWith errorF instead of requireValueNoneWith errorF">]
-    let requireValueNoneWith errorF value = Task.req Req.valueNoneWith errorF value
+    let inline requireValueNoneWith errorF value = Task.req Req.valueNoneWith errorF value
 
     [<System.Obsolete "Please use Task.req (Req.equalTo other) error instead of requireEqualTo other error">]
     let inline requireEqualTo other error value =
@@ -310,10 +315,10 @@ module TaskResult =
     let inline bindRequireNone error x = req Req.none error x
 
     [<System.Obsolete "Please use TaskResult.req Req.someWith errorF instead of bindRequireSomeWith errorF">]
-    let bindRequireSomeWith errorF x = req Req.someWith errorF x
+    let inline bindRequireSomeWith errorF x = req Req.someWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.noneWith errorF instead of bindRequireNoneWith errorF">]
-    let bindRequireNoneWith errorF x = req Req.noneWith errorF x
+    let inline bindRequireNoneWith errorF x = req Req.noneWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.valueSome error instead of bindRequireValueSome error">]
     let inline bindRequireValueSome error x = req Req.valueSome error x
@@ -322,22 +327,22 @@ module TaskResult =
     let inline bindRequireValueNone error x = req Req.valueNone error x
 
     [<System.Obsolete "Please use TaskResult.req Req.valueSomeWith errorF instead of bindRequireValueSomeWith errorF">]
-    let bindRequireValueSomeWith errorF x = req Req.valueSomeWith errorF x
+    let inline bindRequireValueSomeWith errorF x = req Req.valueSomeWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.valueNoneWith errorF instead of bindRequireValueNoneWith errorF">]
-    let bindRequireValueNoneWith errorF x = req Req.valueNoneWith errorF x
+    let inline bindRequireValueNoneWith errorF x = req Req.valueNoneWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.isTrue error instead of bindRequireTrue error">]
     let inline bindRequireTrue error x = req Req.isTrue error x
 
     [<System.Obsolete "Please use TaskResult.req Req.isTrueWith errorF instead of bindRequireTrueWith errorF">]
-    let bindRequireTrueWith errorF x = req Req.isTrueWith errorF x
+    let inline bindRequireTrueWith errorF x = req Req.isTrueWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.isFalse error instead of bindRequireFalse error">]
     let inline bindRequireFalse error x = req Req.isFalse error x
 
     [<System.Obsolete "Please use TaskResult.req Req.isFalseWith errorF instead of bindRequireFalseWith errorF">]
-    let bindRequireFalseWith errorF x = req Req.isFalseWith errorF x
+    let inline bindRequireFalseWith errorF x = req Req.isFalseWith errorF x
 
     [<System.Obsolete "Please use TaskResult.req Req.notNull error instead of bindRequireNotNull error">]
     let inline bindRequireNotNull error x = req Req.notNull error x

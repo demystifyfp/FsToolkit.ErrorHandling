@@ -249,7 +249,7 @@ module Option =
         | None -> None
 
     /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/either</href></summary>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/eitherBind</href></summary>
     /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
     /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input option.</param>
@@ -264,7 +264,12 @@ module Option =
         | None -> onNone ()
 
     [<System.Obsolete "Please use eitherBind instead">]
-    let either = eitherBind
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: 'input option)
+        : 'output =
+        eitherBind onSome onNone input
 
     /// <summary>
     /// If the option is <c>Some</c>, executes the function on the <c>Some</c> value and passes through the input value.

@@ -248,13 +248,13 @@ module JobResult =
     let inline requireSome error value = Job.req Req.some error value
 
     [<System.Obsolete "Please use Job.req Req.someWith errorF instead of requireSomeWith errorF">]
-    let requireSomeWith errorF value = Job.req Req.someWith errorF value
+    let inline requireSomeWith errorF value = Job.req Req.someWith errorF value
 
     [<System.Obsolete "Please use Job.req Req.none error instead of requireNone error">]
     let inline requireNone error value = Job.req Req.none error value
 
     [<System.Obsolete "Please use Job.req Req.noneWith errorF instead of requireNoneWith errorF">]
-    let requireNoneWith errorF value = Job.req Req.noneWith errorF value
+    let inline requireNoneWith errorF value = Job.req Req.noneWith errorF value
 
     [<System.Obsolete "Please use Job.req Req.valueSome error instead of requireValueSome error">]
     let inline requireValueSome error value = Job.req Req.valueSome error value
