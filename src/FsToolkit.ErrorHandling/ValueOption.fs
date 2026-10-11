@@ -99,12 +99,11 @@ module ValueOption =
 
 
     /// <summary>
-    ///
-    /// <c>bindNull binder voption</c> evaluates to <c>match voption with ValueNone -> ValueNone | ValueSome x -> binder x |> ValueOption.ofNull</c>
-    ///
-    /// Automatically onverts the result of binder that is pontentially null into an Valueoption.
+    /// <c>bindNull binder voption</c> evaluates to <c>match voption with ValueNone -> ValueNone | ValueSome x -> binder x |> ValueOption.ofNull</c><br/>
+    /// Automatically converts the result of binder that is potentially null into a ValueOption.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bindnull</href>
     /// </summary>
-    /// <param name="binder">A function that takes the value of type 'value from an voption and transforms it into
+    /// <param name="binder">A function that takes the value of type 'value from a voption and transforms it into
     /// a value of type 'nullableValue.</param>
     /// <param name="voption">The input voption</param>
     /// <typeparam name="'value"></typeparam>
@@ -116,9 +115,7 @@ module ValueOption =
         (voption: 'value voption)
         : 'nullableValue voption =
         match voption with
-        | ValueSome x ->
-            binder x
-            |> ofNull
+        | ValueSome x -> ofNull (binder x)
         | ValueNone -> ValueNone
 
 

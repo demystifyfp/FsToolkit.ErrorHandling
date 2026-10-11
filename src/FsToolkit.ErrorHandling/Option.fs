@@ -224,11 +224,8 @@ module Option =
             Some value
 
     /// <summary>
-    ///
-    /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c>
-    ///
-    /// Automatically onverts the result of binder that is pontentially null into an option.
-    ///
+    /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c><br/>
+    /// Automatically converts the result of binder that is potentially null into an option.<br/>
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bindnull</href>
     /// </summary>
     /// <param name="binder">A function that takes the value of type 'value from an option and transforms it into
@@ -243,9 +240,7 @@ module Option =
         (option: 'value option)
         : 'nullableValue option =
         match option with
-        | Some x ->
-            binder x
-            |> ofNull
+        | Some x -> ofNull (binder x)
         | None -> None
 
     /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.
