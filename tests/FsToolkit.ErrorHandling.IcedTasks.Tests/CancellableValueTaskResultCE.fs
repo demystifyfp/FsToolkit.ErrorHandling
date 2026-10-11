@@ -391,7 +391,7 @@ module CancellableValueTaskResultCE =
     let cancellableValueTaskResult =
         testList "CancellableValueTaskResult" [
             testList "branch mappers" [
-                testCase "either Ok"
+                testCase "eitherBind Ok"
                 <| fun () ->
                     let computation =
                         CancellableValueTaskResult.singleton 5
@@ -400,7 +400,7 @@ module CancellableValueTaskResultCE =
                     let actual = (computation CancellationToken.None).Result
 
                     Expect.equal "7" actual ""
-                testCase "either Error"
+                testCase "eitherBind Error"
                 <| fun () ->
                     let computation =
                         CancellableValueTaskResult.error "bad"

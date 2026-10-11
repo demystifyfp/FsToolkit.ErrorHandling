@@ -658,8 +658,8 @@ let ``ValueTaskValueOptionCE inference checks`` =
     ]
 
 let ``ValueTaskValueOption helpers`` =
-    testList "either" [
-        testCaseTask "either ValueSome"
+    testList "eitherBind" [
+        testCaseTask "ValueSome"
         <| fun () ->
             task {
                 let! actual =
@@ -668,7 +668,7 @@ let ``ValueTaskValueOption helpers`` =
 
                 Expect.equal actual 7 ""
             }
-        testCaseTask "either ValueNone"
+        testCaseTask "ValueNone"
         <| fun () ->
             task {
                 let! actual =

@@ -172,7 +172,7 @@ let bindResultTests =
 [<Tests>]
 let eitherTests =
     testList "JobResult.either* tests" [
-        testCase "either maps Ok and Error"
+        testCase "eitherBind maps Ok and Error"
         <| fun _ ->
             JobResult.ok 1
             |> JobResult.eitherBind ((+) 1) id

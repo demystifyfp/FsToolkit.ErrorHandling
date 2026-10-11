@@ -1072,8 +1072,8 @@ module CancellableTaskResultCE =
                     Expect.equal (Ok "lolfooo") someTask ""
                 }
             ]
-            testList "either and eitherMap" [
-                testCaseAsync "either Ok"
+            testList "either" [
+                testCaseAsync "eitherBind Ok"
                 <| async {
                     let! actual =
                         CancellableTaskResult.singleton 5
@@ -1081,7 +1081,7 @@ module CancellableTaskResultCE =
 
                     Expect.equal "5" actual ""
                 }
-                testCaseAsync "either Error"
+                testCaseAsync "eitherBind Error"
                 <| async {
                     let input = fun _ -> Task.FromResult(Error "bad")
 

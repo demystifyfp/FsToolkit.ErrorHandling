@@ -999,8 +999,8 @@ let TaskResultBindRequireValueOptionTests =
     ]
 
 let eitherTests =
-    testList "TaskResult.eitherBind tests" [
-        testCaseTask "either with Task(Ok x)"
+    testList "TaskResult.either tests" [
+        testCaseTask "eitherBind with Task(Ok x)"
         <| fun _ ->
             task {
                 let! actual =
@@ -1009,7 +1009,7 @@ let eitherTests =
 
                 Expect.same (newPostId.ToString()) actual
             }
-        testCaseTask "either with Task(Error x)"
+        testCaseTask "eitherBind with Task(Error x)"
         <| fun _ ->
             task {
                 let! actual =

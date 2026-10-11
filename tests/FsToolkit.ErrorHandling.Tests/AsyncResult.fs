@@ -84,8 +84,8 @@ let map2Tests =
 
 let eitherTests =
 
-    testList "AsyncResult.eitherBind tests" [
-        testCaseAsync "either with Async(Ok x)"
+    testList "AsyncResult.either tests" [
+        testCaseAsync "eitherBind with Async(Ok x)"
         <| async {
             let! actual =
                 createPostSuccess validCreatePostRequest
@@ -94,13 +94,30 @@ let eitherTests =
             Expect.same (newPostId.ToString()) actual
         }
 
-        testCaseAsync "either with Async(Error x)"
+        testCaseAsync "eitherBind with Async(Error x)"
         <| async {
             let! actual =
                 createPostFailure validCreatePostRequest
                 |> AsyncResult.eitherBind string _.Message
 
             Expect.same commonEx.Message actual
+        }
+
+        testCaseAsync "eitherMap with Async(Ok x)"
+        <| async {
+            let! actual =
+                AsyncResult.ok 1
+                |> AsyncResult.eitherMap ((+) 1) String.length
+
+            Expect.equal actual (Ok 2) ""
+        }
+        testCaseAsync "eitherMap with Async(Error x)"
+        <| async {
+            let! actual =
+                AsyncResult.error "bad"
+                |> AsyncResult.eitherMap ((+) 1) String.length
+
+            Expect.equal actual (Error 3) ""
         }
     ]
 

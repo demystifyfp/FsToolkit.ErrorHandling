@@ -975,7 +975,7 @@ module CancellableTaskOptionCE =
                     Expect.equal (Some "lolfooo") someTask ""
                 }
             ]
-            testList "either" [
+            testList "eitherBind" [
                 testCaseAsync "Some"
                 <| async {
                     let input = cancellableTaskOption { return 5 }

@@ -428,7 +428,7 @@ module CancellableValueTaskOptionCE =
     [<Tests>]
     let cancellableValueTaskOptionHelpers =
         testList "CancellableValueTaskOption functions" [
-            testList "either" [
+            testList "eitherBind" [
                 testCase "Some"
                 <| fun () ->
                     let computation =
