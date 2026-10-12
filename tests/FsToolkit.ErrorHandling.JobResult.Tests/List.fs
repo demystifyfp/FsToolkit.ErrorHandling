@@ -2,12 +2,10 @@ module ListTests
 
 open Expecto
 open SampleDomain
-open TestData
 open System
 open FsToolkit.ErrorHandling
 open Hopac
-open Expects.JobResult
-
+open Expect.JobResult
 
 let userId1 = Guid.NewGuid()
 let userId2 = Guid.NewGuid()
@@ -44,10 +42,9 @@ let traverseJobResultMTests =
 
             Expect.hasJobOkValueSync expected actual
 
-
-        testCase "traverseResultA with few invalid data"
+        testCase "traverseJobResultM with few invalid data"
         <| fun _ ->
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %s{userId1.ToString()}"
 
             let actual =
                 List.traverseJobResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -62,7 +59,7 @@ let notifyFailure (PostId _) (UserId uId) =
              || uId = userId3)
         then
             return
-                sprintf "error: %s" (uId.ToString())
+                $"error: %s{uId.ToString()}"
                 |> Error
         else
             return Ok()
@@ -91,11 +88,11 @@ let traverseJobResultATests =
 
             Expect.hasJobOkValueSync expected actual
 
-        testCase "traverseResultA with few invalid data"
+        testCase "traverseJobResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %s{userId1.ToString()}"
+                $"error: %s{userId3.ToString()}"
             ]
 
             let actual = List.traverseJobResultA (notifyFailure (PostId newPostId)) userIds
@@ -128,7 +125,7 @@ let sequenceJobResultMTests =
 
         testCase "sequenceJobResultM with few invalid data"
         <| fun _ ->
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %s{userId1.ToString()}"
 
             let actual =
                 List.map (notifyFailure (PostId newPostId)) userIds
@@ -163,8 +160,8 @@ let sequenceJobResultATests =
         testCase "sequenceJobResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %s{userId1.ToString()}"
+                $"error: %s{userId3.ToString()}"
             ]
 
             let actual =

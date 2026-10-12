@@ -68,20 +68,18 @@ module ValueOption =
     /// <summary>
     /// Takes two voptions and returns a tuple of the pair or none if either are none
     /// </summary>
-    /// <param name="voption1">The input option</param>
-    /// <param name="voption2">The input option</param>
+    /// <param name="left">The first input option</param>
+    /// <param name="right">The second input option</param>
     /// <returns></returns>
     let inline zip (left: 'left voption) (right: 'right voption) : ('left * 'right) voption =
         match left, right with
         | ValueSome v1, ValueSome v2 -> ValueSome(v1, v2)
         | _ -> ValueNone
 
-
     let inline ofResult (result: Result<'ok, 'error>) : 'ok voption =
         match result with
         | Ok v -> ValueSome v
         | Error _ -> ValueNone
-
 
     /// <summary>
     /// Convert a potentially null value to an ValueOption.
@@ -101,12 +99,11 @@ module ValueOption =
 
 
     /// <summary>
-    ///
-    /// <c>bindNull binder voption</c> evaluates to <c>match voption with ValueNone -> ValueNone | ValueSome x -> binder x |> ValueOption.ofNull</c>
-    ///
-    /// Automatically onverts the result of binder that is pontentially null into an Valueoption.
+    /// <c>bindNull binder voption</c> evaluates to <c>match voption with ValueNone -> ValueNone | ValueSome x -> binder x |> ValueOption.ofNull</c><br/>
+    /// Automatically converts the result of binder that is potentially null into a ValueOption.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bindnull</href>
     /// </summary>
-    /// <param name="binder">A function that takes the value of type 'value from an voption and transforms it into
+    /// <param name="binder">A function that takes the value of type 'value from a voption and transforms it into
     /// a value of type 'nullableValue.</param>
     /// <param name="voption">The input voption</param>
     /// <typeparam name="'value"></typeparam>
@@ -118,22 +115,17 @@ module ValueOption =
         (voption: 'value voption)
         : 'nullableValue voption =
         match voption with
-        | ValueSome x ->
-            binder x
-            |> ofNull
+        | ValueSome x -> ofNull (binder x)
         | ValueNone -> ValueNone
 
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>ValueSome</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c></param>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>ValueSome</c>, otherwise returns result of running <paramref name="onNone"/>.
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/eitherBind</href></summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>ValueSome</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>ValueNone</c>.</param>
     /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
-    let inline either
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>ValueSome</c>, else returns result of running <paramref name="onNone"/>.</returns>
+    let inline eitherBind
         ([<InlineIfLambda>] onSome: 'a -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
         (input: 'a voption)
@@ -141,6 +133,14 @@ module ValueOption =
         match input with
         | ValueSome x -> onSome x
         | ValueNone -> onNone ()
+
+    [<System.Obsolete "Please use eitherBind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'a -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: 'a voption)
+        : 'output =
+        eitherBind onSome onNone input
 
     let inline ofPair (input: bool * 'a) =
         match input with

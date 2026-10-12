@@ -1,109 +1,34 @@
 ## Other Useful Functions
 
+### req
 
-### requireTrue
-
-Returns the specified error if the task-wrapped value is `false`.
-```fsharp
-'a -> Task<bool> -> Task<Result<unit, 'a>>`
-```
-### requireFalse
-
-Returns the specified error if the task-wrapped value is `true`.
-```fsharp
-'a -> Task<bool> -> Task<Result<unit, 'a>>`
-```
-
-### requireSome
-
-Converts an task-wrapped Option to a Result, using the given error if None.
-```fsharp
-'a -> Task<'b option> -> Task<Result<'b, 'a>>`
-```
-### requireSomeWith
-
-Converts an task-wrapped Option to a Result, using the given error factory if None. The error factory is only called when the value is `None`.
-```fsharp
-(unit -> 'a) -> Task<'b option> -> Task<Result<'b, 'a>>
-```
-### requireNone
-
-Converts an task-wrapped Option to a Result, using the given error if Some.
+Any `Req`.* function can be bound to a `Task`-wrapped `Result` via `TaskResult.req`
+It feeds the inner `Ok` value through the checker, which can then accept and/or transform the value,
+or return `Error` with the given error value if the condition is not met.
 
 ```fsharp
-'a -> Task<'b option> -> Task<Result<unit, 'a>>`
+'checker -> 'errorOrErrorF -> Task<Result<'ok, 'error>> -> Task<Result<'output, 'error>>
+
+TaskResult.req Req.notEmpty "TaskResult was not Ok <non-empty Seq>"
+
+----
+
+TaskResult.ok [| 1; 2; 3 |]
+|> TaskResult.req Req.notEmpty "Result was not Ok <non-empty Seq>"
+// => Ok ()
+
+TaskResult.ok Seq.empty
+|> TaskResult.req Req.notEmpty "Result was not Ok <non-empty Seq>"
+// => Error "Result was not Ok <non-empty Seq>"
 ```
 
-### requireNoneWith
+### reqFilter
 
-Converts an task-wrapped Option to a Result, using the given error factory if Some. The error factory is only called when the value is `Some`.
-
-```fsharp
-(unit -> 'a) -> Task<'b option> -> Task<Result<unit, 'a>>
-```
-
-### requireValueSome
-
-Converts an task-wrapped ValueOption to a Result, using the given error if ValueNone.
-```fsharp
-'a -> Task<'b voption> -> Task<Result<'b, 'a>>
-```
-### requireValueNone
-
-Converts an task-wrapped ValueOption to a Result, using the given error if ValueSome.
+Unpacks the `Task`'s `Result`, yielding the value (wrapped in `Ok`) if the `predicate` accepts it.
+If the Result is Error or the predicate returns `false`, it yields an `Error` with the specified `error`.
 
 ```fsharp
-'a -> Task<'b voption> -> Task<Result<unit, 'a>>
-```
-
-### requireEqual
-
-Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not. Same as `requireEqualTo`, but with a parameter order that fits normal function application better than piping.
-
-```fsharp
-'a -> Task<'a> -> 'b -> Task<Result<unit, 'b>>
-```
-
-### requireEqualTo
-
-Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not. Same as `requireEqual`, but with a parameter order that fits piping better than normal function application.
-
-```fsharp
-'a -> 'b -> Task<'a> -> Task<Result<unit, 'b>>
-```
-
-### requireEmpty
-
-Returns Ok if the task-wrapped sequence is empty, or the specified error if not.
-
-```fsharp
-'a -> Task<'b> -> Task<Result<unit, 'a>>
-```
-
-### requireNotEmpty
-
-Returns Ok if the task-wrapped sequence is non-empty, or the specified error if not.
-
-```fsharp
-'a -> Task<'b> -> Task<Result<unit, 'a>>
-```
-
-
-### requireHead
-
-Returns the first item of the sequence if it exists, or the specified error if the sequence is empty
-
-```fsharp
-'a -> Task<'b> -> Task<Result<'c, 'a>>
-```
-
-### require
-
-Returns the provided task-wrapped result if it is Ok and the predicate is true, or if the task-wrapped result is Error.
-If the predicate is false, returns a new task-wrapped Error result with the error value.
-
-```fsharp
-('a -> bool) -> 'b -> Task<Result<'a,'b>> -> Task<Result<'a,'b>>
+('ok -> bool) -> 'error -> Task<Result<'ok,'error>> -> Task<Result<'ok,'error>>
 ```
 
 ### setError
@@ -191,98 +116,4 @@ Extracts the contained error value of a task-wrapped result if `Error`, otherwis
 
 ```fsharp
 'error -> Task<Result<'ok, 'error>> -> Task<'error>
-```
-
----
-
-## bindRequire Functions
-
-The `bindRequire*` functions combine a `bind` and a `require` check in one step. They bind the inner `Ok` value through a function, then assert a condition on the result, returning `Error` with the given error value if the condition is not met.
-
-### bindRequireSome
-
-Binds the task result and requires the inner `Ok` value to be `Some`, returning `Error` with the given error if it is `None`.
-
-```fsharp
-'error -> Task<Result<'ok option, 'error>> -> Task<Result<'ok, 'error>>
-```
-
-### bindRequireNone
-
-Binds the task result and requires the inner `Ok` value to be `None`, returning `Error` with the given error if it is `Some`.
-
-```fsharp
-'error -> Task<Result<'ok option, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireValueSome
-
-Binds the task result and requires the inner `Ok` value to be `ValueSome`, returning `Error` with the given error if it is `ValueNone`.
-
-```fsharp
-'error -> Task<Result<'ok voption, 'error>> -> Task<Result<'ok, 'error>>
-```
-
-### bindRequireValueNone
-
-Binds the task result and requires the inner `Ok` value to be `ValueNone`, returning `Error` with the given error if it is `ValueSome`.
-
-```fsharp
-'error -> Task<Result<'ok voption, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireTrue
-
-Binds the task result and requires the inner `Ok` value to be `true`, returning `Error` with the given error if it is `false`.
-
-```fsharp
-'error -> Task<Result<bool, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireFalse
-
-Binds the task result and requires the inner `Ok` value to be `false`, returning `Error` with the given error if it is `true`.
-
-```fsharp
-'error -> Task<Result<bool, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireNotNull
-
-Binds the task result and requires the inner `Ok` value to be non-null, returning `Error` with the given error if it is `null`.
-
-```fsharp
-'error -> Task<Result<'ok, 'error>> -> Task<Result<'ok, 'error>>
-```
-
-### bindRequireEqual
-
-Binds the task result and requires the inner `Ok` value to equal the provided value, returning `Error` with the given error if they differ.
-
-```fsharp
-'ok -> 'error -> Task<Result<'ok, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireEmpty
-
-Binds the task result and requires the inner `Ok` sequence to be empty, returning `Error` with the given error if it is not.
-
-```fsharp
-'error -> Task<Result<#seq<'ok>, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireNotEmpty
-
-Binds the task result and requires the inner `Ok` sequence to be non-empty, returning `Error` with the given error if it is empty.
-
-```fsharp
-'error -> Task<Result<#seq<'ok>, 'error>> -> Task<Result<unit, 'error>>
-```
-
-### bindRequireHead
-
-Binds the task result and returns the first element of the inner `Ok` sequence, returning `Error` with the given error if the sequence is empty.
-
-```fsharp
-'error -> Task<Result<#seq<'ok>, 'error>> -> Task<Result<'ok, 'error>>
 ```

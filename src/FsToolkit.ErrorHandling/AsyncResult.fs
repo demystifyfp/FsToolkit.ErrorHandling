@@ -9,12 +9,12 @@ open System.Runtime.ExceptionServices
 module AsyncResult =
 
     let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
-        Ok value
-        |> Async.singleton
+
+        Async.singleton (Ok value)
 
     let inline error (error: 'error) : Async<Result<'ok, 'error>> =
-        Error error
-        |> Async.singleton
+
+        Async.singleton (Error error)
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -32,17 +32,38 @@ module AsyncResult =
         ([<InlineIfLambda>] binder: 'input -> Async<Result<'output, 'error>>)
         (input: Async<Result<'input, 'error>>)
         : Async<Result<'output, 'error>> =
-        Async.bind (Result.either binder error) input
+        Async.bind (Result.eitherBind binder error) input
 
-    let inline foldResult
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
+    let inline eitherBind
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
         ([<InlineIfLambda>] onError: 'inputError -> 'output)
         (input: Async<Result<'input, 'inputError>>)
         : Async<'output> =
-        Async.map (Result.either onSuccess onError) input
+        Async.map (Result.eitherBind onOk onError) input
 
-    let inline eitherMap ([<InlineIfLambda>] onSuccess) ([<InlineIfLambda>] onError) input =
-        Async.map (Result.eitherMap onSuccess onError) input
+    [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
+    let inline foldResult
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Async<Result<'input, 'inputError>>)
+        : Async<'output> =
+        eitherBind onOk onError input
+
+    /// <summary>
+    /// Maps the values of an <c>AsyncResult</c>  to a new <c>AsyncResult</c>  using the provided functions.
+    ///
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/asyncResult/eitherMap</href>
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>AsyncResult</c>.</param>
+    /// <param name="input">The input <c>AsyncResult</c> to map.</param>
+    /// <returns>A new <c>AsyncResult</c> with the mapped values.</returns>
+    let inline eitherMap
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Async<Result<'okInput, 'errorInput>>)
+        : Async<Result<'okOutput, 'errorOutput>> =
+        Async.map (Result.eitherMap onOk onError) input
 
 #if !FABLE_COMPILER
 
@@ -109,7 +130,7 @@ module AsyncResult =
         (ifError: Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either ok (fun _ -> ifError)) input
+        Async.bind (Result.eitherBind ok (fun _ -> ifError)) input
 
     /// <summary>
     /// Returns <paramref name="input"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -134,7 +155,7 @@ module AsyncResult =
         ([<InlineIfLambda>] ifErrorFunc: 'errorInput -> Async<Result<'ok, 'errorOutput>>)
         (input: Async<Result<'ok, 'errorInput>>)
         : Async<Result<'ok, 'errorOutput>> =
-        Async.bind (Result.either ok ifErrorFunc) input
+        Async.bind (Result.eitherBind ok ifErrorFunc) input
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error>
@@ -142,108 +163,6 @@ module AsyncResult =
         : Async<Result<unit, 'error>> =
         value
         |> map ignore<'ok>
-
-    /// Returns the specified error if the async-wrapped value is false.
-    let inline requireTrue (error: 'error) (value: Async<bool>) : Async<Result<unit, 'error>> =
-        value
-        |> Async.map (Result.requireTrue error)
-
-    /// Returns the specified error if the async-wrapped value is true.
-    let inline requireFalse (error: 'error) (value: Async<bool>) : Async<Result<unit, 'error>> =
-        value
-        |> Async.map (Result.requireFalse error)
-
-    // Converts an async-wrapped Option to a Result, using the given error if None.
-    let inline requireSome (error: 'error) (value: Async<'ok option>) : Async<Result<'ok, 'error>> =
-        value
-        |> Async.map (Result.requireSome error)
-
-    // Converts an async-wrapped Option to a Result, using the given error factory if None.
-    let inline requireSomeWith
-        ([<InlineIfLambda>] errorFactory: unit -> 'error)
-        (value: Async<'ok option>)
-        : Async<Result<'ok, 'error>> =
-        value
-        |> Async.map (Result.requireSomeWith errorFactory)
-
-    // Converts an async-wrapped Option to a Result, using the given error if Some.
-    let inline requireNone
-        (error: 'error)
-        (value: Async<'ok option>)
-        : Async<Result<unit, 'error>> =
-        value
-        |> Async.map (Result.requireNone error)
-
-    // Converts an async-wrapped Option to a Result, using the given error factory if Some.
-    let inline requireNoneWith
-        ([<InlineIfLambda>] errorFactory: unit -> 'error)
-        (value: Async<'ok option>)
-        : Async<Result<unit, 'error>> =
-        value
-        |> Async.map (Result.requireNoneWith errorFactory)
-
-    // Converts an async-wrapped ValueOption to a Result, using the given error if ValueNone.
-    let inline requireValueSome
-        (error: 'error)
-        (value: Async<'ok voption>)
-        : Async<Result<'ok, 'error>> =
-        value
-        |> Async.map (Result.requireValueSome error)
-
-    // Converts an async-wrapped ValueOption to a Result, using the given error if ValueSome.
-    let inline requireValueNone
-        (error: 'error)
-        (value: Async<'ok voption>)
-        : Async<Result<unit, 'error>> =
-        value
-        |> Async.map (Result.requireValueNone error)
-
-    /// Returns Ok if the async-wrapped value and the provided value are equal, or the specified error if not.
-    let inline requireEqual
-        (value1: 'value)
-        (value2: Async<'value>)
-        (error: 'error)
-        : Async<Result<unit, 'error>> =
-        value2
-        |> Async.map (fun x2' -> Result.requireEqual value1 x2' error)
-
-    /// Returns Ok if the two values are equal, or the specified error if not.
-    let inline requireEqualTo
-        (other: 'value)
-        (error: 'error)
-        (this: Async<'value>)
-        : Async<Result<unit, 'error>> =
-        this
-        |> Async.map (Result.requireEqualTo other error)
-
-    /// Returns Ok if the async-wrapped sequence is empty, or the specified error if not.
-    let inline requireEmpty
-        (error: 'error)
-        (values: Async<#seq<'ok>>)
-        : Async<Result<unit, 'error>> =
-        values
-        |> Async.map (Result.requireEmpty error)
-
-    /// Returns Ok if the async-wrapped sequence is not-empty, or the specified error if not.
-    let inline requireNotEmpty
-        (error: 'error)
-        (values: Async<#seq<'ok>>)
-        : Async<Result<unit, 'error>> =
-        values
-        |> Async.map (Result.requireNotEmpty error)
-
-    /// Returns the first item of the async-wrapped sequence if it exists, or the specified
-    /// error if the sequence is empty
-    let inline requireHead (error: 'error) (values: Async<#seq<'ok>>) : Async<Result<'ok, 'error>> =
-        values
-        |> Async.map (Result.requireHead error)
-
-
-    /// Returns the async-wrapped result if it is Ok and the predicate is true, or if the async wrapped result is Error.
-    /// If the predicate is false, returns a new async-wrapped Error result with the error value.
-    let inline require predicate error result =
-        result
-        |> Async.map (Result.require predicate error)
 
     /// Replaces an error value of an async-wrapped result with a custom error
     /// value.
@@ -385,99 +304,132 @@ module AsyncResult =
         x
         |> Async.singleton
 
-    /// Bind the AsyncResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireValueSome on the inner voption value.
-    let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireValueNone on the inner voption value.
-    let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireTrue on the inner value.
-    let inline bindRequireTrue error x =
-        x
-        |> bind (
-            Result.requireTrue error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireFalse on the inner value.
-    let inline bindRequireFalse error x =
-        x
-        |> bind (
-            Result.requireFalse error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireNotNull on the inner value.
-    let inline bindRequireNotNull error x =
-        x
-        |> bind (
-            Result.requireNotNull error
-            >> Async.singleton
-        )
-
-    /// Bind the AsyncResult and requireEequal on the inner value.
-    let inline bindRequireEqual y error x =
+    /// Returns the async-wrapped result if it is Ok and the checker returns a async-wrapped Ok result or if the async-wrapped result is Error.
+    /// If the checker returns a async-wrapped Error result, returns the async-wrapped Error result.
+    let inline check
+        ([<InlineIfLambda>] checker: 'ok -> Async<Result<unit, 'error>>)
+        (x: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
         x
         |> bind (fun x ->
-            Result.requireEqual x y error
-            |> Async.singleton
+            checker x
+            |> map (fun () -> x)
         )
 
-    /// Bind the AsyncResult and requireEmpty on the inner value.
-    let inline bindRequireEmpty error x =
-        x
-        |> bind (
-            Result.requireEmpty error
-            >> Async.singleton
-        )
+    /// Bind the AsyncResult with a synchronous Result-returning function
+    let inline bindResult
+        ([<InlineIfLambda>] reqF: 'input -> Result<'output, 'error>)
+        (input: Async<Result<'input, 'error>>)
+        : Async<Result<'output, 'error>> =
+        Async.bindResult (Result.bind reqF) input
 
-    /// Bind the AsyncResult and requireNotEmpty on the inner value.
-    let inline bindRequireNotEmpty error x =
-        x
-        |> bind (
-            Result.requireNotEmpty error
-            >> Async.singleton
-        )
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
-    /// Bind the AsyncResult and requireHead on the inner value
-    let inline bindRequireHead error x =
-        x
-        |> bind (
-            Result.requireHead error
-            >> Async.singleton
-        )
+    [<System.Obsolete "Please use AsyncResult.reqFilter predicate error instead of require predicate error">]
+    let inline require predicate error result = reqFilter predicate error result
 
-    /// Returns the async-wrapped result if it is Ok and the checkFunc returns an async-wrapped Ok result or if the async-wrapped result is Error.
-    /// If the checkFunc returns an async-wrapped Error result, returns the async-wrapped Error result.
-    let inline check ([<InlineIfLambda>] checkFunc) (result) =
-        result
-        |> bind (fun o ->
-            checkFunc o
-            |> map (fun _ -> o)
-        )
+    [<System.Obsolete "Please use AsyncResult.req (Req.equalTo other) error value instead of requireEqual other value error">]
+    let inline requireEqual other value error = req (Req.equalTo other) error value
+
+    [<System.Obsolete "Please use Async.req Req.isTrue error instead of requireTrue error">]
+    let inline requireTrue error value = Async.req Req.isTrue error value
+
+    [<System.Obsolete "Please use Async.req Req.isTrueWith errorF instead of requireTrueWith errorF">]
+    let inline requireTrueWith errorF value = Async.req Req.isTrueWith errorF value
+
+    [<System.Obsolete "Please use Async.req Req.isFalse error instead of requireFalse error">]
+    let inline requireFalse error value = Async.req Req.isFalse error value
+
+    [<System.Obsolete "Please use Async.req Req.isFalseWith errorF instead of requireFalseWith errorF">]
+    let inline requireFalseWith errorF value = Async.req Req.isFalseWith errorF value
+
+    [<System.Obsolete "Please use Async.req Req.some error instead of requireSome error">]
+    let inline requireSome error value = Async.req Req.some error value
+
+    [<System.Obsolete "Please use Async.req Req.someWith errorF instead of requireSomeWith errorF">]
+    let inline requireSomeWith errorF value = Async.req Req.someWith errorF value
+
+    [<System.Obsolete "Please use Async.req Req.none error instead of requireNone error">]
+    let inline requireNone error value = Async.req Req.none error value
+
+    [<System.Obsolete "Please use Async.req Req.noneWith errorF instead of requireNoneWith errorF">]
+    let inline requireNoneWith errorF value = Async.req Req.noneWith errorF value
+
+    [<System.Obsolete "Please use Async.req Req.valueSome error instead of requireValueSome error">]
+    let inline requireValueSome error value = Async.req Req.valueSome error value
+
+    [<System.Obsolete "Please use Async.req Req.valueSomeWith errorF instead of requireValueSomeWith errorF">]
+    let inline requireValueSomeWith errorF value =
+        Async.req Req.valueSomeWith errorF value
+
+    [<System.Obsolete "Please use Async.req Req.valueNone error instead of requireValueNone error">]
+    let inline requireValueNone error value = Async.req Req.valueNone error value
+
+    [<System.Obsolete "Please use Async.req Req.valueNoneWith errorF instead of requireValueNoneWith errorF">]
+    let inline requireValueNoneWith errorF value =
+        Async.req Req.valueNoneWith errorF value
+
+    [<System.Obsolete "Please use Async.req (Req.equalTo other) error instead of requireEqualTo other error">]
+    let inline requireEqualTo other error value =
+        Async.req (Req.equalTo other) error value
+
+    [<System.Obsolete "Please use Async.req Req.empty error instead of requireEmpty error">]
+    let inline requireEmpty error value = Async.req Req.empty error value
+
+    [<System.Obsolete "Please use Async.req Req.notEmpty error instead of requireNotEmpty error">]
+    let inline requireNotEmpty error value = Async.req Req.notEmpty error value
+
+    [<System.Obsolete "Please use Async.req Req.head error instead of requireHead error">]
+    let inline requireHead error value = Async.req Req.head error value
+
+    [<System.Obsolete "Please use AsyncResult.req Req.some error instead of bindRequireSome error">]
+    let inline bindRequireSome error x = req Req.some error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.none error instead of bindRequireNone error">]
+    let inline bindRequireNone error x = req Req.none error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.someWith errorF instead of bindRequireSomeWith errorF">]
+    let inline bindRequireSomeWith errorF x = req Req.someWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.noneWith errorF instead of bindRequireNoneWith errorF">]
+    let inline bindRequireNoneWith errorF x = req Req.noneWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.valueSome error instead of bindRequireValueSome error">]
+    let inline bindRequireValueSome error x = req Req.valueSome error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.valueNone error instead of bindRequireValueNone error">]
+    let inline bindRequireValueNone error x = req Req.valueNone error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.valueSomeWith errorF instead of bindRequireValueSomeWith errorF">]
+    let inline bindRequireValueSomeWith errorF x = req Req.valueSomeWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.valueNoneWith errorF instead of bindRequireValueNoneWith errorF">]
+    let inline bindRequireValueNoneWith errorF x = req Req.valueNoneWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.isTrue error instead of bindRequireTrue error">]
+    let inline bindRequireTrue error x = req Req.isTrue error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.isTrueWith errorF instead of bindRequireTrueWith errorF">]
+    let inline bindRequireTrueWith errorF x = req Req.isTrueWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.isFalse error instead of bindRequireFalse error">]
+    let inline bindRequireFalse error x = req Req.isFalse error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.isFalseWith errorF instead of bindRequireFalseWith errorF">]
+    let inline bindRequireFalseWith errorF x = req Req.isFalseWith errorF x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.notNull error instead of bindRequireNotNull error">]
+    let inline bindRequireNotNull error x = req Req.notNull error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.equalTo other error instead of bindRequireEqual other error">]
+    let inline bindRequireEqual y error x = req (Req.equalTo y) error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.empty error instead of bindRequireEmpty error">]
+    let inline bindRequireEmpty error x = req Req.empty error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.notEmpty error instead of bindRequireNotEmpty error">]
+    let inline bindRequireNotEmpty error x = req Req.notEmpty error x
+
+    [<System.Obsolete "Please use AsyncResult.req Req.head error instead of bindRequireHead error">]
+    let inline bindRequireHead error x = req Req.head error x

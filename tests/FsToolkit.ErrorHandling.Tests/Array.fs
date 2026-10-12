@@ -1,6 +1,5 @@
 module ArrayTests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
@@ -12,7 +11,6 @@ open TestData
 open TestHelpers
 open System
 open FsToolkit.ErrorHandling
-
 
 let traverseResultMTests =
     testList "Array.traverseResultM Tests" [

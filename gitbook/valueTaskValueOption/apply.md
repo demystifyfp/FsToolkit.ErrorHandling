@@ -21,8 +21,8 @@ let characterCount (s: string) = s.Length
 
 ```fsharp
 let result =
-    ValueTaskValueOption.valueSome "foo" // ValueTask<string voption>
-    |> ValueTaskValueOption.apply (ValueTaskValueOption.valueSome characterCount) // ValueTask<int voption>
+    ValueTaskValueOption.some "foo" // ValueTask<string voption>
+    |> ValueTaskValueOption.apply (ValueTaskValueOption.some characterCount) // ValueTask<int voption>
 
 // valueTask { ValueSome 3 }
 ```
@@ -31,8 +31,8 @@ let result =
 
 ```fsharp
 let result =
-    ValueTask<_>(ValueNone) // ValueTask<string voption>
-    |> ValueTaskValueOption.apply (ValueTaskValueOption.valueSome characterCount) // ValueTask<int voption>
+    ValueTaskValueOption.none // ValueTask<string voption>
+    |> ValueTaskValueOption.apply (ValueTaskValueOption.some characterCount) // ValueTask<int voption>
 
 // valueTask { ValueNone }
 ```
@@ -41,8 +41,8 @@ let result =
 
 ```fsharp
 let result : ValueTask<int voption> =
-    ValueTaskValueOption.valueSome "foo" // ValueTask<string voption>
-    |> ValueTaskValueOption.apply (ValueTask<_>(ValueNone)) // ValueTask<int voption>
+    ValueTaskValueOption.some "foo" // ValueTask<string voption>
+    |> ValueTaskValueOption.apply ValueTaskValueOption.none // ValueTask<int voption>
 
 // valueTask { ValueNone }
 ```

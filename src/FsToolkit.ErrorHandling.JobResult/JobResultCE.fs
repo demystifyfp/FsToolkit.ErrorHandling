@@ -119,7 +119,7 @@ module JobResultCE =
 
 [<AutoOpen>]
 module JobResultCEExtensions =
-    open Hopac
+
     // Having members as extensions gives them lower priority in
     // overload resolution between Job<_> and Job<Result<_,_>>.
     type JobResultBuilder with
@@ -176,6 +176,7 @@ module JobResultCEExtensions =
 
 [<AutoOpen>]
 module JobResultCEExtensions2 =
+
     type JobResultBuilder with
 
         /// <summary>

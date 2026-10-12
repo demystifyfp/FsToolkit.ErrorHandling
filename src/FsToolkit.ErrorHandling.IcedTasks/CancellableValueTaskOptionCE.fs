@@ -537,9 +537,9 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority2 =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
-
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -767,6 +767,7 @@ module CancellableValueTaskOptionCE =
     /// <exclude/>
     [<AutoOpen>]
     module LowPriority =
+
         // Low priority extensions
         type CancellableValueTaskOptionBuilderBase with
 
@@ -1483,6 +1484,10 @@ module CancellableValueTaskOption =
     /// <returns>A CancellableValueTaskOption with the item as the result.</returns>
     let inline some x : CancellableValueTaskOption<'a> = fun _ -> ValueTask<'a option>(Some x)
 
+    /// <summary>A CancellableValueTaskOption that yields None.</summary>
+    /// <returns>A CancellableValueTaskOption with None as the result.</returns>
+    let inline none<'a> : CancellableValueTaskOption<'a> =
+        fun _ -> ValueTask<'a option>(None)
 
     /// <summary>Allows chaining of CancellableValueTaskOptions.</summary>
     /// <param name="binder">The continuation.</param>
@@ -1555,26 +1560,25 @@ module CancellableValueTaskOption =
             return Option.zip r1 r2
         }
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
+    /// <param name="input">The input <c>CancellableValueTask&lt;'input option&gt;</c>.</param>
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
+    let inline eitherBind
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: CancellableValueTask<'input option>)
+        : CancellableValueTask<'output> =
+        CancellableValueTask.map (Option.eitherBind onSome onNone) input
+
+    [<System.Obsolete "Please use 1. `CancellableValueTask.bind (Option.eitherBind onSome onNone)` or 2. CancellableValueTaskOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> CancellableValueTask<'output>)
         ([<InlineIfLambda>] onNone: unit -> CancellableValueTask<'output>)
         (input: CancellableValueTask<'input option>)
         : CancellableValueTask<'output> =
-        input
-        |> CancellableValueTask.bind (
-            function
-            | Some v -> onSome v
-            | None -> onNone ()
-        )
+        CancellableValueTask.bind (Option.eitherBind onSome onNone) input
 
     /// <summary>
     ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.
@@ -1605,3 +1609,20 @@ module CancellableValueTaskOption =
         : CancellableValueTask<'value> =
         cancellableValueTaskOption
         |> CancellableValueTask.map (Option.defaultWith defThunk)
+
+    /// Bind the CancellableValueTask&lt;'input option&gt; with a synchronous Result-returning function.
+    /// A None input will be mapped to Ok None.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: CancellableValueTask<'input option>)
+        : CancellableValueTask<Result<'output option, 'error>> =
+        CancellableValueTask.bindResult
+            (function
+            | Some x ->
+                binder x
+                |> Result.map Some
+            | None -> Ok None)
+            input
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

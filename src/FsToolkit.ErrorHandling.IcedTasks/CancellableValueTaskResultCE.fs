@@ -4,7 +4,6 @@ namespace FsToolkit.ErrorHandling
 [<AutoOpen>]
 module CancellableValueTaskResultCE =
 
-    open System
     open System.Runtime.CompilerServices
     open System.Threading
     open System.Threading.Tasks
@@ -12,7 +11,6 @@ module CancellableValueTaskResultCE =
     open Microsoft.FSharp.Core.CompilerServices
     open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
     open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
-    open Microsoft.FSharp.Collections
     open IcedTasks
 
     /// CancellationToken -> ValueTask<Result<'T, 'Error>>
@@ -76,7 +74,7 @@ module CancellableValueTaskResultCE =
                         MethodBuilder.SetStateMachine(&sm.Data.MethodBuilder, state)
                 }
 
-            fun (ct) ->
+            fun ct ->
                 if ct.IsCancellationRequested then
                     ValueTask<Result<'T, 'Error>>(Task.FromCanceled<Result<'T, 'Error>>(ct))
                 else
@@ -123,7 +121,7 @@ module CancellableValueTaskResultCE =
                     (AfterCode<_, _>(fun sm ->
                         let sm = sm
 
-                        fun (ct) ->
+                        fun ct ->
                             if ct.IsCancellationRequested then
                                 ValueTask<Result<'T, 'Error>>(
                                     Task.FromCanceled<Result<'T, 'Error>>(ct)
@@ -166,11 +164,11 @@ module CancellableValueTaskResultCE =
             then
                 CancellableValueTaskResultBuilder.RunDynamic(code)
             else
-                fun (ct) ->
+                fun ct ->
                     ValueTask<Result<'T, 'Error>>(
                         Task.Run<Result<'T, 'Error>>(
                             (fun () ->
-                                (CancellableValueTaskResultBuilder.RunDynamic (code) (ct)).AsTask()
+                                (CancellableValueTaskResultBuilder.RunDynamic code ct).AsTask()
                             ),
                             ct
                         )
@@ -217,7 +215,7 @@ module CancellableValueTaskResultCE =
                         then
                             let mutable sm = sm
 
-                            fun (ct) ->
+                            fun ct ->
                                 if ct.IsCancellationRequested then
                                     ValueTask<Result<'T, 'Error>>(
                                         Task.FromCanceled<Result<'T, 'Error>>(ct)
@@ -233,7 +231,7 @@ module CancellableValueTaskResultCE =
                         else
                             let sm = sm // copy contents of state machine so we can capture it
 
-                            fun (ct) ->
+                            fun ct ->
                                 if ct.IsCancellationRequested then
                                     ValueTask<Result<'T, 'Error>>(
                                         Task.FromCanceled<Result<'T, 'Error>>(ct)
@@ -275,12 +273,32 @@ module CancellableValueTaskResultCE =
         let backgroundCancellableValueTaskResult =
             BackgroundCancellableValueTaskResultBuilder()
 
+module CancellableValueTask =
+    open IcedTasks
+
+    /// Bind the CancellableValueTask with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: CancellableValueTask<'input>)
+        : CancellableValueTask<Result<'output, 'error>> =
+        CancellableValueTask.map binder input
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 [<RequireQualifiedAccess>]
 module CancellableValueTaskResult =
     open System.Threading.Tasks
     open System.Threading
     open IcedTasks
+
+    let inline ok x =
+        Ok x
+        |> CancellableValueTask.singleton
+
+    let inline error x =
+        Error x
+        |> CancellableValueTask.singleton
 
     /// <summary>Gets the default cancellation token for executing computations.</summary>
     ///
@@ -357,6 +375,27 @@ module CancellableValueTaskResult =
             return applier cResult
         }
 
+    let inline eitherBind
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: CancellableValueTask<Result<'input, 'inputError>>)
+        : CancellableValueTask<'output> =
+        CancellableValueTask.map (Result.eitherBind onOk onError) input
+
+    /// <summary>
+    /// Maps the values of an <c>CancellableValueTaskResult</c> to a new <c>CancellableValueTaskResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input.</param>
+    /// <param name="input">The input <c>CancellableValueTaskResult</c> to map.</param>
+    /// <returns>A new <c>CancellableValueTaskResult</c> with the mapped values.</returns>
+    let inline eitherMap
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: CancellableValueTask<Result<'okInput, 'errorInput>>)
+        : CancellableValueTask<Result<'okOutput, 'errorOutput>> =
+        CancellableValueTask.map (Result.eitherMap onOk onError) input
+
     /// <summary>Takes two CancellableValueTaskResults, starts them serially in order of left to right, and returns a tuple of the pair.</summary>
     /// <param name="left">The left value.</param>
     /// <param name="right">The right value.</param>
@@ -387,3 +426,13 @@ module CancellableValueTaskResult =
             let! r2 = r2
             return Result.zip r1 r2
         }
+
+    /// Bind the CancellableValueTask with a synchronous Result-returning function
+    let inline bindResult
+        ([<InlineIfLambda>] reqF: 'input -> Result<'output, 'error>)
+        (input: CancellableValueTask<Result<'input, 'error>>)
+        : CancellableValueTask<Result<'output, 'error>> =
+        CancellableValueTask.bindResult (Result.bind reqF) input
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

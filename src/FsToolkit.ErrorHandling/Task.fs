@@ -15,7 +15,6 @@ module Task =
             return! f x
         }
 
-
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {
             let! x = x
@@ -59,6 +58,7 @@ module Task =
         }
 
     /// Allows us to call `do!` syntax inside a computation expression
+    [<RequiresExplicitTypeArguments>]
     let inline ignore<'a> (x: Task<'a>) =
         x
         |> map ignore
@@ -86,3 +86,13 @@ module Task =
             with e ->
                 return Choice2Of2 e
         }
+
+    /// Bind the Task with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Task<'input>)
+        : Task<Result<'output, 'error>> =
+        map binder input
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

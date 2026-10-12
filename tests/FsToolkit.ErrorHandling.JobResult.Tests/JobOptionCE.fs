@@ -290,7 +290,7 @@ let ceTests =
             let! actual =
                 jobOption {
                     while loopCount < data.Length do
-                        let! x = data.[loopCount]
+                        let! x = data[loopCount]
 
                         loopCount <-
                             loopCount

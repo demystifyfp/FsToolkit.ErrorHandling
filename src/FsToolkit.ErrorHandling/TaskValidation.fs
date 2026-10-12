@@ -72,7 +72,7 @@ module TaskValidation =
 
             return!
                 validation
-                |> Result.either ok (fun _ -> ifError)
+                |> Result.eitherBind ok (fun _ -> ifError)
         }
 
     /// <summary>
@@ -257,9 +257,7 @@ module TaskValidation =
         (input: TaskValidation<'okInput, 'error>)
         : TaskValidation<'okOutput, 'error> =
         task {
-            let! input = input
-
-            match input with
+            match! input with
             | Ok x -> return! binder x
             | Error e -> return Error e
         }
@@ -286,7 +284,7 @@ module TaskValidation =
             return
                 match left, right with
                 | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-                | Error e, Ok _ -> Error e
+                | Error e, Ok _
                 | Ok _, Error e -> Error e
                 | Error e1, Error e2 -> Error(e1 @ e2)
         }

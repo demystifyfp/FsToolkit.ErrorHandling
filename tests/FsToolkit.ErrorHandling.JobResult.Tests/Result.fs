@@ -4,7 +4,6 @@ open Hopac
 open Expecto
 open FsToolkit.ErrorHandling
 
-
 [<Tests>]
 let sequenceJobTests =
     testList "sequenceJob Tests" [

@@ -1,6 +1,5 @@
 module ValidationCETests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
@@ -8,11 +7,7 @@ open Fable.Pyxpecto
 open Expecto
 #endif
 
-open SampleDomain
-open TestData
-open TestHelpers
 open FsToolkit.ErrorHandling
-open FsToolkit.ErrorHandling.Operator.Result
 
 let ``ValidationCE return Tests`` =
     testList "ValidationCE return Tests" [

@@ -20,7 +20,9 @@ Passing the cancellation token to a cancellable database call:
 let fetchUser (userId: UserId) : CancellableTaskValidation<User, string> =
     cancellableTaskValidation {
         let! ct = CancellableTaskValidation.getCancellationToken()
-        let! user = db.Users.FindAsync(userId, ct) |> Task.map (Result.requireSome ["User not found"])
+        let! user =
+            db.Users.FindAsync(userId, ct)
+            |> Task.req Req.some ["User not found"]
         return user
     }
 ```

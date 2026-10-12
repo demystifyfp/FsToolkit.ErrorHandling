@@ -27,8 +27,8 @@ type LoginError =
 
 let login (username: string) (password: string) : Task<Result<AuthToken, LoginError>> =
   taskResult {
-    let! user = username |> tryGetUser |> TaskResult.requireSome InvalidUser
-    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+    let! user = username |> tryGetUser |> Task.req Req.some InvalidUser
+    do! user |> Req.filter (isPwdValid password) InvalidPwd
     do! user |> authorize |> TaskResult.mapError Unauthorized
     return! user |> createAuthToken |> Result.mapError TokenErr
   }

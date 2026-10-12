@@ -82,7 +82,7 @@ module ParallelAsyncResult =
         }
 
     let inline zip
-        (a: Async<Result<'a, 'error>>)
-        (b: Async<Result<'b, 'error>>)
+        (left: Async<Result<'a, 'error>>)
+        (right: Async<Result<'b, 'error>>)
         : Async<Result<'a * 'b, 'error>> =
-        map2 (fun a b -> a, b) a b
+        map2 (fun a b -> a, b) left right

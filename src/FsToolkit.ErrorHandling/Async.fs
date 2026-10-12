@@ -46,12 +46,11 @@ module Async =
         ([<InlineIfLambda>] mapper: 'input -> 'output)
         (input: Async<'input>)
         : Async<'output> =
-        bind
-            (fun x' ->
-                mapper x'
-                |> singleton
-            )
-            input
+        input
+        |> bind (fun x' ->
+            mapper x'
+            |> singleton
+        )
 
     /// <summary>
     /// Applies a transformation to the values of two <c>Async</c> values to a new <c>Async</c> value using the provided function.
@@ -65,16 +64,14 @@ module Async =
         (input1: Async<'input1>)
         (input2: Async<'input2>)
         : Async<'output> =
-        bind
-            (fun x ->
-                bind
-                    (fun y ->
-                        mapper x y
-                        |> singleton
-                    )
-                    input2
+        input1
+        |> bind (fun x ->
+            input2
+            |> bind (fun y ->
+                mapper x y
+                |> singleton
             )
-            input1
+        )
 
     /// <summary>
     /// Applies a transformation to the values of three <c>Async</c> values to a new <c>Async</c> value using the provided function.
@@ -90,20 +87,23 @@ module Async =
         (input2: Async<'input2>)
         (input3: Async<'input3>)
         : Async<'output> =
-        bind
-            (fun x ->
-                bind
-                    (fun y ->
-                        bind
-                            (fun z ->
-                                mapper x y z
-                                |> singleton
-                            )
-                            input3
-                    )
-                    input2
+        input1
+        |> bind (fun x ->
+            input2
+            |> bind (fun y ->
+                input3
+                |> bind (fun z ->
+                    mapper x y z
+                    |> singleton
+                )
             )
-            input1
+        )
+
+    /// Allows us to call `do!` syntax inside a computation expression
+    [<RequiresExplicitTypeArguments>]
+    let inline ignore<'a> (x: Async<'a>) =
+        x
+        |> map ignore
 
     /// <summary>
     /// Takes two asyncs and returns a tuple of the pair
@@ -203,6 +203,16 @@ module Async =
             mapper a b c
         )
 
+    /// Bind the Async with a synchronous Result-returning function.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Async<'input>)
+        : Async<Result<'output, 'error>> =
+        map binder input
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
+
 /// <summary>
 /// Operators for working with the <c>Async</c> type.
 /// </summary>
@@ -240,7 +250,6 @@ module AsyncOperators =
         ([<InlineIfLambda>] binder: 'input -> Async<'output>)
         : Async<'output> =
         Async.bind binder input
-
 
 [<AutoOpen>]
 module AsyncExt =

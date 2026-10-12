@@ -443,9 +443,9 @@ module TaskValidationBuilder =
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsLowPriority =
+
     // Low priority extensions
     type TaskValidationBuilderBase with
-
 
         [<NoEagerConstraintApplication>]
         static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
@@ -585,9 +585,9 @@ module TaskValidationCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsHighPriority =
+
     // High priority extensions
     type TaskValidationBuilderBase with
-
 
         member inline this.Bind
             (
@@ -651,7 +651,6 @@ module TaskValidationCEExtensionsHighPriority2 =
 
     // Medium priority extensions
     type TaskValidationBuilderBase with
-
 
         member inline _.Source(result: Async<Validation<_, _>>) : Task<Validation<_, _>> =
             result

@@ -78,7 +78,7 @@ let applyTests =
         <| fun _ ->
             Task.singleton (ValueSome validTweet)
             |> TaskValueOption.apply (Task.singleton (ValueSome remainingCharacters))
-            |> Expect.hasTaskValueSomeValue (267)
+            |> Expect.hasTaskValueSomeValue 267
 
         testCase "apply with Task(ValueNone)"
         <| fun _ ->
@@ -88,10 +88,10 @@ let applyTests =
     ]
 
 let valueSomeTests =
-    testList "TaskValueOption.valueSome Tests" [
+    testList "TaskValueOption.some Tests" [
         testCase "valueSome with x"
         <| fun _ ->
-            TaskValueOption.valueSome 267
+            TaskValueOption.some 267
             |> Expect.hasTaskValueSomeValue 267
     ]
 
@@ -124,23 +124,31 @@ let taskValueOptionOperatorTests =
 
 
 let eitherTests =
-    testList "TaskValueOption.either Tests" [
+    testList "TaskValueOption.eitherBind Tests" [
         testCaseTask "ValueSome"
         <| fun () ->
             task {
-                let value1 = TaskValueOption.valueSome 5
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskValueOption.either add2 f value1)
+                let value1 = TaskValueOption.some 5
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskValueOption.eitherBind add2 f
+
                 Expect.equal result 7 ""
             }
         testCaseTask "ValueNone"
         <| fun () ->
             task {
                 let value1 = Task.FromResult ValueNone
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskValueOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskValueOption.eitherBind add2 f
+
                 Expect.equal result 42 ""
             }
     ]
@@ -153,7 +161,7 @@ let defaultValueTests =
                 let defaultValue = 10
                 let expectedValue = 5
 
-                let taskValueOption = TaskValueOption.valueSome expectedValue
+                let taskValueOption = TaskValueOption.some expectedValue
                 let! result = TaskValueOption.defaultValue defaultValue taskValueOption
                 Expect.equal result expectedValue ""
             }
@@ -176,7 +184,7 @@ let defaultWithTests =
                 let defaultValue = 10
                 let expectedValue = 5
 
-                let taskValueOption = TaskValueOption.valueSome expectedValue
+                let taskValueOption = TaskValueOption.some expectedValue
                 let! result = TaskValueOption.defaultWith (fun () -> defaultValue) taskValueOption
                 Expect.equal result expectedValue ""
             }

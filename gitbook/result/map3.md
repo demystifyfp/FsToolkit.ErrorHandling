@@ -27,10 +27,9 @@ And an another function that converts a string to an integer:
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt (str: string) =
-  match System.Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ ->
-    Error (sprintf "unable to parse '%s' to integer" str)
+    match str |> Option.tryParse<int> with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 ```
 
 With the help of `Result.map3` function, we can now do the following:

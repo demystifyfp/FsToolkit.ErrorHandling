@@ -1,18 +1,13 @@
 module AsyncResultCETests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
-open SampleDomain
-open TestData
-open TestHelpers
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-
 
 let ``AsyncResultCE return Tests`` =
     testList "AsyncResultCE  Tests" [

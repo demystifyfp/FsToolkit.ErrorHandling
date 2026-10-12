@@ -41,7 +41,7 @@ let lookupAccountByEmail email = valueTask {
 
 ```fsharp
 let result : ValueTask<Account voption> =
-    ValueTaskValueOption.valueSome "john@test.com" // ValueTask<string voption>
+    ValueTaskValueOption.some "john@test.com" // ValueTask<string voption>
     |> ValueTaskValueOption.bind lookupAccountByEmail // ValueTask<Account voption>
 
 // valueTask { ValueSome { EmailAddress = "john@test.com"; Name = "John Johnson" } }
@@ -51,7 +51,7 @@ let result : ValueTask<Account voption> =
 
 ```fsharp
 let result : ValueTask<Account voption> =
-    ValueTaskValueOption.valueSome "jerry@test.com" // ValueTask<string voption>
+    ValueTaskValueOption.some "jerry@test.com" // ValueTask<string voption>
     |> ValueTaskValueOption.bind lookupAccountByEmail // ValueTask<Account voption>
 
 // valueTask { ValueNone }
@@ -61,7 +61,7 @@ let result : ValueTask<Account voption> =
 
 ```fsharp
 let result : ValueTask<Account voption> =
-    ValueTask<_>(ValueNone) // ValueTask<string voption>
+    ValueTaskValueOption.none // ValueTask<string voption>
     |> ValueTaskValueOption.bind lookupAccountByEmail // ValueTask<Account voption>
 
 // valueTask { ValueNone }

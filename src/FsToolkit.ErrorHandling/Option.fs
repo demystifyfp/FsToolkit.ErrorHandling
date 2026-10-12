@@ -224,11 +224,8 @@ module Option =
             Some value
 
     /// <summary>
-    ///
-    /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c>
-    ///
-    /// Automatically onverts the result of binder that is pontentially null into an option.
-    ///
+    /// <c>bindNull binder option</c> evaluates to <c>match option with None -> None | Some x -> binder x |> Option.ofNull</c><br/>
+    /// Automatically converts the result of binder that is potentially null into an option.<br/>
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bindnull</href>
     /// </summary>
     /// <param name="binder">A function that takes the value of type 'value from an option and transforms it into
@@ -243,30 +240,31 @@ module Option =
         (option: 'value option)
         : 'nullableValue option =
         match option with
-        | Some x ->
-            binder x
-            |> ofNull
+        | Some x -> ofNull (binder x)
         | None -> None
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/either</href>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/eitherBind</href></summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
     /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
-    let inline either
-        ([<InlineIfLambda>] onSome: 'a -> 'output)
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
+    let inline eitherBind
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
         ([<InlineIfLambda>] onNone: unit -> 'output)
-        (input: 'a option)
+        (input: 'input option)
         : 'output =
         match input with
         | Some x -> onSome x
         | None -> onNone ()
+
+    [<System.Obsolete "Please use eitherBind instead">]
+    let inline either
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: 'input option)
+        : 'output =
+        eitherBind onSome onNone input
 
     /// <summary>
     /// If the option is <c>Some</c>, executes the function on the <c>Some</c> value and passes through the input value.

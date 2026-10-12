@@ -1,8 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
-open System
 open System.Runtime.CompilerServices
-open System.Threading
 open System.Threading.Tasks
 open Microsoft.FSharp.Core
 open Microsoft.FSharp.Core.CompilerServices
@@ -311,17 +309,9 @@ module ValueTaskValueOptionBuilder =
     let valueTaskValueOption = ValueTaskValueOptionBuilder()
 
 
-open Microsoft.FSharp.Control
-open System
-open System.Runtime.CompilerServices
-open System.Threading.Tasks
-open Microsoft.FSharp.Core
-open Microsoft.FSharp.Core.CompilerServices
-open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
-open Microsoft.FSharp.Core.LanguagePrimitives.IntrinsicOperators
-
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsLowPriority =
+
     // Low priority extensions
     type ValueTaskValueOptionBuilderBase with
 
@@ -443,6 +433,7 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsHighPriority =
+
     // High priority extensions
     type ValueTaskValueOptionBuilderBase with
 

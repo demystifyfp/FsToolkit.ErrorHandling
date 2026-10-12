@@ -5,18 +5,13 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module TaskResult =
 
+    let inline ok x = Task.singleton (Ok x)
+
+    let inline error x = Task.singleton (Error x)
+
     let inline map ([<InlineIfLambda>] f) tr = Task.map (Result.map f) tr
 
     let inline mapError ([<InlineIfLambda>] f) tr = Task.map (Result.mapError f) tr
-
-    let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
-        tr
-        |> Task.bind (
-            Result.either
-                f
-                (Error
-                 >> Task.singleton)
-        )
 
     let inline ofAsync aAsync =
         aAsync
@@ -24,20 +19,43 @@ module TaskResult =
         |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
-    let inline ok x =
-        Ok x
-        |> Task.singleton
+    let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
+        Task.bind (Result.eitherBind f error) tr
 
-    let inline error x =
-        Error x
-        |> Task.singleton
+    let inline eitherBind
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        Task.map (Result.eitherBind onOk onError) input
+
+    [<System.Obsolete "Please use eitherBind instead of foldResult (renamed to align with Result naming)">]
+    let inline foldResult
+        ([<InlineIfLambda>] onOk: 'input -> 'output)
+        ([<InlineIfLambda>] onError: 'inputError -> 'output)
+        (input: Task<Result<'input, 'inputError>>)
+        : Task<'output> =
+        eitherBind onOk onError input
+
+    /// <summary>
+    /// Maps the values of an <c>TaskResult</c>  to a new <c>TaskResult</c>  using the provided functions.
+    /// </summary>
+    /// <param name="onOk">The function to apply to the 'ok' value of the input <c>TaskResult</c>.</param>
+    /// <param name="onError">The function to apply to the 'error' value of the input <c>TaskResult</c>.</param>
+    /// <param name="input">The input <c>TaskResult</c> to map.</param>
+    /// <returns>A new <c>TaskResult</c> with the mapped values.</returns>
+    let inline eitherMap
+        ([<InlineIfLambda>] onOk: 'okInput -> 'okOutput)
+        ([<InlineIfLambda>] onError: 'errorInput -> 'errorOutput)
+        (input: Task<Result<'okInput, 'errorInput>>)
+        : Task<Result<'okOutput, 'errorOutput>> =
+        Task.map (Result.eitherMap onOk onError) input
 
     let inline map2 ([<InlineIfLambda>] f) xTR yTR = Task.map2 (Result.map2 f) xTR yTR
 
     let inline map3 ([<InlineIfLambda>] f) xTR yTR zTR = Task.map3 (Result.map3 f) xTR yTR zTR
 
     let inline apply fTR xTR = map2 (fun f x -> f x) fTR xTR
-
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -59,7 +77,7 @@ module TaskResult =
     /// </returns>
     let inline orElse (ifError: Task<Result<'ok, 'error2>>) (result: Task<Result<'ok, 'error>>) =
         result
-        |> Task.bind (Result.either ok (fun _ -> ifError))
+        |> Task.bind (Result.eitherBind ok (fun _ -> ifError))
 
     /// <summary>
     /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise executes <paramref name="ifErrorFunc"/> and returns the result.
@@ -85,110 +103,38 @@ module TaskResult =
         (result: Task<Result<'ok, 'error>>)
         =
         result
-        |> Task.bind (Result.either ok ifErrorFunc)
+        |> Task.bind (Result.eitherBind ok ifErrorFunc)
 
     /// Replaces the wrapped value with unit
     let inline ignore<'ok, 'error> (tr: Task<Result<'ok, 'error>>) =
         tr
         |> map ignore<'ok>
 
-    /// Returns the specified error if the task-wrapped value is false.
-    let inline requireTrue error value =
-        value
-        |> Task.map (Result.requireTrue error)
-
-    /// Returns the specified error if the task-wrapped value is true.
-    let inline requireFalse error value =
-        value
-        |> Task.map (Result.requireFalse error)
-
-    // Converts an task-wrapped Option to a Result, using the given error if None.
-    let inline requireSome error option =
-        option
-        |> Task.map (Result.requireSome error)
-
-    // Converts an task-wrapped Option to a Result, using the given error factory if None.
-    let inline requireSomeWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
-        option
-        |> Task.map (Result.requireSomeWith errorFactory)
-
-    // Converts an task-wrapped Option to a Result, using the given error if Some.
-    let inline requireNone error option =
-        option
-        |> Task.map (Result.requireNone error)
-
-    // Converts an task-wrapped Option to a Result, using the given error factory if Some.
-    let inline requireNoneWith ([<InlineIfLambda>] errorFactory: unit -> 'error) option =
-        option
-        |> Task.map (Result.requireNoneWith errorFactory)
-
-    // Converts an task-wrapped ValueOption to a Result, using the given error if ValueNone.
-    let inline requireValueSome error voption =
-        voption
-        |> Task.map (Result.requireValueSome error)
-
-    // Converts an task-wrapped ValueOption to a Result, using the given error if ValueSome.
-    let inline requireValueNone error voption =
-        voption
-        |> Task.map (Result.requireValueNone error)
-
-    /// Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not.
-    let inline requireEqual x1 x2 error =
-        x2
-        |> Task.map (fun x2' -> Result.requireEqual x1 x2' error)
-
-    /// Returns Ok if the two values are equal, or the specified error if not.
-    let inline requireEqualTo other error this =
-        this
-        |> Task.map (Result.requireEqualTo other error)
-
-    /// Returns Ok if the task-wrapped sequence is empty, or the specified error if not.
-    let inline requireEmpty error xs =
-        xs
-        |> Task.map (Result.requireEmpty error)
-
-    /// Returns Ok if the task-wrapped sequence is not-empty, or the specified error if not.
-    let inline requireNotEmpty error xs =
-        xs
-        |> Task.map (Result.requireNotEmpty error)
-
-    /// Returns the first item of the task-wrapped sequence if it exists, or the specified
-    /// error if the sequence is empty
-    let inline requireHead error xs =
-        xs
-        |> Task.map (Result.requireHead error)
-
-    /// Returns the task-wrapped result if it is Ok and the predicate is true, or if the task-wrapped result is Error.
-    /// If the predicate is false, returns a new task-wrapped Error result with the error value.
-    let inline require predicate error result =
-        result
-        |> Task.map (Result.require predicate error)
-
-    /// Replaces an error value of an task-wrapped result with a custom error
+    /// Replaces an error value of a task-wrapped result with a custom error
     /// value.
     let inline setError error taskResult =
         taskResult
         |> Task.map (Result.setError error)
 
-    /// Replaces a unit error value of an task-wrapped result with a custom
+    /// Replaces a unit error value of a task-wrapped result with a custom
     /// error value. Safer than setError since you're not losing any information.
     let inline withError error taskResult =
         taskResult
         |> Task.map (Result.withError error)
 
-    /// Extracts the contained value of an task-wrapped result if Ok, otherwise
+    /// Extracts the contained value of a task-wrapped result if Ok, otherwise
     /// uses ifError.
     let inline defaultValue ifError taskResult =
         taskResult
         |> Task.map (Result.defaultValue ifError)
 
-    /// Extracts the contained value of an task-wrapped result if Error, otherwise
+    /// Extracts the contained value of a task-wrapped result if Error, otherwise
     /// uses ifOk.
     let inline defaultError ifOk taskResult =
         taskResult
         |> Task.map (Result.defaultError ifOk)
 
-    /// Extracts the contained value of an task-wrapped result if Ok, otherwise
+    /// Extracts the contained value of a task-wrapped result if Ok, otherwise
     /// evaluates ifErrorThunk and uses the result.
     let inline defaultWith ifErrorThunk taskResult =
         taskResult
@@ -224,13 +170,13 @@ module TaskResult =
         |> Task.map (Result.teeErrorIf predicate f)
 
     /// Takes two results and returns a tuple of the pair
-    let inline zip x1 x2 =
-        Task.zip x1 x2
+    let inline zip left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> Result.zip r1 r2)
 
     /// Takes two results and returns a tuple of the error pair
-    let inline zipError x1 x2 =
-        Task.zip x1 x2
+    let inline zipError left right =
+        Task.zip left right
         |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
@@ -284,106 +230,131 @@ module TaskResult =
         x
         |> Task.singleton
 
-    /// Bind the TaskResult and requireSome on the inner option value.
-    let inline bindRequireSome error x =
-        x
-        |> bind (
-            Result.requireSome error
-            >> Task.singleton
-        )
+    /// Returns the task-wrapped result if it is Ok and the checkFunc returns a task-wrapped Ok result or if the task-wrapped result is Error.
+    /// If the checkFunc returns a task-wrapped Error result, returns the task-wrapped Error result.
+    let inline check
+        ([<InlineIfLambda>] checker: 'ok -> Task<Result<unit, 'error>>)
+        (x: Task<Result<'ok, 'error>>)
+        : Task<Result<'ok, 'error>> =
+        bind
+            (fun x ->
+                checker x
+                |> map (fun () -> x)
+            )
+            x
 
-    /// Bind the TaskResult and requireNone on the inner option value.
-    let inline bindRequireNone error x =
-        x
-        |> bind (
-            Result.requireNone error
-            >> Task.singleton
-        )
+    /// Bind the TaskResult with a synchronous Result-returning function
+    let inline bindResult
+        ([<InlineIfLambda>] reqF: 'input -> Result<'output, 'error>)
+        (input: Task<Result<'input, 'error>>)
+        : Task<Result<'output, 'error>> =
+        Task.bindResult (Result.bind reqF) input
 
-    /// Bind the TaskResult and requireValueSome on the inner voption value.
-    let inline bindRequireValueSome error x =
-        x
-        |> bind (
-            Result.requireValueSome error
-            >> Task.singleton
-        )
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
-    /// Bind the TaskResult and requireValueNone on the inner voption value.
-    let inline bindRequireValueNone error x =
-        x
-        |> bind (
-            Result.requireValueNone error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use TaskResult.reqFilter predicate error instead of require predicate error">]
+    let inline require predicate error result = reqFilter predicate error result
 
-    /// Bind the TaskResult and requireTrue on the inner value.
-    let inline bindRequireTrue error x =
-        x
-        |> bind (
-            Result.requireTrue error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use TaskResult.req (Req.equalTo other) error value instead of requireEqual other value error">]
+    let inline requireEqual other value error = req (Req.equalTo other) error value
 
-    /// Bind the TaskResult and requireFalse on the inner value.
-    let inline bindRequireFalse error x =
-        x
-        |> bind (
-            Result.requireFalse error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.isTrue error instead of requireTrue error">]
+    let inline requireTrue error value = Task.req Req.isTrue error value
 
-    /// Bind the TaskResult and requireNotNull on the inner value.
-    let inline bindRequireNotNull error x =
-        x
-        |> bind (
-            Result.requireNotNull error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.isTrueWith errorF instead of requireTrueWith errorF">]
+    let inline requireTrueWith errorF value = Task.req Req.isTrueWith errorF value
 
-    /// Bind the TaskResult and requireEequal on the inner value.
-    let inline bindRequireEqual y error x =
-        x
-        |> bind (fun x ->
-            Result.requireEqual x y error
-            |> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.isFalse error instead of requireFalse error">]
+    let inline requireFalse error value = Task.req Req.isFalse error value
 
-    /// Bind the TaskResult and requireEmpty on the inner value.
-    let inline bindRequireEmpty error x =
-        x
-        |> bind (
-            Result.requireEmpty error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.isFalseWith errorF instead of requireFalseWith errorF">]
+    let inline requireFalseWith errorF value = Task.req Req.isFalseWith errorF value
 
-    /// Bind the TaskResult and requireNotEmpty on the inner value.
-    let inline bindRequireNotEmpty error x =
-        x
-        |> bind (
-            Result.requireNotEmpty error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.some error instead of requireSome error">]
+    let inline requireSome error value = Task.req Req.some error value
 
-    /// Bind the TaskResult and requireHead on the inner value
-    let inline bindRequireHead error x =
-        x
-        |> bind (
-            Result.requireHead error
-            >> Task.singleton
-        )
+    [<System.Obsolete "Please use Task.req Req.someWith errorF instead of requireSomeWith errorF">]
+    let inline requireSomeWith errorF value = Task.req Req.someWith errorF value
 
-    let inline foldResult
-        ([<InlineIfLambda>] onSuccess: 'input -> 'output)
-        ([<InlineIfLambda>] onError: 'inputError -> 'output)
-        (input: Task<Result<'input, 'inputError>>)
-        : Task<'output> =
-        Task.map (Result.either onSuccess onError) input
+    [<System.Obsolete "Please use Task.req Req.none error instead of requireNone error">]
+    let inline requireNone error value = Task.req Req.none error value
 
-    /// Returns the task-wrapped result if it is Ok and the checkFunc returns an task-wrapped Ok result or if the task-wrapped result is Error.
-    /// If the checkFunc returns an task-wrapped Error result, returns the task-wrapped Error result.
-    let inline check ([<InlineIfLambda>] checkFunc) (result) =
-        result
-        |> bind (fun o ->
-            checkFunc o
-            |> map (fun _ -> o)
-        )
+    [<System.Obsolete "Please use Task.req Req.noneWith errorF instead of requireNoneWith errorF">]
+    let inline requireNoneWith errorF value = Task.req Req.noneWith errorF value
+
+    [<System.Obsolete "Please use Task.req Req.valueSome error instead of requireValueSome error">]
+    let inline requireValueSome error value = Task.req Req.valueSome error value
+
+    [<System.Obsolete "Please use Task.req Req.valueSomeWith errorF instead of requireValueSomeWith errorF">]
+    let inline requireValueSomeWith errorF value = Task.req Req.valueSomeWith errorF value
+
+    [<System.Obsolete "Please use Task.req Req.valueNone error instead of requireValueNone error">]
+    let inline requireValueNone error value = Task.req Req.valueNone error value
+
+    [<System.Obsolete "Please use Task.req Req.valueNoneWith errorF instead of requireValueNoneWith errorF">]
+    let inline requireValueNoneWith errorF value = Task.req Req.valueNoneWith errorF value
+
+    [<System.Obsolete "Please use Task.req (Req.equalTo other) error instead of requireEqualTo other error">]
+    let inline requireEqualTo other error value =
+        Task.req (Req.equalTo other) error value
+
+    [<System.Obsolete "Please use Task.req Req.empty error instead of requireEmpty error">]
+    let inline requireEmpty error value = Task.req Req.empty error value
+
+    [<System.Obsolete "Please use Task.req Req.notEmpty error instead of requireNotEmpty error">]
+    let inline requireNotEmpty error value = Task.req Req.notEmpty error value
+
+    [<System.Obsolete "Please use Task.req Req.head error instead of requireHead error">]
+    let inline requireHead error value = Task.req Req.head error value
+
+    [<System.Obsolete "Please use TaskResult.req Req.some error instead of bindRequireSome error">]
+    let inline bindRequireSome error x = req Req.some error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.none error instead of bindRequireNone error">]
+    let inline bindRequireNone error x = req Req.none error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.someWith errorF instead of bindRequireSomeWith errorF">]
+    let inline bindRequireSomeWith errorF x = req Req.someWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.noneWith errorF instead of bindRequireNoneWith errorF">]
+    let inline bindRequireNoneWith errorF x = req Req.noneWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.valueSome error instead of bindRequireValueSome error">]
+    let inline bindRequireValueSome error x = req Req.valueSome error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.valueNone error instead of bindRequireValueNone error">]
+    let inline bindRequireValueNone error x = req Req.valueNone error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.valueSomeWith errorF instead of bindRequireValueSomeWith errorF">]
+    let inline bindRequireValueSomeWith errorF x = req Req.valueSomeWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.valueNoneWith errorF instead of bindRequireValueNoneWith errorF">]
+    let inline bindRequireValueNoneWith errorF x = req Req.valueNoneWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.isTrue error instead of bindRequireTrue error">]
+    let inline bindRequireTrue error x = req Req.isTrue error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.isTrueWith errorF instead of bindRequireTrueWith errorF">]
+    let inline bindRequireTrueWith errorF x = req Req.isTrueWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.isFalse error instead of bindRequireFalse error">]
+    let inline bindRequireFalse error x = req Req.isFalse error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.isFalseWith errorF instead of bindRequireFalseWith errorF">]
+    let inline bindRequireFalseWith errorF x = req Req.isFalseWith errorF x
+
+    [<System.Obsolete "Please use TaskResult.req Req.notNull error instead of bindRequireNotNull error">]
+    let inline bindRequireNotNull error x = req Req.notNull error x
+
+    [<System.Obsolete "Please use TaskResult.req (Req.equalTo other) error instead of bindRequireEqual other error">]
+    let inline bindRequireEqual y error x = req (Req.equalTo y) error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.empty error instead of bindRequireEmpty error">]
+    let inline bindRequireEmpty error x = req Req.empty error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.notEmpty error instead of bindRequireNotEmpty error">]
+    let inline bindRequireNotEmpty error x = req Req.notEmpty error x
+
+    [<System.Obsolete "Please use TaskResult.req Req.head error instead of bindRequireHead error">]
+    let inline bindRequireHead error x = req Req.head error x

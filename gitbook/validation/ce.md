@@ -15,10 +15,9 @@ This CE can take advantage of the [and! operator](https://github.com/fsharp/fsla
 ```fsharp
 // string -> Result<int, string>
 let tryParseInt (str: string) =
-  match System.Int32.TryParse str with
-  | true, x -> Ok x
-  | false, _ ->
-    Error (sprintf "unable to parse '%s' to integer" str)
+    match str |> Option.tryParse<int> with
+    | None -> Error $"unable to parse '{str}' to integer"
+    | Some x -> Ok x
 ```
 
 ### Example 1
@@ -28,10 +27,10 @@ The example from [Validation.map3](../validation/map3.md#example-1) can be solve
 ```fsharp
 // Validation<int, string>
 let addResult = validation {
-  let! x = tryParseInt "35"
-  and! y = tryParseInt "5"
-  and! z = tryParseInt "2"
-  return add x y z
+    let! x = tryParseInt "35"
+    and! y = tryParseInt "5"
+    and! z = tryParseInt "2"
+    return add x y z
 }
 // Ok 42
 ```

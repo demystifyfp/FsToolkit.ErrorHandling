@@ -3,6 +3,14 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module AsyncOption =
 
+    /// <summary>Lifts an item to an Async.</summary>
+    /// <param name="x">The item to be the result of the Async.</param>
+    /// <returns>An Async with the item as the result.</returns>
+    let inline some x = Async.singleton (Some x)
+    /// <summary>An Async that yields None.</summary>
+    /// <returns>An Async with None as the result.</returns>
+    let inline none<'a> : Async<'a option> = Async.singleton None
+
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
         (input: Async<'input option>)
@@ -13,15 +21,12 @@ module AsyncOption =
         ([<InlineIfLambda>] binder: 'input -> Async<'output option>)
         (input: Async<'input option>)
         : Async<'output option> =
-        Async.bind
-            (fun x ->
-                match x with
-                | Some x -> binder x
-                | None -> Async.singleton None
-            )
-            input
-
-    let inline some (value: 'value) : Async<'value option> = Async.singleton (Some value)
+        input
+        |> Async.bind (fun x ->
+            match x with
+            | Some x -> binder x
+            | None -> none
+        )
 
     let inline apply
         (applier: Async<('input -> 'output) option>)
@@ -29,26 +34,29 @@ module AsyncOption =
         : Async<'output option> =
         bind (fun f' -> bind (fun x' -> some (f' x')) input) applier
 
-    /// <summary>
-    /// Returns result of running <paramref name="onSome"/> if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>
-    /// </summary>
-    /// <param name="onSome">The function to run if <paramref name="input"/> is <c>Some</c></param>
-    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c></param>
-    /// <param name="input">The input option.</param>
-    /// <returns>
-    /// The result of running <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.
-    /// </returns>
+    /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
+    /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>
+    /// <param name="onNone">The function to run if <paramref name="input"/> is <c>None</c>.</param>
+    /// <param name="input">The input <c>Async&lt;'input option&gt;</c>.</param>
+    /// <returns>The result of applying <paramref name="onSome"/> if the input is <c>Some</c>, else returns result of running <paramref name="onNone"/>.</returns>
+    let inline eitherBind
+        ([<InlineIfLambda>] onSome: 'input -> 'output)
+        ([<InlineIfLambda>] onNone: unit -> 'output)
+        (input: Async<'input option>)
+        : Async<'output> =
+        Async.map (Option.eitherBind onSome onNone) input
+
+    [<System.Obsolete "Please use 1. `Async.bind (function Some v -> onSome v | None -> onNone)` or 2. AsyncOption.eitherBind (if possible; different signature) instead">]
     let inline either
         ([<InlineIfLambda>] onSome: 'input -> Async<'output>)
         (onNone: Async<'output>)
         (input: Async<'input option>)
         : Async<'output> =
-        input
-        |> Async.bind (
-            function
+        Async.bind
+            (function
             | Some v -> onSome v
-            | None -> onNone
-        )
+            | None -> onNone)
+            input
 
     /// <summary>
     ///  Gets the value of the option if the option is <c>Some</c>, otherwise returns the specified default value.
@@ -99,7 +107,7 @@ module AsyncOption =
         (ifNone: Async<'value option>)
         (input: Async<'value option>)
         : Async<'value option> =
-        Async.bind (Option.either some (fun _ -> ifNone)) input
+        Async.bind (Option.eitherBind some (fun _ -> ifNone)) input
 
     /// <summary>
     /// Returns <paramref name="input"/> if it is <c>Some</c>, otherwise executes <paramref name="ifNoneFunc"/> and returns the result.
@@ -124,4 +132,4 @@ module AsyncOption =
         ([<InlineIfLambda>] ifNoneFunc: unit -> Async<'value option>)
         (input: Async<'value option>)
         : Async<'value option> =
-        Async.bind (Option.either some ifNoneFunc) input
+        Async.bind (Option.eitherBind some ifNoneFunc) input

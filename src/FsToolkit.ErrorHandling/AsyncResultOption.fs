@@ -1,10 +1,23 @@
 namespace FsToolkit.ErrorHandling
 
-
 type AsyncResultOption<'ok, 'error> = Async<Result<'ok option, 'error>>
 
 [<RequireQualifiedAccess>]
 module AsyncResultOption =
+
+    let inline some value = AsyncResult.ok (Some value)
+
+    let inline none<'ok, 'error> : Async<Result<'ok option, 'error>> =
+        AsyncResult.ok None
+
+    [<System.Obsolete "Please use some instead of ok">]
+    let inline ok x = some x
+
+    [<System.Obsolete "Please use AsyncResult.error instead of error">]
+    let inline error x = AsyncResult.error x
+
+    [<System.Obsolete "Please use some instead of singleton">]
+    let inline singleton (value: 'ok) : Async<Result<'ok option, 'error>> = some value
 
     let inline map
         ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
@@ -24,14 +37,6 @@ module AsyncResultOption =
             )
             input
 
-    let inline ok x =
-        Ok(Some x)
-        |> Async.singleton
-
-    let inline error x : Async<Result<'ok option, 'error>> =
-        Error x
-        |> Async.singleton
-
     let inline map2
         ([<InlineIfLambda>] mapper: 'okInput1 -> 'okInput2 -> 'okOutput)
         (input1: Async<Result<'okInput1 option, 'error>>)
@@ -46,9 +51,6 @@ module AsyncResultOption =
         (input3: Async<Result<'okInput3 option, 'error>>)
         : Async<Result<'okOutput option, 'error>> =
         AsyncResult.map3 (Option.map3 mapper) input1 input2 input3
-
-    let inline singleton (value: 'ok) : Async<Result<'ok option, 'error>> =
-        AsyncResult.ok (Some value)
 
     let apply
         (applier: Async<Result<('okInput -> 'okOutput) option, 'error>>)
@@ -66,12 +68,10 @@ module AsyncResultOption =
         |> map ignore<'ok>
 #endif
 
-
     let inline ofResult (r: Result<'ok, 'error>) =
         r
         |> Result.map Some
         |> Async.singleton
-
 
     let inline ofAsyncResult (r: Async<Result<'ok, 'error>>) =
         r
@@ -85,3 +85,21 @@ module AsyncResultOption =
     let inline ofAsyncOption (r: Async<'ok option>) =
         r
         |> Async.map Ok
+
+    /// Bind the Async&lt;'input option&gt; with a synchronous Result-returning function.
+    /// A None input will be mapped to Ok None.
+    let inline bindResult
+        ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
+        (input: Async<'input option>)
+        : Async<Result<'output option, 'error>> =
+        input
+        |> Async.bindResult (
+            function
+            | Some x ->
+                binder x
+                |> Result.map Some
+            | None -> Ok None
+        )
+
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

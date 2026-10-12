@@ -130,6 +130,7 @@ module ResultCEExtensions =
 // overload resolution and allows skipping more type annotations.
 [<AutoOpen>]
 module ResultCEChoiceExtensions =
+
     type ResultBuilder with
 
         /// <summary>

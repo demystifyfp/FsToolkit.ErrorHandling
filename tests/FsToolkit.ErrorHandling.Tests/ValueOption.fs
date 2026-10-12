@@ -1,20 +1,17 @@
 module ValueOptionTests
 
-
-open System
-
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
+
+open System
 open SampleDomain
 open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
-
 
 let traverseResultTests =
     testList "ValueOption.traverseResult Tests" [
@@ -118,19 +115,19 @@ let bindNullTests =
 
 
 let eitherTests =
-    testList "ValueOption.either Tests" [
+    testList "ValueOption.eitherBind Tests" [
         testCase "Some"
         <| fun _ ->
             let value1 = ValueSome 5
             let f () = 42
             let add2 = (+) 2
-            Expect.equal (ValueOption.either add2 f value1) 7 ""
+            Expect.equal (ValueOption.eitherBind add2 f value1) 7 ""
         testCase "None"
         <| fun _ ->
             let value1 = ValueNone
             let f () = 42
             let add2 = (+) 2
-            Expect.equal (ValueOption.either add2 f value1) 42 ""
+            Expect.equal (ValueOption.eitherBind add2 f value1) 42 ""
     ]
 
 let ofPairTests =

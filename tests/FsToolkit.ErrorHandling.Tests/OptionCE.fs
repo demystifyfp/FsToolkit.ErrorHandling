@@ -1,6 +1,5 @@
 module OptionCETests
 
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
@@ -8,14 +7,11 @@ open Fable.Pyxpecto
 open Expecto
 #endif
 open FsToolkit.ErrorHandling
-open System
-open System.Collections.Generic
 
 let makeDisposable () =
     { new System.IDisposable with
         member this.Dispose() = ()
     }
-
 
 // type 'a option = | Some of 'a | None
 

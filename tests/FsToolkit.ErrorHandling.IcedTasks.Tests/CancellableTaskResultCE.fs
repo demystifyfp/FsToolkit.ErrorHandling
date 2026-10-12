@@ -1072,6 +1072,44 @@ module CancellableTaskResultCE =
                     Expect.equal (Ok "lolfooo") someTask ""
                 }
             ]
+            testList "either" [
+                testCaseAsync "eitherBind Ok"
+                <| async {
+                    let! actual =
+                        CancellableTaskResult.singleton 5
+                        |> CancellableTaskResult.eitherBind string id
+
+                    Expect.equal "5" actual ""
+                }
+                testCaseAsync "eitherBind Error"
+                <| async {
+                    let input = fun _ -> Task.FromResult(Error "bad")
+
+                    let! actual =
+                        input
+                        |> CancellableTaskResult.eitherBind string id
+
+                    Expect.equal "bad" actual ""
+                }
+                testCaseAsync "eitherMap Ok"
+                <| async {
+                    let! actual =
+                        CancellableTaskResult.singleton 5
+                        |> CancellableTaskResult.eitherMap ((+) 1) String.length
+
+                    Expect.equal (Ok 6) actual ""
+                }
+                testCaseAsync "eitherMap Error"
+                <| async {
+                    let input = fun _ -> Task.FromResult(Error "bad")
+
+                    let! actual =
+                        input
+                        |> CancellableTaskResult.eitherMap id String.length
+
+                    Expect.equal (Error 3) actual ""
+                }
+            ]
             testList "apply" [
                 testCaseAsync "Simple"
                 <| async {

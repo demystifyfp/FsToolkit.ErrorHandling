@@ -255,7 +255,7 @@ let ``TaskResultOptionCE inference checks`` =
             // Compilation is success
             let f res = taskResultOption { return! res }
 
-            f (TaskResultOption.singleton ())
+            f (TaskResultOption.some ())
             |> ignore
     ]
 

@@ -1,82 +1,34 @@
 ## Other Useful Functions
 
+### req
 
-### requireTrue
-
-Returns the specified error if the task-wrapped value is `false`.
-```fsharp
-'a -> CancellableTask<bool> -> CancellableTask<Result<unit, 'a>>`
-```
-### requireFalse
-
-Returns the specified error if the task-wrapped value is `true`.
-```fsharp
-'a -> CancellableTask<bool> -> CancellableTask<Result<unit, 'a>>`
-```
-
-### requireSome
-
-Converts an task-wrapped Option to a Result, using the given error if None.
-```fsharp
-'a -> CancellableTask<'b option> -> CancellableTask<Result<'b, 'a>>`
-```
-### requireNone
-
-Converts an task-wrapped Option to a Result, using the given error if Some.
+Any `Req`.* function can be bound to a `CancellableTask`-wrapped `Result` via `CancellableTaskResult.req`
+It feeds the inner `Ok` value through the checker, which can then accept and/or transform the value,
+or return `Error` with the given error value if the condition is not met.
 
 ```fsharp
-'a -> CancellableTask<'b option> -> CancellableTask<Result<unit, 'a>>`
+'checker -> 'errorOrErrorF -> CancellableTask<Result<'ok, 'error>> -> CancellableTask<Result<'output, 'error>>
+
+CancellableTaskResult.req Req.notEmpty "CancellableTaskResult was not Ok <non-empty Seq>"
+
+----
+
+CancellableTaskResult.ok [| 1; 2; 3 |]
+|> CancellableTaskResult.req Req.notEmpty "Result was not Ok <non-empty Seq>"
+// => Ok ()
+
+CancellableTaskResult.ok Seq.empty
+|> CancellableTaskResult.req Req.notEmpty "Result was not Ok <non-empty Seq>"
+// => Error "Result was not Ok <non-empty Seq>"
 ```
 
+### reqFilter
 
-### requireEqual
-
-Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not. Same as `requireEqualTo`, but with a parameter order that fits normal function application better than piping.
-
-```fsharp
-'a -> CancellableTask<'a> -> 'b -> CancellableTask<Result<unit, 'b>>
-```
-
-### requireEqualTo
-
-Returns Ok if the task-wrapped value and the provided value are equal, or the specified error if not. Same as `requireEqual`, but with a parameter order that fits piping better than normal function application.
+Unpacks the `CancellableTask`'s `Result`, yielding the value (wrapped in `Ok`) if the `predicate` accepts it.
+If the Result is Error or the predicate returns `false`, it yields an `Error` with the specified `error`.
 
 ```fsharp
-'a -> 'b -> CancellableTask<'a> -> CancellableTask<Result<unit, 'b>>
-```
-
-### requireEmpty
-
-Returns Ok if the task-wrapped sequence is empty, or the specified error if not.
-
-```fsharp
-'a -> CancellableTask<'b> -> CancellableTask<Result<unit, 'a>>
-```
-
-### requireNotEmpty
-
-Returns Ok if the task-wrapped sequence is non-empty, or the specified error if not.
-
-```fsharp
-'a -> CancellableTask<'b> -> CancellableTask<Result<unit, 'a>>
-```
-
-
-### requireHead
-
-Returns the first item of the sequence if it exists, or the specified error if the sequence is empty
-
-```fsharp
-'a -> CancellableTask<'b> -> CancellableTask<Result<'c, 'a>>
-```
-
-
-### setError
-
-Replaces an error value of an task-wrapped result with a custom error value
-
-```fsharp
-'a -> CancellableTask<Result<'b, 'c>> -> CancellableTask<Result<'b, 'a>>
+('ok -> bool) -> 'error -> CancellableTask<Result<'ok,'error>> -> CancellableTask<Result<'ok,'error>>
 ```
 
 ### withError

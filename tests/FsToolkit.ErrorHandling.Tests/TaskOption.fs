@@ -36,7 +36,7 @@ let mapTests =
 
         testCase "map with Task(None)"
         <| fun _ ->
-            Task.singleton (None)
+            TaskOption.none
             |> TaskOption.map remainingCharacters
             |> Expect.hasTaskNoneValue
     ]
@@ -75,21 +75,21 @@ let applyTests =
         <| fun _ ->
             Task.singleton (Some validTweet)
             |> TaskOption.apply (Task.singleton (Some remainingCharacters))
-            |> Expect.hasTaskSomeValue (267)
+            |> Expect.hasTaskSomeValue 267
 
         testCase "apply with Task(None)"
         <| fun _ ->
-            Task.singleton None
+            TaskOption.none
             |> TaskOption.apply (Task.singleton (Some remainingCharacters))
             |> Expect.hasTaskNoneValue
     ]
 
-let retnTests =
-    testList "TaskOption.retn Tests" [
-        testCase "retn with x"
+let someTests =
+    testList "TaskOption.some Tests" [
+        testCase "some with x"
         <| fun _ ->
             TaskOption.some 267
-            |> Expect.hasTaskSomeValue (267)
+            |> Expect.hasTaskSomeValue 267
     ]
 
 let taskOptionOperatorTests =
@@ -114,30 +114,38 @@ let taskOptionOperatorTests =
                 if isAllowed then
                     createPostSome validCreatePostRequest
                 else
-                    Task.singleton None
+                    TaskOption.none
             )
             |> Expect.hasTaskSomeValue (PostId newPostId)
     ]
 
 
 let eitherTests =
-    testList "TaskOption.either Tests" [
+    testList "TaskOption.eitherBind Tests" [
         testCaseTask "Some"
         <| fun () ->
             task {
                 let value1 = TaskOption.some 5
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskOption.eitherBind add2 f
+
                 Expect.equal result 7 ""
             }
         testCaseTask "None"
         <| fun () ->
             task {
                 let value1 = Task.FromResult None
-                let f () = Task.FromResult 42
-                let add2 x = task { return x + 2 }
-                let! result = (TaskOption.either add2 f value1)
+                let f () = 42
+                let add2 x = x + 2
+
+                let! result =
+                    value1
+                    |> TaskOption.eitherBind add2 f
+
                 Expect.equal result 42 ""
             }
     ]
@@ -159,7 +167,7 @@ let defaultValueTests =
         <| fun () ->
             task {
                 let expectedValue = 10
-                let taskOption = Task.singleton None
+                let taskOption = TaskOption.none
                 let! result = TaskOption.defaultValue expectedValue taskOption
                 Expect.equal result expectedValue ""
             }
@@ -182,7 +190,7 @@ let defaultWithTests =
         <| fun () ->
             task {
                 let expectedValue = 10
-                let taskOption = Task.singleton None
+                let taskOption = TaskOption.none
                 let! result = TaskOption.defaultWith (fun () -> expectedValue) taskOption
                 Expect.equal result expectedValue ""
             }
@@ -193,7 +201,7 @@ let allTests =
         mapTests
         bindTests
         applyTests
-        retnTests
+        someTests
         taskOptionOperatorTests
         eitherTests
         defaultValueTests

@@ -1,10 +1,10 @@
 namespace TestHelpers
 
 #if FABLE_COMPILER
+[<AutoOpen>] // Mirrors what Expecto.Tests does
 module Tests =
     let failtestf = failwithf
 #endif
-
 module Expect =
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
     open Fable.Pyxpecto
@@ -12,27 +12,26 @@ module Expect =
 #if !FABLE_COMPILER
     open Expecto
     open System.Threading.Tasks
-
 #endif
 
 #if FABLE_COMPILER
     let isOk x message =
         match x with
         | Ok _ -> ()
-        | Result.Error x -> Tests.failtestf "%s. Expected Ok, was Error(%A)." message x
+        | Result.Error x -> failtestf "%s. Expected Ok, was Error(%A)." message x
 #endif
 
     let hasErrorValue v x =
         match x with
-        | Ok x -> Tests.failtestf "Expected Error, was Ok(%A)." x
+        | Ok x -> failtestf "Expected Error, was Ok(%A)." x
         | Error x when x = v -> ()
-        | Error x -> Tests.failtestf "Expected Error(%A), was Error(%A)." v x
+        | Error x -> failtestf "Expected Error(%A), was Error(%A)." v x
 
     let hasOkValue v x =
         match x with
         | Ok x when x = v -> ()
-        | Ok x -> Tests.failtestf "Expected Ok(%A), was Ok(%A)." v x
-        | Error x -> Tests.failtestf "Expected Ok, was Error(%A)." x
+        | Ok x -> failtestf "Expected Ok(%A), was Ok(%A)." v x
+        | Error x -> failtestf "Expected Ok, was Error(%A)." x
 
     let hasOkSeqValue v x =
         match x with
@@ -40,20 +39,20 @@ module Expect =
             if Seq.forall2 (fun a b -> a = b) v x then
                 ()
             else
-                Tests.failtestf "Expected Ok(%A), was Ok(%A)." v x
-        | Error x -> Tests.failtestf "Expected Ok, was Error(%A)." x
+                failtestf "Expected Ok(%A), was Ok(%A)." v x
+        | Error x -> failtestf "Expected Ok, was Error(%A)." x
 
     let hasSomeValue v x =
         match x with
         | Some x when x = v -> ()
-        | Some x -> Tests.failtestf "Expected Some(%A), was Some(%A)." v x
-        | None -> Tests.failtestf "Expected Some, was None."
+        | Some x -> failtestf "Expected Some(%A), was Some(%A)." v x
+        | None -> failtestf "Expected Some, was None."
 
     let hasValueSomeValue v x =
         match x with
         | ValueSome x when x = v -> ()
-        | ValueSome x -> Tests.failtestf "Expected ValueSome(%A), was ValueSome(%A)." v x
-        | ValueNone -> Tests.failtestf "Expected ValueSome, was ValueNone."
+        | ValueSome x -> failtestf "Expected ValueSome(%A), was ValueSome(%A)." v x
+        | ValueNone -> failtestf "Expected ValueSome, was ValueNone."
 
     let hasSomeSeqValue v x =
         match x with
@@ -61,27 +60,24 @@ module Expect =
             if Seq.forall2 (fun a b -> a = b) v x then
                 ()
             else
-                Tests.failtestf "Expected Some(%A), was Some(%A)." v x
-        | None -> Tests.failtestf "Expected Some, was None."
+                failtestf "Expected Some(%A), was Some(%A)." v x
+        | None -> failtestf "Expected Some, was None."
 
     let hasNoneValue x =
         match x with
         | None -> ()
-        | Some _ -> Tests.failtestf "Expected None, was Some."
+        | Some _ -> failtestf "Expected None, was Some."
 
     let hasValueNoneValue x =
         match x with
         | ValueNone -> ()
-        | ValueSome v -> Tests.failtestf "Expected ValueNone, was ValueSome(%A)." v
+        | ValueSome v -> failtestf "Expected ValueNone, was ValueSome(%A)." v
 
     let hasAsyncValue v asyncX =
         async {
             let! x = asyncX
 
-            if v = x then
-                ()
-            else
-                Tests.failtestf "Expected %A, was %A." v x
+            if v = x then () else failtestf "Expected %A, was %A." v x
         }
 
     let hasAsyncOkValue v asyncX =
@@ -128,10 +124,7 @@ module Expect =
             |> Async.AwaitTask
             |> Async.RunSynchronously
 
-        if v = x then
-            ()
-        else
-            Tests.failtestf "Expected %A, was %A." v x
+        if v = x then () else failtestf "Expected %A, was %A." v x
 
     let hasTaskOkValue v (taskX: Task<_>) =
         task {

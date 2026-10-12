@@ -10,7 +10,7 @@ let okF (x : int) = x + 1
 let errorF (x : int) = x - 1
 ```
 
-## Result.either
+## Result.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -30,7 +30,7 @@ If the result is ok, perform a function on the ok value which returns a value. I
 ```fsharp
 let result =
     Ok 1
-    |> Result.either okF errorF
+    |> Result.eitherBind okF errorF
     
 // 2
 ```
@@ -57,5 +57,5 @@ let result =
     Error 1
     |> Result.eitherMap okF errorF
     
-// 0
+// Error 0
 ```

@@ -49,17 +49,17 @@ Here's how a simple login use-case can be written (using some helpers from the `
 type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError
 
 let login (username : string) (password : string) : Result<AuthToken, LoginError> =
-  result {
-    // requireSome unwraps a Some value or gives the specified error if None
-    let! user = username |> tryGetUser |> Result.requireSome InvalidUser
+    result {
+        // Req.some unwraps a Some value (into Ok value) or (if None) yields the specified error (ending processing)
+        let! user = username |> tryGetUser |> Req.some InvalidUser
 
-    // requireTrue gives the specified error if false
-    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+        // Req.filter gives the specified error if isPwdValid returns false
+        do! user |> Req.filter (isPwdValid password) InvalidPwd
 
-    // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
-    do! user |> authorize |> Result.mapError Unauthorized
+        // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
+        do! user |> authorize |> Result.mapError Unauthorized
 
-    return user |> createAuthToken
-  }
+        return user |> createAuthToken
+    }
 ```
 

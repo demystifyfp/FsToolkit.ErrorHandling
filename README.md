@@ -96,11 +96,11 @@ type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError | TokenEr
 
 let login (username: string) (password: string) : Async<Result<AuthToken, LoginError>> =
   asyncResult {
-    // requireSome unwraps a Some value or gives the specified error if None
-    let! user = username |> tryGetUser |> AsyncResult.requireSome InvalidUser
+    // Async.req parses a value using a Req.* function, or yields the specified error if None
+    let! user = username |> tryGetUser |> Async.req Req.some InvalidUser
 
-    // requireTrue gives the specified error if false
-    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+    // Req.filter gives the specified error if isPwdValid returns false
+    do! user |> Req.filter (isPwdValid password) InvalidPwd
 
     // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
     do! user |> authorize |> AsyncResult.mapError Unauthorized

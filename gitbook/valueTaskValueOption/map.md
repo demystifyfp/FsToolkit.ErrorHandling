@@ -15,7 +15,7 @@ Apply a function to the value of a value task voption if it is `ValueSome`. If t
 ### Example 1
 
 ```fsharp
-ValueTaskValueOption.map (fun x -> x + 1) (ValueTaskValueOption.valueSome 1)
+ValueTaskValueOption.map (fun x -> x + 1) (ValueTaskValueOption.some 1)
 
 // valueTask { ValueSome 2 }
 ```
@@ -23,7 +23,7 @@ ValueTaskValueOption.map (fun x -> x + 1) (ValueTaskValueOption.valueSome 1)
 ### Example 2
 
 ```fsharp
-ValueTaskValueOption.map (fun x -> x + 1) (ValueTask<_>(ValueNone))
+ValueTaskValueOption.map (fun x -> x + 1) ValueTaskValueOption.none
 
 // valueTask { ValueNone }
 ```

@@ -15,8 +15,8 @@ ValueTask<'left voption> -> ValueTask<'right voption> -> ValueTask<('left * 'rig
 ### Example 1
 
 ```fsharp
-let left = ValueTaskValueOption.valueSome 123
-let right = ValueTaskValueOption.valueSome "abc"
+let left = ValueTaskValueOption.some 123
+let right = ValueTaskValueOption.some "abc"
 
 ValueTaskValueOption.zip left right
 // valueTask { ValueSome (123, "abc") }
@@ -25,8 +25,8 @@ ValueTaskValueOption.zip left right
 ### Example 2
 
 ```fsharp
-let left = ValueTaskValueOption.valueSome 123
-let right = ValueTask<_>(ValueNone)
+let left = ValueTaskValueOption.some 123
+let right = ValueTaskValueOption.none
 
 ValueTaskValueOption.zip left right
 // valueTask { ValueNone }

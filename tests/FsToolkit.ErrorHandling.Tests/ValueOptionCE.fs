@@ -1,18 +1,12 @@
 module ValueOptionCETests
 
-
-open System
-
-
 #if FABLE_COMPILER_PYTHON || FABLE_COMPILER_JAVASCRIPT
 open Fable.Pyxpecto
 #endif
 #if !FABLE_COMPILER
 open Expecto
 #endif
-open SampleDomain
-open TestData
-open TestHelpers
+
 open FsToolkit.ErrorHandling
 
 let makeDisposable () =
@@ -330,7 +324,6 @@ type AbNull = AB | null
 
 #endif
 
-
 let ``ValueOptionCE inference checks`` =
     testList "ValueOptionCE Inference checks" [
         testCase "Argument should be inferred to ValueOption"
@@ -354,7 +347,6 @@ let ``ValueOptionCE inference checks`` =
             Expect.equal (y A) (Some true) ""
 #endif
     ]
-
 
 let allTests =
     testList "ValueOption CE tests" [

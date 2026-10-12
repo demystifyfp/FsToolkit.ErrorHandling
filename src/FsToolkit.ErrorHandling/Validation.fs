@@ -54,7 +54,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok (fun _ -> ifError)
+        |> Result.eitherBind ok (fun _ -> ifError)
 
 
     /// <summary>
@@ -81,7 +81,7 @@ module Validation =
         (result: Validation<'ok, 'errorInput>)
         : Validation<'ok, 'errorOutput> =
         result
-        |> Result.either ok ifErrorFunc
+        |> Result.eitherBind ok ifErrorFunc
 
 
     let inline map
@@ -113,8 +113,8 @@ module Validation =
         : Validation<'okOutput, 'error> =
         match input1, input2, input3 with
         | Ok x, Ok y, Ok z -> Ok(mapper x y z)
-        | Error errs, Ok _, Ok _ -> Error errs
-        | Ok _, Error errs, Ok _ -> Error errs
+        | Error errs, Ok _, Ok _
+        | Ok _, Error errs, Ok _
         | Ok _, Ok _, Error errs -> Error errs
         | Error errs1, Error errs2, Ok _ ->
             Error(
@@ -162,6 +162,6 @@ module Validation =
         : Validation<'left * 'right, 'error> =
         match left, right with
         | Ok x1res, Ok x2res -> Ok(x1res, x2res)
-        | Error e, Ok _ -> Error e
+        | Error e, Ok _
         | Ok _, Error e -> Error e
         | Error e1, Error e2 -> Error(e1 @ e2)

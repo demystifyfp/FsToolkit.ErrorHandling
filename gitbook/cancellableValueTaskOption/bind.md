@@ -57,7 +57,7 @@ let taskOpt : CancellableValueTask<Account option> =
 
 ```fsharp
 let taskOpt : CancellableValueTask<Account option> =
-    CancellableValueTask.singleton None // CancellableValueTask<string option>
+    CancellableValueTaskOption.none // CancellableValueTask<string option>
     |> CancellableValueTaskOption.bind lookupAccountByEmail // CancellableValueTask<Account option>
 
 // cancellableValueTask { None }

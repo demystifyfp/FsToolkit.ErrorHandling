@@ -41,7 +41,7 @@ let lookupAccountByEmail email = task {
 
 ```fsharp
 let taskOpt : Task<Account voption> =
-    TaskValueOption.valueSome "john@test.com" // Task<string voption>
+    TaskValueOption.some "john@test.com" // Task<string voption>
     |> TaskValueOption.bind lookupAccountByEmail // Task<Account voption>
 
 // task { ValueSome { EmailAddress = "john@test.com"; Name = "John Johnson" } }

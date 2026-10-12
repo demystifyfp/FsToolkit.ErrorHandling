@@ -1,4 +1,4 @@
-# ValueTaskValueOption.either
+# ValueTaskValueOption.eitherBind
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -7,9 +7,9 @@ Namespace: `FsToolkit.ErrorHandling`
 Provide two functions to execute depending on the value of the voption. If the voption is `ValueSome`, the first function will be executed. If the voption is `ValueNone`, the second function will be executed.
 
 ```fsharp
-(onValueSome : 'T -> ValueTask<'output>) 
-	-> (onValueNone : unit -> ValueTask<'output>) 
-	-> (input : ValueTask<'T voption>) 
+(onSome : 'input -> 'output) 
+	-> (onNone : unit -> 'output) 
+	-> (input : ValueTask<'input voption>) 
 	-> ValueTask<'output>
 ```
 
@@ -18,7 +18,8 @@ Provide two functions to execute depending on the value of the voption. If the v
 ### Example 1
 
 ```fsharp
-ValueTaskValueOption.either (fun x -> valueTask { return x * 2 }) (fun () -> valueTask { return 0 }) (ValueTaskValueOption.valueSome 5)
+ValueTaskValueOption.some 5
+|> ValueTaskValueOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
 // valueTask { 10 }
 ```
@@ -26,7 +27,8 @@ ValueTaskValueOption.either (fun x -> valueTask { return x * 2 }) (fun () -> val
 ### Example 2
 
 ```fsharp
-ValueTaskValueOption.either (fun x -> valueTask { return x * 2 }) (fun () -> valueTask { return 0 }) (ValueTask<_>(ValueNone))
+ValueTaskValueOption.none
+|> ValueTaskValueOption.eitherBind (fun x -> x * 2) (fun () -> 0) 
 
 // valueTask { 0 }
 ```

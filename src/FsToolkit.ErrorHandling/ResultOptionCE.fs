@@ -1,12 +1,10 @@
 namespace FsToolkit.ErrorHandling
 
-open System
-
 [<AutoOpen>]
 module ResultOptionCE =
 
     type ResultOptionBuilder() =
-        member inline _.Return value = ResultOption.singleton value
+        member inline _.Return value = ResultOption.some value
 
         member inline _.ReturnFrom value : Result<'ok option, 'error> = value
 

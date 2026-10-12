@@ -27,8 +27,8 @@ type LoginError =
 
 let login (username: string) (password: string) : Async<Result<AuthToken, LoginError>> =
   asyncResult {
-    let! user = username |> tryGetUser |> AsyncResult.requireSome InvalidUser
-    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+    let! user = username |> tryGetUser |> Async.req Req.some InvalidUser
+    do! user |> Req.filter (isPwdValid password) InvalidPwd
     do! user |> authorize |> AsyncResult.mapError Unauthorized
     return! user |> createAuthToken |> Result.mapError TokenErr
   }

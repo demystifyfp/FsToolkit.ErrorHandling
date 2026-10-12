@@ -27,8 +27,8 @@ type LoginError =
 
 let login (username: string) (password: string) : Job<Result<AuthToken, LoginError>> =
   jobResult {
-    let! user = username |> tryGetUser |> JobResult.requireSome InvalidUser
-    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+    let! user = username |> tryGetUser |> Job.req Req.some InvalidUser
+    do! user |> Req.filter (isPwdValid password) InvalidPwd
     do! user |> authorize |> JobResult.mapError Unauthorized
     return! user |> createAuthToken |> Result.mapError TokenErr
   }

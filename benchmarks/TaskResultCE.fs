@@ -29,9 +29,7 @@ module TaskResultCE =
             let inline binder' r =
                 match r with
                 | Ok x -> binder x
-                | Error x ->
-                    task.Return
-                    <| Error x
+                | Error x -> task.Return(Error x)
 
             task.Bind(asyncResult, binder')
 

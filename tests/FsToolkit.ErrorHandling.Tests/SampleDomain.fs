@@ -143,7 +143,7 @@ let createUserRequest name dob = { Name = name; DateOfBirth = dob }
 
 type CreateUserRequestDto = { Name: string; DateOfBirth: DateTime }
 
-let commonEx = new Exception("something went wrong!")
+let commonEx = exn "something went wrong!"
 
 type User = { Id: UserId; Name: PersonName }
 
@@ -199,7 +199,7 @@ let createPostRequest lat long tweet = {
 }
 
 
-let getFollowersEx = new Exception("unable to fetch followers!")
+let getFollowersEx = exn "unable to fetch followers!"
 
 let allowedToPost userId =
     async {

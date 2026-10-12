@@ -1,7 +1,5 @@
 ﻿module benchmarks
 
-open System
-open BenchmarkDotNet
 open BenchmarkDotNet.Attributes
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
@@ -104,7 +102,7 @@ module Result =
                     )
                     x
 
-            let inline bind (f) x =
+            let inline bind f x =
                 match x with
                 | Ok x -> f x
                 | Error e -> Error e
@@ -1147,7 +1145,7 @@ type TaskValueOptionApplyBenchmarks() =
 
     [<Benchmark>]
     member _.TaskValueOption_Current_ValueSome() =
-        FsToolkit.ErrorHandling.TaskValueOption.valueSome 1
+        FsToolkit.ErrorHandling.TaskValueOption.some 1
 
     [<Benchmark>]
     member _.TaskValueOption_Original_Bind_ValueSome() =
