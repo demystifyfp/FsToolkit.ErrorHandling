@@ -83,7 +83,7 @@ module CancellableTaskOptionCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskOption { return! ValueTask.FromResult(Some data) }
+                        let ctr = cancellableTaskOption { return! ValueTask.result (Some data) }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Some data) "Should be able to Return! valueTaskOption"
@@ -124,7 +124,7 @@ module CancellableTaskOptionCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskOption { return! ValueTask.FromResult data }
+                        let ctr = cancellableTaskOption { return! ValueTask.result data }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Some data) "Should be able to Return! valuetask<'T>"
@@ -315,7 +315,7 @@ module CancellableTaskOptionCE =
 
                         let ctr =
                             cancellableTaskOption {
-                                let! someValue = ValueTask.FromResult(Some data)
+                                let! someValue = ValueTask.result (Some data)
                                 return someValue
                             }
 
@@ -387,7 +387,7 @@ module CancellableTaskOptionCE =
 
                         let ctr =
                             cancellableTaskOption {
-                                let! someValue = ValueTask.FromResult data
+                                let! someValue = ValueTask.result data
                                 return someValue
                             }
 

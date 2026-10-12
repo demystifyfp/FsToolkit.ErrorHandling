@@ -129,7 +129,7 @@ module CancellableTaskResultCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskResult { return! ValueTask.FromResult(Ok data) }
+                        let ctr = cancellableTaskResult { return! ValueTask.result (Ok data) }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
@@ -180,7 +180,7 @@ module CancellableTaskResultCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskResult { return! ValueTask.FromResult data }
+                        let ctr = cancellableTaskResult { return! ValueTask.result data }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
@@ -381,7 +381,7 @@ module CancellableTaskResultCE =
 
                         let ctr =
                             cancellableTaskResult {
-                                let! someValue = ValueTask.FromResult(Ok data)
+                                let! someValue = ValueTask.result (Ok data)
                                 return someValue
                             }
 
@@ -482,7 +482,7 @@ module CancellableTaskResultCE =
 
                         let ctr =
                             cancellableTaskResult {
-                                let! someValue = ValueTask.FromResult data
+                                let! someValue = ValueTask.result data
                                 return someValue
                             }
 
@@ -1083,7 +1083,7 @@ module CancellableTaskResultCE =
                 }
                 testCaseAsync "eitherBind Error"
                 <| async {
-                    let input = fun _ -> Task.FromResult(Error "bad")
+                    let input = fun _ -> Task.result (Error "bad")
 
                     let! actual =
                         input
@@ -1101,7 +1101,7 @@ module CancellableTaskResultCE =
                 }
                 testCaseAsync "eitherMap Error"
                 <| async {
-                    let input = fun _ -> Task.FromResult(Error "bad")
+                    let input = fun _ -> Task.result (Error "bad")
 
                     let! actual =
                         input

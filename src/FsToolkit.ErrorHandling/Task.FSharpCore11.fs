@@ -340,4 +340,87 @@ module Task =
     /// </example>
     let inline ofValueTask (valueTask: ValueTask<'T>) : Task<'T> = valueTask.AsTask()
 #endif
+
+/// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.ValueTask`1"/> computations.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
+/// </summary>
+[<RequireQualifiedAccess>]
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module ValueTask =
+
+    [<CompiledName("Result")>]
+    let inline result (value: 'T) : ValueTask<'T> = ValueTask<'T>(value)
+
+    [<CompiledName("Empty")>]
+    let empty: ValueTask<unit> = result ()
+
+    [<CompiledName("OfTask")>]
+    let inline ofTask (task: Task<'T>) : ValueTask<'T> = ValueTask<'T>(task)
+
+    [<CompiledName("Bind")>]
+    let inline bind
+        ([<InlineIfLambda>] binder: 'T -> ValueTask<'U>)
+        (task: ValueTask<'T>)
+        : ValueTask<'U> =
+        if task.IsCompletedSuccessfully then
+            try
+                binder task.Result
+            with e ->
+                Task.FromException<'U>(e)
+                |> ofTask
+        else
+            let t: Task<'U> =
+                TaskBuilder.task {
+                    let! v = task
+                    return! binder v
+                }
+
+            ValueTask<'U>(t)
+
+    [<CompiledName("Map")>]
+    let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (task: ValueTask<'T>) : ValueTask<'U> =
+        if task.IsCompletedSuccessfully then
+            try
+                mapping task.Result
+                |> result
+            with e ->
+                Task.FromException<'U>(e)
+                |> ofTask
+        else
+            let t: Task<'U> =
+                TaskBuilder.task {
+                    let! v = task
+                    return mapping v
+                }
+
+            ValueTask<'U>(t)
+
+    [<CompiledName("Ignore")>]
+    [<RequiresExplicitTypeArguments>]
+    let inline ignore<'T> (task: ValueTask<'T>) : ValueTask<unit> = map ignore task
+
+    [<CompiledName("CatchWith")>]
+    let inline catchWith
+        ([<InlineIfLambda>] handler: exn -> 'T)
+        (task: ValueTask<'T>)
+        : ValueTask<'T> =
+        if task.IsCompletedSuccessfully then
+            task
+        else
+            let t: Task<'T> =
+                TaskBuilder.task {
+                    try
+                        return! task
+                    with
+                    | :? System.OperationCanceledException as e -> return! raise e
+                    | e -> return handler e
+                }
+
+            ValueTask<'T>(t)
+
+    [<CompiledName("Catch")>]
+    let catch (task: ValueTask<'T>) : ValueTask<Result<'T, exn>> =
+        task
+        |> map Ok
+        |> catchWith Error
 #endif

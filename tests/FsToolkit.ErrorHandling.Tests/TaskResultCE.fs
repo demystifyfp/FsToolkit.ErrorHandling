@@ -49,7 +49,7 @@ let ``TaskResultCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Result.Ok innerData
-                let! actual = taskResult { return! Task.FromResult data }
+                let! actual = taskResult { return! Task.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -73,7 +73,7 @@ let ``TaskResultCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! Task.FromResult innerData :> Task }
+                let! actual = taskResult { return! Task.result innerData :> Task }
 
                 Expect.equal actual (Result.Ok()) "Should be ok"
             }
@@ -81,7 +81,7 @@ let ``TaskResultCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { return! ValueTask.FromResult innerData }
+                let! actual = taskResult { return! ValueTask.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -184,7 +184,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let! actual =
                     taskResult {
-                        let! data = Task.FromResult innerData
+                        let! data = Task.result innerData
                         return data
                     }
 
@@ -194,7 +194,7 @@ let ``TaskResultCE bind Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskResult { do! Task.FromResult innerData :> Task }
+                let! actual = taskResult { do! Task.result innerData :> Task }
 
                 Expect.equal actual (Result.Ok()) "Should be ok"
             }
@@ -205,7 +205,7 @@ let ``TaskResultCE bind Tests`` =
 
                 let! actual =
                     taskResult {
-                        let! data = ValueTask.FromResult innerData
+                        let! data = ValueTask.result innerData
                         return data
                     }
 
@@ -725,14 +725,14 @@ let ``TaskResultCE applicative tests`` =
             task {
                 let! actual =
                     taskResult {
-                        let! a = Task.FromResult 3
-                        and! b = Task.FromResult 2
+                        let! a = Task.result 3
+                        and! b = Task.result 2
                         return a + b
                     }
 
                 Expect.equal actual (Ok 5) "Should be ok"
             }
-        let specialCaseTask returnValue = Task.FromResult returnValue
+        let specialCaseTask returnValue = Task.result returnValue
 
         testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask"
         <| fun () ->
@@ -747,7 +747,7 @@ let ``TaskResultCE applicative tests`` =
                             |> Async.result
 
                         and! d = specialCaseTask (Ok 3)
-                        and! e = ValueTask.FromResult(Ok 5)
+                        and! e = ValueTask.result (Ok 5)
 
                         return
                             a + b

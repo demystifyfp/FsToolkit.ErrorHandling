@@ -59,21 +59,21 @@ let ``return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = parallelAsyncResult { return! Task.FromResult data }
+            let! actual = parallelAsyncResult { return! Task.result data }
 
             Expect.equal actual (data) "Should be ok"
         }
         testCaseAsync "Return Task Generic"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncResult { return! Task.FromResult innerData }
+            let! actual = parallelAsyncResult { return! Task.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Task"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncResult { return! Task.FromResult innerData :> Task }
+            let! actual = parallelAsyncResult { return! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }
@@ -151,9 +151,7 @@ let ``bind Tests`` =
         <| async {
             let innerData = "Foo"
 
-            let data =
-                Result.Ok innerData
-                |> Task.FromResult
+            let data = TaskResult.ok innerData
 
             let! actual =
                 parallelAsyncResult {
@@ -169,7 +167,7 @@ let ``bind Tests`` =
 
             let! actual =
                 parallelAsyncResult {
-                    let! data = Task.FromResult innerData
+                    let! data = Task.result innerData
                     return data
                 }
 
@@ -178,7 +176,7 @@ let ``bind Tests`` =
         testCaseAsync "Bind Task"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncResult { do! Task.FromResult innerData :> Task }
+            let! actual = parallelAsyncResult { do! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }

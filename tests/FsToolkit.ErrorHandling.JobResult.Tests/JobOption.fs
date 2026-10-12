@@ -28,13 +28,13 @@ let mapTests =
     testList "JobOption.map Tests" [
         testCase "map with Job(Some x)"
         <| fun _ ->
-            Job.result (Some validTweet)
+            JobOption.some validTweet
             |> JobOption.map remainingCharacters
             |> Expect.hasJobSomeValue 267
 
         testCase "map with Job(None)"
         <| fun _ ->
-            Job.result None
+            JobOption.none
             |> JobOption.map remainingCharacters
             |> Expect.hasJobNoneValue
     ]
@@ -71,14 +71,14 @@ let applyTests =
     testList "JobOption.apply Tests" [
         testCase "apply with Job(Some x)"
         <| fun _ ->
-            Job.result (Some validTweet)
-            |> JobOption.apply (Job.singleton (Some remainingCharacters))
+            JobOption.some validTweet
+            |> JobOption.apply (JobOption.some remainingCharacters)
             |> Expect.hasJobSomeValue 267
 
         testCase "apply with Job(None)"
         <| fun _ ->
-            Job.result None
-            |> JobOption.apply (Job.result (Some remainingCharacters))
+            JobOption.none
+            |> JobOption.apply (JobOption.some remainingCharacters)
             |> Expect.hasJobNoneValue
     ]
 

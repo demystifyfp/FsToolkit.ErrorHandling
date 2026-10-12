@@ -15,7 +15,7 @@ Task<'T> -> Async<Result<'T, 'Error>>
 ### Example 1
 
 ```fsharp
-let result = AsyncResult.ofTask (Task.FromResult 42)
+let result = AsyncResult.ofTask (Task.result 42)
 // async { return Ok 42 }
 ```
 

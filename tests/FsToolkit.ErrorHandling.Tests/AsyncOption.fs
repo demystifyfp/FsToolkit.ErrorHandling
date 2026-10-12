@@ -17,12 +17,12 @@ open FsToolkit.ErrorHandling.Operator.AsyncOption
 let mapTests =
     testList "AsyncOption.map Tests" [
         testCaseAsync "map with Async(Some x)"
-        <| (Async.result (Some validTweet)
+        <| (AsyncOption.some validTweet
             |> AsyncOption.map remainingCharacters
             |> Expect.hasAsyncSomeValue 267)
 
         testCaseAsync "map with Async(None)"
-        <| (Async.result (None)
+        <| (AsyncOption.none
             |> AsyncOption.map remainingCharacters
             |> Expect.hasAsyncNoneValue)
     ]
@@ -30,7 +30,7 @@ let mapTests =
 let ignoreTests =
     testList "Async.ignore Tests" [
         testCaseAsync "ignore completes the input computation"
-        <| async { do! Async.ignore<int> (async.Return 42) }
+        <| async { do! Async.ignore<int> (Async.result 42) }
     ]
 
 let bindTests =
@@ -61,21 +61,21 @@ let bindTests =
 let applyTests =
     testList "AsyncOption.apply Tests" [
         testCaseAsync "apply with Async(Some x)"
-        <| (Async.result (Some validTweet)
-            |> AsyncOption.apply (Async.result (Some remainingCharacters))
-            |> Expect.hasAsyncSomeValue (267))
+        <| (AsyncOption.some validTweet
+            |> AsyncOption.apply (AsyncOption.some remainingCharacters)
+            |> Expect.hasAsyncSomeValue 267)
 
         testCaseAsync "apply with Async(None)"
-        <| (Async.result None
-            |> AsyncOption.apply (Async.result (Some remainingCharacters))
+        <| (AsyncOption.none
+            |> AsyncOption.apply (AsyncOption.some remainingCharacters)
             |> Expect.hasAsyncNoneValue)
     ]
 
-let retnTests =
-    testList "AsyncOption.retn Tests" [
-        testCaseAsync "retn with x"
+let someTests =
+    testList "AsyncOption.some Tests" [
+        testCaseAsync "some with x"
         <| (AsyncOption.some 267
-            |> Expect.hasAsyncSomeValue (267))
+            |> Expect.hasAsyncSomeValue 267)
     ]
 
 let asyncOptionOperatorTests =
@@ -103,7 +103,7 @@ let asyncOptionOperatorTests =
                     if isAllowed then
                         createPostSome validCreatePostRequest
                     else
-                        Async.result None
+                        AsyncOption.none
                 )
                 |> Expect.hasAsyncSomeValue (PostId newPostId)
         }
@@ -125,7 +125,7 @@ let eitherTests =
         }
         testCaseAsync "None"
         <| async {
-            let value1 = async.Return None
+            let value1 = AsyncOption.none
             let f () = 42
             let add2 x = x + 2
 
@@ -152,7 +152,7 @@ let defaultValueTests =
         testCaseAsync "None"
         <| async {
             let expectedValue = 10
-            let asyncOption = Async.result None
+            let asyncOption = AsyncOption.none
             let! result = AsyncOption.defaultValue expectedValue asyncOption
             Expect.equal result expectedValue ""
         }
@@ -173,7 +173,7 @@ let defaultWithTests =
         testCaseAsync "None"
         <| async {
             let expectedValue = 10
-            let asyncOption = Async.result None
+            let asyncOption = AsyncOption.none
             let! result = AsyncOption.defaultWith (fun () -> expectedValue) asyncOption
             Expect.equal result expectedValue ""
         }
@@ -192,21 +192,21 @@ let orElseTests =
         <| async {
             return!
                 AsyncOption.some "First"
-                |> AsyncOption.orElse (Async.result None)
+                |> AsyncOption.orElse AsyncOption.none
                 |> Expect.hasAsyncSomeValue "First"
         }
         testCaseAsync "None Some takes second Some"
         <| async {
             return!
-                Async.result None
+                AsyncOption.none
                 |> AsyncOption.orElse (AsyncOption.some "Second")
                 |> Expect.hasAsyncSomeValue "Second"
         }
         testCaseAsync "None None returns None"
         <| async {
             return!
-                Async.result None
-                |> AsyncOption.orElse (Async.result None)
+                AsyncOption.none
+                |> AsyncOption.orElse AsyncOption.none
                 |> Expect.hasAsyncNoneValue
         }
     ]
@@ -224,21 +224,21 @@ let orElseWithTests =
         <| async {
             return!
                 AsyncOption.some "First"
-                |> AsyncOption.orElseWith (fun _ -> Async.result None)
+                |> AsyncOption.orElseWith (fun _ -> AsyncOption.none)
                 |> Expect.hasAsyncSomeValue "First"
         }
         testCaseAsync "None Some takes second Some"
         <| async {
             return!
-                Async.result None
+                AsyncOption.none
                 |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second")
                 |> Expect.hasAsyncSomeValue "Second"
         }
         testCaseAsync "None None returns None"
         <| async {
             return!
-                Async.result None
-                |> AsyncOption.orElseWith (fun _ -> Async.result None)
+                AsyncOption.none
+                |> AsyncOption.orElseWith (fun _ -> AsyncOption.none)
                 |> Expect.hasAsyncNoneValue
         }
     ]
@@ -249,7 +249,7 @@ let allTests =
         mapTests
         bindTests
         applyTests
-        retnTests
+        someTests
         asyncOptionOperatorTests
         eitherTests
         defaultValueTests

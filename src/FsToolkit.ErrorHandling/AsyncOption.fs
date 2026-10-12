@@ -94,10 +94,10 @@ module AsyncOption =
     /// </remarks>
     /// <example>
     /// <code>
-    ///     None |> Async.result |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("Second")
-    ///     None |> Async.result |> AsyncOption.orElse (None |> Async.result) // evaluates to None
+    ///     AsyncOption.none |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     AsyncOption.none |> AsyncOption.orElse AsyncOption.none // evaluates to None
     ///     AsyncOption.some "First" |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("First")
-    ///     AsyncOption.some "First" |> AsyncOption.orElse (None |> Async.result) // evaluates to Some ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElse AsyncOption.none // evaluates to Some ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -119,10 +119,10 @@ module AsyncOption =
     /// </remarks>
     /// <example>
     /// <code>
-    ///     None |> Async.result |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("Second")
-    ///     None |> Async.result |> AsyncOption.orElseWith (fun _ -> None |> Async.result) // evaluates to None
+    ///     AsyncOption.none |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     AsyncOption.none |> AsyncOption.orElseWith (fun _ -> AsyncOption.none) // evaluates to None
     ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("First")
-    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> None |> Async.result) // evaluates to Ok ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> AsyncOption.none) // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>

@@ -49,7 +49,7 @@ let ``TaskValidationCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Validation.ok innerData
-                let! actual = taskValidation { return! Task.FromResult data }
+                let! actual = taskValidation { return! Task.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -73,7 +73,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Task.FromResult innerData :> Task }
+                let! actual = taskValidation { return! Task.result innerData :> Task }
 
                 Expect.equal actual (Validation.ok ()) "Should be ok"
             }
@@ -81,7 +81,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! ValueTask.FromResult innerData }
+                let! actual = taskValidation { return! ValueTask.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -184,7 +184,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = Task.FromResult innerData
+                        let! data = Task.result innerData
                         return data
                     }
 
@@ -194,7 +194,7 @@ let ``TaskValidationCE bind Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { do! Task.FromResult innerData :> Task }
+                let! actual = taskValidation { do! Task.result innerData :> Task }
 
                 Expect.equal actual (Validation.ok ()) "Should be ok"
             }
@@ -205,7 +205,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = ValueTask.FromResult innerData
+                        let! data = ValueTask.result innerData
                         return data
                     }
 
@@ -680,14 +680,14 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Task.FromResult 3
-                        and! b = Task.FromResult 2
+                        let! a = Task.result 3
+                        and! b = Task.result 2
                         return a + b
                     }
 
                 Expect.equal actual (Validation.ok 5) "Should be ok"
             }
-        let specialCaseTask returnValue = Task.FromResult returnValue
+        let specialCaseTask returnValue = Task.result returnValue
 
         testCaseTask "Happy Path Validation/Choice/AsyncValidation/Ply/ValueTask"
         <| fun () ->
@@ -702,7 +702,7 @@ let ``TaskValidationCE applicative tests`` =
                             |> Async.result
 
                         and! d = specialCaseTask (Validation.ok 3)
-                        and! e = ValueTask.FromResult(Validation.ok 5)
+                        and! e = ValueTask.result (Validation.ok 5)
 
                         return
                             a + b

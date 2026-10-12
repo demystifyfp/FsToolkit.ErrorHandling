@@ -1,7 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
 open Hopac
-open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module JobOption =
@@ -21,13 +20,10 @@ module JobOption =
         }
 
     let inline some x = Job.result (Some x)
+    let inline none<'t> : Job<'t option> = Job.result None
 
-    [<System.Obsolete "Use JobOption.some instead (aligns with AsyncResult naming)">]
+    [<System.Obsolete "Use JobOption.some instead of singleton">]
     let inline singleton x = some x
-
-    //TODO should these be added alongside all `some` ?
-    let none<'t> = Job.result None
-
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> some (f' x')) x) f

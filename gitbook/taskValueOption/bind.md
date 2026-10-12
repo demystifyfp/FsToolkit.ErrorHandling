@@ -61,7 +61,7 @@ let taskVOpt : Task<Account voption> =
 
 ```fsharp
 let taskVOpt : Task<Account voption> =
-    Task.result ValueNone // Task<string voption>
+    TaskValueOption.none // Task<string voption>
     |> TaskValueOption.bind lookupAccountByEmail // Task<Account voption>
 
 // task { ValueNone }

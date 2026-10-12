@@ -118,8 +118,7 @@ module CancellableTaskValidationCE =
                     task {
                         let data = 42
 
-                        let ctr =
-                            cancellableTaskValidation { return! ValueTask.FromResult(Ok data) }
+                        let ctr = cancellableTaskValidation { return! ValueTask.result (Ok data) }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
@@ -133,7 +132,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                return! ValueTask.FromResult(Validation.ok data)
+                                return! ValueTask.result (Validation.ok data)
                             }
 
                         let! (actual: Validation<int, obj>) = ctr CancellationToken.None
@@ -199,7 +198,7 @@ module CancellableTaskValidationCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskValidation { return! ValueTask.FromResult data }
+                        let ctr = cancellableTaskValidation { return! ValueTask.result data }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
@@ -424,7 +423,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                let! someValue = ValueTask.FromResult(Ok data)
+                                let! someValue = ValueTask.result (Ok data)
                                 return someValue
                             }
 
@@ -566,7 +565,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                let! someValue = ValueTask.FromResult data
+                                let! someValue = ValueTask.result data
                                 return someValue
                             }
 

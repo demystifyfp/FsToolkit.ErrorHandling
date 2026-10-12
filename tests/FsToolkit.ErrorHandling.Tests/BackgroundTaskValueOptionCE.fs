@@ -37,28 +37,28 @@ let ceTests =
         <| fun () ->
             backgroundTask {
                 let expected = ValueNone
-                let! actual = backgroundTaskValueOption { return! (async.Return ValueNone) }
+                let! actual = backgroundTaskValueOption { return! Async.result ValueNone }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom Async"
         <| fun () ->
             backgroundTask {
                 let expected = ValueSome 42
-                let! actual = backgroundTaskValueOption { return! (async.Return 42) }
+                let! actual = backgroundTaskValueOption { return! Async.result 42 }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom Task ValueNone"
         <| fun () ->
             backgroundTask {
                 let expected = ValueNone
-                let! actual = backgroundTaskValueOption { return! (Task.FromResult ValueNone) }
+                let! actual = backgroundTaskValueOption { return! Task.result ValueNone }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom Task Generic"
         <| fun () ->
             backgroundTask {
                 let expected = ValueSome 42
-                let! actual = backgroundTaskValueOption { return! (Task.FromResult 42) }
+                let! actual = backgroundTaskValueOption { return! Task.result 42 }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom Task"
@@ -72,7 +72,7 @@ let ceTests =
         <| fun () ->
             backgroundTask {
                 let expected = ValueSome 42
-                let! actual = backgroundTaskValueOption { return! (ValueTask.FromResult 42) }
+                let! actual = backgroundTaskValueOption { return! ValueTask.result 42 }
                 Expect.equal actual expected "Should return value wrapped in voption"
             }
         testCaseTask "ReturnFrom ValueTask"
@@ -115,7 +115,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskValueOption {
-                        let! value = async.Return(ValueNone)
+                        let! value = Async.result ValueNone
                         return value
                     }
 
@@ -128,7 +128,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskValueOption {
-                        let! value = async.Return 42
+                        let! value = Async.result 42
                         return value
                     }
 
@@ -141,7 +141,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskValueOption {
-                        let! value = Task.FromResult ValueNone
+                        let! value = Task.result ValueNone
                         return value
                     }
 
@@ -154,7 +154,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskValueOption {
-                        let! value = Task.FromResult 42
+                        let! value = Task.result 42
                         return value
                     }
 
@@ -180,7 +180,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskValueOption {
-                        let! value = ValueTask.FromResult 42
+                        let! value = ValueTask.result 42
                         return value
                     }
 
@@ -481,7 +481,7 @@ let specialCaseTask returnValue =
 #if NETSTANDARD2_0
     Unsafe.uply { return returnValue }
 #else
-    Task.FromResult returnValue
+    Task.result returnValue
 #endif
 
 let ceTestsApplicative =
@@ -498,7 +498,7 @@ let ceTestsApplicative =
                             |> Async.result
 
                         let! c = specialCaseTask (ValueSome 3)
-                        let! d = ValueTask.FromResult(ValueSome 5)
+                        let! d = ValueTask.result (ValueSome 5)
 
                         return
                             a + b
@@ -520,7 +520,7 @@ let ceTestsApplicative =
                             |> Async.result
 
                         and! c = specialCaseTask ValueNone
-                        and! d = ValueTask.FromResult(ValueSome 5)
+                        and! d = ValueTask.result (ValueSome 5)
 
                         return
                             a + b

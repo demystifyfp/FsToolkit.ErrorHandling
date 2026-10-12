@@ -669,7 +669,7 @@ module TaskOptionCEExtensionsMediumPriority =
                 return Some()
             }
 
-        member inline this.Source(opt: 'T option) : TaskOption<'T> = Task.FromResult opt
+        member inline this.Source(opt: 'T option) : TaskOption<'T> = Task.result opt
 
         member inline this.Source(computation: Async<'T>) : TaskOption<'T> =
             computation

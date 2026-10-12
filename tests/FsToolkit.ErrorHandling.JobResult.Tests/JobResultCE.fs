@@ -52,7 +52,7 @@ let ``JobResultCE return! Tests`` =
         <| job {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = jobResult { return! Task.FromResult data }
+            let! actual = jobResult { return! Task.result data }
 
             Expect.equal actual data "Should be ok"
         }
@@ -73,7 +73,7 @@ let ``JobResultCE return! Tests`` =
         testCaseJob "Return Task"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { return! Task.FromResult innerData :> Task }
+            let! actual = jobResult { return! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }
@@ -166,7 +166,7 @@ let ``JobResultCE bind Tests`` =
 
             let! actual =
                 jobResult {
-                    let! data = Task.FromResult innerData
+                    let! data = Task.result innerData
                     return data
                 }
 
@@ -175,7 +175,7 @@ let ``JobResultCE bind Tests`` =
         testCaseJob "Bind Task"
         <| job {
             let innerData = "Foo"
-            let! actual = jobResult { do! Task.FromResult innerData :> Task }
+            let! actual = jobResult { do! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }
@@ -518,8 +518,8 @@ let ``AsyncResultCE applicative tests`` =
         <| job {
             let! actual =
                 jobResult {
-                    let! a = Task.FromResult 3
-                    and! b = Task.FromResult 2
+                    let! a = Task.result 3
+                    and! b = Task.result 2
                     return a + b
                 }
 

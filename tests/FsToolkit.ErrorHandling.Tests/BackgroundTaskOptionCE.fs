@@ -37,28 +37,28 @@ let ceTests =
         <| fun () ->
             backgroundTask {
                 let expected = None
-                let! actual = backgroundTaskOption { return! (async.Return None) }
+                let! actual = backgroundTaskOption { return! Async.result None }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Async"
         <| fun () ->
             backgroundTask {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (async.Return 42) }
+                let! actual = backgroundTaskOption { return! Async.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task None"
         <| fun () ->
             backgroundTask {
                 let expected = None
-                let! actual = backgroundTaskOption { return! (Task.FromResult None) }
+                let! actual = backgroundTaskOption { return! Task.result None }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task Generic"
         <| fun () ->
             backgroundTask {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (Task.FromResult 42) }
+                let! actual = backgroundTaskOption { return! Task.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task"
@@ -72,7 +72,7 @@ let ceTests =
         <| fun () ->
             backgroundTask {
                 let expected = Some 42
-                let! actual = backgroundTaskOption { return! (ValueTask.FromResult 42) }
+                let! actual = backgroundTaskOption { return! ValueTask.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom ValueTask"
@@ -115,7 +115,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskOption {
-                        let! value = async.Return(None)
+                        let! value = AsyncOption.none
                         return value
                     }
 
@@ -128,7 +128,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskOption {
-                        let! value = async.Return 42
+                        let! value = Async.result 42
                         return value
                     }
 
@@ -141,7 +141,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskOption {
-                        let! value = Task.FromResult None
+                        let! value = Task.result None
                         return value
                     }
 
@@ -154,7 +154,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskOption {
-                        let! value = Task.FromResult 42
+                        let! value = Task.result 42
                         return value
                     }
 
@@ -180,7 +180,7 @@ let ceTests =
 
                 let! actual =
                     backgroundTaskOption {
-                        let! value = ValueTask.FromResult 42
+                        let! value = ValueTask.result 42
                         return value
                     }
 
@@ -481,7 +481,7 @@ let specialCaseTask returnValue =
 #if NETSTANDARD2_0
     Unsafe.uply { return returnValue }
 #else
-    Task.FromResult returnValue
+    Task.result returnValue
 #endif
 
 let ceTestsApplicative =
@@ -498,7 +498,7 @@ let ceTestsApplicative =
                             |> Async.result
 
                         let! c = specialCaseTask (Some 3)
-                        let! d = ValueTask.FromResult(Some 5)
+                        let! d = ValueTask.result (Some 5)
 
                         return
                             a + b
@@ -520,7 +520,7 @@ let ceTestsApplicative =
                             |> Async.result
 
                         and! c = specialCaseTask None
-                        and! d = ValueTask.FromResult(Some 5)
+                        and! d = ValueTask.result (Some 5)
 
                         return
                             a + b
