@@ -1,0 +1,115 @@
+name: Release
+
+# The GitHub release is the last step, and its absence is what starts a release. Retry a run that
+# failed part way with "Run workflow" on master: the NuGet push skips packages that already exist.
+# Every run, retries included, builds the commit that last changed RELEASE_NOTES.md.
+#
+# The nuget.org trusted publishing policy names this file (publish.yml). Rename it only together
+# with the policy. The NUGET_USER repository secret holds the nuget.org account of the policy.
+
+on:
+  push:
+    branches: [master]
+    paths: [RELEASE_NOTES.md]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.detect.outputs.version }}
+      sha: ${{ steps.detect.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Is the newest release notes version released?
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          header="$(head -n 1 RELEASE_NOTES.md | tr -d '\r')"
+          version="$(echo "$header" | sed -nE 's/^### ([0-9]+\.[0-9]+\.[0-9]+[^ ]*) - (.+)$/\1/p')"
+          date="$(echo "$header" | sed -nE 's/^### [^ ]+ - (.+)$/\1/p')"
+          if [ -z "$version" ]; then
+            echo "::error::Cannot read a version from the first line of RELEASE_NOTES.md: $header"
+            exit 1
+          fi
+          case "$(echo "$date" | tr '[:upper:]' '[:lower:]')" in
+            tba|tbd|unreleased)
+              echo "$version is not dated yet ($date)"
+              exit 0
+              ;;
+          esac
+          if gh release view "$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$version is already released"
+            exit 0
+          fi
+          sha="$(git log -1 --format=%H -- RELEASE_NOTES.md)"
+          echo "releasing $version from $sha"
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+          echo "sha=$sha" >>"$GITHUB_OUTPUT"
+
+  release:
+    needs: detect
+    if: needs.detect.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.detect.outputs.sha }}
+          persist-credentials: false
+
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+
+      - name: Build, test and pack
+        run: |
+          chmod +x ./build.sh
+          ./build.sh GenerateAssemblyInfo
+          ./build.sh DotnetPack
+        env:
+          CONFIGURATION: Release
+          CI: true
+
+      # Trusted publishing: exchanges the GitHub OIDC token for a NuGet API key that expires after 1 hour.
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to NuGet
+        run: dotnet nuget push "bin/*.nupkg" --api-key "$NUGET_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+
+      - name: Create the GitHub release
+        run: |
+          awk 'NR > 1 && /^### / { exit } NR > 1 { print }' RELEASE_NOTES.md > release-notes.md
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$VERSION" bin/*.nupkg --target "$SHA" --title "$VERSION" --notes-file release-notes.md $prerelease
+        env:
+          VERSION: ${{ needs.detect.outputs.version }}
+          SHA: ${{ needs.detect.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
