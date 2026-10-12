@@ -250,8 +250,8 @@ module TaskResult =
         : Task<Result<'output, 'error>> =
         Task.bindResult (Result.bind reqF) input
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
     [<System.Obsolete "Please use TaskResult.reqFilter predicate error instead of require predicate error">]
     let inline require predicate error result = reqFilter predicate error result

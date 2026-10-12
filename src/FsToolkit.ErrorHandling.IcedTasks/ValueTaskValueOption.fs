@@ -13,8 +13,8 @@ module ValueTask =
         : ValueTask<Result<'output, 'error>> =
         ValueTask.map binder input
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 [<RequireQualifiedAccess>]
 module ValueTaskValueOption =
@@ -118,5 +118,5 @@ module ValueTaskValueOption =
             | ValueNone -> Ok ValueNone)
             input
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

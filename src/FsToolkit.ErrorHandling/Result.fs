@@ -502,8 +502,8 @@ let zipError
     | Ok e, _
     | _, Ok e -> Ok e
 
-let req reqF errOrF value = bind (reqF errOrF) value
-let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+let inline req ([<InlineIfLambda>] reqF) errOrF value = bind (reqF errOrF) value
+let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 /// <summary>
 /// When <paramref name="result"/> is <c>Ok</c>, applies <paramref name="checker"/> to the <c>Ok</c> value.

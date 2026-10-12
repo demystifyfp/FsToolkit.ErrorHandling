@@ -92,5 +92,5 @@ module TaskResultOption =
             | None -> Ok None
         )
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value

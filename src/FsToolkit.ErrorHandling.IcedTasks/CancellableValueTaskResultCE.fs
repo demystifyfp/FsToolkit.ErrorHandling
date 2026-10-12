@@ -283,8 +283,8 @@ module CancellableValueTask =
         : CancellableValueTask<Result<'output, 'error>> =
         CancellableValueTask.map binder input
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 [<RequireQualifiedAccess>]
 module CancellableValueTaskResult =
@@ -434,5 +434,5 @@ module CancellableValueTaskResult =
         : CancellableValueTask<Result<'output, 'error>> =
         CancellableValueTask.bindResult (Result.bind reqF) input
 
-    let req reqF errOrF value = bindResult (reqF errOrF) value
-    let reqFilter predicate errOrF value = req (Req.filter predicate) errOrF value
+    let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
+    let inline reqFilter predicate error value = req (Req.filter predicate) error value
