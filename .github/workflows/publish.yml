@@ -28,7 +28,7 @@ jobs:
       version: ${{ steps.detect.outputs.version }}
       sha: ${{ steps.detect.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -68,13 +68,13 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.detect.outputs.sha }}
           persist-credentials: false
 
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: |
