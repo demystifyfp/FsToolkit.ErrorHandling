@@ -1,4 +1,6 @@
-### 6.0.0-beta003 - tba
+### 6.0.0-beta003 - October 12, 2026
+
+- [Consistency cleanups: `req`, `Req`, `bindResult`, `eitherBind`, `eitherMap`, `ok`, `ignore` and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/376) Credits @bartelink
 
 - fix: Remove erroneous FSharp.Core xmldoc files from pre-`net9.0` packages 
 - feat(Async): `ignore` (coming in FSharp.Core 11)
