@@ -5,9 +5,9 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module TaskResult =
 
-    let inline ok x = Task.singleton (Ok x)
+    let inline ok x = Task.result (Ok x)
 
-    let inline error x = Task.singleton (Error x)
+    let inline error x = Task.result (Error x)
 
     let inline map ([<InlineIfLambda>] f) tr = Task.map (Result.map f) tr
 
@@ -197,25 +197,6 @@ module TaskResult =
         x
         |> Task.map Ok
 
-    /// <summary>
-    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, exn&gt;&gt;</c>, catching any exceptions
-    /// thrown by the task and wrapping them in <c>Error</c>. If the task completes successfully,
-    /// the result is wrapped in <c>Ok</c>.
-    /// </summary>
-    /// <param name="x">The task to lift.</param>
-    /// <returns>
-    /// A task containing <c>Ok</c> of the result value if the task succeeds, or
-    /// <c>Error</c> of the exception if the task throws.
-    /// </returns>
-    /// <example>
-    /// <code>
-    ///     TaskResult.ofCatchTask (task { return 42 })
-    ///     // Returns: task { return Ok 42 }
-    ///
-    ///     TaskResult.ofCatchTask (task { failwith "something went wrong" })
-    ///     // Returns: task { return Error (System.Exception("something went wrong")) }
-    /// </code>
-    /// </example>
     [<System.Obsolete "Use Task.catch instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
         x

@@ -26,7 +26,7 @@ TaskOption.zip left right
 
 ```fsharp
 let left = TaskOption.some 123
-let right = TaskOption.some None
+let right = TaskOption.none
 
 TaskOption.zip left right
 // task { None }
