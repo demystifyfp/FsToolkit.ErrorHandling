@@ -5,7 +5,7 @@ Namespace: `FsToolkit.ErrorHandling`
 Function Signature:
 
 ```fsharp
-('a -> Job<'b>) -> Job<'b> -> Job<'a option> -> Job<'b>
+('a -> 'b) -> (unit -> 'b) -> Job<'a option> -> Job<'b>
 ```
 
 Runs `onSome` if the job-wrapped option is `Some`, otherwise runs `onNone`.
@@ -20,8 +20,8 @@ let tryFindUser : string -> Job<User option>
 // Job<string>
 tryFindUser "alice"
 |> JobOption.eitherBind
-    (fun user -> Job.result (sprintf "Found user: %s" user.Name))
-    (Job.result "User not found")
+    (fun user -> $"Found user: %s{user.Name}")
+    (fun () -> "User not found")
 ```
 
 ### Example 2
@@ -31,8 +31,8 @@ let maybeValue : Job<int option> = Job.result (Some 42)
 
 maybeValue
 |> JobOption.eitherBind
-    (fun x -> Job.result (x * 2))
-    (Job.result 0)
+    (fun x -> x * 2)
+    (fun () -> 0)
 // job { return 84 }
 ```
 
@@ -43,7 +43,7 @@ let emptyJob : Job<int option> = Job.result None
 
 emptyJob
 |> JobOption.eitherBind
-    (fun x -> Job.result (x * 2))
-    (Job.result 0)
+    (fun x -> x * 2)
+    (fun () -> 0)
 // job { return 0 }
 ```
