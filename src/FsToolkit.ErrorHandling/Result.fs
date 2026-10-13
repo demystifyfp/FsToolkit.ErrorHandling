@@ -4,7 +4,7 @@
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Result
 
-#if !NET_10_0_OR_GREATER
+#if !NET10_0_OR_GREATER
 /// Applies a transformation to the value of a <c>Result</c> to a new value using the specified mapper function.
 ///
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/map</href>
@@ -303,7 +303,7 @@ let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, '
     result
     |> mapError (fun () -> error)
 
-#if !NET_10_0_OR_GREATER
+#if !NET10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
 ///
@@ -331,7 +331,7 @@ let inline defaultError (ifOk: 'error) (result: Result<'ok, 'error>) : 'error =
     | Error error -> error
     | Ok _ -> ifOk
 
-#if !NET_10_0_OR_GREATER
+#if !NET10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
 ///
@@ -464,7 +464,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
     }
 #endif
 
-#if !NET_10_0_OR_GREATER // NOTE duplicate of defaultWith
+#if !NET10_0_OR_GREATER // NOTE duplicate of defaultWith
 /// <summary>
 /// Returns the <c>Ok</c> value or runs the specified function over the error value.
 /// </summary>

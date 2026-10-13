@@ -6,7 +6,7 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
-#if !NET_10_0_OR_GREATER
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Converts a value to an <c>Async</c> value
     /// </summary>

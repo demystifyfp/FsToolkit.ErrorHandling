@@ -10,7 +10,7 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module Task =
 
-#if !NET_10_0_OR_GREATER
+#if !NET10_0_OR_GREATER
     /// <summary>Creates a task that returns the given value.</summary>
     [<System.Obsolete("Use the built in FSharp.Core Task.result instead")>]
     let inline singleton value =
