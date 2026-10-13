@@ -1464,7 +1464,7 @@ module CancellableTaskValidationCE =
                         async {
                             return!
                                 innerTask
-                                |> Async.AwaitCancellableTaskValidation
+                                |> Async.StartTaskImmediate
                         }
 
                     use cts = new CancellationTokenSource()

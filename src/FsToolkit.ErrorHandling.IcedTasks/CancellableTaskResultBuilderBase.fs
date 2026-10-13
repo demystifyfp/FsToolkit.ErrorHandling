@@ -1124,6 +1124,7 @@ module CancellableTaskResultBuilderBase =
 
         type Microsoft.FSharp.Control.Async with
 
+            [<System.Obsolete "Use Async.StartTaskImmediate instead">]
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
@@ -1134,6 +1135,7 @@ module CancellableTaskResultBuilderBase =
 
         type AsyncEx with
 
+            [<System.Obsolete "Use Async.StartTaskImmediate instead">]
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
@@ -1148,7 +1150,7 @@ module CancellableTaskResultBuilderBase =
             member inline this.Source
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 : Async<_> =
-                Async.AwaitCancellableTaskResult t
+                Async.StartTaskImmediate t
 
         // High priority extensions
         type CancellableTaskResultBuilderBase with

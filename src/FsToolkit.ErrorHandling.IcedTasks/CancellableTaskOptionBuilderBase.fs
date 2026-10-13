@@ -1042,6 +1042,7 @@ module CancellableTaskOptionBuilderBase =
 
         type Microsoft.FSharp.Control.Async with
 
+            [<Obsolete "Use Async.StartTaskImmediate instead">]
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
@@ -1052,6 +1053,7 @@ module CancellableTaskOptionBuilderBase =
 
         type AsyncEx with
 
+            [<Obsolete "Use Async.StartTaskImmediate instead">]
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
@@ -1063,7 +1065,7 @@ module CancellableTaskOptionBuilderBase =
         type AsyncOptionBuilder with
 
             member inline this.Source([<InlineIfLambda>] t: CancellableTaskOption<'T>) : Async<_> =
-                Async.AwaitCancellableTaskOption t
+                Async.StartTaskImmediate t
 
         // High priority extensions
         type CancellableTaskOptionBuilderBase with
@@ -1084,7 +1086,7 @@ module CancellableTaskOptionBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> TaskAwaiter<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun (ct: CancellationToken) -> (task ()))
+                (fun (_ct: CancellationToken) -> (task ()))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1094,7 +1096,7 @@ module CancellableTaskOptionBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> Task<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun (ct: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
+                (fun (_ct: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1104,7 +1106,7 @@ module CancellableTaskOptionBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun ct -> (cancellableTaskAwaiter ct))
+                (fun (_ct: CancellationToken) -> (cancellableTaskAwaiter _ct))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///

@@ -646,9 +646,8 @@ module TaskResultCEExtensionsMediumPriority =
             |> Task.map Ok
 
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
-            computation
-            |> Async.map Ok
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
+            |> TaskResult.ofTask
 
 [<AutoOpen>]
 module TaskResultCEExtensionsHighPriority2 =
@@ -656,9 +655,8 @@ module TaskResultCEExtensionsHighPriority2 =
     // Medium priority extensions
     type TaskResultBuilderBase with
 
-        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
-            result
-            |> Async.StartImmediateAsTask
+        member inline _.Source(asyncResult: Async<Result<_, _>>) : Task<Result<_, _>> =
+            Async.StartImmediateAsTask asyncResult
 
         member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
 

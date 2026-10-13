@@ -244,6 +244,7 @@ module AsyncExtensions =
 
     type Microsoft.FSharp.Control.Async with
 
+        [<System.Obsolete "Use Async.StartTaskImmediate instead">]
         static member inline AwaitCancellableTaskValidation
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             =
@@ -257,7 +258,7 @@ module AsyncExtensions =
         member inline this.Source
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             : Async<_> =
-            Async.AwaitCancellableTaskValidation t
+            Async.StartTaskImmediate t
 
 // There is explicitly no Binds for `CancellableTasks` in `Microsoft.FSharp.Control.TaskBuilderBase`.
 // You need to explicitly pass in a `CancellationToken`to start it, you can use `CancellationToken.None`.
