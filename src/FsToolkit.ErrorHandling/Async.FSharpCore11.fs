@@ -1,6 +1,5 @@
 // NOTE Direct copy of FSharp.Core V11 with the following alterations:
 // - namespace is FsToolkit.ErrorHandling instead of Microsoft.FSharp.Control
-#if !NET10_0_OR_GREATER
 [<AutoOpen>]
 module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 
@@ -281,4 +280,3 @@ module Async =
         : Async<unit> =
         parallelLimit maxDegreeOfParallelism computations
         |> ignore<unit[]>
-#endif

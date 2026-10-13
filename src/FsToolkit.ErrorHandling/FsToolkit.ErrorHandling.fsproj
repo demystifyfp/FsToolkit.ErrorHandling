@@ -19,12 +19,12 @@
     <Compile Include="ResultOption.fs" />
     <Compile Include="ResultOptionCE.fs" />
     <Compile Include="ResultOptionOp.fs" />
-    <Compile Include="Async.FSharpCore11.fs" />
+    <Compile Include="Async.FSharpCore11.fs" Condition=" !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0')) " />
     <Compile Include="Async.fs" />
     <Compile Include="AsyncResult.fs" />
     <Compile Include="AsyncResultCE.fs" />
     <Compile Include="AsyncResultOp.fs" />
-    <Compile Include="Task.FSharpCore11.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="Task.FSharpCore11.fs" Condition=" '$(FABLE_COMPILER)' != 'true' AND !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net10.0')) " />
     <Compile Include="Task.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
