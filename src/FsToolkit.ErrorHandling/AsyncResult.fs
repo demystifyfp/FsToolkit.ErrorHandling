@@ -9,11 +9,9 @@ open System.Runtime.ExceptionServices
 module AsyncResult =
 
     let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
-
         Async.result (Ok value)
 
     let inline error (error: 'error) : Async<Result<'ok, 'error>> =
-
         Async.result (Error error)
 
     let inline map
@@ -66,15 +64,18 @@ module AsyncResult =
         Async.map (Result.eitherMap onOk onError) input
 
 #if !FABLE_COMPILER
-
     let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
         async.Delay(fun () ->
             Async.Await aTask
             |> Async.catch
         )
 
+    let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
+        async.Delay(fun () ->
+            Async.Await aTask
+            |> Async.catch
+        )
 #endif
-
 
     let inline map2
         ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'output)

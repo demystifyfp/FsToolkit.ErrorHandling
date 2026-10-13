@@ -1,6 +1,5 @@
 ﻿namespace FsToolkit.ErrorHandling
 
-open System.Threading.Tasks
 open Hopac
 
 [<RequireQualifiedAccess>]

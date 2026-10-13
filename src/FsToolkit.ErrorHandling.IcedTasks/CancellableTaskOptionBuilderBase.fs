@@ -1,8 +1,5 @@
 namespace FsToolkit.ErrorHandling
 
-open System.Diagnostics
-
-
 /// Contains methods to build Tasks using the F# computation expression syntax
 [<AutoOpen>]
 module CancellableTaskOptionBuilderBase =
@@ -17,7 +14,6 @@ module CancellableTaskOptionBuilderBase =
     open Microsoft.FSharp.Collections
     open System.Collections.Generic
     open IcedTasks
-
 
     /// CancellationToken -> Task<Option<'T>>
     type CancellableTaskOption<'T> = CancellableTask<Option<'T>>
@@ -204,7 +200,7 @@ module CancellableTaskOptionBuilderBase =
         /// <param name="compensation">The action to be run after computation completes or raises an
         /// exception (including cancellation).</param>
         ///
-        /// <returns>A CancellableTasks that executes computation and compensation afterwards or
+        /// <returns>A CancellableTask that executes computation and compensation afterwards or
         /// when an exception is raised.</returns>
         member inline _.TryFinally
             (
@@ -822,7 +818,7 @@ module CancellableTaskOptionBuilderBase =
                 when Awaitable<'Awaitable, 'Awaiter, 'TResult1>>
                 ([<InlineIfLambda>] coldAwaitable: unit -> 'Awaitable)
                 : CancellationToken -> 'Awaiter =
-                (fun ct -> Awaitable.GetAwaiter(coldAwaitable ()))
+                (fun _ct -> Awaitable.GetAwaiter(coldAwaitable ()))
 
             /// <summary>
             /// The entry point for the dynamic implementation of the corresponding operation. Do not use directly, only used when executing quotations that involve tasks or other reflective execution of F# code.
@@ -1106,7 +1102,7 @@ module CancellableTaskOptionBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<'T>)
                 : CancellationToken -> Awaiter<TaskAwaiter<'T>, 'T> =
-                (fun (_ct: CancellationToken) -> (cancellableTaskAwaiter _ct))
+                cancellableTaskAwaiter
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///

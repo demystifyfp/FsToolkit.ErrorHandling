@@ -1,23 +1,35 @@
 ### 6.0.0-beta004 - tba
 
-(These will be validated and integrated into the section below...)
-- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Result.map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
-- (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Task.map`, `bind`
-- BREAKING((Cancellable)?(Value)?(Task|Job)(Result|Validation).singleton): Rename to `ok`
-- BREAKING((Task|Async|Job)?(Result)?Option.singleton): Rename to `some` to align with TaskResult.ok, ValueTaskOption.valueSome
-- BREAKING((Task|Async|Job)Result.catchWith): Change result type to `Result<_,_>`, was: `Choice<_,_>` to align with FSharp.Core Task/Async
-- OBSOLETE((Cancellable)?(Value)?(Task|Job)(Result|Validation)): `singleton` (-> `ok`)
-- OBSOLETE((Task|Async|Job)?(Result)?Option): `singleton` (-> `some`) to align with `TaskResult.ok`, `ValueTaskOption.valueSome`
-
 - [FSharp.Core 11 shims: `Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
-    - OBSOLETE(Task, Async, Job): `singleton` -> `result`. To align with FSharp.Core Task/Async
+    - (net10 and later TFMs) omit `Async` functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`
+    - fix(AsyncOption, AsyncResult)!: Internal usage of `AwaitTask` switches to `Await`
+        - NOTE BEHAVIOR CHANGE: exceptions surfaced in calling code are no longer egregiously wrapped in `AggregateException`, i.e. you can now `try ... with` targeting the actual exception type to handle exceptions from the awaited Task. [#154](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/154).
+    - feat(AsyncResult, JobResult): `catchWith`. Same signature as `catch` but aligning with FSharp.Core naming
+    - OBSOLETE(Async, CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskResult, Job): `singleton` -> `result`.
+    - OBSOLETE(JobOption): `singleton` -> `some`.
+    - OBSOLETE(AsyncResult, JobResult): `catch` -> `catchWith`.
+    - OBSOLETE(Async): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableTaskValidation`, `AwaitCancellableValueTaskOption` -> `StartTaskImmediate` to align with FSharp.Core Task/Async.
+    - OBSOLETE(AsyncEx): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableValueTaskOption` -> `StartTaskImmediate` to align with FSharp.Core Task/Async.
+    - Stragglers previously omitted:
+      - feat(CancellableValueTask): `result`
+      - feat(CancellableValueTaskResult): `ok`
+      - feat(JobOption): `none`
+
+      - NOTE SIGNATURE CHANGE: return type of `catchWith` is `Result<_,_>` not `Choice<_,_>`
     - OBSOLETE(AsyncResult, JobResult, TaskResult): `catch`  -> `catchWith` to align with FSharp.Core Task/Async
     - OBSOLETE(TaskResult): `ofCatchTask` -> `Task.catch` to align with FSharp.Core Task/Async
     - OBSOLETE(TaskResult, AsyncResult, JobResult): `catch` -> `catchWith` to align with FSharp.Core Task/Async
-  
-tbc:
+    (These will be validated and integrated into the section below...)
+    - (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Result.map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
+    - (net10 and later TFMs) Omit functions shadowing FSharp.Core equivalents: `Task.map`, `bind`
+    - BREAKING((Cancellable)?(Value)?(Task|Job)(Result|Validation).singleton): Rename to `ok`
+    - BREAKING((Task|Async|Job)?(Result)?Option.singleton): Rename to `some` to align with TaskResult.ok, ValueTaskOption.valueSome
+    - BREAKING((Task|Async|Job)Result.catchWith): Change result type to `Result<_,_>`, was: `Choice<_,_>` to align with FSharp.Core Task/Async
+    - OBSOLETE((Cancellable)?(Value)?(Task|Job)(Result|Validation)): `singleton` (-> `ok`)
+    - OBSOLETE((Task|Async|Job)?(Result)?Option): `singleton` (-> `some`) to align with `TaskResult.ok`, `ValueTaskOption.valueSome`
     - OBSOLETE(Task, Async, Job): `catch` -> `catchWith` to align with FSharp.Core Task/Async
       - NOTE BREAKING CHANGE: return type of `catchWith` is `Result<_,_>` not `Choice<_,_>` 
+
 
 ### 6.0.0-beta003 - October 12, 2026
 
