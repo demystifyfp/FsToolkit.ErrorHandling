@@ -6,14 +6,14 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Converts a value to an <c>Async</c> value
     /// </summary>
     /// <param name="value">The value to convert to an <c>Async</c> value.</param>
     /// <returns>The <c>Async</c> value.</returns>
-    let inline singleton (value: 'value) : Async<'value> =
-        value
-        |> async.Return
+    [<System.Obsolete("Use the built in FSharp.Core Async.result instead")>]
+    let inline singleton (value: 'value) : Async<'value> = Async.result value
 
     /// <summary>
     /// Takes a transformation function and applies it to the value of an <c>Async</c> value.
@@ -28,15 +28,6 @@ module Async =
         async.Bind(input, binder)
 
     /// <summary>
-    /// Applies an <c>Async</c> function to an <c>Async</c> value.
-    /// </summary>
-    /// <param name="applier">The <c>Async</c> function to apply.</param>
-    /// <param name="input">The <c>Async</c> value to apply the function to.</param>
-    /// <returns>The result of applying the function to the value.</returns>
-    let inline apply (applier: Async<'input -> 'output>) (input: Async<'input>) : Async<'output> =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) input) applier
-
-    /// <summary>
     /// Applies a transformation to the value of an <c>Async</c> value to a new <c>Async</c> value using the provided function.
     /// </summary>
     /// <param name="mapper">The function to apply to the value of the <c>Async</c> value.</param>
@@ -47,10 +38,26 @@ module Async =
         (input: Async<'input>)
         : Async<'output> =
         input
-        |> bind (fun x' ->
+        |> Async.bind (fun x' ->
             mapper x'
-            |> singleton
+            |> Async.result
         )
+
+    /// Allows us to call `do!` syntax inside a computation expression
+    [<RequiresExplicitTypeArguments>]
+    let inline ignore<'a> (x: Async<'a>) =
+        x
+        |> Async.map ignore
+#endif
+
+    /// <summary>
+    /// Applies an <c>Async</c> function to an <c>Async</c> value.
+    /// </summary>
+    /// <param name="applier">The <c>Async</c> function to apply.</param>
+    /// <param name="input">The <c>Async</c> value to apply the function to.</param>
+    /// <returns>The result of applying the function to the value.</returns>
+    let inline apply (applier: Async<'input -> 'output>) (input: Async<'input>) : Async<'output> =
+        Async.bind (fun f' -> Async.bind (fun x' -> Async.result (f' x')) input) applier
 
     /// <summary>
     /// Applies a transformation to the values of two <c>Async</c> values to a new <c>Async</c> value using the provided function.
@@ -65,11 +72,11 @@ module Async =
         (input2: Async<'input2>)
         : Async<'output> =
         input1
-        |> bind (fun x ->
+        |> Async.bind (fun x ->
             input2
-            |> bind (fun y ->
+            |> Async.bind (fun y ->
                 mapper x y
-                |> singleton
+                |> Async.result
             )
         )
 
@@ -88,22 +95,16 @@ module Async =
         (input3: Async<'input3>)
         : Async<'output> =
         input1
-        |> bind (fun x ->
+        |> Async.bind (fun x ->
             input2
-            |> bind (fun y ->
+            |> Async.bind (fun y ->
                 input3
-                |> bind (fun z ->
+                |> Async.bind (fun z ->
                     mapper x y z
-                    |> singleton
+                    |> Async.result
                 )
             )
         )
-
-    /// Allows us to call `do!` syntax inside a computation expression
-    [<RequiresExplicitTypeArguments>]
-    let inline ignore<'a> (x: Async<'a>) =
-        x
-        |> map ignore
 
     /// <summary>
     /// Takes two asyncs and returns a tuple of the pair
@@ -112,7 +113,7 @@ module Async =
     /// <param name="right">The second async value.</param>
     /// <returns>The tuple of the pair.</returns>
     let inline zip (left: Async<'left>) (right: Async<'right>) : Async<'left * 'right> =
-        bind (fun l -> bind (fun r -> singleton (l, r)) right) left
+        Async.bind (fun l -> Async.bind (fun r -> Async.result (l, r)) right) left
 
     /// <summary>
     /// Executes two asyncs concurrently <see cref='M:Microsoft.FSharp.Control.FSharpAsync.Parallel``1'/> and returns a mapping of the values
@@ -127,31 +128,15 @@ module Async =
         (input2: Async<'input2>)
         : Async<'output> =
 
-#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
         Async.Parallel(
             [|
-                map box input1
-                map box input2
+                Async.map box input1
+                Async.map box input2
             |]
         )
-#else
-        Async.Parallel(
-            [|
-                map box input1
-                map box input2
-            |],
-            maxDegreeOfParallelism = 2
-        )
-#endif
-        |> map (fun results ->
-            let a =
-                results[0]
-                |> unbox<'input1>
-
-            let b =
-                results[1]
-                |> unbox<'input2>
-
+        |> Async.map (fun results ->
+            let a = unbox<'input1> results[0]
+            let b = unbox<'input2> results[1]
             mapper a b
         )
 
@@ -169,37 +154,17 @@ module Async =
         (input2: Async<'input2>)
         (input3: Async<'input3>)
         : Async<'output> =
-#if FABLE_COMPILER && FABLE_COMPILER_PYTHON
         Async.Parallel(
             [|
-                map box input1
-                map box input2
-                map box input3
+                Async.map box input1
+                Async.map box input2
+                Async.map box input3
             |]
         )
-#else
-        Async.Parallel(
-            [|
-                map box input1
-                map box input2
-                map box input3
-            |],
-            maxDegreeOfParallelism = 3
-        )
-#endif
-        |> map (fun results ->
-            let a =
-                results[0]
-                |> unbox<'input1>
-
-            let b =
-                results[1]
-                |> unbox<'input2>
-
-            let c =
-                results[2]
-                |> unbox<'input3>
-
+        |> Async.map (fun results ->
+            let a = unbox<'input1> results[0]
+            let b = unbox<'input2> results[1]
+            let c = unbox<'input3> results[2]
             mapper a b c
         )
 
@@ -208,7 +173,7 @@ module Async =
         ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
         (input: Async<'input>)
         : Async<Result<'output, 'error>> =
-        map binder input
+        Async.map binder input
 
     let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
     let inline reqFilter predicate error value = req (Req.filter predicate) error value
@@ -259,19 +224,17 @@ module AsyncExt =
 
         static member TryFinallyAsync(comp: Async<'T>, deferred) : Async<'T> =
 
-            let finish (compResult, deferredResult) (cont, (econt: exn -> unit), ccont) =
+            let finish (compResult, deferredResult) (cont, econt: exn -> unit, ccont) =
                 match (compResult, deferredResult) with
-                | (Choice1Of3 x, Choice1Of3()) -> cont x
-                | (Choice2Of3 compExn, Choice1Of3()) -> econt compExn
-                | (Choice3Of3 compExn, Choice1Of3()) -> ccont compExn
-                | (Choice1Of3 _, Choice2Of3 deferredExn) -> econt deferredExn
-                | (Choice2Of3 compExn, Choice2Of3 deferredExn) ->
-                    econt
-                    <| new AggregateException(compExn, deferredExn)
-                | (Choice3Of3 compExn, Choice2Of3 deferredExn) -> econt deferredExn
-                | (_, Choice3Of3 deferredExn) ->
-                    econt
-                    <| new Exception("Unexpected cancellation.", deferredExn)
+                | Choice1Of3 x, Choice1Of3() -> cont x
+                | Choice2Of3 compExn, Choice1Of3() -> econt compExn
+                | Choice3Of3 compExn, Choice1Of3() -> ccont compExn
+                | Choice1Of3 _, Choice2Of3 deferredExn -> econt deferredExn
+                | Choice2Of3 compExn, Choice2Of3 deferredExn ->
+                    econt (AggregateException(compExn, deferredExn))
+                | Choice3Of3 _compExn, Choice2Of3 deferredExn -> econt deferredExn
+                | _, Choice3Of3 deferredExn ->
+                    econt (Exception("Unexpected cancellation.", deferredExn))
 
             let startDeferred compResult (cont, econt, ccont) =
                 Async.StartWithContinuations(

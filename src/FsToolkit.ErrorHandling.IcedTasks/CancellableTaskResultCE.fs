@@ -305,8 +305,7 @@ module CancellableTaskResult =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskResult<'item, 'Error> = fun _ -> TaskResult.ok item
 
     let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)

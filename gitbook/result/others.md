@@ -46,7 +46,7 @@ Result<Task<'a>, 'b> -> Task<Result<'a, 'b>>
 
 ```fsharp
 let result : Task<Result<int, string>> =
-    Ok (Task.FromResult 1)
+    TaskResult.ok 1
     |> Result.sequenceTask
     
 // Task { Ok 1 }
@@ -123,16 +123,6 @@ Returns the contained value if Ok, otherwise evaluates the given function and re
 (unit -> 'a) -> Result<'a, 'b> -> 'a
 ```
 
-
-## valueOr
-
-Returns the Ok value or runs the specified function over the error value.
-
-### Function Signature
-
-```fsharp
-('b -> 'a) -> Result<'a, 'b> -> 'a
-```
 
 ## ignore
 

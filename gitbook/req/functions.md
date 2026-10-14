@@ -155,7 +155,7 @@ let result : Result<unit, string> =
 ```fsharp
 let result : Result<unit, string> =
     Some 1
-    |> Result.requireNone "Value must be None"
+    |> Req.none "Value must be None"
     
 // Error "Value must be None"
 ```

@@ -1,19 +1,17 @@
 namespace FsToolkit.ErrorHandling
 
-
 open System.Threading.Tasks
 
 [<RequireQualifiedAccess>]
 module Task =
+
+#if !NET10_0_OR_GREATER
+    /// <summary>Creates a task that returns the given value.</summary>
+    [<System.Obsolete("Use the built in FSharp.Core Task.result instead")>]
     let inline singleton value =
         value
         |> Task.FromResult
-
-    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
-        task {
-            let! x = x
-            return! f x
-        }
+#endif
 
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {
@@ -28,18 +26,11 @@ module Task =
             return f' x'
         }
 
-    let inline map ([<InlineIfLambda>] f) x =
-        x
-        |> bind (
-            f
-            >> singleton
-        )
-
     let inline mapV ([<InlineIfLambda>] f) x =
         x
         |> bindV (
             f
-            >> singleton
+            >> Task.result
         )
 
     let inline map2 ([<InlineIfLambda>] f) x y =
@@ -57,13 +48,6 @@ module Task =
             return f x' y' z'
         }
 
-    /// Allows us to call `do!` syntax inside a computation expression
-    [<RequiresExplicitTypeArguments>]
-    let inline ignore<'a> (x: Task<'a>) =
-        x
-        |> map ignore
-
-
     /// Takes two tasks and returns a tuple of the pair
     let zip (a1: Task<_>) (a2: Task<_>) =
         task {
@@ -74,25 +58,12 @@ module Task =
 
     let ofUnit (t: Task) = task { return! t }
 
-    /// Creates a `Task` that attempts to execute the provided task,
-    /// returning `Choice1Of2` with the result if the task completes
-    /// without exceptions, or `Choice2Of2` with the exception if an
-    /// exception is thrown.
-    let catch (x: Task<_>) =
-        task {
-            try
-                let! r = x
-                return Choice1Of2 r
-            with e ->
-                return Choice2Of2 e
-        }
-
     /// Bind the Task with a synchronous Result-returning function.
     let inline bindResult
         ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
         (input: Task<'input>)
         : Task<Result<'output, 'error>> =
-        map binder input
+        Task.map binder input
 
     let inline req ([<InlineIfLambda>] reqF) errOrF value = bindResult (reqF errOrF) value
     let inline reqFilter predicate error value = req (Req.filter predicate) error value

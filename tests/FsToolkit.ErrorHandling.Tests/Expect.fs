@@ -117,12 +117,14 @@ module Expect =
         }
 
 #if !FABLE_COMPILER
+    open FsToolkit.ErrorHandling // Async.Await shims
+
+    let runTask (taskX: Task<_>) =
+        Async.Await taskX
+        |> Async.RunSynchronously
 
     let hasTaskValue v taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
+        let x = runTask taskX
 
         if v = x then () else failtestf "Expected %A, was %A." v x
 
@@ -133,27 +135,15 @@ module Expect =
         }
 
     let hasTaskOkValueSync v taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasOkValue v x
 
     let hasTaskNoneValue taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasNoneValue x
 
     let hasTaskValueNoneValue taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasValueNoneValue x
 
     let hasTaskErrorValue v (taskX: Task<_>) =
@@ -163,27 +153,15 @@ module Expect =
         }
 
     let hasTaskErrorValueSync v taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasErrorValue v x
 
     let hasTaskSomeValue v taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasSomeValue v x
 
     let hasTaskValueSomeValue v taskX =
-        let x =
-            taskX
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-
+        let x = runTask taskX
         hasValueSomeValue v x
 
 #endif

@@ -312,7 +312,7 @@ let computationExpressionSourceTests =
         testCase "Bind TaskResult Ok"
         <| fun _ ->
             taskResultOption {
-                let! value = Task.FromResult(Ok "Foo")
+                let! value = TaskResult.ok "Foo"
                 return value
             }
             |> Expect.hasTaskOkValueSync (Some "Foo")
@@ -320,7 +320,7 @@ let computationExpressionSourceTests =
         testCase "Bind TaskResult Error"
         <| fun _ ->
             taskResultOption {
-                let! value = Task.FromResult(Error "error")
+                let! value = TaskResult.error "error"
                 return value
             }
             |> Expect.hasTaskErrorValueSync "error"
@@ -336,7 +336,7 @@ let computationExpressionSourceTests =
         testCase "Bind TaskOption None"
         <| fun _ ->
             taskResultOption {
-                let! value = Task.FromResult(None: string option)
+                let! value = TaskResult.ok (None: string option)
                 return value
             }
             |> Expect.hasTaskOkValueSync None
@@ -344,7 +344,7 @@ let computationExpressionSourceTests =
         testCase "Bind Task<'T>"
         <| fun _ ->
             taskResultOption {
-                let! value = Task.FromResult "Foo"
+                let! value = Task.result "Foo"
                 return value
             }
             |> Expect.hasTaskOkValueSync (Some "Foo")
