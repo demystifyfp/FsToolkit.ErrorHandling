@@ -241,7 +241,11 @@ module Task =
             // from started children touching semaphore or innerCts
             match Seq.toArray computations with
             | [||] -> result [||]
-            | req when maxDegreeOfParallelism = 1 || req.Length = 1 -> sequential ct req
+            | req when
+                maxDegreeOfParallelism = 1
+                || req.Length = 1
+                ->
+                sequential ct req
             | req ->
                 task {
                     let mutable pos = -1
@@ -253,11 +257,12 @@ module Task =
                         backgroundTask {
                             let mutable index = Interlocked.Increment &pos
 
-                            while index < req.Length && not innerCts.IsCancellationRequested do
+                            while index < req.Length
+                                  && not innerCts.IsCancellationRequested do
                                 let mutable completed = false
 
                                 try
-                                    let! r = req.[index] innerCts.Token
+                                    let! r = req.[index]innerCts.Token
                                     completed <- true
                                     res[index] <- r
                                 finally
@@ -268,13 +273,17 @@ module Task =
                         }
 
                     // Awaits completion of all workers (whether through success, cancellation or faulting)
-                    do! Task.WhenAll [| for _ in 1 .. min req.Length maxDegreeOfParallelism -> worker () :> Task |]
+                    do!
+                        Task.WhenAll [|
+                            for _ in 1 .. min req.Length maxDegreeOfParallelism -> worker () :> Task
+                        |]
                     // Where cancellation was requested on the outer ct, but none of the inners saw and/or honored it by throwing TCE,
                     // res may only be partially complete so we certainly can't return it
                     // we instead yield a TaskCanceledException to honor standard Task Cancellation semantics
                     innerCts.Token.ThrowIfCancellationRequested()
                     return res
                 }
+
     /// <summary>Creates a task that executes the <c>computations</c> in parallel,
     /// with concurrency limited to at most <c>maxDegreeOfParallelism</c>.</summary>
     /// <remarks>

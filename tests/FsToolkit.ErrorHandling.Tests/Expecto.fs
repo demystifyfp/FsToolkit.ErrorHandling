@@ -6,7 +6,7 @@ open System.Threading.Tasks
 
 #if !FABLE_COMPILER
 #if !NET10_0_OR_GREATER
-open FsToolkit.ErrorHandling.FSharpCore11AsyncShims
+open FsToolkit.ErrorHandling // Async.Await shims
 #endif
 let testCaseTask name test =
     Async.Await(test (): Task)

@@ -491,14 +491,7 @@ let ``AsyncOptionCE loop Tests`` =
         }
     ]
 
-
-#if !FABLE_COMPILER
-let toTaskResult v = TaskResultOption.some v
-#endif
-
-
 let ``AsyncOptionCE Stack Trace Tests`` =
-
 
     let failureAsync =
         async {

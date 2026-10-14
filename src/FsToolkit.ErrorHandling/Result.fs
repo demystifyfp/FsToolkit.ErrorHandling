@@ -303,7 +303,7 @@ let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, '
     result
     |> Result.mapError (fun () -> error)
 
-#if !NET9_0_OR_GREATER
+#if !NET10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
 ///
@@ -358,7 +358,7 @@ let inline defaultWith
 /// <param name="result">The input result.</param>
 /// <returns>Unit if <c>Ok</c>, otherwise the provided value.</returns>
 let inline ignoreError<'error> (result: Result<unit, 'error>) : unit =
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
     Result.defaultValue () result
 #else
     defaultValue () result

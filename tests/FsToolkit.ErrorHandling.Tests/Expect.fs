@@ -117,7 +117,7 @@ module Expect =
         }
 
 #if !FABLE_COMPILER
-    open FsToolkit.ErrorHandling // Async.Await
+    open FsToolkit.ErrorHandling // Async.Await shims
 
     let runTask (taskX: Task<_>) =
         Async.Await taskX

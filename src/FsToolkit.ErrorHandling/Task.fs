@@ -2,11 +2,6 @@ namespace FsToolkit.ErrorHandling
 
 open System.Threading.Tasks
 
-// FsToolkit v5 had singleton, map, bind, catch and ignore with the following diffs:
-// - Task.result replaces singleton (Obsoleted)
-// - Task.catchWith replaces catch (Obsoleted), with return type changed to Result (was choice; source+binary breaking change)
-// - Task.ignore replaces ignore, though note it gains [<RequiresExplicitTypeArguments>] (source breaking change)
-
 [<RequireQualifiedAccess>]
 module Task =
 
@@ -17,13 +12,6 @@ module Task =
         value
         |> Task.FromResult
 #endif
-
-    // NOTE FSharp.Core Task.bind is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control Task module).
-    let inline bind ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: Task<'a>) =
-        task {
-            let! x = x
-            return! f x
-        }
 
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {
@@ -37,9 +25,6 @@ module Task =
             let! x' = x
             return f' x'
         }
-
-    // NOTE FSharp.Core Task.map is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
-    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
 
     let inline mapV ([<InlineIfLambda>] f) x =
         x
@@ -63,10 +48,6 @@ module Task =
             return f x' y' z'
         }
 
-    // NOTE FSharp.Core Task.ignore is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
-    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
-    // NOTE Breaking change vs V5: [<RequiresExplicitTypeArguments>] has been added, so source changes may be required.
-
     /// Takes two tasks and returns a tuple of the pair
     let zip (a1: Task<_>) (a2: Task<_>) =
         task {
@@ -76,10 +57,6 @@ module Task =
         }
 
     let ofUnit (t: Task) = task { return! t }
-
-    // NOTE FSharp.Core Task.catchWith is available in versions >= 11 intrinsically (via auto-opened Microsoft.FSharp.Control.Task module).
-    // Alternately, to avail of the shimmed version in this library, `open FsToolkit.ErrorHandling`
-    // NOTE Breaking change vs V5: the signature has changed to Task<Result<'T, exn>> (was Task<Choice<'T, exn>>)
 
     /// Bind the Task with a synchronous Result-returning function.
     let inline bindResult
