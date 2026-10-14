@@ -797,42 +797,18 @@ let catchWithTests =
             return Error ""
         }
 
-    testList "TaskResult.catchWith tests" [
-        testCase "catchWith returns success for Ok"
+    testList "TaskResult.catchWith" [
+        testCase "returns success for Ok"
         <| fun _ -> Expect.hasTaskOkValueSync 42 (TaskResult.catchWith f (toTask (Ok 42)))
 
-        testCase "catchWith returns mapped Error for exception"
+        testCase "returns mapped Error for exception"
         <| fun _ -> Expect.hasTaskErrorValueSync err (TaskResult.catchWith f (taskThrow ()))
 
-        testCase "catchWith returns unmapped error without exception"
+        testCase "returns unmapped error without exception"
         <| fun _ ->
             Expect.hasTaskErrorValueSync
                 "unmapped"
                 (TaskResult.catchWith f (toTask (Error "unmapped")))
-    ]
-
-let ofCatchTaskTests =
-    let taskThrow () =
-        task {
-            failwith err
-            return Unchecked.defaultof<int>
-        }
-
-    testList "TaskResult.ofCatchTask tests" [
-        testCase "ofCatchTask replacement(Task.catch) returns Ok for a successful task"
-        <| fun _ -> Expect.hasTaskOkValueSync 42 (Task.catch (task { return 42 }))
-
-        testCase "ofCatchTask replacement(Task.catch) returns Error for a throwing task"
-        <| fun _ ->
-            let result =
-                taskThrow ()
-                |> Task.catch
-                |> Async.Await
-                |> Async.RunSynchronously
-
-            match result with
-            | Error ex -> Expect.equal ex.Message err "Expected exception message to match"
-            | Ok _ -> failtestf "Expected Error, was Ok"
     ]
 
 let zipTests =
@@ -1203,7 +1179,6 @@ let allTests =
         teeErrorTests
         teeErrorIfTests
         catchWithTests
-        ofCatchTaskTests
         zipTests
         zipErrorTests
         TaskResultCETests

@@ -812,14 +812,14 @@ let catchTests =
             return Error ""
         }
 
-    testList "AsyncResult.catch Replacement (AsyncResult.catchWith) tests" [
-        testCaseAsync "catch returns success for Ok"
+    testList "AsyncResult.catchWith" [
+        testCaseAsync "returns success for Ok"
         <| Expect.hasAsyncOkValue 42 (AsyncResult.catchWith f (toAsync (Ok 42)))
 
-        testCaseAsync "catch returns mapped Error for exception"
+        testCaseAsync "returns mapped Error for exception"
         <| Expect.hasAsyncErrorValue err (AsyncResult.catchWith f (asyncThrow ()))
 
-        testCaseAsync "catch returns unmapped error without exception"
+        testCaseAsync "returns unmapped error without exception"
         <| Expect.hasAsyncErrorValue
             "unmapped"
             (AsyncResult.catchWith f (toAsync (Error "unmapped")))

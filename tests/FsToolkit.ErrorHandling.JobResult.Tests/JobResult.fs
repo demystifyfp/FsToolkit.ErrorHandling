@@ -764,14 +764,14 @@ let catchTests =
             return Error ""
         }
 
-    testList "JobResult.catch replacement (JobResult.catchWith) tests" [
-        testCase "catch returns success for Ok"
+    testList "JobResult.catchWith" [
+        testCase "returns success for Ok"
         <| fun _ -> Expect.hasJobOkValueSync 42 (JobResult.catchWith f (toJob (Ok 42)))
 
-        testCase "catch returns mapped Error for exception"
+        testCase "returns mapped Error for exception"
         <| fun _ -> Expect.hasJobErrorValueSync err (JobResult.catchWith f (jobThrow ()))
 
-        testCase "catch returns unmapped error without exception"
+        testCase "returns unmapped error without exception"
         <| fun _ ->
             Expect.hasJobErrorValueSync
                 "unmapped"
