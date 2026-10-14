@@ -13,11 +13,6 @@ module TaskResult =
 
     let inline mapError ([<InlineIfLambda>] f) tr = Task.map (Result.mapError f) tr
 
-    let inline ofAsync aAsync =
-        aAsync
-        |> Async.catch
-        |> Task.startAsyncImmediate System.Threading.CancellationToken.None
-
     let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
         Task.bind (Result.eitherBind f error) tr
 
@@ -186,28 +181,21 @@ module TaskResult =
     [<System.Obsolete "Use TaskResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
     let inline catch ([<InlineIfLambda>] f) x = catchWith f x
 
-    /// <summary>
-    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
-    /// Any exceptions thrown by the task will not be caught and will propagate as-is.
-    /// To catch exceptions and map them to the <c>Error</c> case, use <see cref="catchWith"/>.
-    /// </summary>
-    /// <param name="x">The task to lift.</param>
-    /// <returns>A task containing <c>Ok</c> of the task's result value.</returns>
-    let inline ofTask x =
-        x
-        |> Task.map Ok
-
-    [<System.Obsolete "Use Task.catch instead (renamed to align with FSharp.Core 11 naming)">]
-    let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
-        x
+    let inline fromAsync async: Task<Result<'ok, exn>> =
+        async
+        |> Async.catch
+        |> Task.startAsyncImmediate System.Threading.CancellationToken.None
+    [<System.Obsolete "Use TaskResult.fromAsync instead (Renamed as `of` does not imply mapping exceptions)">]
+    let inline ofAsync async: Task<Result<'ok, exn>> = fromAsync async
+    let inline ofTask (task: Task<'input>) : Task<Result<'input, 'error>> = Task.map Ok task
+    let inline ofTaskUnit (task: Task) : Task<Result<unit, exn>> =
+        Task.ofUnit task
         |> Task.catch
-
     /// Lift Result to TaskResult
-    let inline result (x: Result<_, _>) = Task.result x
-
-    /// Lift Result to TaskResult
-    [<System.Obsolete "Use TaskResult.result instead (renamed to align with FSharp.Core 11 naming)">]
     let inline ofResult (x: Result<_, _>) = Task.result x
+
+    [<System.Obsolete "Use Task.catch instead">]
+    let inline ofCatchTask (task: Task<'ok>) : Task<Result<'ok, exn>> = Task.catch task
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns a task-wrapped Ok result or if the task-wrapped result is Error.
     /// If the checkFunc returns a task-wrapped Error result, returns the task-wrapped Error result.

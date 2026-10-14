@@ -8,11 +8,9 @@ open System.Runtime.ExceptionServices
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
-        Async.result (Ok value)
+    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> = Async.result (Ok value)
 
-    let inline error (error: 'error) : Async<Result<'ok, 'error>> =
-        Async.result (Error error)
+    let inline error (error: 'error) : Async<Result<'ok, 'error>> = Async.result (Error error)
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -63,18 +61,24 @@ module AsyncResult =
         : Async<Result<'okOutput, 'errorOutput>> =
         Async.map (Result.eitherMap onOk onError) input
 
-#if !FABLE_COMPILER
-    let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
-        async.Delay(fun () ->
-            Async.Await aTask
-            |> Async.catch
-        )
+    /// Lift Async to AsyncResult
+    let inline ofAsync (async: Async<'ok>) : Async<Result<'ok, 'error>> =
+        Async.map Ok async
 
-    let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
-        async.Delay(fun () ->
-            Async.Await aTask
-            |> Async.catch
-        )
+    /// Lift Result to AsyncResult
+    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
+        x
+        |> Async.result
+
+#if !FABLE_COMPILER
+    let inline ofTask (task: Task<'input>) : Async<Result<'input, exn>> =
+        Async.Await task
+        |> Async.catch
+    let inline ofTaskUnit (task: Task) : Async<Result<unit, exn>> =
+        Async.Await task
+        |> Async.catch
+    [<System.Obsolete "Use AsyncResult.ofTaskUnit instead">]
+    let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> = ofTaskUnit task
 #endif
 
     let inline map2
@@ -265,7 +269,6 @@ module AsyncResult =
         input
         |> Async.catchWith (fun exn -> Error(exnMapper exn))
 
-    /// Catches exceptions and maps them to the Error case using the provided function.
     [<System.Obsolete "Use AsyncResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
     let inline catch
         ([<InlineIfLambda>] exnMapper: exn -> 'error)
@@ -286,16 +289,6 @@ module AsyncResult =
                 return Unchecked.defaultof<_>
 #endif
         }
-
-    /// Lift Async to AsyncResult
-    let inline ofAsync (value: Async<'ok>) : Async<Result<'ok, 'error>> =
-        value
-        |> Async.map Ok
-
-    /// Lift Result to AsyncResult
-    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
-        x
-        |> Async.result
 
     /// Returns the async-wrapped result if it is Ok and the checker returns a async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checker returns a async-wrapped Error result, returns the async-wrapped Error result.

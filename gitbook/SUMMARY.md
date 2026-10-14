@@ -134,7 +134,7 @@
       * [ofAsync](asyncResult/ofAsync.md)
       * [ofResult](asyncResult/ofResult.md)
       * [ofTask](asyncResult/ofTask.md)
-      * [ofTaskAction](asyncResult/ofTaskAction.md)
+      * [ofTaskUnit](asyncResult/ofTaskUnit.md)
 
   * AsyncOption
     * [apply](asyncOption/apply.md)
@@ -222,6 +222,7 @@
       * [catch](taskResult/catch.md)
       * [ofResult](taskResult/ofResult.md)
       * [ofTask](taskResult/ofTask.md)
+      * [ofTaskUnit](taskResult/ofTaskUnit.md)
 
   * TaskResultOption
     * [apply](taskResultOption/apply.md)

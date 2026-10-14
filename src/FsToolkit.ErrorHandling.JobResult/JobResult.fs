@@ -48,11 +48,11 @@ module JobResult =
         : Job<Result<'okOutput, 'errorOutput>> =
         Job.map (Result.eitherMap onOk onError) input
 
-    let inline ofAsync aAsync =
-        aAsync
+    let inline fromAsync async : Job<Result<'ok, exn>> =
+        Async.catch async
         |> Job.fromAsync
-        |> Job.catch
-        |> Job.map Result.ofChoice
+    [<System.Obsolete "Use JobResult.fromAsync instead (Renamed to align with fromTask/fromUnitTask)">]
+    let inline ofAsync async = fromAsync async
 
     let inline fromTask aTask =
         aTask
@@ -202,7 +202,6 @@ module JobResult =
             | Choice2Of2 ex -> Error(f ex)
         )
 
-    /// Catches exceptions and maps them to the Error case using the provided function.
     [<System.Obsolete "Use JobResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
     let inline catch f x = catchWith f x
 
