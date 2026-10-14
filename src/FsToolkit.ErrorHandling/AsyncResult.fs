@@ -61,24 +61,21 @@ module AsyncResult =
         : Async<Result<'okOutput, 'errorOutput>> =
         Async.map (Result.eitherMap onOk onError) input
 
-    /// Lift Async to AsyncResult
-    let inline ofAsync (async: Async<'ok>) : Async<Result<'ok, 'error>> =
-        Async.map Ok async
+    [<System.Obsolete "Please use Async.map Ok instead of AsyncResult.ofAsync (Consider Async.catch/catchWith if you want to trap exceptions as Error)">]
+    let inline ofAsync (async: Async<'ok>) : Async<Result<'ok, 'error>> = Async.map Ok async
 
-    /// Lift Result to AsyncResult
-    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
-        x
-        |> Async.result
-
+    [<System.Obsolete "Please use Async.result instead of AsyncResult.ofResult">]
+    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = Async.result x
 #if !FABLE_COMPILER
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTask">]
     let inline ofTask (task: Task<'input>) : Async<Result<'input, exn>> =
         Async.Await task
         |> Async.catch
-    let inline ofTaskUnit (task: Task) : Async<Result<unit, exn>> =
+
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTaskAction">]
+    let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> =
         Async.Await task
         |> Async.catch
-    [<System.Obsolete "Use AsyncResult.ofTaskUnit instead">]
-    let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> = ofTaskUnit task
 #endif
 
     let inline map2
@@ -269,7 +266,7 @@ module AsyncResult =
         input
         |> Async.catchWith (fun exn -> Error(exnMapper exn))
 
-    [<System.Obsolete "Use AsyncResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    [<System.Obsolete "Please use AsyncResult.catchWith instead of AsyncResult.catch">]
     let inline catch
         ([<InlineIfLambda>] exnMapper: exn -> 'error)
         (input: Async<Result<'ok, 'error>>)

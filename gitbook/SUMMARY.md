@@ -130,11 +130,6 @@
       * [sequenceAsyncResultM](seq/sequenceAsyncResultM.md)
       * [traverseAsyncResultA](seq/traverseAsyncResultA.md)
       * [sequenceAsyncResultA](seq/sequenceAsyncResultA.md)
-    * Transforms
-      * [ofAsync](asyncResult/ofAsync.md)
-      * [ofResult](asyncResult/ofResult.md)
-      * [ofTask](asyncResult/ofTask.md)
-      * [ofTaskUnit](asyncResult/ofTaskUnit.md)
 
   * AsyncOption
     * [apply](asyncOption/apply.md)
@@ -217,12 +212,6 @@
       * [sequenceTaskResultM](list/sequenceTaskResultM.md)
       * [traverseTaskResultA](list/traverseTaskResultA.md)
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
-    * Transforms
-      * [ofAsync](taskResult/ofAsync.md)
-      * [catch](taskResult/catch.md)
-      * [ofResult](taskResult/ofResult.md)
-      * [ofTask](taskResult/ofTask.md)
-      * [ofTaskUnit](taskResult/ofTaskUnit.md)
 
   * TaskResultOption
     * [apply](taskResultOption/apply.md)
@@ -383,7 +372,6 @@
     * [eitherBind](jobResult/eitherBind.md)
     * [error](jobResult/error.md)
     * [fromTask](jobResult/fromTask.md)
-    * [fromUnitTask](jobResult/fromUnitTask.md)
     * [ignore](jobResult/ignore.md)
     * [map](jobResult/map.md)
     * [map2](jobResult/map2.md)
@@ -399,9 +387,9 @@
       * [traverseJobResultA](list/traverseJobResultA.md)
       * [sequenceJobResultA](list/sequenceJobResultA.md)
     * Transforms
-      * [ofAsync](jobResult/ofAsync.md)
       * [ofJob](jobResult/ofJob.md)
       * [ofResult](jobResult/ofResult.md)
+      * [fromAsync](jobResult/fromAsync.md)
       * [fromTask](jobResult/fromTask.md)
       * [fromUnitTask](jobResult/fromUnitTask.md)
 

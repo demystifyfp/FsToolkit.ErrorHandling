@@ -51,7 +51,8 @@ module JobResult =
     let inline fromAsync async : Job<Result<'ok, exn>> =
         Async.catch async
         |> Job.fromAsync
-    [<System.Obsolete "Use JobResult.fromAsync instead (Renamed to align with fromTask/fromUnitTask)">]
+
+    [<System.Obsolete "Please use JobResult.fromAsync instead (Renamed to align with fromTask/fromUnitTask)">]
     let inline ofAsync async = fromAsync async
 
     let inline fromTask aTask =
@@ -202,7 +203,7 @@ module JobResult =
             | Choice2Of2 ex -> Error(f ex)
         )
 
-    [<System.Obsolete "Use JobResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    [<System.Obsolete "Please use JobResult.catchWith instead of JobResult.catch">]
     let inline catch f x = catchWith f x
 
     /// Lift Job to JobResult
@@ -210,7 +211,7 @@ module JobResult =
         x
         |> Job.map Ok
 
-    /// Lift Result to JobResult
+    [<System.Obsolete "Please use Job.result instead of JobResult.ofResult">]
     let inline ofResult (x: Result<_, _>) =
         x
         |> Job.result

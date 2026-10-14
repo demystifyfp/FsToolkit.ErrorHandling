@@ -19,17 +19,41 @@
 - [`Async.Await` and `catch`/`catchWith` consistency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
     - fix(AsyncOption, AsyncResult, AsyncResultOption, ParallelAsyncResult)!: Internal usage of `AwaitTask` switches to `Await`
         - NOTE BEHAVIOR CHANGE: exceptions surfaced in calling code are no longer egregiously wrapped in `AggregateException`, i.e. you can now `try ... with` targeting the actual exception type to handle exceptions from the awaited Task. [#154](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/154).
-    - fix(TaskResult)!: `ofTask` catches exceptions as `AsyncResult` equivalent does
-        - NOTE BEHAVIOR CHANGE: the function was previously documented (and behaved) as not catching exceptions; this was inconsistent with `AsyncResult`, which is an avoidable surprise.
     - feat(AsyncResult, JobResult, TaskResult): `catchWith`. Same signature as `catch` but aligning with FSharp.Core naming
-    - feat(AsyncResult, TaskResult): `ofTaskUnit`
   - Renames:
       - OBSOLETE(AsyncResult, JobResult, TaskResult): `catch` -> `catchWith`.
-      - OBSOLETE(AsyncResult): `ofTaskAction` -> `ofTaskUnit`.
   - Removals:
-      - OBSOLETE(Async): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableTaskValidation`, `AwaitCancellableValueTaskOption` -> `Async.StartTaskImmediate`
-      - OBSOLETE(AsyncEx): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableValueTaskOption` -> `Async.StartTaskImmediate`
-      - OBSOLETE(TaskResult): `ofCatchTask` -> `Task.catch`
+      - OBSOLETE(AsyncResult): `ofAsync`
+        - -> `Async.map Ok`
+        - -> CONSIDER `Async.catch`
+        - NOTE semantics did not match those of `TaskResult.ofAsync`
+      - OBSOLETE(JobResult): `ofAsync`
+        - -> `JobResult.fromAsync`
+        - -> CONSIDER `Job.map Ok`
+        - NOTE semantics did not match those of `AsyncResult.ofAsync`
+      - OBSOLETE(TaskResult): `ofAsync`
+        - -> `Task.startAsyncImmediate ct >> Task.catch`
+        - OR (if no `CancellationToken` available) -> `Async.StartImmediateAsTask >> Task.catch`
+        - NOTE semantics did not match those of `AsyncResult.ofAsync`
+        - NOTE semantics did not cover flowing cancellation
+      - OBSOLETE(AsyncResult): `ofTask`
+        - -> `Async.Await >> Async.catch`.
+        - NOTE semantics did not match those of `TaskResult.ofTask`
+      - OBSOLETE(TaskResult): `ofTask`
+        - -> `Task.map Ok`
+        - -> CONSIDER `Task.catch`
+        - NOTE semantics did not match those of `AsyncResult.ofTask`
+      - OBSOLETE(Async): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableTaskValidation`, `AwaitCancellableValueTaskOption`
+        - -> `Async.StartTaskImmediate` has overloads supporting `Task` and `ValueTask`, and flows cancellation correctly.
+      - OBSOLETE(AsyncEx): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableValueTaskOption`
+        - -> `Async.StartTaskImmediate` has overloads supporting `Task` and `ValueTask`, and flows cancellation correctly.
+      - OBSOLETE(AsyncResult): `ofTaskAction`
+        - -> `Async.Await >> Async.catch`.
+        - NOTE did not exist on `TaskResult` or `JobResult`.
+      - OBSOLETE(TaskResult): `ofCatchTask`
+        - -> `Task.catch`.
+      - OBSOLETE(AsyncResult, JobResult, TaskResult): `XResult.ofResult`
+        - -> `X.result`.
 - [Stragglers aligning with earlier work](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(CancellableValueTask): `result`
   - feat(CancellableValueTaskResult): `ok`

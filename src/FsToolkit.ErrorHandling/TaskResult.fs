@@ -178,23 +178,21 @@ module TaskResult =
         x
         |> Task.catchWith (fun ex -> Error(f ex))
 
-    [<System.Obsolete "Use TaskResult.catchWith instead (renamed to align with FSharp.Core 11 naming)">]
+    [<System.Obsolete "Please use TaskResult.catchWith instead of TaskResult.catch">]
     let inline catch ([<InlineIfLambda>] f) x = catchWith f x
 
-    let inline fromAsync async: Task<Result<'ok, exn>> =
-        async
-        |> Async.catch
-        |> Task.startAsyncImmediate System.Threading.CancellationToken.None
-    [<System.Obsolete "Use TaskResult.fromAsync instead (Renamed as `of` does not imply mapping exceptions)">]
-    let inline ofAsync async: Task<Result<'ok, exn>> = fromAsync async
-    let inline ofTask (task: Task<'input>) : Task<Result<'input, 'error>> = Task.map Ok task
-    let inline ofTaskUnit (task: Task) : Task<Result<unit, exn>> =
-        Task.ofUnit task
+    [<System.Obsolete "Please use 1. Task.startAsyncImmediate ct >> Task.catch OR 2. Async.StartImmediateAsTask >> Task.catch instead of TaskResult.ofAsync">]
+    let inline ofAsync async : Task<Result<'ok, exn>> =
+        Async.StartImmediateAsTask async
         |> Task.catch
-    /// Lift Result to TaskResult
+
+    [<System.Obsolete "Please use Task.map Ok instead of TaskResult.ofTask (Consider Task.catch/catchWith if you want to trap exceptions as Error)">]
+    let inline ofTask (task: Task<'input>) : Task<Result<'input, 'error>> = Task.map Ok task
+
+    [<System.Obsolete "Please use Task.result instead of TaskResult.ofResult">]
     let inline ofResult (x: Result<_, _>) = Task.result x
 
-    [<System.Obsolete "Use Task.catch instead">]
+    [<System.Obsolete "Please use Task.catch instead of TaskResult.ofCatchTask">]
     let inline ofCatchTask (task: Task<'ok>) : Task<Result<'ok, exn>> = Task.catch task
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns a task-wrapped Ok result or if the task-wrapped result is Error.

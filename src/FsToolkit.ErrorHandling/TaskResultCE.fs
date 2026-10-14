@@ -647,7 +647,7 @@ module TaskResultCEExtensionsMediumPriority =
 
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
             Async.StartImmediateAsTask computation
-            |> TaskResult.ofTask
+            |> Task.map Ok
 
 [<AutoOpen>]
 module TaskResultCEExtensionsHighPriority2 =
