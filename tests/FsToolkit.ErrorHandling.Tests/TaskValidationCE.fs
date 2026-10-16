@@ -881,6 +881,47 @@ let ``TaskValidationCE while Error async disposal Tests`` =
 
 let ``TaskValidationCE inference checks`` =
     testList "TaskValidationCE inference checks" [
+        testCaseTask "Bind Task Result without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Task.FromResult(Ok 20: Result<int, string>)
+                        and! y = Task.FromResult(Ok 22: Result<int, string>)
+                        return x + y
+                    }
+
+                Expect.equal actual (Ok 42) "Should bind the Result values"
+            }
+        testCaseTask "Accumulate Task Result errors without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Task.FromResult(Error "first": Result<int, string>)
+                        and! y = Task.FromResult(Error "second": Result<int, string>)
+                        return x + y
+                    }
+
+                Expect.equal
+                    actual
+                    (Error [
+                        "first"
+                        "second"
+                    ])
+                    "Should accumulate errors"
+            }
+        testCaseTask "Bind Async Result without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Async.singleton (Ok 42: Result<int, string>)
+                        return x
+                    }
+
+                Expect.equal actual (Ok 42) "Should bind the Result value"
+            }
         testCase "Inference checks"
         <| fun () ->
             // Compilation is success
