@@ -7,16 +7,16 @@
 
   * Result
     * [apply](result/apply.md)
-    * [bind](result/bind.md)
+    * [bind](result/bind.md) (from FSharp.Core)
     * [check](result/check.md)
     * [Computation Expression](result/ce.md)
     * [eitherBind](result/eitherBind.md)
     * [either Functions](result/eitherFunctions.md)
-    * [ignore](result/ignore.md)
-    * [map](result/map.md)
+    * [ignore](result/ignore.md) (from FSharp.Core)
+    * [map](result/map.md) (from FSharp.Core)
     * [map2](result/map2.md)
     * [map3](result/map3.md)
-    * [mapError](result/mapError.md)
+    * [mapError](result/mapError.md) (from FSharp.Core)
     * [Operators](result/operators.md)
     * [orElse Functions](result/orElseFunctions.md)
     * [Other Functions](result/others.md)
@@ -43,14 +43,14 @@
       * [ofChoice](result/ofChoice.md)
 
   * Option
-    * [bind](option/bind.md)
+    * [bind](option/bind.md) (from FSharp.Core)
     * [bindNull](option/bindNull.md)
     * [Computation Expression](option/ce.md)
     * [eitherBind](option/eitherBind.md)
-    * [ignore](option/ignore.md)
-    * [map](option/map.md)
-    * [map2](option/map2.md)
-    * [map3](option/map3.md)
+    * [ignore](option/ignore.md) (from FSharp.Core)
+    * [map](option/map.md) (from FSharp.Core)
+    * [map2](option/map2.md) (from FSharp.Core)
+    * [map3](option/map3.md) (from FSharp.Core)
     * [sequenceAsync](option/sequenceAsync.md)
     * [sequenceAsyncResult](option/sequenceAsyncResult.md)
     * [sequenceResult](option/sequenceResult.md)
@@ -102,7 +102,7 @@
   * AsyncResult
     * [apply](asyncResult/apply.md)
     * [bind](asyncResult/bind.md)
-    * [catch](asyncResult/catch.md)
+    * [catchWith](asyncResult/catchWith.md)
     * [check](asyncResult/check.md)
     * [Computation Expression](asyncResult/ce.md)
     * [eitherBind](asyncResult/eitherBind.md)
@@ -130,11 +130,6 @@
       * [sequenceAsyncResultM](seq/sequenceAsyncResultM.md)
       * [traverseAsyncResultA](seq/traverseAsyncResultA.md)
       * [sequenceAsyncResultA](seq/sequenceAsyncResultA.md)
-    * Transforms
-      * [ofAsync](asyncResult/ofAsync.md)
-      * [ofResult](asyncResult/ofResult.md)
-      * [ofTask](asyncResult/ofTask.md)
-      * [ofTaskAction](asyncResult/ofTaskAction.md)
 
   * AsyncOption
     * [apply](asyncOption/apply.md)
@@ -163,12 +158,11 @@
 
   * Task
     * [apply](task/apply.md)
-    * [bind](task/bind.md)
+    * [bind](from FSharp.Core)
     * [bindV](task/bindV.md)
-    * [catch](task/catch.md)
     * [Computation Expression](task/ce.md)
-    * [ignore](task/ignore.md)
-    * [map](task/map.md)
+    * [ignore](task/ignore.md) (from FSharp.Core)
+    * [map](task/map.md) (from FSharp.Core)
     * [mapV](task/mapV.md)
     * [map2](task/map2.md)
     * [map3](task/map3.md)
@@ -198,7 +192,7 @@
     * [apply](taskResult/apply.md)
     * [bind](taskResult/bind.md)
     * [check](taskResult/check.md)
-    * [catch](taskResult/catch.md)
+    * [catchWith](taskResult/catchWith.md)
     * [Computation Expression](taskResult/ce.md)
     * [eitherBind](taskResult/eitherBind.md)
     * [error](taskResult/error.md)
@@ -218,11 +212,6 @@
       * [sequenceTaskResultM](list/sequenceTaskResultM.md)
       * [traverseTaskResultA](list/traverseTaskResultA.md)
       * [sequenceTaskResultA](list/sequenceTaskResultA.md)
-    * Transforms
-      * [ofAsync](taskResult/ofAsync.md)
-      * [ofCatchTask](taskResult/ofCatchTask.md)
-      * [ofResult](taskResult/ofResult.md)
-      * [ofTask](taskResult/ofTask.md)
 
   * TaskResultOption
     * [apply](taskResultOption/apply.md)
@@ -311,7 +300,7 @@
     * [map](cancellableTaskResult/map.md)
     * [Operators](cancellableTaskResult/operators.md)
     * [Other Functions](cancellableTaskResult/others.md)
-    * [singleton](cancellableTaskResult/singleton.md)
+    * [ok](cancellableTaskResult/ok.md)
     * [zip](cancellableTaskResult/zip.md)
     * [parallelZip](cancellableTaskResult/parallelZip.md)
 
@@ -328,7 +317,7 @@
     * [mapErrors](cancellableTaskValidation/mapErrors.md)
     * [Operators](cancellableTaskValidation/operators.md)
     * [orElse Functions](cancellableTaskValidation/orElse.md)
-    * [singleton](cancellableTaskValidation/singleton.md)
+    * [ok](cancellableTaskValidation/ok.md)
     * [zip](cancellableTaskValidation/zip.md)
     * [parallelZip](cancellableTaskValidation/parallelZip.md)
     * Transforms
@@ -365,7 +354,7 @@
     * [apply](job/apply.md)
     * [map2](job/map2.md)
     * [map3](job/map3.md)
-    * [singleton](job/singleton.md)
+    * [result](job/result.md) (from Hopac)
     * [zip](job/zip.md)
 
   * JobOption
@@ -378,12 +367,11 @@
   * JobResult
     * [apply](jobResult/apply.md)
     * [bind](jobResult/bind.md)
-    * [catch](jobResult/catch.md)
+    * [catchWith](jobResult/catchWith.md)
     * [Computation Expression](jobResult/ce.md)
     * [eitherBind](jobResult/eitherBind.md)
     * [error](jobResult/error.md)
     * [fromTask](jobResult/fromTask.md)
-    * [fromUnitTask](jobResult/fromUnitTask.md)
     * [ignore](jobResult/ignore.md)
     * [map](jobResult/map.md)
     * [map2](jobResult/map2.md)
@@ -399,9 +387,9 @@
       * [traverseJobResultA](list/traverseJobResultA.md)
       * [sequenceJobResultA](list/sequenceJobResultA.md)
     * Transforms
-      * [ofAsync](jobResult/ofAsync.md)
       * [ofJob](jobResult/ofJob.md)
       * [ofResult](jobResult/ofResult.md)
+      * [fromAsync](jobResult/fromAsync.md)
       * [fromTask](jobResult/fromTask.md)
       * [fromUnitTask](jobResult/fromUnitTask.md)
 

@@ -40,7 +40,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
             backgroundTask {
                 let innerData = "Foo"
                 let data = Result.Ok innerData
-                let! actual = backgroundTaskResult { return! Async.singleton data }
+                let! actual = backgroundTaskResult { return! Async.result data }
 
                 Expect.equal actual (data) "Should be ok"
             }
@@ -49,7 +49,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
             backgroundTask {
                 let innerData = "Foo"
                 let data = Result.Ok innerData
-                let! actual = backgroundTaskResult { return! Task.FromResult data }
+                let! actual = backgroundTaskResult { return! Task.result data }
 
                 Expect.equal actual (data) "Should be ok"
             }
@@ -57,7 +57,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
         <| fun () ->
             backgroundTask {
                 let innerData = "Foo"
-                let! actual = backgroundTaskResult { return! Async.singleton innerData }
+                let! actual = backgroundTaskResult { return! Async.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -65,7 +65,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
         <| fun () ->
             backgroundTask {
                 let innerData = "Foo"
-                let! actual = backgroundTaskResult { return! Task.singleton innerData }
+                let! actual = backgroundTaskResult { return! Task.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -73,7 +73,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
         <| fun () ->
             backgroundTask {
                 let innerData = "Foo"
-                let! actual = backgroundTaskResult { return! Task.FromResult innerData :> Task }
+                let! actual = backgroundTaskResult { return! Task.result innerData :> Task }
 
                 Expect.equal actual (Result.Ok()) "Should be ok"
             }
@@ -81,7 +81,7 @@ let ``BackgroundTaskResultCE return! Tests`` =
         <| fun () ->
             backgroundTask {
                 let innerData = "Foo"
-                let! actual = backgroundTaskResult { return! ValueTask.FromResult innerData }
+                let! actual = backgroundTaskResult { return! ValueTask.result innerData }
 
                 Expect.equal actual (Result.Ok innerData) "Should be ok"
             }
@@ -144,7 +144,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Async.singleton
+                    |> Async.result
 
                 let! actual =
                     backgroundTaskResult {
@@ -165,7 +165,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
                 let data =
                     Result.Ok innerData
-                    |> Task.singleton
+                    |> Task.result
 
                 let! actual =
                     backgroundTaskResult {
@@ -182,7 +182,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
                 let! actual =
                     backgroundTaskResult {
-                        let! data = Async.singleton innerData
+                        let! data = Async.result innerData
                         return data
                     }
 
@@ -195,7 +195,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
                 let! actual =
                     backgroundTaskResult {
-                        let! data = Task.FromResult innerData
+                        let! data = Task.result innerData
                         return data
                     }
 
@@ -205,7 +205,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
         <| fun () ->
             backgroundTask {
                 let innerData = "Foo"
-                let! actual = backgroundTaskResult { do! Task.FromResult innerData :> Task }
+                let! actual = backgroundTaskResult { do! Task.result innerData :> Task }
 
                 Expect.equal actual (Result.Ok()) "Should be ok"
             }
@@ -216,7 +216,7 @@ let ``BackgroundTaskResultCE bind Tests`` =
 
                 let! actual =
                     backgroundTaskResult {
-                        let! data = ValueTask.FromResult innerData
+                        let! data = ValueTask.result innerData
                         return data
                     }
 
@@ -663,9 +663,9 @@ let ``BackgroundTaskResultCE applicative tests`` =
             backgroundTask {
                 let! actual =
                     backgroundTaskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
-                        and! c = Async.singleton 1 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
+                        and! c = Async.result 1 //: Async<int>
                         return a + b - c
                     }
 
@@ -677,8 +677,8 @@ let ``BackgroundTaskResultCE applicative tests`` =
             backgroundTask {
                 let! actual =
                     backgroundTaskResult {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
                         return a + b
                     }
 
@@ -690,8 +690,8 @@ let ``BackgroundTaskResultCE applicative tests`` =
             backgroundTask {
                 let! actual =
                     backgroundTaskResult {
-                        let! a = Task.FromResult 3
-                        and! b = Task.FromResult 2
+                        let! a = Task.result 3
+                        and! b = Task.result 2
                         return a + b
                     }
 
@@ -701,7 +701,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
 #if NETSTANDARD2_0
             Unsafe.uply { return returnValue }
 #else
-            Task.FromResult returnValue
+            Task.result returnValue
 #endif
 
         testCaseTask "Happy Path Result/Choice/AsyncResult/Ply/ValueTask"
@@ -714,10 +714,10 @@ let ``BackgroundTaskResultCE applicative tests`` =
 
                         and! c =
                             Ok 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! d = specialCaseTask (Ok 3)
-                        and! e = ValueTask.FromResult(Ok 5)
+                        and! e = ValueTask.result (Ok 5)
 
                         return
                             a + b
@@ -772,7 +772,7 @@ let ``BackgroundTaskResultCE applicative tests`` =
 
                         and! b =
                             Ok 2
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = Error errorMsg
                         return a + b - c

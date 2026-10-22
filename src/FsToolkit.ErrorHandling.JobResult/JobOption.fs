@@ -1,7 +1,6 @@
 namespace FsToolkit.ErrorHandling
 
 open Hopac
-open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module JobOption =
@@ -20,10 +19,14 @@ module JobOption =
             return! t
         }
 
-    let inline singleton x = Job.result (Some x)
+    let inline some x = Job.result (Some x)
+    let inline none<'t> : Job<'t option> = Job.result None
+
+    [<System.Obsolete "Use JobOption.some instead of singleton">]
+    let inline singleton x = some x
 
     let inline apply f x =
-        bind (fun f' -> bind (fun x' -> singleton (f' x')) x) f
+        bind (fun f' -> bind (fun x' -> some (f' x')) x) f
 
     /// <summary>Applies <paramref name="onSome"/> to the input if it is <c>Some</c>, otherwise returns result of running <paramref name="onNone"/>.</summary>
     /// <param name="onSome">The function to apply if <paramref name="input"/> is <c>Some</c>.</param>

@@ -244,26 +244,21 @@ module AsyncExtensions =
 
     type Microsoft.FSharp.Control.Async with
 
+        [<System.Obsolete "Use Async.StartTaskImmediate instead">]
         static member inline AwaitCancellableTaskValidation
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             =
-            async {
-                let! ct = Async.CancellationToken
-
-                return!
-                    t ct
-                    |> Async.AwaitTask
-            }
+            Async.StartTaskImmediate t
 
         static member inline AsCancellableTaskValidation(computation: Async<'T>) =
-            fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+            fun ct -> Task.startAsyncImmediate ct computation
 
     type AsyncValidationBuilder with
 
         member inline this.Source
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             : Async<_> =
-            Async.AwaitCancellableTaskValidation t
+            Async.StartTaskImmediate t
 
 // There is explicitly no Binds for `CancellableTasks` in `Microsoft.FSharp.Control.TaskBuilderBase`.
 // You need to explicitly pass in a `CancellationToken`to start it, you can use `CancellationToken.None`.
@@ -309,8 +304,14 @@ module CancellableTaskValidation =
     /// <summary>Lifts an item to a CancellableTask.</summary>
     /// <param name="item">The item to be the result of the CancellableTask.</param>
     /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    let inline ok (item: 'item) : CancellableTaskValidation<'item, 'Error> =
+        fun _ -> TaskResult.ok item
+
+    /// <summary>Lifts an item to a CancellableTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableTask.</param>
+    /// <returns>A CancellableTask with the item as the result.</returns>
+    [<System.Obsolete "Use CancellableTaskValidation.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'Error> = ok item
 
     /// <summary>Allows chaining of CancellableTasks.</summary>
     /// <param name="binder">The continuation.</param>
@@ -328,7 +329,7 @@ module CancellableTaskValidation =
 
     let inline ofResult (result: Result<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         let x = Result.mapError List.singleton result
-        fun _ -> Task.FromResult(x)
+        fun _ -> Task.result x
 
     /// <summary>Lifts an item to a CancellableTaskValidation.</summary>
     /// <param name="error">The item to be the error result of the CancellableTaskValidation.</param>
@@ -339,7 +340,7 @@ module CancellableTaskValidation =
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : CancellableTaskValidation<'ok, 'error> =
         match choice with
-        | Choice1Of2 x -> singleton x
+        | Choice1Of2 x -> ok x
         | Choice2Of2 x -> error x
 
 
@@ -479,7 +480,7 @@ module CancellableTaskValidation =
 
             return!
                 result
-                |> Result.eitherBind singleton (fun _ -> ifError)
+                |> Result.eitherBind ok (fun _ -> ifError)
         }
 
     let inline orElseWith
@@ -492,7 +493,7 @@ module CancellableTaskValidation =
 
             return!
                 match result with
-                | Ok x -> singleton x
+                | Ok x -> ok x
                 | Error err -> ifErrorFunc err
         }
 

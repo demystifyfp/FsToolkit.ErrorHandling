@@ -21,8 +21,8 @@ let characterCount (s: string) = s.Length
 
 ```fsharp
 let result =
-    Task.singleton "foo" // Task<string>
-    |> Task.apply (Task.singleton characterCount) // Task<int>
+    Task.result "foo" // Task<string>
+    |> Task.apply (Task.result characterCount) // Task<int>
 
 // task { 3 }
 ```

@@ -15,8 +15,8 @@ Takes two job-wrapped results and returns a job-wrapped tuple result. If either 
 ### Example 1
 
 ```fsharp
-let jobOk1 = JobResult.singleton 1
-let jobOk2 = JobResult.singleton "hello"
+let jobOk1 = JobResult.ok 1
+let jobOk2 = JobResult.ok "hello"
 
 JobResult.zip jobOk1 jobOk2
 // job { return Ok (1, "hello") }
@@ -25,7 +25,7 @@ JobResult.zip jobOk1 jobOk2
 ### Example 2
 
 ```fsharp
-let jobOk = JobResult.singleton 42
+let jobOk = JobResult.ok 42
 let jobErr = JobResult.error "something went wrong"
 
 JobResult.zip jobOk jobErr

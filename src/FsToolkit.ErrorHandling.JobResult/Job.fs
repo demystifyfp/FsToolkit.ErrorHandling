@@ -5,9 +5,11 @@ open Hopac.Infixes
 
 [<RequireQualifiedAccess>]
 module Job =
+    [<System.Obsolete "Use Job.result instead (Standard Hopac name; aligns with FSharp.Core V11 naming)">]
     let inline singleton x = Job.result x
+
     let inline apply' x f = Job.apply f x
-    let inline map2 ([<InlineIfLambda>] f) x y = (apply' (apply' (singleton f) x) y)
+    let inline map2 ([<InlineIfLambda>] f) x y = (apply' (apply' (Job.result f) x) y)
 
     let inline map3 ([<InlineIfLambda>] f) x y z = apply' (map2 f x y) z
 

@@ -276,6 +276,12 @@ module CancellableValueTaskResultCE =
 module CancellableValueTask =
     open IcedTasks
 
+    /// <summary>Lifts an item to a CancellableValueTask.</summary>
+    /// <param name="item">The item to be the result of the CancellableValueTask.</param>
+    /// <returns>A CancellableValueTask with the item as the result.</returns>
+    let inline result (item: 'item) : CancellableValueTask<'item> =
+        CancellableValueTask.singleton item
+
     /// Bind the CancellableValueTask with a synchronous Result-returning function.
     let inline bindResult
         ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
@@ -292,13 +298,16 @@ module CancellableValueTaskResult =
     open System.Threading
     open IcedTasks
 
-    let inline ok x =
-        Ok x
-        |> CancellableValueTask.singleton
+    /// <summary>Lifts an item to a CancellableValueTaskResult.</summary>
+    /// <param name="item">The item to be the result of the CancellableValueTaskResult.</param>
+    /// <returns>A CancellableValueTaskResult with the item as the result.</returns>
+    let inline ok (item: 'item) : CancellableValueTaskResult<'item, 'Error> =
+        CancellableValueTask.result (Ok item)
 
-    let inline error x =
-        Error x
-        |> CancellableValueTask.singleton
+    [<System.Obsolete "Use CancellableValueTaskResult.ok instead (aligns with TaskResult naming)">]
+    let inline singleton (item: 'item) : CancellableValueTaskResult<'item, 'Error> = ok item
+
+    let inline error x = CancellableValueTask.result (Error x)
 
     /// <summary>Gets the default cancellation token for executing computations.</summary>
     ///
@@ -327,13 +336,6 @@ module CancellableValueTaskResult =
     /// </example>
     let inline getCancellationToken () =
         fun (ct: CancellationToken) -> ValueTask<CancellationToken> ct
-
-    /// <summary>Lifts an item to a CancellableValueTaskResult.</summary>
-    /// <param name="item">The item to be the result of the CancellableValueTaskResult.</param>
-    /// <returns>A CancellableValueTaskResult with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableValueTaskResult<'item, 'Error> =
-        fun _ -> ValueTask<Result<'item, 'Error>>(Ok item)
-
 
     /// <summary>Allows chaining of CancellableValueTaskResults.</summary>
     /// <param name="binder">The continuation.</param>

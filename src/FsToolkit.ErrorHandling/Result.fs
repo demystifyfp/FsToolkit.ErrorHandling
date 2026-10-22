@@ -4,6 +4,7 @@
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Result
 
+#if !NET10_0_OR_GREATER
 /// Applies a transformation to the value of a <c>Result</c> to a new value using the specified mapper function.
 ///
 /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/map</href>
@@ -77,6 +78,7 @@ let inline isError (value: Result<'ok, 'error>) : bool =
     match value with
     | Ok _ -> false
     | Error _ -> true
+#endif
 
 /// <summary>
 /// Applies the appropriate function based on the result of the input.
@@ -205,7 +207,7 @@ let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, string * 'c > =
         (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
     tryCreate' x
-    |> mapError (fun z -> (fieldName, z))
+    |> Result.mapError (fun z -> (fieldName, z))
 
 /// <summary>
 /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -286,7 +288,7 @@ let inline ignore<'ok, 'error> (result: Result<'ok, 'error>) : Result<unit, 'err
 /// <returns>A new <c>Result</c> with the same Ok value and the new error value.</returns>
 let inline setError (error: 'error) (result: Result<'ok, 'errorIgnored>) : Result<'ok, 'error> =
     result
-    |> mapError (fun _ -> error)
+    |> Result.mapError (fun _ -> error)
 
 /// <summary>
 /// Replaces a unit error value with a custom error value. Safer than setError
@@ -299,8 +301,9 @@ let inline setError (error: 'error) (result: Result<'ok, 'errorIgnored>) : Resul
 /// <returns>A new <c>Result</c> with the same Ok value and the new error value.</returns>
 let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, 'error> =
     result
-    |> mapError (fun () -> error)
+    |> Result.mapError (fun () -> error)
 
+#if !NET10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
 ///
@@ -313,6 +316,7 @@ let inline defaultValue (ifError: 'ok) (result: Result<'ok, 'error>) : 'ok =
     match result with
     | Ok x -> x
     | Error _ -> ifError
+#endif
 
 /// <summary>
 /// Returns the contained value if <c>Error</c>, otherwise returns the provided value
@@ -327,6 +331,7 @@ let inline defaultError (ifOk: 'error) (result: Result<'ok, 'error>) : 'error =
     | Error error -> error
     | Ok _ -> ifOk
 
+#if !NET10_0_OR_GREATER
 /// <summary>
 /// Returns the contained value if <c>Ok</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
 ///
@@ -342,6 +347,7 @@ let inline defaultWith
     match result with
     | Ok x -> x
     | Error e -> ifErrorThunk e
+#endif
 
 /// <summary>
 /// Same as <c>defaultValue</c> for a result where the Ok value is unit. The name
@@ -351,7 +357,12 @@ let inline defaultWith
 /// </summary>
 /// <param name="result">The input result.</param>
 /// <returns>Unit if <c>Ok</c>, otherwise the provided value.</returns>
-let inline ignoreError<'error> (result: Result<unit, 'error>) : unit = defaultValue () result
+let inline ignoreError<'error> (result: Result<unit, 'error>) : unit =
+#if NET10_0_OR_GREATER
+    Result.defaultValue () result
+#else
+    defaultValue () result
+#endif
 
 /// <summary>
 /// If the result is <c>Ok</c> and the predicate returns true, executes the function on the <c>Ok</c> value. Passes through the input value.
@@ -442,7 +453,7 @@ let inline traverseAsync
     ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput>)
     (res: Result<'okInput, 'error>)
     : Async<Result<'okOutput, 'error>> =
-    sequenceAsync ((map f) res)
+    sequenceAsync ((Result.map f) res)
 
 #if !FABLE_COMPILER
 open System.Threading.Tasks
@@ -458,6 +469,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
     }
 #endif
 
+#if !NET10_0_OR_GREATER // NOTE duplicate of defaultWith
 /// <summary>
 /// Returns the <c>Ok</c> value or runs the specified function over the error value.
 /// </summary>
@@ -467,6 +479,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
 [<System.Obsolete "Please use defaultWith instead of valueOr">]
 let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
     defaultWith f res
+#endif
 
 /// <summary>
 /// Takes two results and returns a tuple of the pair
@@ -502,7 +515,7 @@ let zipError
     | Ok e, _
     | _, Ok e -> Ok e
 
-let inline req ([<InlineIfLambda>] reqF) errOrF value = bind (reqF errOrF) value
+let inline req ([<InlineIfLambda>] reqF) errOrF value = Result.bind (reqF errOrF) value
 let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 /// <summary>

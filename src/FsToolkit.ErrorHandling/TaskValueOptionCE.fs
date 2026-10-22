@@ -669,13 +669,11 @@ module TaskValueOptionCEExtensionsMediumPriority =
                 return ValueSome()
             }
 
-        member inline this.Source(opt: 'T voption) : TaskValueOption<'T> = Task.FromResult opt
+        member inline this.Source(opt: 'T voption) : TaskValueOption<'T> = Task.result opt
 
         member inline this.Source(computation: Async<'T>) : TaskValueOption<'T> =
-            computation
-            |> Async.map ValueSome
-            |> Async.StartImmediateAsTask
-
+            Async.StartImmediateAsTask computation
+            |> Task.map ValueSome
 
 [<AutoOpen>]
 module TaskValueOptionCEExtensionsHighPriority2 =
@@ -684,8 +682,7 @@ module TaskValueOptionCEExtensionsHighPriority2 =
     type TaskValueOptionBuilderBase with
 
         member inline this.Source(computation: Async<'T voption>) : TaskValueOption<'T> =
-            computation
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
 
         member inline this.Source(taskOption: ValueTask<'T voption>) : TaskValueOption<'T> =
             taskOption.AsTask()
