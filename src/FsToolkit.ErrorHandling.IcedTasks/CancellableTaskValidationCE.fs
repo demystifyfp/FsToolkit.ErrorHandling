@@ -318,7 +318,7 @@ module CancellableTaskValidation =
     /// <returns>A CancellableTask with the error as the result.</returns>
     let inline error (error: 'error) : CancellableTaskValidation<'ok, 'error> = errors [ error ]
 
-    [<System.Obsolete "Use CancellableTaskValidation.ok instead of CancellableValueValidation.singleton">]
+    [<System.Obsolete "Use CancellableTaskValidation.ok instead of CancellableTaskValidation.singleton">]
     let inline singleton (item: 'item) : CancellableTaskValidation<'item, 'error> = ok item
 
     /// <summary>Allows chaining of CancellableTasks.</summary>

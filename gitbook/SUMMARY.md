@@ -387,7 +387,6 @@
       * [traverseJobResultA](list/traverseJobResultA.md)
       * [sequenceJobResultA](list/sequenceJobResultA.md)
     * Transforms
-      * [ofResult](jobResult/ofResult.md)
       * [fromAsync](jobResult/fromAsync.md)
       * [fromTask](jobResult/fromTask.md)
       * [fromUnitTask](jobResult/fromUnitTask.md)
