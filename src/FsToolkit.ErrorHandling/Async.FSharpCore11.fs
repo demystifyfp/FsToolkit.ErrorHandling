@@ -14,14 +14,15 @@
 #endif
 module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 
-#if FABLE_COMPILER || !NET10_0_OR_GREATER
 open System.Threading
 open System.Threading.Tasks
 
 #if !FABLE_COMPILER
 #nowarn "3261" // error FS3261: Nullness warning: The types 'System.AggregateException' and 'System.AggregateException | null' do not have compatible nullability.
 
-type Async with
+open FSharp.Control
+
+type Async =
 
     /// <summary>Creates an asynchronous computation that will wait for the given task to complete and return
     /// its result.</summary>
@@ -71,7 +72,7 @@ type Async with
     [<System.Diagnostics.DebuggerStepThrough>]
     static member Await(task: Task<'T>) : Async<'T> =
 #if NET10_0_OR_GREATER
-        Async.Await task
+        Microsoft.FSharp.Control.Async.Await task
 #else
         async {
             try
@@ -123,7 +124,7 @@ type Async with
     [<System.Diagnostics.DebuggerStepThrough>]
     static member Await(task: Task) : Async<unit> =
 #if NET10_0_OR_GREATER
-        Async.Await task
+        Microsoft.FSharp.Control.Async.Await task
 #else
         async {
             try
@@ -138,7 +139,7 @@ type Async with
 #endif
     static member Await(task: ValueTask) : Async<unit> =
 #if NET10_0_OR_GREATER
-        Async.Await task
+        Microsoft.FSharp.Control.Async.Await task
 #else
         Async.Await(task.AsTask())
 #endif
@@ -148,7 +149,7 @@ type Async with
 #endif
     static member Await(task: ValueTask<'t>) : Async<'t> =
 #if NET10_0_OR_GREATER
-        Async.Await task
+        Microsoft.FSharp.Control.Async.Await task
 #else
         Async.Await(task.AsTask())
 #endif
@@ -159,7 +160,7 @@ type Async with
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> Task<'T>) : Async<'T> =
 #if NET10_0_OR_GREATER
-        Async.StartTaskImmediate createTask
+        Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
         async.Bind(Async.CancellationToken, createTask >> Async.Await)
 #endif
@@ -170,7 +171,7 @@ type Async with
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> Task) : Async<unit> =
 #if NET10_0_OR_GREATER
-        Async.StartTaskImmediate createTask
+        Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
         async.Bind(Async.CancellationToken, createTask >> Async.Await)
 #endif
@@ -181,7 +182,7 @@ type Async with
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> ValueTask<'T>) : Async<'T> =
 #if NET10_0_OR_GREATER
-        Async.StartTaskImmediate createTask
+        Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
         async.Bind(Async.CancellationToken, createTask >> Async.Await)
 #endif
@@ -192,7 +193,7 @@ type Async with
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> ValueTask) : Async<unit> =
 #if NET10_0_OR_GREATER
-        Async.StartTaskImmediate createTask
+        Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
         async.Bind(Async.CancellationToken, createTask >> Async.Await)
 #endif
@@ -284,7 +285,7 @@ module Async =
     [<RequiresExplicitTypeArguments>]
     let inline ignore<'T> (computation: Async<'T>) : Async<unit> =
 #if NET10_0_OR_GREATER
-        Async.ignore computation
+        Async.ignore<'T> computation
 #else
         Async.Ignore computation
 #endif
@@ -425,6 +426,4 @@ module Async =
 #else
         parallelLimit maxDegreeOfParallelism computations
         |> ignore<unit[]>
-#endif
-
 #endif
