@@ -5,13 +5,10 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module Task =
 
-#if !NET10_0_OR_GREATER
-    /// <summary>Creates a task that returns the given value.</summary>
     [<System.Obsolete("Use the built in FSharp.Core Task.result instead")>]
     let inline singleton value =
         value
         |> Task.result
-#endif
 
     let inline bindV ([<InlineIfLambda>] f: 'a -> Task<'b>) (x: ValueTask<'a>) =
         task {

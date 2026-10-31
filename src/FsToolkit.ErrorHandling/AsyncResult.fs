@@ -69,13 +69,19 @@ module AsyncResult =
 #if !FABLE_COMPILER
     [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTask">]
     let inline ofTask (task: Task<'input>) : Async<Result<'input, exn>> =
-        Async.Await task
-        |> Async.catch
+        async.Delay(fun () ->
+            Async.AwaitTask task
+            |> Async.Catch
+            |> Async.map Result.ofChoice
+        )
 
     [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTaskAction">]
     let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> =
-        Async.Await task
-        |> Async.catch
+        async.Delay(fun () ->
+            Async.AwaitTask task
+            |> Async.Catch
+            |> Async.map Result.ofChoice
+        )
 #endif
 
     let inline map2
@@ -260,11 +266,11 @@ module AsyncResult =
 
     /// Catches exceptions and maps them to the Error case using the provided function.
     let inline catchWith
-        ([<InlineIfLambda>] exnMapper: exn -> 'error)
+        ([<InlineIfLambda>] handler: exn -> 'error)
         (input: Async<Result<'ok, 'error>>)
         : Async<Result<'ok, 'error>> =
         input
-        |> Async.catchWith (fun exn -> Error(exnMapper exn))
+        |> Async.catchWith (fun exn -> Error(handler exn))
 
     [<System.Obsolete "Please use AsyncResult.catchWith instead of AsyncResult.catch">]
     let inline catch

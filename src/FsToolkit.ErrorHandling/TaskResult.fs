@@ -175,26 +175,29 @@ module TaskResult =
 
     /// <summary>Catches exceptions and maps them to the <c>Error</c> case using the provided function.</summary>
     /// <remarks>As with <c>Task.catch</c>, <c>TaskCancelledException</c> will be rethrown and not caught.</remarks>
-    let inline catchWith ([<InlineIfLambda>] f) x =
-        x
-        |> Task.catchWith (fun ex -> Error(f ex))
+    let inline catchWith
+        ([<InlineIfLambda>] handler: exn -> 'error)
+        (x: Task<Result<'ok, 'error>>)
+        : Task<Result<'ok, 'error>> =
+        Task.catchWith (fun ex -> Error(handler ex)) x
 
     [<System.Obsolete "Please use TaskResult.catchWith instead of TaskResult.catch. NOTE TaskResult.catchWith will rethrow TaskCancelledException">]
     let inline catch
-        ([<InlineIfLambda>] handler: exn -> Result<'ok, 'error>)
+        ([<InlineIfLambda>] handler: exn -> 'error)
         (task: Task<Result<'ok, 'error>>)
         : Task<Result<'ok, 'error>> =
         TaskBuilder.task {
             try
                 return! task
             with e ->
-                return handler e
+                return Error(handler e)
         }
 
     [<System.Obsolete "Please use 1. Task.startAsyncImmediate ct >> Task.catch OR 2. Async.StartImmediateAsTask >> Task.catch instead of TaskResult.ofAsync">]
     let inline ofAsync async : Task<Result<'ok, exn>> =
-        Async.StartImmediateAsTask async
-        |> Task.catch
+        Async.Catch async
+        |> Async.StartImmediateAsTask
+        |> Task.map Result.ofChoice
 
     [<System.Obsolete "Please use Task.map Ok instead of TaskResult.ofTask (Consider Task.catch/catchWith if you want to trap exceptions as Error)">]
     let inline ofTask (task: Task<'input>) : Task<Result<'input, 'error>> = Task.map Ok task

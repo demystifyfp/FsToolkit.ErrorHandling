@@ -6,15 +6,8 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Async =
 
-#if !NET10_0_OR_GREATER
-    /// <summary>
-    /// Converts a value to an <c>Async</c> value
-    /// </summary>
-    /// <param name="value">The value to convert to an <c>Async</c> value.</param>
-    /// <returns>The <c>Async</c> value.</returns>
     [<System.Obsolete("Use the built in FSharp.Core Async.result instead")>]
     let inline singleton (value: 'value) : Async<'value> = Async.result value
-#endif
 
     /// <summary>
     /// Applies an <c>Async</c> function to an <c>Async</c> value.

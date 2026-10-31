@@ -49,8 +49,9 @@ module JobResult =
         Job.map (Result.eitherMap onOk onError) input
 
     let inline fromAsync async : Job<Result<'ok, exn>> =
-        Async.catch async
-        |> Job.fromAsync
+        Job.fromAsync async
+        |> Job.catch
+        |> Job.map Result.ofChoice
 
     [<System.Obsolete "Please use JobResult.fromAsync instead (Renamed to align with fromTask/fromUnitTask)">]
     let inline ofAsync async = fromAsync async
@@ -193,14 +194,16 @@ module JobResult =
         |> Job.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catchWith f x =
-        x
-        |> Job.catch
+    let inline catchWith
+        (handler: exn -> 'error)
+        (x: Job<Result<'ok, 'error>>)
+        : Job<Result<'ok, 'error>> =
+        Job.catch x
         |> Job.map (
             function
             | Choice1Of2(Ok v) -> Ok v
             | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(f ex)
+            | Choice2Of2 ex -> Error(handler ex)
         )
 
     [<System.Obsolete "Please use JobResult.catchWith instead of JobResult.catch">]
