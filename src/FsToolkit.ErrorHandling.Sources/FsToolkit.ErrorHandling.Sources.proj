@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net9.0</TargetFrameworks>
+    <Description>The source code of FsToolkit.ErrorHandling as F# files that compile inside your project. FsToolkit.ErrorHandling is an extensive utility library based around the F# Result type, enabling consistent and powerful error handling.</Description>
+    <PackageTags>$(PackageTags), source, sources, contentFiles</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <GeneratedSourcesDir>$(MSBuildProjectDirectory)/obj/generated/</GeneratedSourcesDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="build/FsToolkit.ErrorHandling.Sources.targets" Pack="true" PackagePath="build/" />
+    <GeneratedSource Include="$(GeneratedSourcesDir)*.fs.pp" />
+    <None Include="@(GeneratedSource)" Pack="true" PackagePath="contentFiles/fs/any/FsToolkit.ErrorHandling/" BuildAction="Compile" />
+  </ItemGroup>
+
+  <Target Name="FailWithoutGeneratedSources" BeforeTargets="GenerateNuspec" Condition="'@(GeneratedSource)' == ''">
+    <Error Text="No generated source files found in $(GeneratedSourcesDir). Run the FAKE target GenerateSources first: ./build.sh GenerateSources (./build.cmd GenerateSources on Windows)." />
+  </Target>
+</Project>

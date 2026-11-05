@@ -1,3 +1,8 @@
+### 6.0.0-beta004 - Unreleased
+
+- [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
+    - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
+
 ### 6.0.0-beta003 - October 12, 2026
 
 - [Consistency cleanups: `req`, `Req`, `bindResult`, `eitherBind`, `eitherMap`, `ok`, `ignore` and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/376) Credits @bartelink

@@ -4,30 +4,33 @@ namespace FsToolkit.ErrorHandling
 open System.Threading.Tasks
 #endif
 
-[<RequireQualifiedAccess>]
-module Async =
+[<AutoOpen>]
+module TestAsync =
 
-    open System
+    [<RequireQualifiedAccess>]
+    module Async =
+
+        open System
 
 #if FABLE_COMPILER && FABLE_COMPILER_JAVASCRIPT
-    open Fable.Core
+        open Fable.Core
 
-    /// An Async that never completes but can be cancelled
-    let never<'a> : Async<'a> =
-        Fable.Core.JS.Constructors.Promise.Create(fun _ _ -> ())
-        |> Async.AwaitPromise
+        /// An Async that never completes but can be cancelled
+        let never<'a> : Async<'a> =
+            Fable.Core.JS.Constructors.Promise.Create(fun _ _ -> ())
+            |> Async.AwaitPromise
 #else
-    /// An Async that never completes but can be cancelled
-    let never<'a> : Async<'a> =
-        let granularity = TimeSpan.FromSeconds 3.
+        /// An Async that never completes but can be cancelled
+        let never<'a> : Async<'a> =
+            let granularity = TimeSpan.FromSeconds 3.
 
-        let rec loop () =
-            async {
-                do! Async.Sleep(granularity)
-                return! loop ()
-            }
+            let rec loop () =
+                async {
+                    do! Async.Sleep(granularity)
+                    return! loop ()
+                }
 
-        loop ()
+            loop ()
 #endif
 
 module TestHelpers =
