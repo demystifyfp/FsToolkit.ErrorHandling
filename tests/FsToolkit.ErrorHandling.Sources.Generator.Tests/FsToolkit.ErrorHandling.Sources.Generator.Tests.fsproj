@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../build/SourcesPackage.fs" Link="SourcesPackage.fs" />
+    <Compile Include="LineModel.fs" />
+    <Compile Include="TransformTests.fs" />
+    <Compile Include="ProjectTests.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Expecto.FsCheck" />
+  </ItemGroup>
+</Project>

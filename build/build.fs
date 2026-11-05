@@ -67,6 +67,9 @@ let testsGlob =
 let srcAndTest =
     !!srcGlob
     ++ testsGlob
+    // These projects do not track an AssemblyInfo.fs, and GitRelease stages every file.
+    -- (rootDir
+        </> "tests/FsToolkit.ErrorHandling.Sources.*/**")
 
 let srcCodeGlob =
     !!(rootDir
@@ -371,14 +374,15 @@ let sourcesProject =
     </> "FsToolkit.ErrorHandling.Sources.proj"
 
 let generateSources _ =
-    let files =
+    match
         SourcesPackage.generate
             (rootDir
              </> "src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj")
             (sourcesProjectDir
              </> "obj/generated")
-
-    Trace.tracefn "Generated %d source files for %s" files.Length sourcesProject
+    with
+    | Ok files -> Trace.tracefn "Generated %d source files for %s" files.Length sourcesProject
+    | Error error -> failwith (SourcesPackage.describeGenerateError error)
 
 let sourcesTestsFixture =
     rootDir
@@ -390,9 +394,23 @@ let sourcesConsumerFixture =
 
 let failOnTestFileDrift () =
     let testFiles projectPath =
-        File.ReadAllText projectPath
-        |> SourcesPackage.readCompileItems
-        |> List.map (fun item -> Path.GetFileName item.Include, item.Condition)
+        match
+            File.ReadAllText projectPath
+            |> SourcesPackage.readCompileItems projectPath
+        with
+        | Ok items ->
+            items
+            |> List.map (fun item ->
+                Path.GetFullPath(
+                    Path.Combine(Path.GetDirectoryName(projectPath: string), item.Include)
+                ),
+                item.Condition
+            )
+        | Error errors ->
+            errors
+            |> List.map SourcesPackage.describeProjectError
+            |> String.concat "\n"
+            |> failwith
 
     let expected =
         testFiles (
@@ -407,7 +425,7 @@ let failOnTestFileDrift () =
         <> expected
     then
         failwithf
-            "The Compile items of %s must match FsToolkit.ErrorHandling.Tests.fsproj in order and condition.\nExpected: %A\nActual: %A"
+            "The Compile items of %s must resolve to the files of FsToolkit.ErrorHandling.Tests.fsproj, in the same order and with the same conditions.\nExpected: %A\nActual: %A"
             sourcesTestsFixture
             expected
             actual
@@ -489,14 +507,25 @@ let sourcesTest ctx =
             })
             fixture
 
-    DotNet.build
-        (fun c -> {
-            c with
-                NoRestore = true
-                Configuration = configuration ctx.Context.AllExecutingTargets
-                MSBuildParams = withFixtureParams c.MSBuildParams
-        })
-        sourcesConsumerFixture
+    let buildConsumer extraArgs =
+        DotNet.build
+            (fun c -> {
+                c with
+                    NoRestore = true
+                    Configuration = configuration ctx.Context.AllExecutingTargets
+                    MSBuildParams = withFixtureParams c.MSBuildParams
+                    Common =
+                        c.Common
+                        |> DotNet.Options.withAdditionalArgs (
+                            maxCpuMsBuild.Value
+                            :: extraArgs
+                        )
+            })
+            sourcesConsumerFixture
+
+    buildConsumer []
+    // A multi-target rebuild skips NuGet content preprocessing in the inner builds unless the package targets repair it.
+    buildConsumer [ "--no-incremental" ]
 
     DotNet.test
         (fun c -> {
@@ -504,6 +533,9 @@ let sourcesTest ctx =
                 NoRestore = true
                 Configuration = configuration ctx.Context.AllExecutingTargets
                 MSBuildParams = withFixtureParams c.MSBuildParams
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs [ maxCpuMsBuild.Value ]
         })
         sourcesTestsFixture
 

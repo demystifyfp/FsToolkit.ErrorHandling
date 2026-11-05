@@ -42,13 +42,13 @@ jobs:
       if: runner.os != 'Windows'
       run: |
         chmod +x ./build.sh
-        ./build.sh
+        ./build.sh SourcesTest
       env:
         CONFIGURATION: ${{ matrix.configuration }}
         CI: true
     - name: Build via Windows
       if: runner.os == 'Windows'
-      run: ./build.cmd
+      run: ./build.cmd SourcesTest
       env:
         CONFIGURATION: ${{ matrix.configuration }}
         CI: true

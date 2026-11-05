@@ -12,6 +12,7 @@ The package contains only the source code of the `FsToolkit.ErrorHandling` packa
 - F# 9 or later (.NET SDK 9.0 or later).
 - If your project targets `net9.0` or later, do not set `LangVersion` lower than `9.0`.
 - Reference the package directly from each project that uses it. NuGet does not give content files to projects that reference your project.
+- Use a `PackageReference`. Paket is not tested with this package.
 
 ## Install
 
@@ -23,14 +24,18 @@ Add the reference with `PrivateAssets="all"`. Then the package does not become a
 </ItemGroup>
 ```
 
+If the `PackageReference` does not set `PrivateAssets="all"`, the build gives warning `FSTKSRC001`. Without it, a package of your project depends on `FsToolkit.ErrorHandling.Sources`. Each project that references your package then compiles the source files again.
+
 ## Configure
 
 Set these properties in your project file:
 
 | Property | Default | Values |
 | --- | --- | --- |
-| `FsToolkitErrorHandlingNamespace` | `FsToolkit.ErrorHandling` | A dotted F# identifier, for example `Contoso.Internal.ErrorHandling`. |
-| `FsToolkitErrorHandlingVisibility` | `internal` | `internal` or `public`. |
+| `FsToolkitErrorHandlingNamespace` | `FsToolkit.ErrorHandling` | Dotted F# identifiers, for example `Contoso.Internal.ErrorHandling`. Each segment must use only ASCII letters, digits, and `_`, and must not start with a digit. A segment must not be an F# keyword or reserved word. |
+| `FsToolkitErrorHandlingVisibility` | `internal` | `internal` or `public`, in lowercase. |
+
+The build fails with an error that names the property when a value is not valid.
 
 ```xml
 <PropertyGroup>
@@ -55,17 +60,23 @@ Use `public` when your public API must expose these types. Then the types become
 
 Your project can have a module with the same full name as a module of this package. For example, your project can have `module Async` in `namespace FsToolkit.ErrorHandling`. The compiler then gives error FS0248. Set `FsToolkitErrorHandlingNamespace` to a different namespace to prevent this.
 
+The package replaces the namespace only in its `namespace`, `module`, and `open` lines. Comments keep the name `FsToolkit.ErrorHandling`.
+
+## Compile order
+
+The package files compile before the files of your project. If your project sets `CompileOrder="CompileFirst"` on its own `Compile` items, those files compile before the package files and cannot use them.
+
 ## Compiler warnings
 
-Each source file has `#nowarn "57" "1182" "3180" "3261" "3390" "3513" "3517" "3559"` on the line after its first `namespace` or `module` line. Thus strict project settings, such as `TreatWarningsAsErrors`, `Nullable`, and `GenerateDocumentationFile`, do not fail on the package files.
+Each source file has `#nowarn "57" "1182" "3180" "3261" "3390" "3513" "3517" "3559"` on the line after each `namespace` line and after its top-level `module` line. Thus strict project settings, such as `TreatWarningsAsErrors`, `Nullable`, and `GenerateDocumentationFile`, do not fail on the package files.
 
 If you enable warning 3180 with `--warnon:3180`, the compiler reports FS3180 for the package files at `unknown(1,1)`. A `#nowarn` cannot suppress a warning without a source location. If you must enable warning 3180, add `FS3180` to `WarningsNotAsErrors`.
 
 With F# 9, `--warnon:3517` reports FS3517 at the places where your code calls functions of this package. The binary `FsToolkit.ErrorHandling` package gives the same warnings. F# 10 does not report them.
 
-## .NET SDK 9 and rebuilds
+## Fable
 
-With .NET SDK 9, a rebuild of a project with more than one target framework does not compile the package files. `dotnet build --no-incremental` and `dotnet build -t:Rebuild` are rebuilds. The build then fails, for example with error FS0039. Use `dotnet clean` and then `dotnet build`. .NET SDK 10 does not have this problem.
+The files that the `FsToolkit.ErrorHandling` project does not compile for Fable (the `Task` files) are in `#if !FABLE_COMPILER` blocks. Fable is not tested with this package.
 
 ## netstandard2.0
 
