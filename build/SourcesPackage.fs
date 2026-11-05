@@ -73,6 +73,7 @@ module SourcesPackage =
         | ExplicitPublic
         | ColumnZeroTypeExtension
         | ColumnZeroModuleRec
+        | ColumnZeroModuleAbbreviation
         | ColumnZeroException
         | UnrecognizedDeclaration of keyword: string
         | UnrecognizedLine
@@ -129,6 +130,8 @@ module SourcesPackage =
                 "column-0 declaration with an explicit 'public' modifier ignores FsToolkitErrorHandlingVisibility"
             | ColumnZeroTypeExtension -> "column-0 type extension"
             | ColumnZeroModuleRec -> "column-0 'module rec'"
+            | ColumnZeroModuleAbbreviation ->
+                "column-0 module line has code after '=', such as a module abbreviation, which cannot take an access modifier (FS0536). Put the module body on the next lines"
             | ColumnZeroException -> "column-0 exception declaration"
             | UnrecognizedDeclaration keyword -> $"unrecognized '{keyword}' declaration"
             | UnrecognizedLine -> "unrecognized column-0 line"
@@ -499,6 +502,7 @@ module SourcesPackage =
     let private declaration = Regex(@"^(module|type|and|exception)(\s|$)")
     let private accessModifier = Regex(@"^(internal|private|public)(\s|$)")
     let private typeExtension = Regex(@"\swith$")
+    let private codeAfterEquals = Regex(@"=\s*\S")
     let private identifierStart = Regex(@"^[A-Za-z_]")
     let private attributeWithCode = Regex(@"^\[<.*>\]\s*\S")
 
@@ -556,6 +560,7 @@ module SourcesPackage =
                 || startsWith rest "rec "
                 ->
                 Error ColumnZeroModuleRec
+            | "module" when codeAfterEquals.IsMatch code -> Error ColumnZeroModuleAbbreviation
             | "type"
             | "and" when typeExtension.IsMatch rest -> Error ColumnZeroTypeExtension
             | _ when identifierStart.IsMatch rest -> Ok(place (Some keyword.Length))

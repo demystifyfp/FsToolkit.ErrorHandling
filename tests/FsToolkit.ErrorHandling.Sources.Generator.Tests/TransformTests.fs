@@ -402,6 +402,17 @@ let examples =
         test "column-0 module rec" {
             failsWith "namespace Demo\nmodule rec Foo =\n" [ Some 2, ColumnZeroModuleRec ]
         }
+        test "column-0 module abbreviation" {
+            failsWith "namespace Demo\nmodule R = System.Text\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+        }
+        test "column-0 module with its body on the next lines" {
+            Expect.stringContains
+                (transformOk "Probe.fs" "namespace Demo\nmodule R =\n    let x = 1\n")
+                $"module {VisibilityToken} R ="
+                "the module gets the visibility token"
+        }
         test "column-0 exception" {
             failsWith "namespace Demo\nexception Boom\n" [ Some 2, ColumnZeroException ]
         }
@@ -457,7 +468,7 @@ let examples =
             ]
 
             failsWith "namespace Demo\nmodule R = FsToolkit.ErrorHandling.Result\n" [
-                Some 2, UnreplacedSourceNamespace
+                Some 2, ColumnZeroModuleAbbreviation
             ]
 
             failsWith

@@ -539,6 +539,7 @@ let failOnTargetsDiagnostics () =
         </> "tests/FsToolkit.ErrorHandling.Sources.Consumer/diagnostics/Diagnostics.proj"
 
     let warningCases = [
+        [], true
         [ "IsPackable", "true" ], true
         [ "IsPackable", "false" ], false
         [
