@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="../../../src/FsToolkit.ErrorHandling.Sources/build/FsToolkit.ErrorHandling.Sources.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="$(DiagnosticsPrivateAssets)" />
+  </ItemGroup>
+</Project>

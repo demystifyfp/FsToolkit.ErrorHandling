@@ -76,8 +76,13 @@ module SourcesPackage =
         | ColumnZeroException
         | UnrecognizedDeclaration of keyword: string
         | UnrecognizedLine
+        | CodeAfterAttribute
         | CodeAfterComment
         | CommentOpenAfterCode
+        | CommentInNamespaceLine
+        | UnreplacedSourceNamespace
+        | UnsupportedQuotedIdentifier
+        | UnsupportedInterpolationHole
         | UnterminatedCommentOrString
         | NoDeclaration
         | CodeBeforeFableGuard
@@ -127,9 +132,19 @@ module SourcesPackage =
             | ColumnZeroException -> "column-0 exception declaration"
             | UnrecognizedDeclaration keyword -> $"unrecognized '{keyword}' declaration"
             | UnrecognizedLine -> "unrecognized column-0 line"
+            | CodeAfterAttribute ->
+                "column-0 attribute line has code or '>]' after the attribute, which the generator does not support. Put the declaration on its own line"
             | CodeAfterComment -> "column-0 line has code after a block comment"
             | CommentOpenAfterCode ->
                 "column-0 line opens a block comment after code and does not close it"
+            | CommentInNamespaceLine ->
+                "a namespace, module, or open line contains a comment, which the generator does not support. Put the comment on its own line"
+            | UnreplacedSourceNamespace ->
+                $"code refers to '{SourceNamespace}' where the generator does not replace the namespace. The generator replaces it only directly after a namespace, module, or open keyword"
+            | UnsupportedQuotedIdentifier ->
+                "a ``quoted`` identifier contains a quote, '(*', or '//', which the generator does not support"
+            | UnsupportedInterpolationHole ->
+                "an interpolated string contains a quote, '(*', or '//' after '{', which the generator does not support"
             | UnterminatedCommentOrString -> "the file ends inside a block comment or string"
             | NoDeclaration -> "has no column-0 namespace or module declaration"
             | CodeBeforeFableGuard ->
@@ -306,17 +321,28 @@ module SourcesPackage =
         | StringClosed of next: int
         | StringOpen of next: int
 
+    type private Interpolation =
+        | Plain
+        | Interpolated of braceDepth: int
+
     type private LexState =
         | Code
-        | InString of StringKind
+        | InString of StringKind * Interpolation
         | InComment of depth: int
         | InCommentString of depth: int * StringKind
+
+    type private ScannedLine = {
+        Finish: LexState
+        Code: string
+        HasComment: bool
+    }
 
     let private charLiteral =
         Regex(@"\G'(?:[^'\\\n]|\\(?:[ntbrafv\\""'0]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-9]{3}))'")
 
     let private scanLine (start: LexState) (line: string) =
         let codeOnly = line.ToCharArray()
+        let commentsOnly = line.ToCharArray()
 
         let at (index: int) (text: string) =
             index
@@ -327,6 +353,17 @@ module SourcesPackage =
         let blank first last =
             for index in first .. last - 1 do
                 codeOnly[index] <- ' '
+
+        let blankComment first last =
+            blank first last
+
+            for index in first .. last - 1 do
+                commentsOnly[index] <- ' '
+
+        let hasLexerMarker (text: string) =
+            text.Contains '"'
+            || text.Contains "(*"
+            || text.Contains "//"
 
         let stringEnd kind index =
             match kind with
@@ -346,6 +383,16 @@ module SourcesPackage =
             elif line[index] = '"' then Some(Regular, index + 1)
             else None
 
+        let interpolation index =
+            if
+                at index "@$\""
+                || index > 0
+                   && line[index - 1] = '$'
+            then
+                Interpolated 0
+            else
+                Plain
+
         let charLiteralEnd index =
             let m = charLiteral.Match(line, index)
 
@@ -360,27 +407,50 @@ module SourcesPackage =
                 index
                 >= line.Length
             then
-                state
+                Ok state
             else
                 match state with
                 | Code ->
                     if at index "//" then
-                        blank index line.Length
-                        Code
+                        blankComment index line.Length
+                        Ok Code
                     elif at index "(*)" then
                         scan Code (index + 3)
                     elif at index "(*" then
-                        blank index (index + 2)
+                        blankComment index (index + 2)
                         scan (InComment 1) (index + 2)
+                    elif at index "``" then
+                        let close = line.IndexOf("``", index + 2, StringComparison.Ordinal)
+                        let last = if close < 0 then line.Length else close
+
+                        if hasLexerMarker line[index + 2 .. last - 1] then
+                            Error UnsupportedQuotedIdentifier
+                        else
+                            scan Code (min line.Length (last + 2))
                     else
                         match stringStart index with
-                        | Some(kind, next) -> scan (InString kind) next
+                        | Some(kind, next) -> scan (InString(kind, interpolation index)) next
                         | None when line[index] = '\'' -> scan Code (charLiteralEnd index)
                         | None -> scan Code (index + 1)
-                | InString kind ->
+                | InString(kind, Interpolated depth) when depth > 0 ->
+                    match line[index] with
+                    | '"' -> Error UnsupportedInterpolationHole
+                    | _ when
+                        at index "(*"
+                        || at index "//"
+                        ->
+                        Error UnsupportedInterpolationHole
+                    | '{' -> scan (InString(kind, Interpolated(depth + 1))) (index + 1)
+                    | '}' -> scan (InString(kind, Interpolated(depth - 1))) (index + 1)
+                    | _ -> scan state (index + 1)
+                | InString(kind, Interpolated 0) when line[index] = '{' ->
+                    scan (InString(kind, Interpolated 1)) (index + 1)
+                | InString(kind, _) ->
                     match stringEnd kind index with
                     | StringClosed next -> scan Code next
-                    | StringOpen next -> scan (InString kind) next
+                    | StringOpen next ->
+                        blank index next
+                        scan state next
                 | InComment depth ->
                     let next, after =
                         if at index "(*)" then
@@ -395,7 +465,7 @@ module SourcesPackage =
                             | None when line[index] = '\'' -> InComment depth, charLiteralEnd index
                             | None -> InComment depth, index + 1
 
-                    blank index after
+                    blankComment index after
                     scan next after
                 | InCommentString(depth, kind) ->
                     let next, after =
@@ -403,11 +473,17 @@ module SourcesPackage =
                         | StringClosed after -> InComment depth, after
                         | StringOpen after -> InCommentString(depth, kind), after
 
-                    blank index after
+                    blankComment index after
                     scan next after
 
-        let finish = scan start 0
-        finish, String(codeOnly)
+        scan start 0
+        |> Result.map (fun finish -> {
+            Finish = finish
+            Code = String(codeOnly)
+            HasComment =
+                String(commentsOnly)
+                <> line
+        })
 
     type private Declaration =
         | NotDeclaration
@@ -442,7 +518,7 @@ module SourcesPackage =
             Ok(Header None)
         elif startsWith code "[<" then
             if attributeWithCode.IsMatch code then
-                Error UnrecognizedLine
+                Error CodeAfterAttribute
             else
                 Ok NotDeclaration
         elif not m.Success then
@@ -528,6 +604,33 @@ module SourcesPackage =
             codeStart
         )
 
+    let private namespaceKeyword = Regex(@"\G(namespace|module|open)(\s|$)")
+
+    let private replaceFrom kind =
+        match kind with
+        | TopLevel _ -> Some 0
+        | Indented codeStart -> Some codeStart
+        | NoCode
+        | StringContent -> None
+
+    let private checkNamespaceUse (scanned: ScannedLine) kind =
+        let start = replaceFrom kind
+
+        let remaining =
+            match start with
+            | Some index -> replaceNamespace index scanned.Code
+            | None -> scanned.Code
+
+        match start with
+        | Some index when
+            scanned.HasComment
+            && namespaceKeyword.IsMatch(scanned.Code, index)
+            ->
+            Error CommentInNamespaceLine
+        | _ when remaining.Contains(SourceNamespace, StringComparison.Ordinal) ->
+            Error UnreplacedSourceNamespace
+        | _ -> Ok kind
+
     let private insertVisibility (visibilityAt: int option) (line: string) =
         match visibilityAt with
         | Some index ->
@@ -564,17 +667,25 @@ module SourcesPackage =
             )
 
         let finalState, classified =
-            ((Code, []), Array.indexed lines)
+            ((Some Code, []), Array.indexed lines)
             ||> Array.fold (fun (state, acc) (index, line) ->
-                let finish, code = scanLine state line
+                match state with
+                | None -> None, acc
+                | Some state ->
+                    match scanLine state line with
+                    | Error problem ->
+                        None,
+                        (index, Error(error index problem))
+                        :: acc
+                    | Ok scanned ->
+                        let kind =
+                            classifyLine state scanned.Finish line scanned.Code
+                            |> Result.bind (checkNamespaceUse scanned)
+                            |> Result.mapError (error index)
 
-                let kind =
-                    classifyLine state finish line code
-                    |> Result.mapError (error index)
-
-                finish,
-                (index, kind)
-                :: acc
+                        Some scanned.Finish,
+                        (index, kind)
+                        :: acc
             )
 
         let kinds = List.rev classified
@@ -589,10 +700,11 @@ module SourcesPackage =
 
         let endErrors =
             match finalState with
-            | Code -> []
-            | InString _
-            | InComment _
-            | InCommentString _ -> [
+            | None
+            | Some Code -> []
+            | Some(InString _)
+            | Some(InComment _)
+            | Some(InCommentString _) -> [
                 error
                     (lines.Length
                      - 1)
@@ -653,18 +765,20 @@ module SourcesPackage =
             let output =
                 rewritten
                 |> List.collect (fun (index, kind) ->
-                    let line = lines[index]
-
-                    let text =
+                    let line =
                         match kind with
                         | TopLevel(Header visibilityAt)
                         | TopLevel(Member visibilityAt) ->
-                            insertVisibility visibilityAt line
-                            |> replaceNamespace 0
-                        | TopLevel NotDeclaration -> replaceNamespace 0 line
-                        | Indented codeStart -> replaceNamespace codeStart line
+                            insertVisibility visibilityAt lines[index]
+                        | TopLevel NotDeclaration
+                        | Indented _
                         | NoCode
-                        | StringContent -> line
+                        | StringContent -> lines[index]
+
+                    let text =
+                        match replaceFrom kind with
+                        | Some start -> replaceNamespace start line
+                        | None -> line
 
                     [
                         text

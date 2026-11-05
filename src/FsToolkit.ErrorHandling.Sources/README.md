@@ -24,7 +24,7 @@ Add the reference with `PrivateAssets="all"`. Then the package does not become a
 </ItemGroup>
 ```
 
-If the `PackageReference` does not set `PrivateAssets="all"`, the build gives warning `FSTKSRC001`. Without it, a package of your project depends on `FsToolkit.ErrorHandling.Sources`. Each project that references your package then compiles the source files again.
+If the `PackageReference` does not set `PrivateAssets="all"`, the build gives warning `FSTKSRC001`. A project that sets `IsPackable` to `false` does not get this warning. Without `PrivateAssets="all"`, a package of your project depends on `FsToolkit.ErrorHandling.Sources`. Each project that references your package then compiles the source files again.
 
 ## Configure
 
@@ -32,7 +32,7 @@ Set these properties in your project file:
 
 | Property | Default | Values |
 | --- | --- | --- |
-| `FsToolkitErrorHandlingNamespace` | `FsToolkit.ErrorHandling` | Dotted F# identifiers, for example `Contoso.Internal.ErrorHandling`. Each segment must use only ASCII letters, digits, and `_`, and must not start with a digit. A segment must not be an F# keyword or reserved word. |
+| `FsToolkitErrorHandlingNamespace` | `FsToolkit.ErrorHandling` | Dotted F# identifiers, for example `Contoso.Internal.ErrorHandling`. Each segment must use only ASCII letters, digits, and `_`, and must not start with a digit. A segment must not be `_`, an F# keyword, or a reserved word. |
 | `FsToolkitErrorHandlingVisibility` | `internal` | `internal` or `public`, in lowercase. |
 
 The build fails with an error that names the property when a value is not valid.

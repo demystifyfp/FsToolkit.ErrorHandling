@@ -2,7 +2,7 @@
   <PropertyGroup>
     <FsToolkitErrorHandlingNamespace Condition="'$(FsToolkitErrorHandlingNamespace)' == ''">FsToolkit.ErrorHandling</FsToolkitErrorHandlingNamespace>
     <FsToolkitErrorHandlingVisibility Condition="'$(FsToolkitErrorHandlingVisibility)' == ''">internal</FsToolkitErrorHandlingVisibility>
-    <_FsToolkitErrorHandlingSourcesKeywords>abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|fixed|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|match|member|module|mutable|namespace|new|null|of|open|or|override|private|public|rec|return|static|struct|then|to|true|try|type|upcast|use|val|void|when|while|with|yield|const|asr|land|lor|lsl|lsr|lxor|mod|sig|break|checked|component|constraint|continue|event|external|include|mixin|parallel|process|protected|pure|sealed|tailcall|trait|virtual</_FsToolkitErrorHandlingSourcesKeywords>
+    <_FsToolkitErrorHandlingSourcesKeywords>abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|fixed|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|match|member|module|mutable|namespace|new|null|of|open|or|override|private|public|rec|return|static|struct|then|to|true|try|type|upcast|use|val|void|when|while|with|yield|const|asr|land|lor|lsl|lsr|lxor|mod|sig|break|checked|component|constraint|continue|event|external|include|mixin|parallel|process|protected|pure|sealed|tailcall|trait|virtual|_</_FsToolkitErrorHandlingSourcesKeywords>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,13 +17,13 @@
     <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(FsToolkitErrorHandlingNamespace)', '^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$'))"
            Text="FsToolkit.ErrorHandling.Sources: FsToolkitErrorHandlingNamespace is '$(FsToolkitErrorHandlingNamespace)'. Set it to dotted ASCII F# identifiers, for example 'Contoso.ErrorHandling'." />
     <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(FsToolkitErrorHandlingNamespace)', '(^|\.)($(_FsToolkitErrorHandlingSourcesKeywords))(\.|$)'))"
-           Text="FsToolkit.ErrorHandling.Sources: FsToolkitErrorHandlingNamespace is '$(FsToolkitErrorHandlingNamespace)'. A segment is an F# keyword or reserved word. Use a different name." />
+           Text="FsToolkit.ErrorHandling.Sources: FsToolkitErrorHandlingNamespace is '$(FsToolkitErrorHandlingNamespace)'. A segment is '_', an F# keyword, or a reserved word. Use a different name." />
 
     <ItemGroup>
       <_FsToolkitErrorHandlingSourcesReference Include="@(PackageReference)" Condition="'%(Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
     </ItemGroup>
     <Warning Code="FSTKSRC001"
-             Condition="'@(_FsToolkitErrorHandlingSourcesReference)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('%(_FsToolkitErrorHandlingSourcesReference.PrivateAssets)', '(?i)(^|;)\s*all\s*(;|$)'))"
+             Condition="'$(IsPackable)' != 'false' and '@(_FsToolkitErrorHandlingSourcesReference)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('%(_FsToolkitErrorHandlingSourcesReference.PrivateAssets)', '(?i)(^|;)\s*all\s*(;|$)'))"
              Text="FsToolkit.ErrorHandling.Sources: the PackageReference does not set PrivateAssets=&quot;all&quot;. A package of this project then depends on FsToolkit.ErrorHandling.Sources, and each project that references that package compiles the source files again. Add PrivateAssets=&quot;all&quot;." />
   </Target>
 
@@ -43,7 +43,11 @@
           BeforeTargets="BeforeCompile;FSharpSourceCodeCompileOrder"
           DependsOnTargets="ResolvePackageAssets;FsToolkitErrorHandlingSourcesValidate"
           Condition="'$(_CleaningWithoutRebuilding)' == 'true' and '$(BuildingProject)' == 'true' and '@(_ContentFilesToPreprocess)' != ''">
-    <ProduceContentAssets ContentFileDependencies="@(_ContentFilesToPreprocess)"
+    <ItemGroup>
+      <_FsToolkitErrorHandlingSourcesContent Include="@(_ContentFilesToPreprocess)" Condition="'%(_ContentFilesToPreprocess.NuGetPackageId)' == 'FsToolkit.ErrorHandling.Sources'" />
+    </ItemGroup>
+    <ProduceContentAssets Condition="'@(_FsToolkitErrorHandlingSourcesContent)' != ''"
+                          ContentFileDependencies="@(_FsToolkitErrorHandlingSourcesContent)"
                           ContentPreprocessorValues="@(PreprocessorValue)"
                           ContentPreprocessorOutputDirectory="$(ContentPreprocessorOutputDirectory)"
                           ProduceOnlyPreprocessorFiles="true"
@@ -53,7 +57,7 @@
     </ProduceContentAssets>
     <ItemGroup>
       <Compile Include="@(_FsToolkitErrorHandlingSourcesProcessed)"
-               Condition="'%(_FsToolkitErrorHandlingSourcesProcessed.ProcessedItemType)' == 'Compile' and '%(_FsToolkitErrorHandlingSourcesProcessed.NuGetPackageId)' == 'FsToolkit.ErrorHandling.Sources'"
+               Condition="'%(_FsToolkitErrorHandlingSourcesProcessed.ProcessedItemType)' == 'Compile'"
                CompileOrder="CompileFirst" />
     </ItemGroup>
   </Target>

@@ -297,10 +297,10 @@ let private genIndented =
 
 let private leafItems = [
     Gen.constant Blank
+    Gen.map (fun modifier -> Declaration(NestedModule, modifier, NoTrailing)) genModifier
     Gen.map3
         (fun keyword modifier trailing -> Declaration(keyword, modifier, trailing))
         (Gen.elements [
-            NestedModule
             Type
             And
         ])

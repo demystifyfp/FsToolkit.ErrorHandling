@@ -18,7 +18,11 @@ let private sourceProject =
 let private toLf (text: string) =
     text.TrimStart(char 0xFEFF).Replace("\r\n", "\n").Replace("\r", "\n")
 
-type private RealSource = { Name: string; Text: string }
+type private RealSource = {
+    Name: string
+    Condition: PackagedCondition
+    Text: string
+}
 
 let private realSources =
     lazy
@@ -30,6 +34,7 @@ let private realSources =
              sources
              |> List.map (fun source -> {
                  Name = source.Include
+                 Condition = source.Condition
                  Text =
                      File.ReadAllText(
                          Path.Combine(Path.GetDirectoryName sourceProject, source.Include)
@@ -39,8 +44,8 @@ let private realSources =
              |> List.toArray
          | Error errors -> failwithf "%s cannot be read: %A" sourceProject errors)
 
-let private transformOk name source =
-    match transform AllCompilers name source with
+let private transformWith condition name source =
+    match transform condition name source with
     | Ok text -> text
     | Error errors ->
         failtestf
@@ -49,6 +54,8 @@ let private transformOk name source =
             (errors
              |> List.map describeSourceError
              |> String.concat "\n")
+
+let private transformOk name source = transformWith AllCompilers name source
 
 type Terminator =
     | LF
@@ -152,13 +159,37 @@ let private shrinkLineEndingCase (case: LineEndingCase) =
 
 let private lineStart = Regex(@"^\s*(namespace|module|open)\s")
 
-let private undoInsertions (output: string) =
+let private undoFableGuard condition (lines: string list) =
+    match condition with
+    | AllCompilers -> lines
+    | ExcludedFromFable ->
+        let guardStart =
+            lines
+            |> List.findIndex (fun line -> line = FableGuardStart)
+
+        let guardEnd =
+            lines
+            |> List.findIndexBack (fun line -> line = FableGuardEnd)
+
+        lines
+        |> List.indexed
+        |> List.filter (fun (index, _) ->
+            index
+            <> guardStart
+            && index
+               <> guardEnd
+        )
+        |> List.map snd
+
+let private undoInsertions condition (output: string) =
     output.Split '\n'
-    |> Array.filter (fun line ->
+    |> Array.toList
+    |> undoFableGuard condition
+    |> List.filter (fun line ->
         line
         <> NoWarnLine
     )
-    |> Array.map (fun line ->
+    |> List.map (fun line ->
         let line =
             line.Replace(
                 " "
@@ -267,7 +298,7 @@ let properties =
                 let input = toText (render file)
 
                 Expect.equal
-                    (undoInsertions (transformOk "Model.fs" input))
+                    (undoInsertions AllCompilers (transformOk "Model.fs" input))
                     input
                     "Removing the insertions must give the input"
             )
@@ -296,11 +327,22 @@ let properties =
             )
 
         test "transform only inserts in every real source file" {
-            for { Name = name; Text = text } in realSources.Value do
+            for {
+                    Name = name
+                    Condition = condition
+                    Text = text
+                } in realSources.Value do
                 Expect.equal
-                    (undoInsertions (transformOk name text))
+                    (undoInsertions condition (transformWith condition name text))
                     text
                     $"{name}: removing the insertions must give the input"
+        }
+
+        test "the real sources include files excluded from Fable" {
+            Expect.exists
+                realSources.Value
+                (fun source -> source.Condition = ExcludedFromFable)
+                "The real-file test must cover a file with the Fable guard"
         }
 
         test "the model generator reaches every line kind" {
@@ -366,9 +408,86 @@ let examples =
         test "column-0 do" { failsWith "namespace Demo\ndo ()\n" [ Some 2, UnrecognizedLine ] }
 
         test "attribute and declaration on one line" {
-            failsWith "namespace Demo\n[<Struct>] type Foo = { X: int }\n" [
-                Some 2, UnrecognizedLine
+            match
+                transform
+                    AllCompilers
+                    "Probe.fs"
+                    "namespace Demo\n[<Struct>] type Foo = { X: int }\n"
+            with
+            | Error [ error ] ->
+                Expect.equal error.Problem CodeAfterAttribute "Problem"
+
+                Expect.equal
+                    (describeSourceError error)
+                    "Probe.fs(2): column-0 attribute line has code or '>]' after the attribute, which the generator does not support. Put the declaration on its own line: [<Struct>] type Foo = { X: int }"
+                    "Message"
+            | other -> failtestf "Unexpected result: %A" other
+        }
+
+        test "an attribute string that contains >] is not code after the attribute" {
+            Expect.equal
+                (transformOk
+                    "Probe.fs"
+                    "namespace Demo\n[<System.Obsolete(\"Use [<New>] instead\")>]\ntype Foo = int\n")
+                $"namespace Demo\n{NoWarnLine}\n[<System.Obsolete(\"Use [<New>] instead\")>]\ntype {VisibilityToken} Foo = int\n"
+                "Output"
+        }
+
+        test "a namespace, module, or open line with a comment" {
+            failsWith "namespace (* note *) FsToolkit.ErrorHandling\ntype Foo = int\n" [
+                Some 1, CommentInNamespaceLine
             ]
+
+            failsWith "namespace FsToolkit.ErrorHandling // note\ntype Foo = int\n" [
+                Some 1, CommentInNamespaceLine
+            ]
+
+            failsWith "namespace Demo\nopen (* note *) FsToolkit.ErrorHandling\n" [
+                Some 2, CommentInNamespaceLine
+            ]
+
+            failsWith "namespace Demo\nmodule M =\n    open FsToolkit.ErrorHandling // note\n" [
+                Some 3, CommentInNamespaceLine
+            ]
+        }
+
+        test "a reference to the source namespace in code" {
+            failsWith "namespace Demo\nmodule M =\n    let f = FsToolkit.ErrorHandling.Result.map\n" [
+                Some 3, UnreplacedSourceNamespace
+            ]
+
+            failsWith "namespace Demo\nmodule R = FsToolkit.ErrorHandling.Result\n" [
+                Some 2, UnreplacedSourceNamespace
+            ]
+
+            failsWith
+                "namespace Demo\nlet s = \"\"\"\nx\"\"\" + FsToolkit.ErrorHandling.Result.map\n"
+                [ Some 3, UnreplacedSourceNamespace ]
+
+            failsWith "namespace Demo\nlet s = $\"{FsToolkit.ErrorHandling.Result.map}\"\n" [
+                Some 2, UnreplacedSourceNamespace
+            ]
+        }
+
+        test "an interpolation hole that contains a quote" {
+            failsWith "module Demo\nlet s = $\"{System.String('\"', 1)}\"\ntype Foo = int\n" [
+                Some 2, UnsupportedInterpolationHole
+            ]
+        }
+
+        test "a quoted identifier that contains a quote" {
+            failsWith "module Demo\nlet ``x\"`` = 1\ntype Foo = int\n" [
+                Some 2, UnsupportedQuotedIdentifier
+            ]
+        }
+
+        test "interpolated strings and quoted identifiers without lexer markers" {
+            Expect.equal
+                (transformOk
+                    "Probe.fs"
+                    "module Demo\nlet ``a value`` = 1\nlet s = $\"{``a value``} {{x}}\"\ntype Foo = int\n")
+                $"module {VisibilityToken} Demo\n{NoWarnLine}\nlet ``a value`` = 1\nlet s = $\"{{``a value``}} {{{{x}}}}\"\ntype {VisibilityToken} Foo = int\n"
+                "Output"
         }
 
         test "attribute after the type keyword" {

@@ -430,6 +430,140 @@ let failOnTestFileDrift () =
             expected
             actual
 
+type TargetsRun = {
+    Command: string
+    ExitCode: int
+    Output: string
+}
+
+type InvalidTargetsValue = {
+    Property: string
+    Value: string
+    Message: string
+}
+
+let failOnTargetsDiagnostics () =
+    let validate project properties =
+        let result =
+            CreateProcess.fromRawCommand
+                "dotnet"
+                ([
+                    "msbuild"
+                    project
+                    "-nologo"
+                    "-tl:off"
+                    "-t:FsToolkitErrorHandlingSourcesValidate"
+                 ]
+                 @ (properties
+                    |> List.map (fun (name, value) -> $"-p:{name}={value}")))
+            |> CreateProcess.redirectOutput
+            |> Proc.run
+
+        let command =
+            properties
+            |> List.map (fun (name, value) -> $"{name}={value}")
+            |> String.concat " "
+
+        Trace.tracefn "%s %s: exit %d" (Path.GetFileName(project: string)) command result.ExitCode
+
+        {
+            Command = command
+            ExitCode = result.ExitCode
+            Output = result.Result.Output
+        }
+
+    let targets =
+        sourcesProjectDir
+        </> "build/FsToolkit.ErrorHandling.Sources.targets"
+
+    let keywordMessage = "A segment is '_', an F# keyword, or a reserved word."
+
+    let invalidValues = [
+        {
+            Property = "FsToolkitErrorHandlingVisibility"
+            Value = "PUBLIC"
+            Message = "Set it to 'internal' or 'public' in lowercase."
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso.type"
+            Message = keywordMessage
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso..Bad"
+            Message = "Set it to dotted ASCII F# identifiers"
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso._"
+            Message = keywordMessage
+        }
+    ]
+
+    for invalid in invalidValues do
+        let run = validate targets [ invalid.Property, invalid.Value ]
+
+        let expected =
+            $"error : FsToolkit.ErrorHandling.Sources: {invalid.Property} is '{invalid.Value}'. {invalid.Message}"
+
+        if
+            run.ExitCode = 0
+            || not (run.Output.Contains expected)
+        then
+            failwithf
+                "%s must fail with \"%s\". Exit code %d. Output:\n%s"
+                run.Command
+                expected
+                run.ExitCode
+                run.Output
+
+    let control =
+        validate targets [
+            "FsToolkitErrorHandlingNamespace", "Contoso.ErrorHandling"
+            "FsToolkitErrorHandlingVisibility", "public"
+        ]
+
+    if
+        control.ExitCode
+        <> 0
+    then
+        failwithf
+            "%s must pass. Exit code %d. Output:\n%s"
+            control.Command
+            control.ExitCode
+            control.Output
+
+    let diagnosticsProject =
+        rootDir
+        </> "tests/FsToolkit.ErrorHandling.Sources.Consumer/diagnostics/Diagnostics.proj"
+
+    let warningCases = [
+        [ "IsPackable", "true" ], true
+        [ "IsPackable", "false" ], false
+        [
+            "IsPackable", "true"
+            "DiagnosticsPrivateAssets", "All"
+        ],
+        false
+    ]
+
+    for properties, warns in warningCases do
+        let run = validate diagnosticsProject properties
+
+        if
+            run.ExitCode
+            <> 0
+            || run.Output.Contains "warning FSTKSRC001"
+               <> warns
+        then
+            failwithf
+                "%s must exit 0 and %s warning FSTKSRC001. Exit code %d. Output:\n%s"
+                run.Command
+                (if warns then "give" else "not give")
+                run.ExitCode
+                run.Output
+
 let fixtureAssemblies (fixture: string) =
     let assemblies =
         !!(Path.GetDirectoryName fixture
@@ -463,6 +597,7 @@ let failOnSourceVisibility () =
 
 let sourcesTest ctx =
     failOnTestFileDrift ()
+    failOnTargetsDiagnostics ()
 
     let packagesDir =
         rootDir
