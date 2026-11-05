@@ -362,8 +362,158 @@ let generateAssemblyInfo ctx =
 
 let releaseNotes = String.toLines release.Notes
 
+let sourcesProjectDir =
+    rootDir
+    </> "src/FsToolkit.ErrorHandling.Sources"
+
+let sourcesProject =
+    sourcesProjectDir
+    </> "FsToolkit.ErrorHandling.Sources.proj"
+
+let generateSources _ =
+    let files =
+        SourcesPackage.generate
+            (rootDir
+             </> "src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj")
+            (sourcesProjectDir
+             </> "obj/generated")
+
+    Trace.tracefn "Generated %d source files for %s" files.Length sourcesProject
+
+let sourcesTestsFixture =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.Sources.Tests/FsToolkit.ErrorHandling.Sources.Tests.fsproj"
+
+let sourcesConsumerFixture =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.Sources.Consumer/FsToolkit.ErrorHandling.Sources.Consumer.fsproj"
+
+let failOnTestFileDrift () =
+    let testFiles projectPath =
+        File.ReadAllText projectPath
+        |> SourcesPackage.readCompileItems
+        |> List.map (fun item -> Path.GetFileName item.Include, item.Condition)
+
+    let expected =
+        testFiles (
+            rootDir
+            </> "tests/FsToolkit.ErrorHandling.Tests/FsToolkit.ErrorHandling.Tests.fsproj"
+        )
+
+    let actual = testFiles sourcesTestsFixture
+
+    if
+        actual
+        <> expected
+    then
+        failwithf
+            "The Compile items of %s must match FsToolkit.ErrorHandling.Tests.fsproj in order and condition.\nExpected: %A\nActual: %A"
+            sourcesTestsFixture
+            expected
+            actual
+
+let fixtureAssemblies (fixture: string) =
+    let assemblies =
+        !!(Path.GetDirectoryName fixture
+           </> "bin/**"
+           </> Path.GetFileNameWithoutExtension fixture
+               + ".dll")
+        |> Seq.toList
+
+    if List.isEmpty assemblies then
+        failwithf "No build output found for %s" fixture
+
+    assemblies
+
+let failOnSourceVisibility () =
+    for assembly in fixtureAssemblies sourcesConsumerFixture do
+        match SourcesPackage.publicTypesInNamespace assembly "Contoso.Internal.ErrorHandling" with
+        | [] -> ()
+        | types ->
+            failwithf
+                "%s must not export source package types with the default 'internal' visibility. Public types: %A"
+                assembly
+                types
+
+    for assembly in fixtureAssemblies sourcesTestsFixture do
+        let types = SourcesPackage.publicTypesInNamespace assembly "FsToolkit.ErrorHandling"
+
+        if not (List.contains "FsToolkit.ErrorHandling.TaskResultBuilder" types) then
+            failwithf
+                "%s must export FsToolkit.ErrorHandling.TaskResultBuilder with 'public' visibility."
+                assembly
+
+let sourcesTest ctx =
+    failOnTestFileDrift ()
+
+    let packagesDir =
+        rootDir
+        </> "obj/sources-test-packages"
+
+    Shell.deleteDir packagesDir
+
+    let withFixtureParams (msbuildParams: MSBuild.CliArguments) =
+        {
+            msbuildParams with
+                Properties = [
+                    ("RestorePackagesPath", packagesDir)
+                    ("FsToolkitErrorHandlingSourcesVersion", release.NugetVersion)
+                ]
+        }
+        |> BuildParameters.common
+
+    let fixtures = [
+        sourcesConsumerFixture
+        sourcesTestsFixture
+    ]
+
+    for fixture in fixtures do
+        let fixtureDir = Path.GetDirectoryName fixture
+
+        Shell.cleanDirs [
+            fixtureDir
+            </> "obj"
+            fixtureDir
+            </> "bin"
+        ]
+
+        DotNet.restore
+            (fun c -> {
+                c with
+                    // SDK 10.0.403 reads a URL source that follows a local folder source as a relative path (NU1301).
+                    Sources = [
+                        "https://api.nuget.org/v3/index.json"
+                        distDir
+                    ]
+                    MSBuildParams = withFixtureParams c.MSBuildParams
+            })
+            fixture
+
+    DotNet.build
+        (fun c -> {
+            c with
+                NoRestore = true
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams = withFixtureParams c.MSBuildParams
+        })
+        sourcesConsumerFixture
+
+    DotNet.test
+        (fun c -> {
+            c with
+                NoRestore = true
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams = withFixtureParams c.MSBuildParams
+        })
+        sourcesTestsFixture
+
+    failOnSourceVisibility ()
+
 let dotnetPack ctx =
-    [ solutionFile ]
+    [
+        solutionFile
+        sourcesProject
+    ]
     |> Seq.iter (
         DotNet.pack (fun p -> {
             p with
@@ -470,7 +620,9 @@ let initTargets () =
     Target.create "RunTests" ignore
     Target.create "FemtoValidate" femtoValidate
     Target.create "GenerateAssemblyInfo" generateAssemblyInfo
+    Target.create "GenerateSources" generateSources
     Target.create "DotnetPack" dotnetPack
+    Target.create "SourcesTest" sourcesTest
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
     Target.create "Analyzers" analyze
@@ -567,8 +719,15 @@ let initTargets () =
     ==>! "PublishToNuGet"
 
     "Clean"
+    ?=>! "GenerateSources"
+
+    "GenerateSources"
+    ==>! "DotnetPack"
+
+    "Clean"
     ==> "CheckFormatCode"
     ==> "DotnetPack"
+    ==> "SourcesTest"
     ==> "PublishToNuGet"
     ==> "GitRelease"
     ==> "GitHubRelease"
@@ -591,6 +750,6 @@ let main argv =
 
     initTargets ()
 
-    Target.runOrDefaultWithArguments "DotnetPack"
+    Target.runOrDefaultWithArguments "SourcesTest"
 
     0 // return an integer exit code

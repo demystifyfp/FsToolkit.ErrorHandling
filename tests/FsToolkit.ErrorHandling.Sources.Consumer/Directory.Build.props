@@ -1,0 +1,2 @@
+<!-- Stops the import of tests/Directory.Build.props, so this project sees only the settings of its own project file. -->
+<Project />

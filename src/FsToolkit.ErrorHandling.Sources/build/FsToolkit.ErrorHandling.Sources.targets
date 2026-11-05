@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <FsToolkitErrorHandlingNamespace Condition="'$(FsToolkitErrorHandlingNamespace)' == ''">FsToolkit.ErrorHandling</FsToolkitErrorHandlingNamespace>
+    <FsToolkitErrorHandlingVisibility Condition="'$(FsToolkitErrorHandlingVisibility)' == ''">internal</FsToolkitErrorHandlingVisibility>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PreprocessorValue Include="fstoolkiterrorhandlingnamespace" Value="$(FsToolkitErrorHandlingNamespace)" />
+    <PreprocessorValue Include="fstoolkiterrorhandlingvisibility" Value="$(FsToolkitErrorHandlingVisibility)" />
+  </ItemGroup>
+
+  <Target Name="FsToolkitErrorHandlingSourcesValidate" BeforeTargets="RunProduceContentAssets">
+    <Error Condition="'$(FsToolkitErrorHandlingVisibility)' != 'internal' and '$(FsToolkitErrorHandlingVisibility)' != 'public'"
+           Text="FsToolkit.ErrorHandling.Sources: FsToolkitErrorHandlingVisibility is '$(FsToolkitErrorHandlingVisibility)'. Set it to 'internal' or 'public'." />
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(FsToolkitErrorHandlingNamespace)', '^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$'))"
+           Text="FsToolkit.ErrorHandling.Sources: FsToolkitErrorHandlingNamespace is '$(FsToolkitErrorHandlingNamespace)'. Set it to a dotted F# identifier, for example 'Contoso.ErrorHandling'." />
+  </Target>
+
+  <!-- NuGet adds preprocessed content files to Compile after the project's own files. F# needs them first. -->
+  <Target Name="FsToolkitErrorHandlingSourcesCompileFirst" AfterTargets="RunProduceContentAssets">
+    <ItemGroup>
+      <Compile Update="@(Compile)" Condition="'%(Compile.NuGetPackageId)' == 'FsToolkit.ErrorHandling.Sources'" CompileOrder="CompileBefore" />
+    </ItemGroup>
+  </Target>
+</Project>

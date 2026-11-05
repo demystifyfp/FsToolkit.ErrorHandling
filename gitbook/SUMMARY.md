@@ -414,5 +414,8 @@
     * [map2](jobResultOption/map2.md)
     * [map3](jobResultOption/map3.md)
 
+* FsToolkit.ErrorHandling.Sources
+  * [Source package](sources/sourcesPackage.md)
+
 * General Docs
   * [Bind Mappings](bindMappings.md)

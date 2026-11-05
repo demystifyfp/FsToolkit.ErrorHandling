@@ -86,7 +86,7 @@ jobs:
         run: |
           chmod +x ./build.sh
           ./build.sh GenerateAssemblyInfo
-          ./build.sh DotnetPack
+          ./build.sh SourcesTest
         env:
           CONFIGURATION: Release
           CI: true
