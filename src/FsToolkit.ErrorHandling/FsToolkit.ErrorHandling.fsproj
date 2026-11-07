@@ -9,9 +9,11 @@
   <ItemGroup>
     <Compile Include="Nullness.fs" />
     <Compile Include="Req.fs" />
+    <Compile Include="Result.FSharpCore11.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="ResultCE.fs" />
     <Compile Include="ResultOp.fs" />
+    <Compile Include="Option.FSharpCore11.fs" />
     <Compile Include="Option.fs" />
     <Compile Include="ValueOption.fs" />
     <Compile Include="OptionCE.fs" />

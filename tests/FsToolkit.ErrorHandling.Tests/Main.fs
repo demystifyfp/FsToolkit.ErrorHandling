@@ -12,6 +12,7 @@ open Expecto
 let allTests =
     testList "All Tests" [
         ReqTests.allTests
+        FSharpCoreShimTests.allTests
         ResultTests.allTests
         ResultCETests.allTests
         ResultOptionTests.allTests

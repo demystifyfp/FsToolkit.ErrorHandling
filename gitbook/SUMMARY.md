@@ -43,14 +43,10 @@
       * [ofChoice](result/ofChoice.md)
 
   * Option
-    * [bind](option/bind.md) (from FSharp.Core)
     * [bindNull](option/bindNull.md)
     * [Computation Expression](option/ce.md)
     * [eitherBind](option/eitherBind.md)
-    * [ignore](option/ignore.md) (from FSharp.Core)
-    * [map](option/map.md) (from FSharp.Core)
-    * [map2](option/map2.md) (from FSharp.Core)
-    * [map3](option/map3.md) (from FSharp.Core)
+    * [ignore](option/ignore.md)
     * [sequenceAsync](option/sequenceAsync.md)
     * [sequenceAsyncResult](option/sequenceAsyncResult.md)
     * [sequenceResult](option/sequenceResult.md)
