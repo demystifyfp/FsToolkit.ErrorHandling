@@ -12,10 +12,10 @@
 - [`Async.Await` and `catch`/`catchWith` consistency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(AsyncResult, JobResult, TaskResult): `catchWith`.
     - Same signature as `catch` but aligning with FSharp.Core naming and semantics.
-    - NOTE KEY BEHAVIOR: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCancelledException` (the outgoing `catch` and `Task.ofCatchTask` functions did, the incoming `Task.catch` and `Task.catchWith` functions do not).
-    - NOTE In Constrast, `Job.catchWith` and `Async.catchWith` _can_ yield `Errror TaskCancelledException`/`OperationCanceledException` if the underlying computation is cancelled, but this is consistent with the incoming `Async.catch` and `Job.catch` semantics.
-    - NOTE `Async.Catch`, `Async.catchWith`
-  - BREAKING(AsyncOption, AsyncResult, AsyncResultOption, AsyncValidation, ParallelAsyncResult, ParallelAsyncValidation)!:
+    - NOTE KEY BEHAVIOR: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing `catch` and `Task.ofCatchTask` functions did, the incoming `Task.catch` and `Task.catchWith` functions do not).
+    - NOTE In contrast, `JobResult.catchWith` _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled.catch` and `Job.catch` semantics.
+    - NOTE In contrast, `Async.catchWith` **at present** _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled, but this is consistent with the incoming `Async.catch`/`Async.catchWith` semantics as they presently stand.
+  - BREAKING(AsyncOption, AsyncResult, AsyncResultOption, AsyncValidation, CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskOption, ParallelAsyncResult, ParallelAsyncValidation)!:
     - Internal usage of `AwaitTask` switches to `Await`
     - NOTE BEHAVIOR CHANGE: exceptions surfaced in calling code are no longer egregiously wrapped in `AggregateException`, i.e. you can now `try ... with` targeting the actual exception type to handle exceptions from the awaited Task. [#154](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/154).
   - Renames:
@@ -55,13 +55,13 @@
       - -> `X.result`.
     - OBSOLETE(AsyncResult, JobResult, TaskResult): `catch`
       - -> `catchWith`.
-      - NOTE BEHAVIOR CHANGE: `catchWith` does NOT trap `OperationCanceledException`/`TaskCancelledException` (the outgoing `catch` function did, but this was inconsistent with `Async.Catch`, and does not align with the incoming `Async.catch`/`catchWith` and `Task.catch`/`catchWith`).
+      - NOTE BEHAVIOR CHANGE: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing function did, but this is inconsistent with the FSharp.Core 11 `Task.catch`/`catchWith` semantics).
     - OBSOLETE(TaskResult): `ofCatchTask`
       - -> `Task.catch`.
-      - NOTE BEHAVIOR CHANGE: unlike `ofCatchTask`, `catch` does NOT trap `OperationCanceledException`/`TaskCancelledException` (which does not align with the incoming `Async.catch`/`catchWith` and `Task.catch`/`catchWith`).
+      - NOTE BEHAVIOR CHANGE: `Task.catch` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing function did, but this is inconsistent with the FSharp.Core 11 `Task.catch`/`catchWith` semantics).
 - [Stragglers from beta003](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(CancellableTask, CancellableValueTask): `result`
-  - feat(CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskResult): `ok`
+  - feat(CancellableTaskResult, CancellableTaskValidation): `ok`
   - feat(CancellableTaskResult): `error`
   - feat(JobOption): `none`
   - feat(CancellableTaskValidation, Validation): `errors`

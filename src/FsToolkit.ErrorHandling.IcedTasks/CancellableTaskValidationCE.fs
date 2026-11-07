@@ -244,11 +244,15 @@ module AsyncExtensions =
 
     type Microsoft.FSharp.Control.Async with
 
-        [<System.Obsolete "Use Async.StartTaskImmediate instead">]
+        [<System.Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
         static member inline AwaitCancellableTaskValidation
             ([<InlineIfLambda>] t: CancellableTaskValidation<'T, 'Error>)
             =
-            Async.StartTaskImmediate t
+            async.Bind(
+                Async.CancellationToken,
+                t
+                >> Async.AwaitTask
+            )
 
         static member inline AsCancellableTaskValidation(computation: Async<'T>) =
             fun ct -> Task.startAsyncImmediate ct computation

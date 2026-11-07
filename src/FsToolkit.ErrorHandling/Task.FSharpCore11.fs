@@ -13,7 +13,7 @@ open System.Threading
 open System.Threading.Tasks
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.Task`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -415,7 +415,7 @@ module Task =
 #endif
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.ValueTask`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

@@ -464,7 +464,6 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
     }
 #endif
 
-#if !NET10_0_OR_GREATER // NOTE duplicate of defaultWith
 /// <summary>
 /// Returns the <c>Ok</c> value or runs the specified function over the error value.
 /// </summary>
@@ -473,9 +472,11 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
 /// <returns>The <c>Ok</c> value if the result is <c>Ok</c>, otherwise the result of running the function over the error value.</returns>
 [<System.Obsolete "Please use defaultWith instead of valueOr">]
 let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
+#if NET10_0_OR_GREATER // Technically it's available earlier, but it's inline
+    Result.defaultWith f res
+#else
     defaultWith f res
 #endif
-
 /// <summary>
 /// Takes two results and returns a tuple of the pair
 ///

@@ -17,10 +17,8 @@ module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 open System.Threading
 open System.Threading.Tasks
 
-#if !FABLE_COMPILER
+#if !FABLE_COMPILER // The type Augmentations on Async are all related to Task/ValueTask
 #nowarn "3261" // error FS3261: Nullness warning: The types 'System.AggregateException' and 'System.AggregateException | null' do not have compatible nullability.
-
-open FSharp.Control
 
 type Async =
 
@@ -200,8 +198,8 @@ type Async =
 
 #endif
 
-/// <summary><p>Contains camelCase module-level functions for <see cref="T:Task`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds omit these shims.</p>
+/// <summary><p>Contains camelCase module-level functions for <see cref="T:Async`1"/> computations.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

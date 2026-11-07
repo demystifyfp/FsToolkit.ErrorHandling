@@ -67,7 +67,7 @@ module AsyncResult =
     [<System.Obsolete "Please use Async.result instead of AsyncResult.ofResult">]
     let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = Async.result x
 #if !FABLE_COMPILER
-    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTask">]
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTask. NOTE AsyncResult.catch unwraps AggregateException with a single inner">]
     let inline ofTask (task: Task<'input>) : Async<Result<'input, exn>> =
         async.Delay(fun () ->
             Async.AwaitTask task
@@ -75,7 +75,7 @@ module AsyncResult =
             |> Async.map Result.ofChoice
         )
 
-    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTaskAction">]
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTaskAction. NOTE AsyncResult.catch unwraps AggregateException with a single inner">]
     let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> =
         async.Delay(fun () ->
             Async.AwaitTask task

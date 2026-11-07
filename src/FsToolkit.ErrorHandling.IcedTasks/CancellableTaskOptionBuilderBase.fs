@@ -1038,22 +1038,30 @@ module CancellableTaskOptionBuilderBase =
 
         type Microsoft.FSharp.Control.Async with
 
-            [<Obsolete "Use Async.StartTaskImmediate instead">]
+            [<Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
-                Async.StartTaskImmediate t
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> Async.AwaitTask
+                )
 
             static member inline AsCancellableTaskOption(computation: Async<'T>) =
                 fun ct -> Task.startAsyncImmediate ct computation
 
         type AsyncEx with
 
-            [<Obsolete "Use Async.StartTaskImmediate instead">]
+            [<Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableTaskOption
                 ([<InlineIfLambda>] t: CancellableTaskOption<'T>)
                 =
-                Async.StartTaskImmediate t
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> Async.AwaitTask
+                )
 
             static member inline AsCancellableTaskOption(computation: Async<'T>) =
                 fun ct -> Task.startAsyncImmediate ct computation

@@ -1042,11 +1042,16 @@ module CancellableValueTaskOptionCE =
 
         type Microsoft.FSharp.Control.Async with
 
-            [<Obsolete "Use Async.StartTaskImmediate instead">]
+            [<Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                Async.StartTaskImmediate t
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> _.AsTask()
+                    >> Async.AwaitTask
+                )
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
@@ -1060,11 +1065,16 @@ module CancellableValueTaskOptionCE =
 
         type AsyncEx with
 
-            [<Obsolete "Use Async.StartTaskImmediate instead">]
+            [<Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableValueTaskOption
                 ([<InlineIfLambda>] t: CancellableValueTaskOption<'T>)
                 =
-                Async.StartTaskImmediate t
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> _.AsTask()
+                    >> Async.AwaitTask
+                )
 
             /// <summary>Creates a <see cref="CancellableValueTaskOption{T}"/> from an asynchronous computation.</summary>
             /// <param name="computation">The async computation to convert.</param>
