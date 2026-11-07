@@ -24,6 +24,8 @@
     - OBSOLETE(CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskResult): `singleton`
         - -> `ok`.
   - Removals:
+      - remove(`Option`)!: functions shadowing FSharp.Core equivalents: `map`, `map2`, `map3`, `bind`
+        - Present in all supported FSharp.Core versions and Fable, so no reason for them to be in the library.
     - OBSOLETE(AsyncResult): `ofAsync`
       - -> `Async.map Ok`
       - -> CONSIDER `Async.catch`

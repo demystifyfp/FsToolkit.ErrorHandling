@@ -9,7 +9,6 @@ open Expecto
 #endif
 
 module ResultShim = FsToolkit.ErrorHandling.FSharpCore11ResultShims.Result
-module OptionShim = FsToolkit.ErrorHandling.FSharpCore11OptionShims.Option
 
 let allTests =
     testList "FSharp.Core shims" [
@@ -33,17 +32,6 @@ let allTests =
             Expect.equal (ResultShim.defaultWith fallback (Error 2)) 3 "map error to default"
             Expect.isTrue called "fallback handles error"
 
-        testCase "Option shims preserve mapping and short-circuiting"
-        <| fun _ ->
-            Expect.equal (OptionShim.bind (fun x -> Some(x + 1)) (Some 1)) (Some 2) "bind"
-            Expect.equal (OptionShim.map ((+) 1) (Some 1)) (Some 2) "map"
-            Expect.equal (OptionShim.map2 (+) (Some 1) (Some 2)) (Some 3) "map2"
-
-            Expect.equal
-                (OptionShim.map3 (fun x y z -> x + y + z) (Some 1) None (Some 3))
-                None
-                "map3"
-
 #if !FABLE_COMPILER
         testCase "Only needed shim modules are auto-opened"
         <| fun _ ->
@@ -66,8 +54,5 @@ let allTests =
 #else
             Expect.isTrue (isAutoOpen "FSharpCore11ResultShims") "Result needs compatibility shims"
 #endif
-            Expect.isFalse
-                (isAutoOpen "FSharpCore11OptionShims")
-                "Option is provided by FSharp.Core"
 #endif
     ]
