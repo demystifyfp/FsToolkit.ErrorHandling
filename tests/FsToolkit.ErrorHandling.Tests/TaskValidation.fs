@@ -150,7 +150,7 @@ let applyTests =
                     |> lift
                     |> TaskValidation.apply (
                         Ok remainingCharacters
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -164,7 +164,7 @@ let applyTests =
                 let! result =
                     TaskValidation.apply
                         (Ok remainingCharacters
-                         |> Task.singleton)
+                         |> Task.result)
                         (lift emptyInvalidTweetR)
 
                 return
@@ -186,7 +186,7 @@ let operatorsTests =
                     <*> (lift validTweetR)
                     >>= (fun tweet ->
                         Ok tweet
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -217,9 +217,9 @@ let zipTests =
                 let! actual =
                     TaskValidation.zip
                         (Ok 1
-                         |> Task.singleton)
+                         |> Task.result)
                         (Ok 2
-                         |> Task.singleton)
+                         |> Task.result)
 
                 Expect.equal actual (Ok(1, 2)) "Should be ok"
             }
@@ -229,7 +229,7 @@ let zipTests =
                 let! actual =
                     TaskValidation.zip
                         (Ok 1
-                         |> Task.singleton)
+                         |> Task.result)
                         (TaskValidation.error "Bad")
 
                 Expect.equal actual (Error [ "Bad" ]) "Should be Error"
@@ -241,7 +241,7 @@ let zipTests =
                     TaskValidation.zip
                         (TaskValidation.error "Bad")
                         (Ok 1
-                         |> Task.singleton)
+                         |> Task.result)
 
                 Expect.equal actual (Error [ "Bad" ]) "Should be Error"
             }
@@ -268,10 +268,10 @@ let orElseTests =
             task {
                 let! result =
                     (Ok "First"
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElse (
                         Ok "Second"
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -284,10 +284,10 @@ let orElseTests =
             task {
                 let! result =
                     (Ok "First"
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElse (
                         Error [ "Second" ]
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -300,10 +300,10 @@ let orElseTests =
             task {
                 let! result =
                     (Error [ "First" ]
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElse (
                         Ok "Second"
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -316,10 +316,10 @@ let orElseTests =
             task {
                 let! result =
                     (Error [ "First" ]
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElse (
                         Error [ "Second" ]
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -335,10 +335,10 @@ let orElseWithTests =
             task {
                 let! result =
                     (Ok "First"
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElseWith (fun _ ->
                         Ok "Second"
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -351,10 +351,10 @@ let orElseWithTests =
             task {
                 let! result =
                     (Ok "First"
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElseWith (fun _ ->
                         Error [ "Second" ]
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -367,10 +367,10 @@ let orElseWithTests =
             task {
                 let! result =
                     (Error [ "First" ]
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElseWith (fun _ ->
                         Ok "Second"
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return
@@ -383,10 +383,10 @@ let orElseWithTests =
             task {
                 let! result =
                     (Error [ "First" ]
-                     |> Task.singleton)
+                     |> Task.result)
                     |> TaskValidation.orElseWith (fun _ ->
                         Error [ "Second" ]
-                        |> Task.singleton
+                        |> Task.result
                     )
 
                 return

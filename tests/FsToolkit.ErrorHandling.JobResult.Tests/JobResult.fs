@@ -285,7 +285,7 @@ let ignoreTests =
     ]
 
 let err = "foobar"
-let toJob = Job.singleton
+let toJob = Job.result
 
 [<Tests>]
 let requireTrueTests =
@@ -764,16 +764,18 @@ let catchTests =
             return Error ""
         }
 
-    testList "JobResult.catch tests" [
-        testCase "catch returns success for Ok"
-        <| fun _ -> Expect.hasJobOkValueSync 42 (JobResult.catch f (toJob (Ok 42)))
+    testList "JobResult.catchWith" [
+        testCase "returns success for Ok"
+        <| fun _ -> Expect.hasJobOkValueSync 42 (JobResult.catchWith f (toJob (Ok 42)))
 
-        testCase "catch returns mapped Error for exception"
-        <| fun _ -> Expect.hasJobErrorValueSync err (JobResult.catch f (jobThrow ()))
+        testCase "returns mapped Error for exception"
+        <| fun _ -> Expect.hasJobErrorValueSync err (JobResult.catchWith f (jobThrow ()))
 
-        testCase "catch returns unmapped error without exception"
+        testCase "returns unmapped error without exception"
         <| fun _ ->
-            Expect.hasJobErrorValueSync "unmapped" (JobResult.catch f (toJob (Error "unmapped")))
+            Expect.hasJobErrorValueSync
+                "unmapped"
+                (JobResult.catchWith f (toJob (Error "unmapped")))
     ]
 
 

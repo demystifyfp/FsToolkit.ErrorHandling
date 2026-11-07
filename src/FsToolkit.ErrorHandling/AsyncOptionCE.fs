@@ -52,9 +52,7 @@ module AsyncOptionCE =
                     if vTask.IsCompletedSuccessfully then
                         return ()
                     else
-                        return!
-                            vTask.AsTask()
-                            |> Async.AwaitTask
+                        return! Async.Await vTask
                 }
 
             Async.TryFinallyAsync(computation, compensation)
@@ -111,7 +109,7 @@ module AsyncOptionCEExtensions =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(r: 'value option) : Async<option<'value>> = Async.singleton r
+        member inline _.Source(r: 'value option) : Async<option<'value>> = Async.result r
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -147,16 +145,14 @@ module AsyncOptionCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(a: Task<'value>) : Async<option<'value>> =
-            a
-            |> Async.AwaitTask
+            Async.Await a
             |> Async.map Some
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(a: Task) : Async<option<unit>> =
-            a
-            |> Async.AwaitTask
+            Async.Await a
             |> Async.map Some
 
 [<AutoOpen>]
@@ -167,8 +163,6 @@ module AsyncOptionCEExtensionsHigher =
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
-        member inline _.Source(task: Task<'value option>) : Async<'value option> =
-            task
-            |> Async.AwaitTask
+        member inline _.Source(task: Task<'value option>) : Async<'value option> = Async.Await task
 
 #endif

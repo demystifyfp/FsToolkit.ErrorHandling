@@ -8,13 +8,9 @@ open System.Runtime.ExceptionServices
 [<RequireQualifiedAccess>]
 module AsyncResult =
 
-    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> =
+    let inline ok (value: 'ok) : Async<Result<'ok, 'error>> = Async.result (Ok value)
 
-        Async.singleton (Ok value)
-
-    let inline error (error: 'error) : Async<Result<'ok, 'error>> =
-
-        Async.singleton (Error error)
+    let inline error (error: 'error) : Async<Result<'ok, 'error>> = Async.result (Error error)
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -65,26 +61,28 @@ module AsyncResult =
         : Async<Result<'okOutput, 'errorOutput>> =
         Async.map (Result.eitherMap onOk onError) input
 
+    [<System.Obsolete "Please use Async.map Ok instead of AsyncResult.ofAsync (Consider Async.catch/catchWith if you want to trap exceptions as Error)">]
+    let inline ofAsync (async: Async<'ok>) : Async<Result<'ok, 'error>> = Async.map Ok async
+
+    [<System.Obsolete "Please use Async.result instead of AsyncResult.ofResult">]
+    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> = Async.result x
 #if !FABLE_COMPILER
-
-    let inline ofTask (aTask: Task<'ok>) : Async<Result<'ok, exn>> =
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTask. NOTE AsyncResult.catch unwraps AggregateException with a single inner">]
+    let inline ofTask (task: Task<'input>) : Async<Result<'input, exn>> =
         async.Delay(fun () ->
-            aTask
-            |> Async.AwaitTask
+            Async.AwaitTask task
             |> Async.Catch
             |> Async.map Result.ofChoice
         )
 
-    let inline ofTaskAction (aTask: Task) : Async<Result<unit, exn>> =
+    [<System.Obsolete "Please use Async.Await >> Async.catch instead of AsyncResult.ofTaskAction. NOTE AsyncResult.catch unwraps AggregateException with a single inner">]
+    let inline ofTaskAction (task: Task) : Async<Result<unit, exn>> =
         async.Delay(fun () ->
-            aTask
-            |> Async.AwaitTask
+            Async.AwaitTask task
             |> Async.Catch
             |> Async.map Result.ofChoice
         )
-
 #endif
-
 
     let inline map2
         ([<InlineIfLambda>] mapper: 'input1 -> 'input2 -> 'output)
@@ -267,18 +265,19 @@ module AsyncResult =
         |> Async.map (fun (r1, r2) -> Result.zipError r1 r2)
 
     /// Catches exceptions and maps them to the Error case using the provided function.
+    let inline catchWith
+        ([<InlineIfLambda>] handler: exn -> 'error)
+        (input: Async<Result<'ok, 'error>>)
+        : Async<Result<'ok, 'error>> =
+        input
+        |> Async.catchWith (fun exn -> Error(handler exn))
+
+    [<System.Obsolete "Please use AsyncResult.catchWith instead of AsyncResult.catch">]
     let inline catch
         ([<InlineIfLambda>] exnMapper: exn -> 'error)
         (input: Async<Result<'ok, 'error>>)
         : Async<Result<'ok, 'error>> =
-        input
-        |> Async.Catch
-        |> Async.map (
-            function
-            | Choice1Of2(Ok v) -> Ok v
-            | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(exnMapper ex)
-        )
+        catchWith exnMapper input
 
     /// Gets the value in the Ok case or re-raises the exception in the Error case
     let inline getOrReraise (input: Async<Result<'ok, exn>>) : Async<'ok> =
@@ -293,16 +292,6 @@ module AsyncResult =
                 return Unchecked.defaultof<_>
 #endif
         }
-
-    /// Lift Async to AsyncResult
-    let inline ofAsync (value: Async<'ok>) : Async<Result<'ok, 'error>> =
-        value
-        |> Async.map Ok
-
-    /// Lift Result to AsyncResult
-    let inline ofResult (x: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
-        x
-        |> Async.singleton
 
     /// Returns the async-wrapped result if it is Ok and the checker returns a async-wrapped Ok result or if the async-wrapped result is Error.
     /// If the checker returns a async-wrapped Error result, returns the async-wrapped Error result.

@@ -6,6 +6,7 @@ namespace FsToolkit.ErrorHandling
 [<RequireQualifiedAccess>]
 module Option =
 
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Binds a function to an option, applying the function to the value if the option is <c>Some</c>.
     ///
@@ -77,12 +78,14 @@ module Option =
         match (input1, input2, input3) with
         | Some x, Some y, Some z -> Some(mapper x y z)
         | _ -> None
+#endif
 
     /// <summary>
     /// Ignores the value of an option and returns a unit option.
     /// </summary>
     /// <param name="opt">The option to ignore.</param>
     /// <returns>A unit option.</returns>
+    [<RequiresExplicitTypeArguments>]
     let inline ignore<'T> (opt: 'T option) : unit option =
         match opt with
         | Some _ -> Some()
@@ -348,7 +351,7 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Task<'U>)
         (opt: 'T option)
         : Task<'U option> =
-        sequenceTask ((map f) opt)
+        sequenceTask ((Option.map f) opt)
 
     /// <summary>
     /// Converts an <c>Task&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Task&lt;Result&lt;'ok option,'error&gt;&gt;</c><br />
@@ -381,11 +384,11 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Task<Result<'U, 'E>>)
         (opt: 'T option)
         : Task<Result<'U option, 'E>> =
-        sequenceTaskResult ((map f) opt)
+        sequenceTaskResult ((Option.map f) opt)
 #endif
 
     /// <summary>
-    /// Converts a Async<'T> option to an Async<'T option>
+    /// Converts an <c>Async&lt;'T&gt; option</c> to an <c>Async&lt;'T option&gt;</c>
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasync</href>
     /// </summary>
@@ -410,11 +413,10 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Async<'U>)
         (opt: 'T option)
         : Async<'U option> =
-        sequenceAsync ((map f) opt)
+        sequenceAsync ((Option.map f) opt)
 
     /// <summary>
-    /// Converts a Async<Result<'ok,'error>> option to an Async<Result<'ok option,'error>>
-    ///
+    /// Converts an <c>Async&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Async&lt;Result&lt;'ok option,'error&gt;&gt;</c>.<br/>
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasyncresult</href>
     /// </summary>
     let inline sequenceAsyncResult
@@ -432,9 +434,8 @@ module Option =
         }
 
     /// <summary>
-    /// Maps an AsyncResult function over an option, returning an AsyncResult option.
-    ///
-    /// /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
+    /// Maps an AsyncResult function over an option, returning an AsyncResult option.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
@@ -443,7 +444,7 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Async<Result<'U, 'E>>)
         (opt: 'T option)
         : Async<Result<'U option, 'E>> =
-        sequenceAsyncResult ((map f) opt)
+        sequenceAsyncResult ((Option.map f) opt)
 
     /// <summary>
     /// Creates an option from a boolean value and a value of type 'a.

@@ -46,7 +46,7 @@ module TaskResultOption =
     let inline ofResult (result: Result<'ok, 'error>) : Task<Result<'ok option, 'error>> =
         result
         |> Result.map Some
-        |> Task.singleton
+        |> Task.result
 
     /// <summary>
     /// Transforms a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> into a <c>Task&lt;Result&lt;'ok option, 'error&gt;&gt;</c>.

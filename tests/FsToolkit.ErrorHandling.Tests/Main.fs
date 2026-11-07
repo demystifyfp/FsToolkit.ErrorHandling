@@ -23,6 +23,9 @@ let allTests =
         ListTests.allTests
         ArrayTests.allTests
         SeqTests.allTests
+        #if !FABLE_COMPILER
+        AsyncTests.asyncAwaitTests
+        #endif
         AsyncResultTests.allTests
         AsyncResultCETests.allTests
         AsyncResultOptionTests.allTests

@@ -1,4 +1,4 @@
-# JobResult.ofAsync
+# JobResult.fromAsync
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -15,13 +15,13 @@ Async<'T> -> Job<Result<'T, exn>>
 ### Example 1
 
 ```fsharp
-let result = JobResult.ofAsync (async { return 42 })
+let result = JobResult.fromAsync (async { return 42 })
 // job { return Ok 42 }
 ```
 
 ### Example 2
 
 ```fsharp
-let result = JobResult.ofAsync (async { return System.Exception("error") })
+let result = JobResult.fromAsync (async { return System.Exception("error") })
 // job { return Error System.Exception("error") }
 ```

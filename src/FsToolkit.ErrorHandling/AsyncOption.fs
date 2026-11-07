@@ -6,10 +6,10 @@ module AsyncOption =
     /// <summary>Lifts an item to an Async.</summary>
     /// <param name="x">The item to be the result of the Async.</param>
     /// <returns>An Async with the item as the result.</returns>
-    let inline some x = Async.singleton (Some x)
+    let inline some x = Async.result (Some x)
     /// <summary>An Async that yields None.</summary>
     /// <returns>An Async with None as the result.</returns>
-    let inline none<'a> : Async<'a option> = Async.singleton None
+    let inline none<'a> : Async<'a option> = Async.result None
 
     let inline map
         ([<InlineIfLambda>] mapper: 'input -> 'output)
@@ -94,10 +94,10 @@ module AsyncOption =
     /// </remarks>
     /// <example>
     /// <code>
-    ///     None |> Async.singleton |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("Second")
-    ///     None |> Async.singleton |> AsyncOption.orElse (None |> Async.singleton) // evaluates to None
+    ///     AsyncOption.none |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     AsyncOption.none |> AsyncOption.orElse AsyncOption.none // evaluates to None
     ///     AsyncOption.some "First" |> AsyncOption.orElse (AsyncOption.some "Second") // evaluates to Some ("First")
-    ///     AsyncOption.some "First" |> AsyncOption.orElse (None |> Async.singleton) // evaluates to Some ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElse AsyncOption.none // evaluates to Some ("First")
     /// </code>
     /// </example>
     /// <returns>
@@ -119,10 +119,10 @@ module AsyncOption =
     /// </remarks>
     /// <example>
     /// <code>
-    ///     None |> Async.singleton |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("Second")
-    ///     None |> Async.singleton |> AsyncOption.orElseWith (fun _ -> None |> Async.singleton) // evaluates to None
+    ///     AsyncOption.none |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("Second")
+    ///     AsyncOption.none |> AsyncOption.orElseWith (fun _ -> AsyncOption.none) // evaluates to None
     ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> AsyncOption.some "Second") // evaluates to Some ("First")
-    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> None |> Async.singleton) // evaluates to Ok ("First")
+    ///     AsyncOption.some "First" |> AsyncOption.orElseWith (fun _ -> AsyncOption.none) // evaluates to Ok ("First")
     /// </code>
     /// </example>
     /// <returns>

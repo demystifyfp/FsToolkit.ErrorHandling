@@ -14,8 +14,8 @@ CancellableValueTask<Result<('a -> 'b), 'c>> -> CancellableValueTask<Result<'a, 
 
 ```fsharp
 let result =
-    CancellableValueTaskResult.singleton "foo"
-    |> CancellableValueTaskResult.apply (CancellableValueTaskResult.singleton String.length)
+    CancellableValueTaskResult.ok "foo"
+    |> CancellableValueTaskResult.apply (CancellableValueTaskResult.ok String.length)
 
 // cancellableValueTask { Ok 3 }
 ```
@@ -26,7 +26,7 @@ let result =
 let err : CancellableValueTask<Result<int, string>> = cancellableValueTask { return Error "some error" }
 let result =
     err
-    |> CancellableValueTaskResult.apply (CancellableValueTaskResult.singleton String.length)
+    |> CancellableValueTaskResult.apply (CancellableValueTaskResult.ok String.length)
 
 // cancellableValueTask { Error "some error" }
 ```

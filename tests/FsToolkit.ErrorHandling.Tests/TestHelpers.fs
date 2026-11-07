@@ -176,7 +176,7 @@ module TestHelpers =
                 { new IAsyncEnumerator<'T> with
                     member _.MoveNextAsync() =
                         index <- index + 1
-                        ValueTask.FromResult(index < arr.Length)
+                        ValueTask.result (index < arr.Length)
 
                     member _.Current = arr.[index]
                     member _.DisposeAsync() = ValueTask()

@@ -269,7 +269,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     id
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
@@ -285,7 +285,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     string
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
@@ -301,7 +301,7 @@ let traverseTaskTests =
 
                 let optFunc =
                     id
-                    >> Task.singleton
+                    >> Task.result
 
                 let! value =
                     (optFunc, optTask)
@@ -449,7 +449,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 id
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)
@@ -464,7 +464,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 (fun i -> string i)
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)
@@ -479,7 +479,7 @@ let traverseAsyncTests =
 
             let optFunc =
                 id
-                >> Async.singleton
+                >> Async.result
 
             let! value =
                 (optFunc, optAsync)

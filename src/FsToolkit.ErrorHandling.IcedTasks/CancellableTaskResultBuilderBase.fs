@@ -1124,35 +1124,33 @@ module CancellableTaskResultBuilderBase =
 
         type Microsoft.FSharp.Control.Async with
 
+            [<System.Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> Async.AwaitTask
+                )
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                fun ct -> Task.startAsyncImmediate ct computation
 
         type AsyncEx with
 
+            [<System.Obsolete "Use Async.StartTaskImmediate instead. NOTE Async.StartTaskImmediate unwraps AggregateException with a single inner">]
             static member inline AwaitCancellableTaskResult
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 =
-                async {
-                    let! ct = Async.CancellationToken
-
-                    return!
-                        t ct
-                        |> Async.AwaitTask
-                }
+                async.Bind(
+                    Async.CancellationToken,
+                    t
+                    >> Async.AwaitTask
+                )
 
             static member inline AsCancellableTaskResult(computation: Async<'T>) =
-                fun ct -> Async.StartImmediateAsTask(computation, cancellationToken = ct)
+                fun ct -> Task.startAsyncImmediate ct computation
 
 
         type AsyncResultBuilder with
@@ -1160,7 +1158,7 @@ module CancellableTaskResultBuilderBase =
             member inline this.Source
                 ([<InlineIfLambda>] t: CancellableTaskResult<'T, 'Error>)
                 : Async<_> =
-                Async.AwaitCancellableTaskResult t
+                Async.StartTaskImmediate t
 
         // High priority extensions
         type CancellableTaskResultBuilderBase with

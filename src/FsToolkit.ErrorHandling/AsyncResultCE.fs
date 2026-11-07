@@ -62,9 +62,7 @@ module AsyncResultCE =
                     if vTask.IsCompletedSuccessfully then
                         return ()
                     else
-                        return!
-                            vTask.AsTask()
-                            |> Async.AwaitTask
+                        return! Async.Await vTask
                 }
 
             Async.TryFinallyAsync(computation, compensation)
@@ -129,7 +127,7 @@ module AsyncResultCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(result: Result<'ok, 'error>) : Async<Result<'ok, 'error>> =
-            Async.singleton result
+            Async.result result
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -137,7 +135,7 @@ module AsyncResultCEExtensions =
         member inline _.Source(choice: Choice<'ok, 'error>) : Async<Result<'ok, 'error>> =
             choice
             |> Result.ofChoice
-            |> Async.singleton
+            |> Async.result
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
@@ -173,16 +171,14 @@ module AsyncResultCEExtensions =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(task: Task<'ok>) : Async<Result<'ok, 'error>> =
-            task
-            |> Async.AwaitTask
+            Async.Await task
             |> Async.map Ok
 
         /// <summary>
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(task: Task) : Async<Result<unit, 'error>> =
-            task
-            |> Async.AwaitTask
+            Async.Await task
             |> Async.map Ok
 #endif
 
@@ -196,6 +192,5 @@ module AsyncResultCEExtensions2 =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(task: Task<Result<'ok, 'error>>) : Async<Result<'ok, 'error>> =
-            task
-            |> Async.AwaitTask
+            Async.Await task
 #endif

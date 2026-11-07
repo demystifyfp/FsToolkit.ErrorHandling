@@ -258,6 +258,8 @@ module CancellableTaskResultCE =
 module CancellableTask =
     open IcedTasks
 
+    let result (x: 't) : CancellableTask<'t> = CancellableTask.singleton x
+
     /// Bind the CancellableTask with a synchronous Result-returning function.
     let inline bindResult
         ([<InlineIfLambda>] binder: 'input -> Result<'output, 'error>)
@@ -302,11 +304,20 @@ module CancellableTaskResult =
     let inline getCancellationToken () =
         fun (ct: CancellationToken) -> ValueTask<CancellationToken> ct
 
-    /// <summary>Lifts an item to a CancellableTask.</summary>
-    /// <param name="item">The item to be the result of the CancellableTask.</param>
-    /// <returns>A CancellableTask with the item as the result.</returns>
-    let inline singleton (item: 'item) : CancellableTaskResult<'item, 'Error> =
-        fun _ -> Task.FromResult(Ok item)
+    /// <summary>Lifts an item to a CancellableTaskResult.</summary>
+    /// <param name="item">The item to be the result of the CancellableTaskResult.</param>
+    /// <returns>A CancellableTaskResult with the item as the result.</returns>
+    let inline ok (item: 'ok) : CancellableTaskResult<'ok, 'error> =
+        CancellableTask.result (Ok item)
+
+    /// <summary>Lifts an error to a CancellableTaskResult.</summary>
+    /// <param name="error">The item to be the <c>Error</c> of the CancellableTaskResult.</param>
+    /// <returns>A CancellableTaskResult with the item as the <c>Error</c> result.</returns>
+    let inline error (error: 'error) : CancellableTaskResult<'ok, 'error> =
+        CancellableTask.result (Error error)
+
+    [<System.Obsolete "Use CancellableTaskResult.ok instead of CancellableTaskResult.singleton">]
+    let inline singleton (item: 'ok) : CancellableTaskResult<'ok, 'error> = ok item
 
     let inline eitherBind
         ([<InlineIfLambda>] onOk: 'input -> 'output)

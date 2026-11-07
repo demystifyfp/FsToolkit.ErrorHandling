@@ -19,7 +19,7 @@ module List =
                     }
 
                 match r with
-                | Ok _ -> return! traverseJobResultM' (Job.singleton r) f xs
+                | Ok _ -> return! traverseJobResultM' (Job.result r) f xs
                 | Error _ -> return r
             }
 

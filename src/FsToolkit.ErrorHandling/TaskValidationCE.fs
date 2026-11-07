@@ -629,14 +629,14 @@ module TaskValidationCEExtensionsMediumPriority =
             |> Task.map Ok
 
         member inline this.Source(computation: Async<'T>) : TaskValidation<'T, 'Error> =
-            computation
-            |> Async.map Ok
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
+            |> Task.map Ok
 
-        member inline _.Source(s: Async<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
-            s
-            |> AsyncResult.mapError List.singleton
-            |> Async.StartImmediateAsTask
+        member inline _.Source
+            (asyncResult: Async<Result<'ok, 'error>>)
+            : TaskValidation<'ok, 'error> =
+            Async.StartImmediateAsTask asyncResult
+            |> TaskResult.mapError List.singleton
 
         member inline _.Source(s: Task<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
             TaskResult.mapError List.singleton s
@@ -644,7 +644,7 @@ module TaskValidationCEExtensionsMediumPriority =
         member inline _.Source(result: Result<_, _>) : Task<Validation<_, _>> =
             result
             |> Validation.ofResult
-            |> Task.singleton
+            |> Task.result
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsHighPriority2 =
@@ -652,17 +652,16 @@ module TaskValidationCEExtensionsHighPriority2 =
     // Medium priority extensions
     type TaskValidationBuilderBase with
 
-        member inline _.Source(result: Async<Validation<_, _>>) : Task<Validation<_, _>> =
-            result
-            |> Async.StartImmediateAsTask
+        member inline _.Source(asyncResult: Async<Validation<_, _>>) : Task<Validation<_, _>> =
+            Async.StartImmediateAsTask asyncResult
 
         member inline _.Source(t: ValueTask<Validation<_, _>>) : Task<Validation<_, _>> =
             task { return! t }
 
         member inline _.Source(result: Validation<_, _>) : Task<Validation<_, _>> =
-            Task.singleton result
+            Task.result result
 
         member inline _.Source(result: Choice<_, _>) : Task<Validation<_, _>> =
             result
             |> Validation.ofChoice
-            |> Task.singleton
+            |> Task.result
