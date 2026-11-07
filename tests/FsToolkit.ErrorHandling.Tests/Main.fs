@@ -13,6 +13,7 @@ let allTests =
     testList "All Tests" [
         ReqTests.allTests
         FSharpCoreShimTests.allTests
+        FSharpCoreShimConsumerTests.allTests
         ResultTests.allTests
         ResultCETests.allTests
         ResultOptionTests.allTests
