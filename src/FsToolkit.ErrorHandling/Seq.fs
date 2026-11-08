@@ -26,7 +26,12 @@ let inline traverseResultM'
     | Error e -> Error e
     | Ok initialSuccesses ->
 
+#if FABLE_COMPILER
         let oks = ResizeArray(initialSuccesses)
+#else
+        let mutable oks = ArrayCollector()
+        oks.AddMany initialSuccesses
+#endif
         let mutable err: 'error voption = ValueNone
         use e = xs.GetEnumerator()
 
@@ -37,7 +42,11 @@ let inline traverseResultM'
             | Error e -> err <- ValueSome e
 
         match err with
+#if FABLE_COMPILER
         | ValueNone -> Ok(oks.ToArray())
+#else
+        | ValueNone -> Ok(oks.Close())
+#endif
         | ValueSome e -> Error e
 
 /// <summary>
@@ -78,7 +87,7 @@ let inline traverseResultA'
 #if FABLE_COMPILER
         let errs = ResizeArray(failuresToDate)
 #else
-        let mutable errs = ArrayCollector() in
+        let mutable errs = ArrayCollector()
         errs.AddMany failuresToDate
 #endif
 
@@ -88,7 +97,7 @@ let inline traverseResultA'
             | Ok _ -> () // as the initial state was failure, oks are irrelevant
 
 #if FABLE_COMPILER
-        Error(errs.ToAray())
+        Error(errs.ToArray())
 #else
         Error(errs.Close())
 #endif
@@ -98,7 +107,7 @@ let inline traverseResultA'
         let oks = ResizeArray(initialSuccesses)
         let errs = ResizeArray()
 #else
-        let mutable oks = ArrayCollector() in
+        let mutable oks = ArrayCollector()
         oks.AddMany initialSuccesses
         let mutable errs = ArrayCollector()
 #endif
@@ -157,7 +166,7 @@ let inline traverseAsyncResultM'
 #if FABLE_COMPILER
             let oks = ResizeArray(initialSuccesses)
 #else
-            let mutable oks = ArrayCollector() in
+            let mutable oks = ArrayCollector()
             oks.AddMany initialSuccesses
 #endif
             let mutable err: 'error voption = ValueNone
@@ -273,7 +282,7 @@ let inline traverseAsyncResultA'
 #if FABLE_COMPILER
             let errs = ResizeArray(failuresToDate) in
 #else
-            let mutable errs = ArrayCollector() in
+            let mutable errs = ArrayCollector()
             errs.AddMany failuresToDate
 #endif
 
@@ -291,7 +300,7 @@ let inline traverseAsyncResultA'
 
 #if FABLE_COMPILER
             let oks = ResizeArray(initialSuccesses)
-            let ers = ResizeArray()
+            let errs = ResizeArray()
 #else
             let mutable oks = ArrayCollector()
             oks.AddMany initialSuccesses
@@ -333,7 +342,6 @@ let traverseAsyncResultA f xs =
 let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
 #if !FABLE_COMPILER
-
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single task result
 /// </summary>
@@ -406,7 +414,7 @@ let sequenceTaskResultA xs = traverseTaskResultA id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An option containing Some array of elements or None if any of the function applications return None</returns>
 let inline traverseOptionM'
-    (state: seq<'okOutput> option)
+    (state: #seq<'okOutput> option)
     ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
     (xs: SeqNull<'okInput>)
     : 'okOutput[] option =
@@ -453,7 +461,7 @@ let sequenceOptionM xs = traverseOptionM id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An async option containing Some array of elements or None if any of the function applications return None</returns>
 let inline traverseAsyncOptionM'
-    (state: Async<seq<'okOutput> option>)
+    (state: Async<#seq<'okOutput> option>)
     ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput option>)
     (xs: SeqNull<'okInput>)
     : Async<'okOutput[] option> =
@@ -496,7 +504,6 @@ let traverseAsyncOptionM f xs =
 let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 
 #if !FABLE_COMPILER
-
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single voption
 /// </summary>
