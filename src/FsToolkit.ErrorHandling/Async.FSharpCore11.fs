@@ -160,7 +160,11 @@ type Async =
 #if NET11_0_OR_GREATER
         Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
-        async.Bind(Async.CancellationToken, createTask >> Async.Await)
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
 #endif
 
 #if NET11_0_OR_GREATER
@@ -171,7 +175,11 @@ type Async =
 #if NET11_0_OR_GREATER
         Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
-        async.Bind(Async.CancellationToken, createTask >> Async.Await)
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
 #endif
 
 #if NET11_0_OR_GREATER
@@ -182,7 +190,11 @@ type Async =
 #if NET11_0_OR_GREATER
         Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
-        async.Bind(Async.CancellationToken, createTask >> Async.Await)
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
 #endif
 
 #if NET11_0_OR_GREATER
@@ -193,7 +205,11 @@ type Async =
 #if NET11_0_OR_GREATER
         Microsoft.FSharp.Control.Async.StartTaskImmediate createTask
 #else
-        async.Bind(Async.CancellationToken, createTask >> Async.Await)
+        async.Bind(
+            Async.CancellationToken,
+            createTask
+            >> Async.Await
+        )
 #endif
 
 #endif
@@ -239,7 +255,11 @@ module Async =
 #if NET11_0_OR_GREATER
         Async.map mapping computation
 #else
-        async.Bind(computation, mapping >> async.Return)
+        async.Bind(
+            computation,
+            mapping
+            >> async.Return
+        )
 #endif
 
     /// <summary>Creates an asynchronous computation that passes the result of the given computation to the binder function.</summary>

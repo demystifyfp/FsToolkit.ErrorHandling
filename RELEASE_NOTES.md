@@ -1,3 +1,8 @@
+### 6.0.0-beta010 - tba
+
+- [`List.traverseResultA`, `traverseAsyncResultA`, `traverseAsyncResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
+    - Resolves [#167](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/167)
+
 ### 6.0.0-beta009 - November 20, 2026
 
 - [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/393) Credits @TheAngryByrd
