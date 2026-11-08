@@ -44,7 +44,7 @@ let traverseJobResultMTests =
 
         testCase "traverseJobResultM with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.traverseJobResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -91,8 +91,8 @@ let traverseJobResultATests =
         testCase "traverseJobResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual = List.traverseJobResultA (notifyFailure (PostId newPostId)) userIds
@@ -125,7 +125,7 @@ let sequenceJobResultMTests =
 
         testCase "sequenceJobResultM with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.map (notifyFailure (PostId newPostId)) userIds
@@ -160,8 +160,8 @@ let sequenceJobResultATests =
         testCase "sequenceJobResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual =
