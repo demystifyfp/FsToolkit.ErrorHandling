@@ -2,6 +2,7 @@
   <PropertyGroup>
     <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
     <NoWarn>$(NoWarn);FS2003;NU1903;NU1904;FS0057</NoWarn>
+    <WarningLevel>5</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <!--
