@@ -1,5 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
+open Microsoft.FSharp.Core.CompilerServices
+
 [<RequireQualifiedAccess>]
 module List =
 
@@ -52,7 +54,11 @@ module List =
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
 
-    let rec private traverseResultA' state f xs =
+    let rec private traverseResultA'
+        (state: Result<'ok list, 'error list>)
+        ([<InlineIfLambda>] f: 't -> Result<'ok, 'error>)
+        (xs: 't list)
+        : Result<'ok list, 'error list> =
         match xs with
         | [] ->
             state

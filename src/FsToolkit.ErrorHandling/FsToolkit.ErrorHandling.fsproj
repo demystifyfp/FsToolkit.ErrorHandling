@@ -7,6 +7,10 @@
     <NoWarn>$(NoWarn);FS3513</NoWarn>
     <!-- The value has been copied to ensure the original is not mutated by this operation or because the copy is implicit when returning a struct from a member and another member is then accessed -->
     <WarnOn>FS0052</WarnOn>
+      <!-- FS3513: Resumable code invocation. Suppress this warning if you are defining new low-level resumable code in terms of existing resumable code. -->
+    <NoWarn>$(NoWarn);FS3513</NoWarn>
+      <!-- The value has been copied to ensure the original is not mutated by this operation or because the copy is implicit when returning a struct from a member and another member is then accessed -->
+    <WarnOn>52</WarnOn>
     <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
   </PropertyGroup>
   <ItemGroup>
