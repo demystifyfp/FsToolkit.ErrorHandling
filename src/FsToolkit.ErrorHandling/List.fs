@@ -166,11 +166,11 @@ module List =
     let traverseOptionM f xs = traverseOptionM' (Some []) f xs
 
     /// <summary>
-    /// Applies the monadic function <paramref name="id"/> to each element in the input list <paramref name="xs"/>,
+    /// Applies the monadic function <c>id</c> to each element in the input list <paramref name="xs"/>,
     /// and returns the result as an option. If any element in the list is None, the entire result will be None.
     /// </summary>
     /// <param name="xs">The input list.</param>
-    /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
+    /// <returns>An option containing the result of applying <c>id</c> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
     let traverseAsyncOptionM f xs =
@@ -207,7 +207,7 @@ module List =
     let traverseVOptionM f xs = traverseVOptionM' (ValueSome []) f xs
 
     /// <summary>
-    /// Applies the <paramref name="id"/> function to each element in the input list <paramref name="xs"/>,
+    /// Applies the <c>id</c> function to each element in the input list <paramref name="xs"/>,
     /// and returns the result as a value option. If any element in the list is ValueNone, the entire result will be ValueNone.
     /// </summary>
     /// <param name="xs">The input list.</param>

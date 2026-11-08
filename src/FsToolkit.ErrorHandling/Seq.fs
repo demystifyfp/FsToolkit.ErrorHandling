@@ -75,29 +75,48 @@ let inline traverseResultA'
 
     match state with
     | Error failuresToDate ->
-        let errs = ResizeArray failuresToDate
+#if FABLE_COMPILER
+        let errs = ResizeArray(failuresToDate)
+#else
+        let mutable errs = ArrayCollector() in
+        errs.AddMany failuresToDate
+#endif
 
         for x in xs do
             match f x with
             | Error e -> errs.Add e
             | Ok _ -> () // as the initial state was failure, oks are irrelevant
 
-        Error(errs.ToArray())
+#if FABLE_COMPILER
+        Error(errs.ToAray())
+#else
+        Error(errs.Close())
+#endif
     | Ok initialSuccesses ->
 
-        let oks = ResizeArray initialSuccesses
+#if FABLE_COMPILER
+        let oks = ResizeArray(initialSuccesses)
         let errs = ResizeArray()
+#else
+        let mutable oks = ArrayCollector() in
+        oks.AddMany initialSuccesses
+        let mutable errs = ArrayCollector()
+#endif
+        let mutable ok = true
 
         for x in xs do
             match f x with
-            | Ok r when errs.Count = 0 -> oks.Add r
+            | Ok r when ok -> oks.Add r
             | Ok _ -> () // no point saving results we won't use given the end result will be Error
-            | Error e -> errs.Add e
+            | Error e ->
+                errs.Add e
+                ok <- false
 
-        if errs.Count = 0 then
-            Ok(oks.ToArray())
-        else
-            Error(errs.ToArray())
+#if FABLE_COMPILER
+        if ok then Ok(oks.ToArray()) else Error(errs.ToArray())
+#else
+        if ok then Ok(oks.Close()) else Error(errs.Close())
+#endif
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -135,7 +154,12 @@ let inline traverseAsyncResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ResizeArray initialSuccesses
+#if FABLE_COMPILER
+            let oks = ResizeArray(initialSuccesses)
+#else
+            let mutable oks = ArrayCollector() in
+            oks.AddMany initialSuccesses
+#endif
             let mutable err: 'error voption = ValueNone
             use e = xs.GetEnumerator()
 
@@ -147,7 +171,11 @@ let inline traverseAsyncResultM'
 
             return
                 match err with
+#if FABLE_COMPILER
                 | ValueNone -> Ok(oks.ToArray())
+#else
+                | ValueNone -> Ok(oks.Close())
+#endif
                 | ValueSome e -> Error e
     }
 
@@ -242,29 +270,48 @@ let inline traverseAsyncResultA'
     async {
         match! state with
         | Error failuresToDate ->
-            let errs = ResizeArray failuresToDate
+#if FABLE_COMPILER
+            let errs = ResizeArray(failuresToDate) in
+#else
+            let mutable errs = ArrayCollector() in
+            errs.AddMany failuresToDate
+#endif
 
             for x in xs do
                 match! f x with
                 | Ok _ -> () // as the initial state was failure, oks are irrelevant
                 | Error e -> errs.Add e
 
+#if FABLE_COMPILER
             return Error(errs.ToArray())
+#else
+            return Error(errs.Close())
+#endif
         | Ok initialSuccesses ->
 
-            let oks = ResizeArray initialSuccesses
-            let errs = ResizeArray()
+#if FABLE_COMPILER
+            let oks = ResizeArray(initialSuccesses)
+            let ers = ResizeArray()
+#else
+            let mutable oks = ArrayCollector()
+            oks.AddMany initialSuccesses
+            let mutable errs = ArrayCollector()
+#endif
+            let mutable ok = true
 
             for x in xs do
                 match! f x with
-                | Ok r when errs.Count = 0 -> oks.Add r
+                | Ok r when ok -> oks.Add r
                 | Ok _ -> () // no point saving results we won't use given the end result will be Error
-                | Error e -> errs.Add e
+                | Error e ->
+                    ok <- false
+                    errs.Add e
 
-            if errs.Count = 0 then
-                return Ok(oks.ToArray())
-            else
-                return Error(errs.ToArray())
+#if FABLE_COMPILER
+            return if ok then Ok(oks.ToArray()) else Error(errs.ToArray())
+#else
+            return if ok then Ok(oks.Close()) else Error(errs.Close())
+#endif
     }
 
 /// <summary>
