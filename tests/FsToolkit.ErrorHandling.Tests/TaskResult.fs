@@ -986,7 +986,7 @@ let eitherTests =
                     createPostSuccess validCreatePostRequest
                     |> TaskResult.eitherBind (fun (PostId id) -> id.ToString()) string
 
-                Expect.same (newPostId.ToString()) actual
+                Expect.same (string newPostId) actual
             }
         testCaseTask "eitherBind with Task(Error x)"
         <| fun _ ->

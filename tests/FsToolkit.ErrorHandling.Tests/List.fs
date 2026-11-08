@@ -342,7 +342,7 @@ let traverseAsyncResultMTests =
 
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.traverseAsyncResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -422,8 +422,8 @@ let traverseAsyncResultATests =
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual = List.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
@@ -458,7 +458,7 @@ let sequenceAsyncResultMTests =
 
         testCaseAsync "sequenceAsyncResultM with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.map (notifyFailure (PostId newPostId)) userIds
@@ -532,8 +532,8 @@ let sequenceAsyncResultATests =
         testCaseAsync "sequenceAsyncResultA with few invalid data"
         <| async {
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual =
@@ -653,7 +653,7 @@ let traverseTaskResultMTests =
 
         testCase "traverseResultA with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.traverseTaskResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -685,8 +685,8 @@ let traverseTaskResultATests =
         testCase "traverseResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual = List.traverseTaskResultA (notifyFailureTask (PostId newPostId)) userIds
@@ -718,7 +718,7 @@ let sequenceTaskResultMTests =
 
         testCase "sequenceTaskResultM with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.map (notifyFailureTask (PostId newPostId)) userIds
@@ -752,8 +752,8 @@ let sequenceTaskResultATests =
         testCase "sequenceTaskResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual =
