@@ -88,6 +88,7 @@ module SourcesPackage =
         | NoDeclaration
         | CodeBeforeFableGuard
         | IndentedNamespaceCode
+        | UnsupportedDirective
 
     type SourceError = {
         File: string
@@ -155,6 +156,8 @@ module SourcesPackage =
                 "a file excluded from Fable must have only comments before its first namespace or module declaration"
             | IndentedNamespaceCode ->
                 "indented code at namespace level does not get FsToolkitErrorHandlingVisibility. Start each namespace-level declaration in column 0"
+            | UnsupportedDirective ->
+                "the directive is indented, '#elif', or not balanced, which the generator does not support. Put #if, #else, and #endif in column 0, and close each #if"
 
         match error.Line with
         | Some line -> $"{error.File}({line}): {reason}: {error.Text}"
@@ -493,6 +496,9 @@ module SourcesPackage =
 
     type private Declaration =
         | Directive
+        | IfStart
+        | IfElse
+        | IfEnd
         | NotDeclaration
         | Namespace
         | Header of visibilityAt: int option
@@ -502,8 +508,8 @@ module SourcesPackage =
     type private LineKind =
         | NoCode
         | StringContent
-        | Indented of codeStart: int
-        | IndentedLongIdentifier of codeStart: int
+        | IndentedDeclaration of codeStart: int
+        | IndentedCode of codeStart: int
         | TopLevel of Declaration
 
     let private declaration = Regex(@"^(module|type|and|exception)(\s|$)")
@@ -513,8 +519,10 @@ module SourcesPackage =
     let private identifierStart = Regex(@"^[A-Za-z_]")
     let private attributeWithCode = Regex(@"^\[<.*>\]\s*\S")
 
-    let private longIdentifierOnly =
-        Regex(@"^\s*(?:global\s*\.\s*)?[A-Za-z_][\w']*(?:\s*\.\s*[A-Za-z_][\w']*)*\s*$")
+    let private moduleBodyDeclaration =
+        Regex(@"^\s+(?:(?:let|type|module|open|do|exception|extern)(?:\s|$)|\[<)")
+
+    let private conditionalDirective = Regex(@"^#(if|else|endif)(\s|$)")
 
     let private notDeclarationStarts = [
         "open "
@@ -530,7 +538,14 @@ module SourcesPackage =
         if startsWith code "namespace " then
             Ok Namespace
         elif startsWith code "#" then
-            Ok Directive
+            let directive = conditionalDirective.Match code
+
+            match directive.Groups[1].Value with
+            | "if" -> Ok IfStart
+            | "else" -> Ok IfElse
+            | "endif" -> Ok IfEnd
+            | _ when startsWith code "#elif" -> Error UnsupportedDirective
+            | _ -> Ok Directive
         elif startsWith code "[<" then
             if attributeWithCode.IsMatch code then
                 Error CodeAfterAttribute
@@ -597,8 +612,9 @@ module SourcesPackage =
             classifyColumnZero (code.TrimEnd())
             |> Result.map TopLevel
         | _, Some _ when not (Char.IsWhiteSpace line[0]) -> Error CodeAfterComment
-        | _, Some index when longIdentifierOnly.IsMatch code -> Ok(IndentedLongIdentifier index)
-        | _, Some index -> Ok(Indented index)
+        | _, Some index when code[index] = '#' -> Error UnsupportedDirective
+        | _, Some index when moduleBodyDeclaration.IsMatch code -> Ok(IndentedDeclaration index)
+        | _, Some index -> Ok(IndentedCode index)
 
     let private namespaceReference =
         Regex(
@@ -623,8 +639,8 @@ module SourcesPackage =
     let private replaceFrom kind =
         match kind with
         | TopLevel _ -> Some 0
-        | Indented codeStart
-        | IndentedLongIdentifier codeStart -> Some codeStart
+        | IndentedDeclaration codeStart
+        | IndentedCode codeStart -> Some codeStart
         | NoCode
         | StringContent -> None
 
@@ -633,73 +649,153 @@ module SourcesPackage =
         | Covered
         | ModuleBodyStart of moduleLine: int
 
-    type private ScopeState = {
+    type private PathScope = {
         ColumnZero: Scope
         Current: Scope
         HeaderSeen: bool
-        Errors: SourceError list
     }
+
+    type private Conditional = {
+        IfLine: int
+        Entry: PathScope list
+        Ended: PathScope list
+        HasElse: bool
+    }
+
+    type private ScopeState = {
+        Paths: PathScope list
+        Conditionals: Conditional list
+        Problems: (int * SourceProblem) list
+    }
+
+    let private stepPath index kind (path: PathScope) =
+        match kind, path.Current with
+        | NoCode, _
+        | StringContent, _
+        | TopLevel Directive, _
+        | TopLevel IfStart, _
+        | TopLevel IfElse, _
+        | TopLevel IfEnd, _ -> path, None
+        | TopLevel Namespace, _ ->
+            {
+                ColumnZero = NamespaceLevel
+                Current = NamespaceLevel
+                HeaderSeen = true
+            },
+            None
+        | TopLevel(Header _), _ when path.HeaderSeen ->
+            { path with Current = Covered }, Some(index, ColumnZeroModuleAbbreviation)
+        | TopLevel(Header _), _ ->
+            {
+                ColumnZero = Covered
+                Current = Covered
+                HeaderSeen = true
+            },
+            None
+        | TopLevel(NestedModule _), _ ->
+            {
+                path with
+                    Current = ModuleBodyStart index
+            },
+            None
+        | TopLevel(Member _), _ -> { path with Current = Covered }, None
+        | TopLevel NotDeclaration, _ -> { path with Current = path.ColumnZero }, None
+        | IndentedDeclaration _, NamespaceLevel
+        | IndentedCode _, NamespaceLevel -> path, Some(index, IndentedNamespaceCode)
+        | IndentedCode _, ModuleBodyStart moduleLine ->
+            { path with Current = Covered }, Some(moduleLine, ColumnZeroModuleAbbreviation)
+        | IndentedDeclaration _, ModuleBodyStart _
+        | IndentedDeclaration _, Covered
+        | IndentedCode _, Covered -> { path with Current = Covered }, None
 
     let private scopeErrors
         (error: int -> SourceProblem -> SourceError)
         (lines: (int * LineKind) list)
         =
-        let step state (index, kind) =
-            let fail at problem = {
-                state with
-                    Errors =
-                        error at problem
-                        :: state.Errors
-            }
+        let unsupported index state = {
+            state with
+                Problems =
+                    (index, UnsupportedDirective)
+                    :: state.Problems
+        }
 
-            match kind, state.Current with
-            | NoCode, _
-            | StringContent, _
-            | TopLevel Directive, _ -> state
-            | TopLevel Namespace, _ -> {
+        let step state (index, kind) =
+            match kind, state.Conditionals with
+            | TopLevel IfStart, conditionals -> {
                 state with
-                    ColumnZero = NamespaceLevel
-                    Current = NamespaceLevel
-                    HeaderSeen = true
+                    Conditionals =
+                        {
+                            IfLine = index
+                            Entry = state.Paths
+                            Ended = []
+                            HasElse = false
+                        }
+                        :: conditionals
               }
-            | TopLevel(Header _), _ when state.HeaderSeen -> {
-                fail index ColumnZeroModuleAbbreviation with
-                    Current = Covered
-              }
-            | TopLevel(Header _), _ -> {
+            | TopLevel IfElse, conditional :: rest when not conditional.HasElse -> {
                 state with
-                    ColumnZero = Covered
-                    Current = Covered
-                    HeaderSeen = true
+                    Paths = conditional.Entry
+                    Conditionals =
+                        {
+                            conditional with
+                                Ended =
+                                    conditional.Ended
+                                    @ state.Paths
+                                HasElse = true
+                        }
+                        :: rest
               }
-            | TopLevel(NestedModule _), _ -> {
-                state with
-                    Current = ModuleBodyStart index
-              }
-            | TopLevel(Member _), _ -> { state with Current = Covered }
-            | TopLevel NotDeclaration, _ -> {
-                state with
-                    Current = state.ColumnZero
-              }
-            | IndentedLongIdentifier _, ModuleBodyStart moduleLine -> {
-                fail moduleLine ColumnZeroModuleAbbreviation with
-                    Current = Covered
-              }
-            | Indented _, NamespaceLevel
-            | IndentedLongIdentifier _, NamespaceLevel -> fail index IndentedNamespaceCode
-            | Indented _, _
-            | IndentedLongIdentifier _, _ -> { state with Current = Covered }
+            | TopLevel IfEnd, conditional :: rest ->
+                let skipped = if conditional.HasElse then [] else conditional.Entry
+
+                {
+                    state with
+                        Paths =
+                            conditional.Ended
+                            @ state.Paths
+                            @ skipped
+                            |> List.distinct
+                        Conditionals = rest
+                }
+            | TopLevel IfElse, _
+            | TopLevel IfEnd, _ -> unsupported index state
+            | _ ->
+                let stepped =
+                    state.Paths
+                    |> List.map (stepPath index kind)
+
+                {
+                    state with
+                        Paths =
+                            stepped
+                            |> List.map fst
+                            |> List.distinct
+                        Problems =
+                            (stepped
+                             |> List.choose snd)
+                            @ state.Problems
+                }
+
+        let start = {
+            ColumnZero = NamespaceLevel
+            Current = NamespaceLevel
+            HeaderSeen = false
+        }
 
         let final =
             lines
             |> List.fold step {
-                ColumnZero = NamespaceLevel
-                Current = NamespaceLevel
-                HeaderSeen = false
-                Errors = []
+                Paths = [ start ]
+                Conditionals = []
+                Problems = []
             }
 
-        List.rev final.Errors
+        final.Conditionals
+        |> List.map (fun conditional -> conditional.IfLine, UnsupportedDirective)
+        |> List.append final.Problems
+        |> List.distinct
+        |> List.sortBy fst
+        |> List.map (fun (index, problem) -> error index problem)
 
     let private checkNamespaceUse (scanned: ScannedLine) kind =
         let start = replaceFrom kind
@@ -868,10 +964,13 @@ module SourcesPackage =
                         | TopLevel(Member visibilityAt) ->
                             insertVisibility visibilityAt lines[index]
                         | TopLevel Directive
+                        | TopLevel IfStart
+                        | TopLevel IfElse
+                        | TopLevel IfEnd
                         | TopLevel NotDeclaration
                         | TopLevel Namespace
-                        | Indented _
-                        | IndentedLongIdentifier _
+                        | IndentedDeclaration _
+                        | IndentedCode _
                         | NoCode
                         | StringContent -> lines[index]
 

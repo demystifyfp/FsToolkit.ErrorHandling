@@ -43,6 +43,7 @@ type Item =
     | EscapedQuotes
     | IndentedOpenComment of Hidden list
     | LaterNamespace
+    | CoveringModule
 
 type LeadingItem =
     | LeadingBlank
@@ -75,6 +76,9 @@ let private nothing = {
 }
 
 let private plain text = { Text = text; Expected = nothing }
+
+[<Literal>]
+let CoveringModuleLine = "module internal Cover ="
 
 let private indent indented = if indented then "    " else ""
 
@@ -196,6 +200,10 @@ let rec private renderItem item =
         plain "    let value = 1 (* opens"
         :: hiddenLines hidden
         @ [ plain "*)" ]
+    | CoveringModule -> [
+        plain CoveringModuleLine
+        plain "    let covered = 1"
+      ]
     | LaterNamespace -> [
         {
             Text = "namespace FsToolkit.ErrorHandling.Later"
@@ -262,7 +270,11 @@ type private ScopeState = {
     Current: ModelScope
 }
 
-let private coveringModule = Declaration(NestedModule, Internal, NoTrailing)
+let private strictest left right =
+    match left, right with
+    | AtNamespace, _
+    | _, AtNamespace -> AtNamespace
+    | InBody, InBody -> InBody
 
 let rec private coverItems state items =
     match items with
@@ -275,7 +287,8 @@ let rec private coverItems state items =
             | SingleLineBlockComment _
             | MultiLineBlockComment _
             | NestedBlockComment _ -> state, [ item ]
-            | Declaration _ -> { state with Current = InBody }, [ item ]
+            | Declaration _
+            | CoveringModule -> { state with Current = InBody }, [ item ]
             | ColumnZeroLet
             | Attribute
             | Open false
@@ -293,9 +306,14 @@ let rec private coverItems state items =
                 },
                 [ item ]
             | IfDef(active, inactive) ->
-                let state, active = coverItems state active
-                let state, inactive = coverItems state inactive
-                state, [ IfDef(active, inactive) ]
+                let activeEnd, active = coverItems state active
+                let inactiveEnd, inactive = coverItems state inactive
+
+                {
+                    ColumnZero = strictest activeEnd.ColumnZero inactiveEnd.ColumnZero
+                    Current = strictest activeEnd.Current inactiveEnd.Current
+                },
+                [ IfDef(active, inactive) ]
             | Open true
             | Multiply true
             | StringWithCommentStart true
@@ -307,7 +325,7 @@ let rec private coverItems state items =
                 | AtNamespace ->
                     { state with Current = InBody },
                     [
-                        coveringModule
+                        CoveringModule
                         item
                     ]
                 | InBody -> state, [ item ]
@@ -514,7 +532,8 @@ let rec private shrinkItem item =
         | StringWithCommentStart _
         | CharLiteralQuote
         | EscapedQuotes
-        | LaterNamespace -> ()
+        | LaterNamespace
+        | CoveringModule -> ()
     }
 
 let private shrinkLeading leading =

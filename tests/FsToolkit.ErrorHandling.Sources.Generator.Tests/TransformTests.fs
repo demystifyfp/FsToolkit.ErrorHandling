@@ -317,6 +317,18 @@ let properties =
                         errors
                         (fun error -> error.Problem = IndentedNamespaceCode)
                         "Only indented namespace-level code is rejected"
+
+                    let firstCover =
+                        render file
+                        |> List.findIndex (fun line -> line.Text = CoveringModuleLine)
+
+                    Expect.equal
+                        errors.Head.Line
+                        (Some(
+                            firstCover
+                            + 1
+                        ))
+                        "The first rejected line is the first line that the model covers with a module"
                 | _, expected -> failtestf "Expected rejection: %b. Result: %A" expected result
             )
 
@@ -438,6 +450,68 @@ let examples =
             failsWith "namespace Demo\nmodule R =\n    // note\n    List\n" [
                 Some 2, ColumnZeroModuleAbbreviation
             ]
+
+            failsWith "namespace Demo\nmodule R =\n    Microsoft.FSharp.Collections.``List``\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+
+            failsWith "namespace Demo\nmodule R =\n    Ñandu\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+
+            failsWith
+                "namespace Demo\nmodule R =\n    Microsoft.FSharp.Collections.\n        List\n"
+                [ Some 2, ColumnZeroModuleAbbreviation ]
+        }
+        test "a module body that starts with an expression" {
+            failsWith "namespace Demo\nmodule R =\n    printfn \"x\"\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+        }
+        test "a module abbreviation in one #if branch" {
+            failsWith
+                "namespace Demo\nmodule M =\n#if FABLE_COMPILER\n    let x = 1\n#else\n    Microsoft.FSharp.Collections.List\n#endif\n"
+                [ Some 2, ColumnZeroModuleAbbreviation ]
+        }
+        test "indented code after an #if that has a module only in one branch" {
+            failsWith
+                "namespace Demo\n#if FLAG\nmodule M =\n    let x = 1\n#endif\n    type Probe() = class end\n"
+                [ Some 6, IndentedNamespaceCode ]
+
+            failsWith
+                "namespace Demo\n#if FABLE_COMPILER\nopen System\n#else\nmodule M =\n#endif\n    type B() = class end\n"
+                [ Some 7, IndentedNamespaceCode ]
+        }
+        test "a top-level module line in each #if branch" {
+            let output =
+                transformOk
+                    "Probe.fs"
+                    "#if FLAG\nmodule Demo.One\n#else\nmodule Demo.Two\n#endif\nlet value = 1\n"
+
+            Expect.stringContains
+                output
+                $"module {VisibilityToken} Demo.One"
+                "the first branch gets the visibility token"
+
+            Expect.stringContains
+                output
+                $"module {VisibilityToken} Demo.Two"
+                "the second branch gets the visibility token"
+        }
+        test "an unsupported directive" {
+            failsWith "namespace Demo\ntype A = int\n#endif\n" [ Some 3, UnsupportedDirective ]
+            failsWith "namespace Demo\n#if FLAG\ntype A = int\n" [ Some 2, UnsupportedDirective ]
+
+            failsWith "namespace Demo\n#if A\ntype A = int\n#elif B\ntype B = int\n#endif\n" [
+                Some 4, UnsupportedDirective
+            ]
+
+            failsWith
+                "namespace Demo\nmodule M =\n    let x = 1\n    #if FLAG\n    let y = 2\n    #endif\n"
+                [
+                    Some 4, UnsupportedDirective
+                    Some 6, UnsupportedDirective
+                ]
         }
         test "module abbreviation with '=' on the next line" {
             failsWith "namespace Demo\nmodule R\n    = List\n" [
