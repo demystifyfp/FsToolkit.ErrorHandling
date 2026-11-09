@@ -14,6 +14,7 @@
     <NoWarn>FS1204;FS3501;FS3511</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ArrayTraverse.fs" />
     <Compile Include="ListTraverse.fs" />
     <Compile Include="SeqTests.fs" />
     <Compile Include="ApplicativeTests.fs" />
