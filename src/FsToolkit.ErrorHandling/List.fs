@@ -1,7 +1,5 @@
 namespace FsToolkit.ErrorHandling
 
-open Microsoft.FSharp.Core.CompilerServices
-
 [<RequireQualifiedAccess>]
 module List =
 
@@ -56,7 +54,7 @@ module List =
 
     let rec private traverseResultA'
         (state: Result<'ok list, 'error list>)
-        ([<InlineIfLambda>] f: 't -> Result<'ok, 'error>)
+        (f: 't -> Result<'ok, 'error>)
         (xs: 't list)
         : Result<'ok list, 'error list> =
         match xs with
