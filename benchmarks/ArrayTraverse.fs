@@ -65,11 +65,12 @@ module private Candidates =
         match xs with
         | [||] -> state
         | xs -> Seq.traverseResultM' state f xs
+
     let traverseResultM1 f xs = traverseResultM1' (Ok Array.empty) f xs
 
     let inline traverseResultM2
-            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-            (xs: 'okInput[])
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
         =
         let mutable results = ArrayCollector<'okOutput>()
         let mutable error = Unchecked.defaultof<'error>
@@ -87,9 +88,10 @@ module private Candidates =
                 ok <- false
 
         if ok then Ok(results.Close()) else Error error
+
     let inline traverseResultM3
-            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-            (xs: 'okInput[])
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
         =
         let mutable results = ArrayCollector<'okOutput>()
         let mutable error = Unchecked.defaultof<'error>
@@ -97,45 +99,51 @@ module private Candidates =
 
         for x in xs do
             match f x with
-            | Ok value -> if ok then results.Add value
+            | Ok value ->
+                if ok then
+                    results.Add value
             | Error e ->
                 error <- e
                 ok <- false
 
         if ok then Ok(results.Close()) else Error error
+
     let inline traverseResultM4
-            ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-            (xs: 'okInput[])
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
         =
         let mutable error = Unchecked.defaultof<'error>
         let mutable ok = true
 
-        let res =
-            [| for x in xs do
+        let res = [|
+            for x in xs do
                 match f x with
-                | Ok value -> if ok then value
+                | Ok value ->
+                    if ok then
+                        value
                 | Error e ->
                     error <- e
-                    ok <- false |]
+                    ok <- false
+        |]
 
         if ok then Ok res else Error error
 
     let inline traverseResultA1'
-        (state: Result<'a [], 'b []>)
+        (state: Result<'a[], 'b[]>)
         ([<InlineIfLambda>] f: 'c -> Result<'a, 'b>)
         (xs: 'c[])
-        : Result<'a [], 'b []> =
+        : Result<'a[], 'b[]> =
         match xs with
         | [||] -> state
-        | xs ->
-            Seq.traverseResultA' state f xs
+        | xs -> Seq.traverseResultA' state f xs
+
     let traverseResultA1 f xs = traverseResultA1' (Ok Array.empty) f xs
 
     let inline traverseResultA2'
-        (state: Result<'a [], 'b []>)
+        (state: Result<'a[], 'b[]>)
         ([<InlineIfLambda>] f: 'c -> Result<'a, 'b>)
         (xs: 'c[])
-        : Result<'a [], 'b []> =
+        : Result<'a[], 'b[]> =
 #if FABLE_COMPILER
         traverseResultA1' state f xs
 #else
@@ -227,10 +235,12 @@ type ArrayTraverseBenchmarks() =
     [<BenchmarkCategory("ResultM")>]
     member _.TraverseResultM2() =
         Candidates.traverseResultM2 toResult inputs
+
     [<Benchmark>]
     [<BenchmarkCategory("ResultM")>]
     member _.TraverseResultM3() =
         Candidates.traverseResultM3 toResult inputs
+
     [<Benchmark>]
     [<BenchmarkCategory("ResultM")>]
     member _.TraverseResultM4() =
