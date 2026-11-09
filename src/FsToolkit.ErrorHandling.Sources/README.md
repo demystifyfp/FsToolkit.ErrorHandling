@@ -10,6 +10,8 @@ The package contains only the source code of the `FsToolkit.ErrorHandling` packa
 ## Requirements
 
 - F# 9 or later (.NET SDK 9.0 or later).
+- For `net9.0` or later, FSharp.Core 9.0.300 or later. The package depends on that version. The .NET SDK 9.0.300 or later gives it by default. With an earlier SDK 9.0 version, restore reports `NU1605` (a package downgrade). Then use SDK 9.0.300 or later, or add a direct `FSharp.Core` reference of version 9.0.300 or later.
+- For `netstandard2.0` and `netstandard2.1`, FSharp.Core 6.0.4 or later.
 - If your project targets `net9.0` or later, do not set `LangVersion` lower than `9.0`.
 - Reference the package directly from each project that uses it. NuGet does not give content files to projects that reference your project.
 - Use a `PackageReference`. Paket is not tested with this package.
