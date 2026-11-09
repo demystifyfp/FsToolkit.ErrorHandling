@@ -526,6 +526,14 @@ let examples =
                 $"module {VisibilityToken} R ="
                 "the module gets the visibility token"
         }
+        test "a #nowarn line inside a module body" {
+            Expect.stringContains
+                (transformOk
+                    "Probe.fs"
+                    "namespace Demo\nmodule R =\n    let x = 1\n#nowarn \"40\"\n    let y = 2\n")
+                $"module {VisibilityToken} R ="
+                "the module gets the visibility token"
+        }
         test "indented code at namespace level" {
             failsWith "namespace Demo\n    type Probe() = class end\n" [
                 Some 2, IndentedNamespaceCode
