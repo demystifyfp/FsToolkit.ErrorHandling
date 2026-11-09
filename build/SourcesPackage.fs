@@ -87,6 +87,7 @@ module SourcesPackage =
         | UnterminatedCommentOrString
         | NoDeclaration
         | CodeBeforeFableGuard
+        | IndentedNamespaceCode
 
     type SourceError = {
         File: string
@@ -131,7 +132,7 @@ module SourcesPackage =
             | ColumnZeroTypeExtension -> "column-0 type extension"
             | ColumnZeroModuleRec -> "column-0 'module rec'"
             | ColumnZeroModuleAbbreviation ->
-                "column-0 module line has code after '=', such as a module abbreviation, which cannot take an access modifier (FS0536). Put the module body on the next lines"
+                "column-0 module line is, or can be, a module abbreviation, which cannot take an access modifier (FS0536). Put '=' at the end of the module line and declarations in the module body"
             | ColumnZeroException -> "column-0 exception declaration"
             | UnrecognizedDeclaration keyword -> $"unrecognized '{keyword}' declaration"
             | UnrecognizedLine -> "unrecognized column-0 line"
@@ -152,6 +153,8 @@ module SourcesPackage =
             | NoDeclaration -> "has no column-0 namespace or module declaration"
             | CodeBeforeFableGuard ->
                 "a file excluded from Fable must have only comments before its first namespace or module declaration"
+            | IndentedNamespaceCode ->
+                "indented code at namespace level does not get FsToolkitErrorHandlingVisibility. Start each namespace-level declaration in column 0"
 
         match error.Line with
         | Some line -> $"{error.File}({line}): {reason}: {error.Text}"
@@ -489,14 +492,18 @@ module SourcesPackage =
         })
 
     type private Declaration =
+        | Directive
         | NotDeclaration
+        | Namespace
         | Header of visibilityAt: int option
+        | NestedModule of visibilityAt: int option
         | Member of visibilityAt: int option
 
     type private LineKind =
         | NoCode
         | StringContent
         | Indented of codeStart: int
+        | IndentedLongIdentifier of codeStart: int
         | TopLevel of Declaration
 
     let private declaration = Regex(@"^(module|type|and|exception)(\s|$)")
@@ -506,8 +513,10 @@ module SourcesPackage =
     let private identifierStart = Regex(@"^[A-Za-z_]")
     let private attributeWithCode = Regex(@"^\[<.*>\]\s*\S")
 
+    let private longIdentifierOnly =
+        Regex(@"^\s*(?:global\s*\.\s*)?[A-Za-z_][\w']*(?:\s*\.\s*[A-Za-z_][\w']*)*\s*$")
+
     let private notDeclarationStarts = [
-        "#"
         "open "
         "let "
     ]
@@ -519,7 +528,9 @@ module SourcesPackage =
         let m = declaration.Match code
 
         if startsWith code "namespace " then
-            Ok(Header None)
+            Ok Namespace
+        elif startsWith code "#" then
+            Ok Directive
         elif startsWith code "[<" then
             if attributeWithCode.IsMatch code then
                 Error CodeAfterAttribute
@@ -539,13 +550,10 @@ module SourcesPackage =
             let modifier = accessModifier.Match rest
 
             let place visibilityAt =
-                if
-                    keyword = "module"
-                    && not (code.Contains '=')
-                then
-                    Header visibilityAt
-                else
-                    Member visibilityAt
+                match keyword with
+                | "module" when code.Contains '=' -> NestedModule visibilityAt
+                | "module" -> Header visibilityAt
+                | _ -> Member visibilityAt
 
             match keyword with
             | "exception" -> Error ColumnZeroException
@@ -589,6 +597,7 @@ module SourcesPackage =
             classifyColumnZero (code.TrimEnd())
             |> Result.map TopLevel
         | _, Some _ when not (Char.IsWhiteSpace line[0]) -> Error CodeAfterComment
+        | _, Some index when longIdentifierOnly.IsMatch code -> Ok(IndentedLongIdentifier index)
         | _, Some index -> Ok(Indented index)
 
     let private namespaceReference =
@@ -614,9 +623,83 @@ module SourcesPackage =
     let private replaceFrom kind =
         match kind with
         | TopLevel _ -> Some 0
-        | Indented codeStart -> Some codeStart
+        | Indented codeStart
+        | IndentedLongIdentifier codeStart -> Some codeStart
         | NoCode
         | StringContent -> None
+
+    type private Scope =
+        | NamespaceLevel
+        | Covered
+        | ModuleBodyStart of moduleLine: int
+
+    type private ScopeState = {
+        ColumnZero: Scope
+        Current: Scope
+        HeaderSeen: bool
+        Errors: SourceError list
+    }
+
+    let private scopeErrors
+        (error: int -> SourceProblem -> SourceError)
+        (lines: (int * LineKind) list)
+        =
+        let step state (index, kind) =
+            let fail at problem = {
+                state with
+                    Errors =
+                        error at problem
+                        :: state.Errors
+            }
+
+            match kind, state.Current with
+            | NoCode, _
+            | StringContent, _
+            | TopLevel Directive, _ -> state
+            | TopLevel Namespace, _ -> {
+                state with
+                    ColumnZero = NamespaceLevel
+                    Current = NamespaceLevel
+                    HeaderSeen = true
+              }
+            | TopLevel(Header _), _ when state.HeaderSeen -> {
+                fail index ColumnZeroModuleAbbreviation with
+                    Current = Covered
+              }
+            | TopLevel(Header _), _ -> {
+                state with
+                    ColumnZero = Covered
+                    Current = Covered
+                    HeaderSeen = true
+              }
+            | TopLevel(NestedModule _), _ -> {
+                state with
+                    Current = ModuleBodyStart index
+              }
+            | TopLevel(Member _), _ -> { state with Current = Covered }
+            | TopLevel NotDeclaration, _ -> {
+                state with
+                    Current = state.ColumnZero
+              }
+            | IndentedLongIdentifier _, ModuleBodyStart moduleLine -> {
+                fail moduleLine ColumnZeroModuleAbbreviation with
+                    Current = Covered
+              }
+            | Indented _, NamespaceLevel
+            | IndentedLongIdentifier _, NamespaceLevel -> fail index IndentedNamespaceCode
+            | Indented _, _
+            | IndentedLongIdentifier _, _ -> { state with Current = Covered }
+
+        let final =
+            lines
+            |> List.fold step {
+                ColumnZero = NamespaceLevel
+                Current = NamespaceLevel
+                HeaderSeen = false
+                Errors = []
+            }
+
+        List.rev final.Errors
 
     let private checkNamespaceUse (scanned: ScannedLine) kind =
         let start = replaceFrom kind
@@ -726,8 +809,15 @@ module SourcesPackage =
 
         let isHeader kind =
             match kind with
+            | TopLevel Namespace
             | TopLevel(Header _) -> true
             | _ -> false
+
+        let structureScopeErrors =
+            if lineErrors.IsEmpty then
+                scopeErrors error rewritten
+            else
+                []
 
         let firstHeader =
             rewritten
@@ -763,7 +853,8 @@ module SourcesPackage =
             tokenErrors
             @ lineErrors
             @ endErrors
-            @ structureErrors,
+            @ structureErrors
+            @ structureScopeErrors,
             firstHeader
         with
         | [], Some header ->
@@ -773,10 +864,14 @@ module SourcesPackage =
                     let line =
                         match kind with
                         | TopLevel(Header visibilityAt)
+                        | TopLevel(NestedModule visibilityAt)
                         | TopLevel(Member visibilityAt) ->
                             insertVisibility visibilityAt lines[index]
+                        | TopLevel Directive
                         | TopLevel NotDeclaration
+                        | TopLevel Namespace
                         | Indented _
+                        | IndentedLongIdentifier _
                         | NoCode
                         | StringContent -> lines[index]
 

@@ -253,10 +253,94 @@ let private renderLeading leading =
         :: hiddenLines hidden
         @ [ plain "*)" ]
 
-let render (file: ModelFile) =
+type private ModelScope =
+    | AtNamespace
+    | InBody
+
+type private ScopeState = {
+    ColumnZero: ModelScope
+    Current: ModelScope
+}
+
+let private coveringModule = Declaration(NestedModule, Internal, NoTrailing)
+
+let rec private coverItems state items =
+    match items with
+    | [] -> state, []
+    | item :: rest ->
+        let state, covered =
+            match item with
+            | Blank
+            | LineComment _
+            | SingleLineBlockComment _
+            | MultiLineBlockComment _
+            | NestedBlockComment _ -> state, [ item ]
+            | Declaration _ -> { state with Current = InBody }, [ item ]
+            | ColumnZeroLet
+            | Attribute
+            | Open false
+            | Multiply false
+            | StringWithCommentStart false ->
+                {
+                    state with
+                        Current = state.ColumnZero
+                },
+                [ item ]
+            | LaterNamespace ->
+                {
+                    ColumnZero = AtNamespace
+                    Current = AtNamespace
+                },
+                [ item ]
+            | IfDef(active, inactive) ->
+                let state, active = coverItems state active
+                let state, inactive = coverItems state inactive
+                state, [ IfDef(active, inactive) ]
+            | Open true
+            | Multiply true
+            | StringWithCommentStart true
+            | MultiLineString _
+            | CharLiteralQuote
+            | EscapedQuotes
+            | IndentedOpenComment _ ->
+                match state.Current with
+                | AtNamespace ->
+                    { state with Current = InBody },
+                    [
+                        coveringModule
+                        item
+                    ]
+                | InBody -> state, [ item ]
+
+        let state, coveredRest = coverItems state rest
+
+        state,
+        covered
+        @ coveredRest
+
+let private coverIndentedCode header items =
+    let start =
+        match header with
+        | TopLevelModuleHeader _ -> InBody
+        | NamespaceHeader
+        | IfDefNamespaceHeader -> AtNamespace
+
+    coverItems { ColumnZero = start; Current = start } items
+    |> snd
+
+let private renderWith items (file: ModelFile) =
     List.collect renderLeading file.Leading
     @ renderHeader file.Header
-    @ renderItems file.Items
+    @ renderItems items
+
+let render (file: ModelFile) =
+    renderWith (coverIndentedCode file.Header file.Items) file
+
+let renderUncovered (file: ModelFile) = renderWith file.Items file
+
+let hasIndentedNamespaceCode (file: ModelFile) =
+    coverIndentedCode file.Header file.Items
+    <> file.Items
 
 let toText (lines: ModelLine list) =
     (lines

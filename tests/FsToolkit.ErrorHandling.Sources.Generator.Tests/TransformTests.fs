@@ -303,6 +303,23 @@ let properties =
                     "Removing the insertions must give the input"
             )
 
+        testProperty
+            "transform rejects a model file exactly when it has indented code at namespace level"
+        <| Prop.forAll
+            arbModelFile
+            (fun file ->
+                let result = transform AllCompilers "Model.fs" (toText (renderUncovered file))
+
+                match result, hasIndentedNamespaceCode file with
+                | Ok _, false -> ()
+                | Error errors, true ->
+                    Expect.all
+                        errors
+                        (fun error -> error.Problem = IndentedNamespaceCode)
+                        "Only indented namespace-level code is rejected"
+                | _, expected -> failtestf "Expected rejection: %b. Result: %A" expected result
+            )
+
         testProperty "visibility tokens, #nowarn lines, and namespace tokens match the model oracle"
         <| Prop.forAll
             arbModelFile
@@ -412,6 +429,47 @@ let examples =
                 (transformOk "Probe.fs" "namespace Demo\nmodule R =\n    let x = 1\n")
                 $"module {VisibilityToken} R ="
                 "the module gets the visibility token"
+        }
+        test "module abbreviation with its target on the next line" {
+            failsWith "namespace Demo\nmodule R =\n    Microsoft.FSharp.Collections.List\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+
+            failsWith "namespace Demo\nmodule R =\n    // note\n    List\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+        }
+        test "module abbreviation with '=' on the next line" {
+            failsWith "namespace Demo\nmodule R\n    = List\n" [
+                Some 2, ColumnZeroModuleAbbreviation
+            ]
+        }
+        test "a directive between a module line and its body" {
+            Expect.stringContains
+                (transformOk
+                    "Probe.fs"
+                    "namespace Demo\nmodule R =\n#if DEBUG\n    let x = 1\n#endif\n    let y = 2\n")
+                $"module {VisibilityToken} R ="
+                "the module gets the visibility token"
+        }
+        test "indented code at namespace level" {
+            failsWith "namespace Demo\n    type Probe() = class end\n" [
+                Some 2, IndentedNamespaceCode
+            ]
+
+            failsWith "namespace Demo\ntype A = int\nopen System\n    type B = int\n" [
+                Some 4, IndentedNamespaceCode
+            ]
+
+            failsWith "namespace Demo\ntype A = int\n[<System.Obsolete>]\n    type B = int\n" [
+                Some 4, IndentedNamespaceCode
+            ]
+        }
+        test "indented code after a top-level module line" {
+            Expect.stringContains
+                (transformOk "Probe.fs" "module Demo.Top\nopen System\n    type B = int\n")
+                $"module {VisibilityToken} Demo.Top"
+                "the top-level module gets the visibility token"
         }
         test "column-0 exception" {
             failsWith "namespace Demo\nexception Boom\n" [ Some 2, ColumnZeroException ]
