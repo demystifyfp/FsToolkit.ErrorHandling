@@ -526,6 +526,22 @@ let examples =
                 $"module {VisibilityToken} R ="
                 "the module gets the visibility token"
         }
+        test "a directive inside a string or comment that crosses an #if boundary" {
+            failsWith
+                "namespace Demo\n#if FLAG\nmodule M =\n    let x = \"\"\"\n#else\n    type Probe() = class end\n#endif\n#if FLAG\n    \"\"\"\n#endif\n"
+                [
+                    Some 5, UnsupportedDirective
+                    Some 7, UnsupportedDirective
+                    Some 8, UnsupportedDirective
+                ]
+
+            failsWith
+                "namespace Demo\nmodule M =\n#if FLAG\n    (*\n#else\n    let y = 2\n#endif\n    *)\n    let x = 1\n"
+                [
+                    Some 5, UnsupportedDirective
+                    Some 7, UnsupportedDirective
+                ]
+        }
         test "a #nowarn line inside a module body" {
             Expect.stringContains
                 (transformOk

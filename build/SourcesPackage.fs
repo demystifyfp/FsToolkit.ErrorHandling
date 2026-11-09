@@ -157,7 +157,7 @@ module SourcesPackage =
             | IndentedNamespaceCode ->
                 "indented code at namespace level does not get FsToolkitErrorHandlingVisibility. Start each namespace-level declaration in column 0"
             | UnsupportedDirective ->
-                "the directive is indented, '#elif', or not balanced, which the generator does not support. Put #if, #else, and #endif in column 0, and close each #if"
+                "the directive is indented, '#elif', inside a string or comment, or not balanced, which the generator does not support. Put #if, #else, and #endif in column 0 outside strings and comments, and close each #if"
 
         match error.Line with
         | Some line -> $"{error.File}({line}): {reason}: {error.Text}"
@@ -523,6 +523,7 @@ module SourcesPackage =
         Regex(@"^\s+(?:(?:let|type|module|open|do|exception|extern)(?:\s|$)|\[<)")
 
     let private conditionalDirective = Regex(@"^#(if|else|endif)(\s|$)")
+    let private directiveLine = Regex(@"^\s*#(if|else|elif|endif)(\s|$)")
 
     let private notDeclarationStarts = [
         "open "
@@ -605,6 +606,8 @@ module SourcesPackage =
             )
 
         match start, codeStart with
+        | (InString _ | InComment _ | InCommentString _), _ when directiveLine.IsMatch line ->
+            Error UnsupportedDirective
         | InString _, _ -> Ok StringContent
         | _, None -> Ok NoCode
         | _, Some 0 when isCommentState finish -> Error CommentOpenAfterCode
@@ -738,9 +741,7 @@ module SourcesPackage =
                     Conditionals =
                         {
                             conditional with
-                                Ended =
-                                    conditional.Ended
-                                    @ state.Paths
+                                Ended = state.Paths
                                 HasElse = true
                         }
                         :: rest
