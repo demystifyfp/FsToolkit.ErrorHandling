@@ -23,6 +23,7 @@ module Original =
             match r with
             | Ok _ -> traverseResultM' r f xs
             | Error _ -> r
+
     let traverseResultM f xs = traverseResultM' (Ok []) f xs
 
     let rec private traverseResultA' state f xs =
@@ -37,6 +38,7 @@ module Original =
             | Error errs, Error e -> traverseResultA' (Error(e :: errs)) f xs
             | Ok _, Error e -> traverseResultA' (Error [ e ]) f xs
             | Error e, Ok _ -> traverseResultA' (Error e) f xs
+
     let traverseResultA f xs = traverseResultA' (Ok []) f xs
 
     let rec private traverseAsyncResultM'
@@ -61,6 +63,7 @@ module Original =
                 | Ok _ -> return! traverseAsyncResultM' (async.Return r) f xs
                 | Error _ -> return r
             }
+
     let traverseAsyncResultM f xs =
         traverseAsyncResultM' (AsyncResult.ok []) f xs
 
@@ -82,6 +85,7 @@ module Original =
                 | Ok _, Error e -> return! traverseAsyncResultA' (AsyncResult.error [ e ]) f xs
                 | Error e, Ok _ -> return! traverseAsyncResultA' (AsyncResult.error e) f xs
             }
+
     let traverseAsyncResultA f xs =
         traverseAsyncResultA' (AsyncResult.ok []) f xs
 
@@ -90,8 +94,12 @@ module private Candidates =
     let traverseResultM1' state f xs =
         match xs with
         | [] -> state
-        | xs -> Seq.traverseResultM' state f xs |> Result.map List.ofArray
+        | xs ->
+            Seq.traverseResultM' state f xs
+            |> Result.map List.ofArray
+
     let traverseResultM1 f xs = traverseResultM1' (Ok List.empty) f xs
+
     let inline traverseResultM2'
         state
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
@@ -101,33 +109,33 @@ module private Candidates =
         | [] -> state
         | xs ->
 
-        match state with
-        | Error e -> Error e
-        | Ok initialSuccesses ->
+            match state with
+            | Error e -> Error e
+            | Ok initialSuccesses ->
 
-    #if FABLE_COMPILER
-            let oks = ResizeArray(initialSuccesses)
-    #else
-            let mutable oks = ListCollector()
-            oks.AddMany initialSuccesses
-    #endif
-            let mutable err = Unchecked.defaultof<'error>
-            let mutable ok = true
-            use e = (List.toSeq xs).GetEnumerator()
+#if FABLE_COMPILER
+                let oks = ResizeArray(initialSuccesses)
+#else
+                let mutable oks = ListCollector()
+                oks.AddMany initialSuccesses
+#endif
+                let mutable err = Unchecked.defaultof<'error>
+                let mutable ok = true
+                use e = (List.toSeq xs).GetEnumerator()
 
-            while ok
-                  && e.MoveNext() do
-                match f e.Current with
-                | Ok r -> oks.Add r
-                | Error e ->
-                    err <- e
-                    ok <- false
+                while ok
+                      && e.MoveNext() do
+                    match f e.Current with
+                    | Ok r -> oks.Add r
+                    | Error e ->
+                        err <- e
+                        ok <- false
 
-    #if FABLE_COMPILER
-            if ok then Ok(List.ofSeq oks) else Error err
-    #else
-            if ok then Ok(oks.Close()) else Error err
-    #endif
+#if FABLE_COMPILER
+                if ok then Ok(List.ofSeq oks) else Error err
+#else
+                if ok then Ok(oks.Close()) else Error err
+#endif
     let traverseResultM2 f xs = traverseResultM2' (Ok List.empty) f xs
 
     let inline traverseResultA1'
@@ -141,6 +149,7 @@ module private Candidates =
             state
             |> fun state -> Seq.traverseResultA' state f xs
             |> Result.eitherMap List.ofArray List.ofArray
+
     let traverseResultA1 f xs = traverseResultA1' (Ok []) f xs
 
     let inline private traverseResultA2'
@@ -227,6 +236,7 @@ module private Candidates =
             state
             |> fun state -> Seq.traverseAsyncResultA' state f xs
             |> AsyncResult.eitherMap List.ofArray List.ofArray
+
     let traverseAsyncResultA1 f xs =
         traverseAsyncResultA1' (async { return Ok List.empty }) f xs
 
@@ -285,7 +295,10 @@ module private Candidates =
         : Async<Result<'a list, 'b>> =
         match xs with
         | [] -> state
-        | xs -> Seq.traverseAsyncResultM' state f xs |> Async.map (Result.map List.ofArray)
+        | xs ->
+            Seq.traverseAsyncResultM' state f xs
+            |> Async.map (Result.map List.ofArray)
+
     let traverseAsyncResultM1 f xs =
         traverseAsyncResultM1' (async { return Ok List.empty }) f xs
 
@@ -336,6 +349,7 @@ module private Candidates =
                     return if ok then Ok(oks.Close()) else Error err
 #endif
             }
+
     let traverseAsyncResultM2 f xs =
         traverseAsyncResultM2' (async { return Ok List.empty }) f xs
 
