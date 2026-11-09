@@ -430,6 +430,33 @@ let failOnTestFileDrift () =
             expected
             actual
 
+let failOnDocsDrift () =
+    let readNormalized (path: string) =
+        (File.ReadAllText path).Replace("\r\n", "\n")
+
+    let readmePath =
+        sourcesProjectDir
+        </> "README.md"
+
+    let gitbookPath =
+        rootDir
+        </> "gitbook/sources/sourcesPackage.md"
+
+    if
+        not (
+            (readNormalized readmePath)
+                .StartsWith(
+                    readNormalized gitbookPath
+                    + "\n## Documentation\n",
+                    System.StringComparison.Ordinal
+                )
+        )
+    then
+        failwithf
+            "%s must be the full text of %s followed by its ## Documentation section. Make the same change in both files."
+            readmePath
+            gitbookPath
+
 type TargetsRun = {
     Command: string
     ExitCode: int
@@ -598,6 +625,7 @@ let failOnSourceVisibility () =
 
 let sourcesTest ctx =
     failOnTestFileDrift ()
+    failOnDocsDrift ()
     failOnTargetsDiagnostics ()
 
     let packagesDir =
