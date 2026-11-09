@@ -26,7 +26,7 @@ Add the reference with `PrivateAssets="all"`. Then the package does not become a
 </ItemGroup>
 ```
 
-If the `PackageReference` does not set `PrivateAssets="all"`, the build gives warning `FSTKSRC001`. A project that sets `IsPackable` to `false` does not get this warning. Without `PrivateAssets="all"`, a package of your project depends on `FsToolkit.ErrorHandling.Sources`. Each project that references your package then compiles the source files again.
+If the `PackageReference` does not set `PrivateAssets="all"`, the build gives warning `FSTKSRC001`. A project that sets `IsPackable` to `false` does not get this warning. Without `PrivateAssets="all"`, a package of your project depends on `FsToolkit.ErrorHandling.Sources`, and the projects that reference your package get its `FSharp.Core` minimum version. These projects do not compile the source files, because NuGet does not give content files to them.
 
 ## Configure
 
@@ -54,7 +54,7 @@ open Contoso.Internal.ErrorHandling
 
 ### Visibility
 
-With `internal`, the types and modules are not visible outside your assembly. Your public API cannot use them. For example, a public function cannot return `Validation<'ok, 'error>`. The compiler gives error FS0410.
+With `internal`, the types and modules are not visible outside your assembly. Your public API cannot use them. For example, a public function cannot return a `TaskResultBuilder`. The compiler gives error FS0410. A public `inline` function cannot call a function of this package. The compiler gives error FS1113. Type abbreviations, such as `Validation<'ok, 'error>`, are not affected, because the compiler replaces each abbreviation with the type that it names.
 
 Use `public` when your public API must expose these types. Then the types become part of your assembly's public API.
 

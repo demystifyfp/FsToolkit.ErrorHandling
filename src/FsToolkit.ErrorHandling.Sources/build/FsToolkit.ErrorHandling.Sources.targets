@@ -24,7 +24,7 @@
     </ItemGroup>
     <Warning Code="FSTKSRC001"
              Condition="'$(IsPackable)' != 'false' and '@(_FsToolkitErrorHandlingSourcesReference)' != '' and !$([System.Text.RegularExpressions.Regex]::IsMatch('%(_FsToolkitErrorHandlingSourcesReference.PrivateAssets)', '(?i)(^|;)\s*all\s*(;|$)'))"
-             Text="FsToolkit.ErrorHandling.Sources: the PackageReference does not set PrivateAssets=&quot;all&quot;. A package of this project then depends on FsToolkit.ErrorHandling.Sources, and each project that references that package compiles the source files again. Add PrivateAssets=&quot;all&quot;." />
+             Text="FsToolkit.ErrorHandling.Sources: the PackageReference does not set PrivateAssets=&quot;all&quot;. A package of this project then depends on FsToolkit.ErrorHandling.Sources, although the projects that reference that package do not compile its source files. Add PrivateAssets=&quot;all&quot;." />
   </Target>
 
   <!-- NuGet adds preprocessed content files to Compile after the project's own files. F# needs them first. -->
