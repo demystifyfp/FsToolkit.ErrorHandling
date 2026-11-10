@@ -647,9 +647,24 @@ module TaskValidationCEExtensionsMediumPriority =
             |> Task.singleton
 
 [<AutoOpen>]
+module TaskValidationCEExtensionsResult =
+
+    // Prefer Result sources over plain Task and Async sources.
+    // Keep the original medium-priority members for binary compatibility.
+    type TaskValidationBuilderBase with
+
+        member inline _.Source(s: Task<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
+            TaskResult.mapError List.singleton s
+
+        member inline _.Source(s: Async<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
+            s
+            |> AsyncResult.mapError List.singleton
+            |> Async.StartImmediateAsTask
+
+[<AutoOpen>]
 module TaskValidationCEExtensionsHighPriority2 =
 
-    // Medium priority extensions
+    // Prefer Validation sources over Result sources to avoid nesting error lists.
     type TaskValidationBuilderBase with
 
         member inline _.Source(result: Async<Validation<_, _>>) : Task<Validation<_, _>> =
