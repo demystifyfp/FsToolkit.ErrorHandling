@@ -3,7 +3,9 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-        <NoWarn>$(NoWarn); FS3511</NoWarn>
+        <!-- ValueTask returns yield lots of these due to ValueTask being a struct...
+             Error FS0052 : The value has been copied to ensure the original is not mutated by this operation or because the copy is implicit when returning a struct from a member and another member is then accessed -->
+        <NoWarn>$(NoWarn);FS0052</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="SampleDomain.fs" />

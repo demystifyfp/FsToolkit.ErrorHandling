@@ -5,7 +5,10 @@
         <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net9.0</TargetFrameworks>
 
         <DebugType>portable</DebugType>
-        <NoWarn>$(NoWarn);FS3511;FS3513</NoWarn>
+        <!-- ValueTask returns yield lots of these due to ValueTask being a struct...
+             Error FS0052 : The value has been copied to ensure the original is not mutated by this operation or because the copy is implicit when returning a struct from a member and another member is then accessed -->
+        <!-- FS3513: Resumable code invocation. Suppress this warning if you are defining new low-level resumable code in terms of existing resumable code. -->
+        <NoWarn>$(NoWarn);FS3513;FS0052</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="CancellableTaskResultBuilderBase.fs" />

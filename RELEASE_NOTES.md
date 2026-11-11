@@ -1,3 +1,8 @@
+### 6.0.0-beta004 - tba
+
+- [`List.traverseResultA`, `traverseAsyncResultA`, `traverseAsyncResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
+  - Resolves [#167](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/167)
+
 ### 6.0.0-beta003 - October 12, 2026
 
 - [Consistency cleanups: `req`, `Req`, `bindResult`, `eitherBind`, `eitherMap`, `ok`, `ignore` and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/376) Credits @bartelink
