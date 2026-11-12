@@ -67,6 +67,9 @@ let testsGlob =
 let srcAndTest =
     !!srcGlob
     ++ testsGlob
+    // These projects do not track an AssemblyInfo.fs, and GitRelease stages every file.
+    -- (rootDir
+        </> "tests/FsToolkit.ErrorHandling.Sources.*/**")
 
 let srcCodeGlob =
     !!(rootDir
@@ -362,8 +365,351 @@ let generateAssemblyInfo ctx =
 
 let releaseNotes = String.toLines release.Notes
 
+let sourcesProjectDir =
+    rootDir
+    </> "src/FsToolkit.ErrorHandling.Sources"
+
+let sourcesProject =
+    sourcesProjectDir
+    </> "FsToolkit.ErrorHandling.Sources.proj"
+
+let generateSources _ =
+    match
+        SourcesPackage.generate
+            (rootDir
+             </> "src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj")
+            (sourcesProjectDir
+             </> "obj/generated")
+    with
+    | Ok files -> Trace.tracefn "Generated %d source files for %s" files.Length sourcesProject
+    | Error error -> failwith (SourcesPackage.describeGenerateError error)
+
+let sourcesTestsFixture =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.Sources.Tests/FsToolkit.ErrorHandling.Sources.Tests.fsproj"
+
+let sourcesConsumerFixture =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.Sources.Consumer/FsToolkit.ErrorHandling.Sources.Consumer.fsproj"
+
+let failOnTestFileDrift () =
+    let testFiles projectPath =
+        match
+            File.ReadAllText projectPath
+            |> SourcesPackage.readCompileItems projectPath
+        with
+        | Ok items ->
+            items
+            |> List.map (fun item ->
+                Path.GetFullPath(
+                    Path.Combine(Path.GetDirectoryName(projectPath: string), item.Include)
+                ),
+                item.Condition
+            )
+        | Error errors ->
+            errors
+            |> List.map SourcesPackage.describeProjectError
+            |> String.concat "\n"
+            |> failwith
+
+    let expected =
+        testFiles (
+            rootDir
+            </> "tests/FsToolkit.ErrorHandling.Tests/FsToolkit.ErrorHandling.Tests.fsproj"
+        )
+
+    let actual = testFiles sourcesTestsFixture
+
+    if
+        actual
+        <> expected
+    then
+        failwithf
+            "The Compile items of %s must resolve to the files of FsToolkit.ErrorHandling.Tests.fsproj, in the same order and with the same conditions.\nExpected: %A\nActual: %A"
+            sourcesTestsFixture
+            expected
+            actual
+
+let failOnDocsDrift () =
+    let readNormalized (path: string) =
+        (File.ReadAllText path).Replace("\r\n", "\n")
+
+    let readmePath =
+        sourcesProjectDir
+        </> "README.md"
+
+    let gitbookPath =
+        rootDir
+        </> "gitbook/sources/sourcesPackage.md"
+
+    if
+        not (
+            (readNormalized readmePath)
+                .StartsWith(
+                    readNormalized gitbookPath
+                    + "\n## Documentation\n",
+                    System.StringComparison.Ordinal
+                )
+        )
+    then
+        failwithf
+            "%s must be the full text of %s followed by its ## Documentation section. Make the same change in both files."
+            readmePath
+            gitbookPath
+
+type TargetsRun = {
+    Command: string
+    ExitCode: int
+    Output: string
+}
+
+type InvalidTargetsValue = {
+    Property: string
+    Value: string
+    Message: string
+}
+
+let failOnTargetsDiagnostics () =
+    let validate project properties =
+        let result =
+            CreateProcess.fromRawCommand
+                "dotnet"
+                ([
+                    "msbuild"
+                    project
+                    "-nologo"
+                    "-tl:off"
+                    "-t:FsToolkitErrorHandlingSourcesValidate"
+                 ]
+                 @ (properties
+                    |> List.map (fun (name, value) -> $"-p:{name}={value}")))
+            |> CreateProcess.redirectOutput
+            |> Proc.run
+
+        let command =
+            properties
+            |> List.map (fun (name, value) -> $"{name}={value}")
+            |> String.concat " "
+
+        Trace.tracefn "%s %s: exit %d" (Path.GetFileName(project: string)) command result.ExitCode
+
+        {
+            Command = command
+            ExitCode = result.ExitCode
+            Output = result.Result.Output
+        }
+
+    let targets =
+        sourcesProjectDir
+        </> "build/FsToolkit.ErrorHandling.Sources.targets"
+
+    let keywordMessage = "A segment is '_', an F# keyword, or a reserved word."
+
+    let invalidValues = [
+        {
+            Property = "FsToolkitErrorHandlingVisibility"
+            Value = "PUBLIC"
+            Message = "Set it to 'internal' or 'public' in lowercase."
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso.type"
+            Message = keywordMessage
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso..Bad"
+            Message = "Set it to dotted ASCII F# identifiers"
+        }
+        {
+            Property = "FsToolkitErrorHandlingNamespace"
+            Value = "Contoso._"
+            Message = keywordMessage
+        }
+    ]
+
+    for invalid in invalidValues do
+        let run = validate targets [ invalid.Property, invalid.Value ]
+
+        let expected =
+            $"error : FsToolkit.ErrorHandling.Sources: {invalid.Property} is '{invalid.Value}'. {invalid.Message}"
+
+        if
+            run.ExitCode = 0
+            || not (run.Output.Contains expected)
+        then
+            failwithf
+                "%s must fail with \"%s\". Exit code %d. Output:\n%s"
+                run.Command
+                expected
+                run.ExitCode
+                run.Output
+
+    let control =
+        validate targets [
+            "FsToolkitErrorHandlingNamespace", "Contoso.ErrorHandling"
+            "FsToolkitErrorHandlingVisibility", "public"
+        ]
+
+    if
+        control.ExitCode
+        <> 0
+    then
+        failwithf
+            "%s must pass. Exit code %d. Output:\n%s"
+            control.Command
+            control.ExitCode
+            control.Output
+
+    let diagnosticsProject =
+        rootDir
+        </> "tests/FsToolkit.ErrorHandling.Sources.Consumer/diagnostics/Diagnostics.proj"
+
+    let warningCases = [
+        [], true
+        [ "IsPackable", "true" ], true
+        [ "IsPackable", "false" ], false
+        [
+            "IsPackable", "true"
+            "DiagnosticsPrivateAssets", "All"
+        ],
+        false
+    ]
+
+    for properties, warns in warningCases do
+        let run = validate diagnosticsProject properties
+
+        if
+            run.ExitCode
+            <> 0
+            || run.Output.Contains "warning FSTKSRC001"
+               <> warns
+        then
+            failwithf
+                "%s must exit 0 and %s warning FSTKSRC001. Exit code %d. Output:\n%s"
+                run.Command
+                (if warns then "give" else "not give")
+                run.ExitCode
+                run.Output
+
+let fixtureAssemblies (fixture: string) =
+    let assemblies =
+        !!(Path.GetDirectoryName fixture
+           </> "bin/**"
+           </> Path.GetFileNameWithoutExtension fixture
+               + ".dll")
+        |> Seq.toList
+
+    if List.isEmpty assemblies then
+        failwithf "No build output found for %s" fixture
+
+    assemblies
+
+let failOnSourceVisibility () =
+    for assembly in fixtureAssemblies sourcesConsumerFixture do
+        match SourcesPackage.publicTypesInNamespace assembly "Contoso.Internal.ErrorHandling" with
+        | [] -> ()
+        | types ->
+            failwithf
+                "%s must not export source package types with the default 'internal' visibility. Public types: %A"
+                assembly
+                types
+
+    for assembly in fixtureAssemblies sourcesTestsFixture do
+        let types = SourcesPackage.publicTypesInNamespace assembly "FsToolkit.ErrorHandling"
+
+        if not (List.contains "FsToolkit.ErrorHandling.TaskResultBuilder" types) then
+            failwithf
+                "%s must export FsToolkit.ErrorHandling.TaskResultBuilder with 'public' visibility."
+                assembly
+
+let sourcesTest ctx =
+    failOnTestFileDrift ()
+    failOnDocsDrift ()
+    failOnTargetsDiagnostics ()
+
+    let packagesDir =
+        rootDir
+        </> "obj/sources-test-packages"
+
+    Shell.deleteDir packagesDir
+
+    let withFixtureParams (msbuildParams: MSBuild.CliArguments) =
+        {
+            msbuildParams with
+                Properties = [
+                    ("RestorePackagesPath", packagesDir)
+                    ("FsToolkitErrorHandlingSourcesVersion", release.NugetVersion)
+                ]
+        }
+        |> BuildParameters.common
+
+    let fixtures = [
+        sourcesConsumerFixture
+        sourcesTestsFixture
+    ]
+
+    for fixture in fixtures do
+        let fixtureDir = Path.GetDirectoryName fixture
+
+        Shell.cleanDirs [
+            fixtureDir
+            </> "obj"
+            fixtureDir
+            </> "bin"
+        ]
+
+        DotNet.restore
+            (fun c -> {
+                c with
+                    // SDK 10.0.403 reads a URL source that follows a local folder source as a relative path (NU1301).
+                    Sources = [
+                        "https://api.nuget.org/v3/index.json"
+                        distDir
+                    ]
+                    MSBuildParams = withFixtureParams c.MSBuildParams
+            })
+            fixture
+
+    let buildConsumer extraArgs =
+        DotNet.build
+            (fun c -> {
+                c with
+                    NoRestore = true
+                    Configuration = configuration ctx.Context.AllExecutingTargets
+                    MSBuildParams = withFixtureParams c.MSBuildParams
+                    Common =
+                        c.Common
+                        |> DotNet.Options.withAdditionalArgs (
+                            maxCpuMsBuild.Value
+                            :: extraArgs
+                        )
+            })
+            sourcesConsumerFixture
+
+    buildConsumer []
+    // A multi-target rebuild skips NuGet content preprocessing in the inner builds unless the package targets repair it.
+    buildConsumer [ "--no-incremental" ]
+
+    DotNet.test
+        (fun c -> {
+            c with
+                NoRestore = true
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams = withFixtureParams c.MSBuildParams
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs [ maxCpuMsBuild.Value ]
+        })
+        sourcesTestsFixture
+
+    failOnSourceVisibility ()
+
 let dotnetPack ctx =
-    [ solutionFile ]
+    [
+        solutionFile
+        sourcesProject
+    ]
     |> Seq.iter (
         DotNet.pack (fun p -> {
             p with
@@ -470,7 +816,9 @@ let initTargets () =
     Target.create "RunTests" ignore
     Target.create "FemtoValidate" femtoValidate
     Target.create "GenerateAssemblyInfo" generateAssemblyInfo
+    Target.create "GenerateSources" generateSources
     Target.create "DotnetPack" dotnetPack
+    Target.create "SourcesTest" sourcesTest
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
     Target.create "Analyzers" analyze
@@ -567,8 +915,15 @@ let initTargets () =
     ==>! "PublishToNuGet"
 
     "Clean"
+    ?=>! "GenerateSources"
+
+    "GenerateSources"
+    ==>! "DotnetPack"
+
+    "Clean"
     ==> "CheckFormatCode"
     ==> "DotnetPack"
+    ==> "SourcesTest"
     ==> "PublishToNuGet"
     ==> "GitRelease"
     ==> "GitHubRelease"
@@ -591,6 +946,6 @@ let main argv =
 
     initTargets ()
 
-    Target.runOrDefaultWithArguments "DotnetPack"
+    Target.runOrDefaultWithArguments "SourcesTest"
 
     0 // return an integer exit code

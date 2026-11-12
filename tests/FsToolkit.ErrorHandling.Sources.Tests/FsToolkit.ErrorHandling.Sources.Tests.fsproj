@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <FsToolkitErrorHandlingVisibility>public</FsToolkitErrorHandlingVisibility>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingSourcesVersion)" />
+    <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValueOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Req.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Result.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ResultCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ResultOption.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ResultOptionCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Option.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/OptionCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ValueOption.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ValueOptionCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncOption.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncOptionCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/List.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Array.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Seq.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncResult.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncResultCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncResultOption.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncResultOptionCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Validation.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ValidationCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncValidation.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncValidationCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncResult.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncResultCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncValidation.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncValidationCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Main.fs" />
+  </ItemGroup>
+</Project>

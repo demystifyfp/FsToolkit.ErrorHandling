@@ -66,7 +66,7 @@ To test fable builds locally you will need:
 $ ./build.sh  <optional buildtarget>// on unix
 ```
 
-Without specifying a build target, the default target is `DotnetPack`, which will run tests for all projects on dotnet and then pack the projects into nuget packages. For additional notable targets see below.
+Without specifying a build target, the default target is `SourcesTest`, which will run tests for all projects on dotnet, pack the projects into nuget packages, and then test the `FsToolkit.ErrorHandling.Sources` package. For additional notable targets see below.
 
 ##### Build Targets
 
@@ -75,6 +75,7 @@ Without specifying a build target, the default target is `DotnetPack`, which wil
 - `NpmTest` - Will run tests for `fable-javascript` projects
 - `PythonTest` - Will run tests for `fable-python` projects
 - `RunTests` - Will run tests for `dotnet`, `fable-javascript` and `fable-python` projects
+- `SourcesTest` - Will pack the projects and test the `FsToolkit.ErrorHandling.Sources` package: the full test suite against the package, a consumer build, and the package's MSBuild checks
 - `FormatCode` - Will run `fantomas` to format the codebase
 
 This is not an exhaustive list. Additional targets can be found in the `./build/build.fs` file.

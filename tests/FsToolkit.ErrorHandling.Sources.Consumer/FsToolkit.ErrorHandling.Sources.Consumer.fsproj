@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net9.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OtherFlags>$(OtherFlags) --warnon:21,52,1178,1182,3366,3387,3388,3389,3390,3517,3559,3560</OtherFlags>
+    <FsToolkitErrorHandlingNamespace>Contoso.Internal.ErrorHandling</FsToolkitErrorHandlingNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingSourcesVersion)" />
+    <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Async.fs" />
+    <Compile Include="Library.fs" />
+  </ItemGroup>
+</Project>
