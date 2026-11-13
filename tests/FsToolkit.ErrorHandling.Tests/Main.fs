@@ -71,7 +71,16 @@ open Fable.Core.JsInterop
 
 [<EntryPoint>]
 let main argv =
-#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT || FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+    // Pyxpecto ends every finished run with process.exit, so "beforeExit" fires only when a test never completes.
+    emitJsStatement () """
+process.on("beforeExit", () => {
+    console.error("Test run did not finish: a test never completed.");
+    process.exitCode = 1;
+});"""
+    !!Pyxpecto.runTests [||] allTests
+#endif
+#if FABLE_COMPILER_PYTHON
     !!Pyxpecto.runTests  [||] allTests
 #endif
 #if !FABLE_COMPILER
