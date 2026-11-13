@@ -12,7 +12,7 @@
       -->
     <LangVersion>8.0</LangVersion>
     <LangVersion Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0')) ">9.0</LangVersion>
-    <Nullable Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0')) ">enable</Nullable>
+    <Nullable Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0')) And '$(FABLE_COMPILER)' != 'true' ">enable</Nullable>
   </PropertyGroup>
 
 
