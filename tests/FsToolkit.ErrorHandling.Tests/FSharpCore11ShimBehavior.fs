@@ -19,6 +19,14 @@ let private canceled () =
 
 let private settle (task: Task) = task.ContinueWith(fun (_: Task) -> ())
 
+// FSharp.Core 11.0.101 lacks dotnet/fsharp#20695: https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/384
+let private canceledTokenTest name test =
+#if NET11_0_OR_GREATER
+    ptestCaseTask $"{name} (pending #384)" test
+#else
+    testCaseTask name test
+#endif
+
 type private GatedTasks(size: int) =
     let started = Array.init size (fun _ -> signal ())
     let released = Array.init size (fun _ -> signal ())
@@ -190,6 +198,46 @@ let taskSequentialTests =
                 do! gated.Started 1
                 gated.Release 1
                 do! running
+            }
+
+        canceledTokenTest "sequential with a canceled token calls no factory"
+        <| fun () ->
+            task {
+                let calls = ref 0
+
+                let running =
+                    Task.sequential (CancellationToken(true)) [
+                        fun _ ->
+                            calls.Value <-
+                                calls.Value
+                                + 1
+
+                            Task.FromResult 1
+                    ]
+
+                do! settle running
+                Expect.isTrue running.IsCanceled "Canceled token cancels the task"
+                Expect.equal calls.Value 0 "No factory runs"
+            }
+
+        canceledTokenTest "sequentialDo with a canceled token calls no factory"
+        <| fun () ->
+            task {
+                let calls = ref 0
+
+                let running =
+                    Task.sequentialDo (CancellationToken(true)) [
+                        fun _ ->
+                            calls.Value <-
+                                calls.Value
+                                + 1
+
+                            Task.FromResult()
+                    ]
+
+                do! settle running
+                Expect.isTrue running.IsCanceled "Canceled token cancels the task"
+                Expect.equal calls.Value 0 "No factory runs"
             }
     ]
 

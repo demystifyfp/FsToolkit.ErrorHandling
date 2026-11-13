@@ -4,7 +4,7 @@
 [<AutoOpen>]
 #else
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-[<System.Obsolete "These shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+[<System.Obsolete "These shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
 module FsToolkit.ErrorHandling.FSharpCore11TaskShims
 
@@ -13,13 +13,13 @@ open System.Threading
 open System.Threading.Tasks
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.Task`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net11</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 #if NET11_0_OR_GREATER
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
 module Task =
 
@@ -183,6 +183,8 @@ module Task =
         |> catchWith Error
 #endif
 
+    // NOTE FSharp.Core 11.0.101 lacks dotnet/fsharp#20695, so on net11 sequential and sequentialDo do not check ct
+    // before each factory, but this net10 shim does. See https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/384
     /// <summary>Creates a task that executes each of the <c>computations</c> in sequence,
     /// returning an array of their results in order of the input sequence.</summary>
     /// <param name="ct">A cancellation token to pass to each task factory.</param>
@@ -415,13 +417,13 @@ module Task =
 #endif
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.ValueTask`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net11</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 #if NET11_0_OR_GREATER
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
 module ValueTask =
 
