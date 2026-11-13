@@ -1,6 +1,6 @@
 // NOTE Direct copy of FSharp.Core V11 with the following alterations:
 // - namespace is FsToolkit.ErrorHandling instead of Microsoft.FSharp.Control
-#if !NET10_0_OR_GREATER
+#if !NET11_0_OR_GREATER
 [<AutoOpen>]
 #else
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
@@ -17,7 +17,7 @@ open System.Threading.Tasks
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
 [<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
 #endif
@@ -33,7 +33,7 @@ module Task =
     /// </code>
     /// </example>
     let inline result (value: 'T) : Task<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.result value
 #else
         Task.FromResult value
@@ -46,7 +46,7 @@ module Task =
     /// </code>
     /// </example>
     let empty: Task<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.empty
 #else
         result ()
@@ -63,7 +63,7 @@ module Task =
     /// </code>
     /// </example>
     let inline bind ([<InlineIfLambda>] binder: 'T -> Task<'U>) (task: Task<'T>) : Task<'U> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.bind binder task
 #else
         if task.Status = TaskStatus.RanToCompletion then
@@ -89,7 +89,7 @@ module Task =
     /// </code>
     /// </example>
     let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (task: Task<'T>) : Task<'U> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.map mapping task
 #else
         if task.Status = TaskStatus.RanToCompletion then
@@ -116,7 +116,7 @@ module Task =
     /// </example>
     [<RequiresExplicitTypeArguments>]
     let inline ignore<'T> (task: Task<'T>) : Task<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.ignore<'T> task
 #else
         if task.Status = TaskStatus.RanToCompletion then
@@ -144,7 +144,7 @@ module Task =
     /// </code>
     /// </example>
     let inline catchWith ([<InlineIfLambda>] handler: exn -> 'T) (task: Task<'T>) : Task<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.catchWith handler task
 #else
         if task.Status = TaskStatus.RanToCompletion then
@@ -175,7 +175,7 @@ module Task =
     /// </code>
     /// </example>
     let catch (task: Task<'T>) : Task<Result<'T, exn>> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.catch task
 #else
         task
@@ -201,7 +201,7 @@ module Task =
         (ct: CancellationToken)
         (computations: seq<CancellationToken -> Task<'T>>)
         : Task<'T[]> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.sequential ct computations
 #else
         if ct.IsCancellationRequested then
@@ -237,7 +237,7 @@ module Task =
         (ct: CancellationToken)
         (computations: seq<CancellationToken -> Task<unit>>)
         : Task<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.sequentialDo ct computations
 #else
         if ct.IsCancellationRequested then
@@ -277,7 +277,7 @@ module Task =
         (ct: CancellationToken)
         (computations: seq<CancellationToken -> Task<'T>>)
         : Task<'T[]> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.parallelLimit maxDegreeOfParallelism ct computations
 #else
         if ct.IsCancellationRequested then
@@ -362,7 +362,7 @@ module Task =
         (ct: CancellationToken)
         (computations: seq<CancellationToken -> Task<unit>>)
         : Task<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.parallelDoLimit maxDegreeOfParallelism ct computations
 #else
         parallelLimit maxDegreeOfParallelism ct computations
@@ -389,7 +389,7 @@ module Task =
     /// </code>
     /// </example>
     let startAsyncImmediate (ct: CancellationToken) (computation: Async<'T>) : Task<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.startAsyncImmediate ct computation
 #else
         Async.StartImmediateAsTask(computation, cancellationToken = ct)
@@ -407,7 +407,7 @@ module Task =
     /// </code>
     /// </example>
     let inline ofValueTask (valueTask: ValueTask<'T>) : Task<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         Task.ofValueTask valueTask
 #else
         valueTask.AsTask()
@@ -419,7 +419,7 @@ module Task =
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
 [<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
 #endif
@@ -427,7 +427,7 @@ module ValueTask =
 
     [<CompiledName("Result")>]
     let inline result (value: 'T) : ValueTask<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.result value
 #else
         ValueTask<'T>(value)
@@ -435,7 +435,7 @@ module ValueTask =
 
     [<CompiledName("Empty")>]
     let empty: ValueTask<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.empty
 #else
         result ()
@@ -449,7 +449,7 @@ module ValueTask =
         ([<InlineIfLambda>] binder: 'T -> ValueTask<'U>)
         (task: ValueTask<'T>)
         : ValueTask<'U> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.bind binder task
 #else
         if task.IsCompletedSuccessfully then
@@ -470,7 +470,7 @@ module ValueTask =
 
     [<CompiledName("Map")>]
     let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (task: ValueTask<'T>) : ValueTask<'U> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.map mapping task
 #else
         if task.IsCompletedSuccessfully then
@@ -493,7 +493,7 @@ module ValueTask =
     [<CompiledName("Ignore")>]
     [<RequiresExplicitTypeArguments>]
     let inline ignore<'T> (task: ValueTask<'T>) : ValueTask<unit> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.ignore<'T> task
 #else
         map ignore task
@@ -504,7 +504,7 @@ module ValueTask =
         ([<InlineIfLambda>] handler: exn -> 'T)
         (task: ValueTask<'T>)
         : ValueTask<'T> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.catchWith handler task
 #else
         if task.IsCompletedSuccessfully then
@@ -524,7 +524,7 @@ module ValueTask =
 
     [<CompiledName("Catch")>]
     let catch (task: ValueTask<'T>) : ValueTask<Result<'T, exn>> =
-#if NET10_0_OR_GREATER
+#if NET11_0_OR_GREATER
         ValueTask.catch task
 #else
         task
