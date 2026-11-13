@@ -106,7 +106,7 @@ let createTableRow method modules =
             outputModules
             |> List.findIndex (fun m -> m = moduleName)
 
-        sparseSet.[index] <- mInfo.DeclaringType.FullName
+        sparseSet.[index] <- nonNull (nonNull mInfo.DeclaringType).FullName
 
     let data =
         sparseSet

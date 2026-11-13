@@ -15,8 +15,8 @@ CancellableValueTask<Result<'left, 'error>> -> CancellableValueTask<Result<'righ
 ### Example 1
 
 ```fsharp
-let left = CancellableValueTaskResult.singleton 123
-let right = CancellableValueTaskResult.singleton "abc"
+let left = CancellableValueTaskResult.ok 123
+let right = CancellableValueTaskResult.ok "abc"
 
 CancellableValueTaskResult.zip left right
 // cancellableValueTask { Ok (123, "abc") }
@@ -26,7 +26,7 @@ CancellableValueTaskResult.zip left right
 
 ```fsharp
 let left : CancellableValueTask<Result<int, string>> = cancellableValueTask { return Error "left error" }
-let right = CancellableValueTaskResult.singleton "abc"
+let right = CancellableValueTaskResult.ok "abc"
 
 CancellableValueTaskResult.zip left right
 // cancellableValueTask { Error "left error" }

@@ -284,7 +284,38 @@ let femtoValidate _ =
                 "Femto failed; perhaps you need to update the package.json?"
             |> raise
 
+// Fable 5 ships its Python runtime library on PyPI, and that version must match the fable tool version.
+let installFableLibraryForPython () =
+    let manifest =
+        rootDir
+        </> ".config"
+        </> "dotnet-tools.json"
+
+    use doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText manifest)
+
+    let fableVersion =
+        doc.RootElement.GetProperty("tools").GetProperty("fable").GetProperty("version").GetString()
+
+    let result =
+        CreateProcess.fromRawCommand "python" [
+            "-m"
+            "pip"
+            "install"
+            "--disable-pip-version-check"
+            $"fable-library=={fableVersion}"
+        ]
+        |> Proc.run
+
+    if
+        result.ExitCode
+        <> 0
+    then
+        Fake.Testing.Common.FailedTestsException $"Failed to install fable-library {fableVersion}"
+        |> raise
+
 let runPythonTests _ =
+    installFableLibraryForPython ()
+
     for testProject in fableAwareTests do
         let pythonBuildDir =
             testProject
@@ -327,10 +358,28 @@ let runPythonTests _ =
 
 
 let release =
-    ReleaseNotes.load (
+    let path =
         rootDir
         </> "RELEASE_NOTES.md"
-    )
+
+    let release = ReleaseNotes.load path
+
+    let firstHeadingVersion =
+        File.ReadLines path
+        |> Seq.tryPick (fun line ->
+            let m = System.Text.RegularExpressions.Regex.Match(line, @"^#+\s+\[?([^\]\s]+)")
+
+            if m.Success then Some m.Groups[1].Value else None
+        )
+
+    // FAKE 6 parses a "### [x.y.z]" heading as the latest release, whatever its position.
+    match firstHeadingVersion with
+    | Some version when version = release.NugetVersion -> release
+    | other ->
+        failwithf
+            "RELEASE_NOTES.md: FAKE parsed version %s, but the first heading has version %A."
+            release.NugetVersion
+            other
 
 let generateAssemblyInfo ctx =
     let getAssemblyInfoAttributes projectName = [

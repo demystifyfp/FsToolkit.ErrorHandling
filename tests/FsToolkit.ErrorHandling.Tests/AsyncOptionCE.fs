@@ -36,14 +36,14 @@ let ``AsyncOptionCE return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Some innerData
-            let! actual = asyncOption { return! Async.singleton data }
+            let! actual = asyncOption { return! Async.result data }
 
             Expect.equal actual data "Should be ok"
         }
         testCaseAsync "Return Async"
         <| async {
             let innerData = "Foo"
-            let! actual = asyncOption { return! Async.singleton innerData }
+            let! actual = asyncOption { return! Async.result innerData }
 
             Expect.equal actual (Some innerData) "Should be ok"
         }
@@ -52,21 +52,21 @@ let ``AsyncOptionCE return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Some innerData
-            let! actual = asyncOption { return! Task.FromResult data }
+            let! actual = asyncOption { return! Task.result data }
 
             Expect.equal actual data "Should be ok"
         }
         testCaseAsync "Return Task Generic"
         <| async {
             let innerData = "Foo"
-            let! actual = asyncOption { return! Task.FromResult innerData }
+            let! actual = asyncOption { return! Task.result innerData }
 
             Expect.equal actual (Some innerData) "Should be ok"
         }
         testCaseAsync "Return Task"
         <| async {
             let innerData = "Foo"
-            let! actual = asyncOption { return! Task.FromResult innerData :> Task }
+            let! actual = asyncOption { return! Task.result innerData :> Task }
 
             Expect.equal actual (Some()) "Should be ok"
         }
@@ -99,7 +99,7 @@ let ``AsyncOptionCE bind Tests`` =
 
             let data =
                 Some innerData
-                |> Async.singleton
+                |> Async.result
 
             let! actual =
                 asyncOption {
@@ -114,7 +114,7 @@ let ``AsyncOptionCE bind Tests`` =
         testCaseAsync "Bind Async"
         <| async {
             let innerData = "Foo"
-            let d = Async.singleton innerData
+            let d = Async.result innerData
 
             let! actual =
                 asyncOption {
@@ -133,7 +133,7 @@ let ``AsyncOptionCE bind Tests`` =
 
             let data =
                 Some innerData
-                |> Task.FromResult
+                |> Task.result
 
             let! actual =
                 asyncOption {
@@ -149,7 +149,7 @@ let ``AsyncOptionCE bind Tests`` =
 
             let! actual =
                 asyncOption {
-                    let! data = Task.FromResult innerData
+                    let! data = Task.result innerData
                     return data
                 }
 
@@ -158,7 +158,7 @@ let ``AsyncOptionCE bind Tests`` =
         testCaseAsync "Bind Task"
         <| async {
             let innerData = "Foo"
-            let! actual = asyncOption { do! Task.FromResult innerData :> Task }
+            let! actual = asyncOption { do! Task.result innerData :> Task }
 
             Expect.equal actual (Some()) "Should be ok"
         }
@@ -248,7 +248,7 @@ let ``AsyncOptionCE using Tests`` =
         <| async {
             let mutable disposed = false
             let mutable finished = false
-            let f1 _ = Async.singleton (Some 42)
+            let f1 _ = AsyncOption.some 42
 
             let! actual =
                 asyncOption {
@@ -491,17 +491,7 @@ let ``AsyncOptionCE loop Tests`` =
         }
     ]
 
-
-#if !FABLE_COMPILER
-let toTaskResult v =
-    v
-    |> Some
-    |> Task.FromResult
-#endif
-
-
 let ``AsyncOptionCE Stack Trace Tests`` =
-
 
     let failureAsync =
         async {

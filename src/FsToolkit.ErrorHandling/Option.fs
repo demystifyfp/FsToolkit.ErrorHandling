@@ -7,82 +7,11 @@ namespace FsToolkit.ErrorHandling
 module Option =
 
     /// <summary>
-    /// Binds a function to an option, applying the function to the value if the option is <c>Some</c>.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/bind</href>
-    /// </summary>
-    /// <param name="mapper">The function to apply to the value.</param>
-    /// <param name="input">The input option.</param>
-    /// <typeparam name="'TInput">The input type of the option.</typeparam>
-    /// <typeparam name="'TOutput">The output type of the option.</typeparam>
-    /// <returns>The result of applying the function to the value, or <c>None</c> if the option is <c>None</c>.</returns>
-    let inline bind
-        ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput option)
-        (input: 'TInput option)
-        : 'TOutput option =
-        match input with
-        | Some v -> mapper v
-        | None -> None
-
-    /// <summary>
-    /// Applies a mapper function to the value inside an option, returning a new option with the mapped value.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map</href>
-    /// </summary>
-    /// <param name="mapper">The function to apply to the value inside the option.</param>
-    /// <param name="input">The input option.</param>
-    /// <returns>An option with the mapped value if the input option is <c>Some</c>, otherwise <c>None</c>.</returns>
-    let inline map
-        ([<InlineIfLambda>] mapper: 'TInput -> 'TOutput)
-        (input: 'TInput option)
-        : 'TOutput option =
-        match input with
-        | Some v -> Some(mapper v)
-        | None -> None
-
-    /// <summary>
-    /// Applies a mapper function to the values inside two options, returning a new option with the mapped value.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map2</href>
-    /// </summary>
-    /// <param name="mapper">The function to apply to the values inside the options.</param>
-    /// <param name="input1">The first input option.</param>
-    /// <param name="input2">The second input option.</param>
-    /// <returns>An option with the mapped value if both input options are <c>Some</c>, otherwise <c>None</c>.</returns>
-    let inline map2
-        ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TOutput)
-        (input1: 'TInput1 option)
-        (input2: 'TInput2 option)
-        : 'TOutput option =
-        match (input1, input2) with
-        | Some x, Some y -> Some(mapper x y)
-        | _ -> None
-
-    /// <summary>
-    /// Applies a mapper function to the values inside three options, returning a new option with the mapped value.
-    ///
-    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/map3</href>
-    /// </summary>
-    /// <param name="mapper">The function to apply to the values inside the options.</param>
-    /// <param name="input1">The first input option.</param>
-    /// <param name="input2">The second input option.</param>
-    /// <param name="input3">The third input option.</param>
-    /// <returns>An option with the mapped value if all input options are <c>Some</c>, otherwise <c>None</c>.</returns>
-    let inline map3
-        ([<InlineIfLambda>] mapper: 'TInput1 -> 'TInput2 -> 'TInput3 -> 'TOutput)
-        (input1: 'TInput1 option)
-        (input2: 'TInput2 option)
-        (input3: 'TInput3 option)
-        : 'TOutput option =
-        match (input1, input2, input3) with
-        | Some x, Some y, Some z -> Some(mapper x y z)
-        | _ -> None
-
-    /// <summary>
     /// Ignores the value of an option and returns a unit option.
     /// </summary>
     /// <param name="opt">The option to ignore.</param>
     /// <returns>A unit option.</returns>
+    [<RequiresExplicitTypeArguments>]
     let inline ignore<'T> (opt: 'T option) : unit option =
         match opt with
         | Some _ -> Some()
@@ -348,7 +277,7 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Task<'U>)
         (opt: 'T option)
         : Task<'U option> =
-        sequenceTask ((map f) opt)
+        sequenceTask ((Option.map f) opt)
 
     /// <summary>
     /// Converts an <c>Task&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Task&lt;Result&lt;'ok option,'error&gt;&gt;</c><br />
@@ -381,11 +310,11 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Task<Result<'U, 'E>>)
         (opt: 'T option)
         : Task<Result<'U option, 'E>> =
-        sequenceTaskResult ((map f) opt)
+        sequenceTaskResult ((Option.map f) opt)
 #endif
 
     /// <summary>
-    /// Converts a Async<'T> option to an Async<'T option>
+    /// Converts an <c>Async&lt;'T&gt; option</c> to an <c>Async&lt;'T option&gt;</c>
     ///
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasync</href>
     /// </summary>
@@ -410,11 +339,10 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Async<'U>)
         (opt: 'T option)
         : Async<'U option> =
-        sequenceAsync ((map f) opt)
+        sequenceAsync ((Option.map f) opt)
 
     /// <summary>
-    /// Converts a Async<Result<'ok,'error>> option to an Async<Result<'ok option,'error>>
-    ///
+    /// Converts an <c>Async&lt;Result&lt;'ok,'error&gt;&gt; option</c> to an <c>Async&lt;Result&lt;'ok option,'error&gt;&gt;</c>.<br/>
     /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/sequenceasyncresult</href>
     /// </summary>
     let inline sequenceAsyncResult
@@ -432,9 +360,8 @@ module Option =
         }
 
     /// <summary>
-    /// Maps an AsyncResult function over an option, returning an AsyncResult option.
-    ///
-    /// /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
+    /// Maps an AsyncResult function over an option, returning an AsyncResult option.<br/>
+    /// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/option/traverseasyncresult</href>
     /// </summary>
     /// <param name="f">The function to map over the Option.</param>
     /// <param name="opt">The Option to map over.</param>
@@ -443,7 +370,7 @@ module Option =
         ([<InlineIfLambda>] f: 'T -> Async<Result<'U, 'E>>)
         (opt: 'T option)
         : Async<Result<'U option, 'E>> =
-        sequenceAsyncResult ((map f) opt)
+        sequenceAsyncResult ((Option.map f) opt)
 
     /// <summary>
     /// Creates an option from a boolean value and a value of type 'a.

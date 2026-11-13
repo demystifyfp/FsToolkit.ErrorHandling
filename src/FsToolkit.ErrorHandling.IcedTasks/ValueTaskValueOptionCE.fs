@@ -549,12 +549,9 @@ module ValueTaskValueOptionCEExtensionsMediumPriority =
             ValueTask<'T voption>(opt)
 
         member inline this.Source(computation: Async<'T>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(
-                computation
-                |> Async.map ValueSome
-                |> Async.StartImmediateAsTask
-            )
-
+            Async.StartImmediateAsTask computation
+            |> ValueTask.ofTask
+            |> ValueTask.map ValueSome
 
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsHighPriority2 =
@@ -563,10 +560,8 @@ module ValueTaskValueOptionCEExtensionsHighPriority2 =
     type ValueTaskValueOptionBuilderBase with
 
         member inline this.Source(computation: Async<'T voption>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(
-                computation
-                |> Async.StartImmediateAsTask
-            )
+            Async.StartImmediateAsTask computation
+            |> ValueTask.ofTask
 
         member inline this.Source(taskValueOption: Task<'T voption>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(taskValueOption)
+            ValueTask.ofTask taskValueOption

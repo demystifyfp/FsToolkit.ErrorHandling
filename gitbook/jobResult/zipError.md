@@ -25,7 +25,7 @@ JobResult.zipError jobErr1 jobErr2
 ### Example 2
 
 ```fsharp
-let jobOk = JobResult.singleton 42
+let jobOk = JobResult.ok 42
 let jobErr = JobResult.error "something went wrong"
 
 JobResult.zipError jobOk jobErr

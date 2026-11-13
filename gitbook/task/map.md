@@ -15,7 +15,7 @@ Apply a function to the value of a task.
 ### Example 1
 
 ```fsharp
-Task.map (fun x -> x + 1) (Task.singleton 1)
+Task.map (fun x -> x + 1) (Task.result 1)
 
 // task { 2 }
 ```

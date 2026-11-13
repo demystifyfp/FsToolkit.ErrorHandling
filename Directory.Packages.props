@@ -27,19 +27,19 @@
     <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.0" />
 
     <!-- Build group dependencies -->
-    <PackageVersion Include="Fake.Core.Target" Version="5.22.0" />
-    <PackageVersion Include="Fake.DotNet.Cli" Version="5.22.0" />
-    <PackageVersion Include="Fake.Core.ReleaseNotes" Version="5.22.0" />
-    <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="5.22.0" />
-    <PackageVersion Include="Fake.DotNet.Testing.Expecto" Version="5.22.0" />
-    <PackageVersion Include="Fake.Tools.Git" Version="5.22.0" />
-    <PackageVersion Include="Fake.JavaScript.Npm" Version="5.22.0" />
-    <PackageVersion Include="Fake.Api.GitHub" Version="5.22.0" />
-    <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="5.22.0" />
+    <PackageVersion Include="Fake.Core.Target" Version="6.2.0" />
+    <PackageVersion Include="Fake.DotNet.Cli" Version="6.2.0" />
+    <PackageVersion Include="Fake.Core.ReleaseNotes" Version="6.2.0" />
+    <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="6.2.0" />
+    <PackageVersion Include="Fake.DotNet.Testing.Expecto" Version="6.2.0" />
+    <PackageVersion Include="Fake.Tools.Git" Version="6.2.0" />
+    <PackageVersion Include="Fake.JavaScript.Npm" Version="6.2.0" />
+    <PackageVersion Include="Fake.Api.GitHub" Version="6.2.0" />
+    <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="6.2.0" />
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.206" />
     <PackageVersion Include="Octokit" Version="0.53.0" />
     <PackageVersion Include="Nuget.Common" Version="6.6.1" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.6.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.12.5" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="7.0.2" />
 
     <!-- Analyzers group dependencies -->
