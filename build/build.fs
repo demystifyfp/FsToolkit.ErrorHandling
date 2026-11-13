@@ -284,7 +284,38 @@ let femtoValidate _ =
                 "Femto failed; perhaps you need to update the package.json?"
             |> raise
 
+// Fable 5 ships its Python runtime library on PyPI, and that version must match the fable tool version.
+let installFableLibraryForPython () =
+    let manifest =
+        rootDir
+        </> ".config"
+        </> "dotnet-tools.json"
+
+    use doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText manifest)
+
+    let fableVersion =
+        doc.RootElement.GetProperty("tools").GetProperty("fable").GetProperty("version").GetString()
+
+    let result =
+        CreateProcess.fromRawCommand "python" [
+            "-m"
+            "pip"
+            "install"
+            "--disable-pip-version-check"
+            $"fable-library=={fableVersion}"
+        ]
+        |> Proc.run
+
+    if
+        result.ExitCode
+        <> 0
+    then
+        Fake.Testing.Common.FailedTestsException $"Failed to install fable-library {fableVersion}"
+        |> raise
+
 let runPythonTests _ =
+    installFableLibraryForPython ()
+
     for testProject in fableAwareTests do
         let pythonBuildDir =
             testProject
