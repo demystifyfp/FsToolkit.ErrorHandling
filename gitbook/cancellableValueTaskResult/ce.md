@@ -28,7 +28,7 @@ type LoginError =
 let login (username: string) (password: string) : CancellableValueTask<Result<AuthToken, LoginError>> =
   cancellableValueTaskResult {
     let! user = username |> tryGetUser |> CancellableValueTask.req Req.some InvalidUser
-    do! user |> Req.filter (isPwdValid password) InvalidPwd
+    let! _ = user |> Req.filter (isPwdValid password) InvalidPwd
     do! user |> authorize |> CancellableValueTaskResult.mapError Unauthorized
     return! user |> createAuthToken |> Result.mapError TokenErr
   }

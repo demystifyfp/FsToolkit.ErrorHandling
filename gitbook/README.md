@@ -45,7 +45,7 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
     let! user = username |> tryGetUser |> Async.req Req.some InvalidUser
 
     // Req.filter gives the specified error if isPwdValid returns false
-    do! user |> Req.filter (isPwdValid password) InvalidPwd
+    let! _ = user |> Req.filter (isPwdValid password) InvalidPwd
 
     // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
     do! user |> authorize |> AsyncResult.mapError Unauthorized
