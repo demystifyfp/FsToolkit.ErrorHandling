@@ -19,5 +19,8 @@
         <PackageReference Include="Fake.JavaScript.Npm" />
         <PackageReference Include="Fake.Api.GitHub" />
         <PackageReference Include="Fake.BuildServer.GitHubActions" />
+        <!-- Raise transitive versions of FAKE 6.2.0 past GHSA-rxg9-xrhp-64gj and GHSA-g4vj-cjjj-v7hg. -->
+        <PackageReference Include="MSBuild.StructuredLogger" />
+        <PackageReference Include="NuGet.Protocol" />
     </ItemGroup>
 </Project>

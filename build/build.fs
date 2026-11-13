@@ -327,10 +327,28 @@ let runPythonTests _ =
 
 
 let release =
-    ReleaseNotes.load (
+    let path =
         rootDir
         </> "RELEASE_NOTES.md"
-    )
+
+    let release = ReleaseNotes.load path
+
+    let firstHeadingVersion =
+        File.ReadLines path
+        |> Seq.tryPick (fun line ->
+            let m = System.Text.RegularExpressions.Regex.Match(line, @"^#+\s+\[?([^\]\s]+)")
+
+            if m.Success then Some m.Groups[1].Value else None
+        )
+
+    // FAKE 6 parses a "### [x.y.z]" heading as the latest release, whatever its position.
+    match firstHeadingVersion with
+    | Some version when version = release.NugetVersion -> release
+    | other ->
+        failwithf
+            "RELEASE_NOTES.md: FAKE parsed version %s, but the first heading has version %A."
+            release.NugetVersion
+            other
 
 let generateAssemblyInfo ctx =
     let getAssemblyInfoAttributes projectName = [
