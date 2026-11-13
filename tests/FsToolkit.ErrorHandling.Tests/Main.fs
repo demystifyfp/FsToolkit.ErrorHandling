@@ -27,6 +27,7 @@ let allTests =
         SeqTests.allTests
         #if !FABLE_COMPILER
         AsyncTests.asyncAwaitTests
+        FSharpCore11ShimBehaviorTests.allTests
         #endif
         AsyncResultTests.allTests
         AsyncResultCETests.allTests

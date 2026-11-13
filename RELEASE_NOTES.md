@@ -3,6 +3,7 @@
 - [`Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(Async, Task, ValueTask): `result`. Replaces `singleton`; aligned with FSharp.Core >= 11 naming.  
   - BREAKING(Task)!: `catch` returns `Task<Result<_,_>>` (was `Task<Choice<_,_>>`) to match FSharp.Core >= 11.
+  - NOTE BEHAVIOR CHANGE(Task): `map` on an already completed task runs the mapper at once. If the mapper throws `OperationCanceledException`, the result is now `Faulted` (was `Canceled`), as in FSharp.Core >= 11. A task that is still running gives `Canceled` as before.
   - BREAKING(Async, Task, Option)!: Add `RequiresExplicitTypeArguments` to `ignore` align with FSharp.Core Task/Async naming.
   - feat: `net11.0` target, which forwards the `Async` and `Task` shims to FSharp.Core 11. FSharp.Core minimum: `netstandard2.0`, `netstandard2.1`, `net6.0` 6.0.4, `net9.0` 9.0.300, `net10.0` 10.0.100, `net11.0` 11.0.101.
   - (net10 and lower TFMs) feat(Async, Task, ValueTask): Shims of `Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate` and related functions to align with FSharp.Core >= 11.0.0.
