@@ -12,7 +12,7 @@
     * [Computation Expression](result/ce.md)
     * [eitherBind](result/eitherBind.md)
     * [either Functions](result/eitherFunctions.md)
-    * [ignore](result/ignore.md) (from FSharp.Core)
+    * [ignore](result/ignore.md)
     * [map](result/map.md) (from FSharp.Core)
     * [map2](result/map2.md)
     * [map3](result/map3.md)

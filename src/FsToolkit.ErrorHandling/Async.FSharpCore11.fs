@@ -55,7 +55,7 @@ type Async =
     ///         ()
     ///     with
     ///     | :? System.InvalidOperationException as e ->
-    ///         printn $"Caught: {e.Message}"
+    ///         printfn $"Caught: {e.Message}"
     ///     | :? System.AggregateException ->
     ///         printfn "unreachable" // will not match: single exception is unwrapped
     /// } |> Async.RunSynchronously
@@ -107,7 +107,7 @@ type Async =
     ///         do! Async.Await t
     ///     with
     ///     | :? System.InvalidOperationException as e ->
-    ///         printn $"Caught: {e.Message}"
+    ///         printfn $"Caught: {e.Message}"
     ///     | :? System.AggregateException ->
     ///         printfn "unreachable" // will not match: single exception is unwrapped
     /// } |> Async.RunSynchronously
@@ -215,7 +215,7 @@ module Async =
     /// <example>
     /// <code lang="fsharp">
     /// let computation = Async.result 42
-    /// computation |> Async.RunSynchronouslyImmediate // evaluates to 42
+    /// computation |> Async.RunSynchronously // evaluates to 42
     /// </code>
     /// </example>
     let inline result (value: 'T) : Async<'T> =
@@ -232,7 +232,7 @@ module Async =
     /// <example>
     /// <code lang="fsharp">
     /// let computation = Async.result 21 |> Async.map (fun x -> x * 2)
-    /// computation |> Async.RunSynchronouslyImmediate // evaluates to 42
+    /// computation |> Async.RunSynchronously // evaluates to 42
     /// </code>
     /// </example>
     let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (computation: Async<'T>) : Async<'U> =
@@ -249,7 +249,7 @@ module Async =
     /// <example>
     /// <code lang="fsharp">
     /// let computation = Async.result 21 |> Async.bind (fun x -> Async.result (x * 2))
-    /// computation |> Async.RunSynchronouslyImmediate // evaluates to 42
+    /// computation |> Async.RunSynchronously // evaluates to 42
     /// </code>
     /// </example>
     let inline bind
@@ -304,7 +304,7 @@ module Async =
     /// let safeDiv x y =
     ///     async { return x / y }
     ///     |> Async.catchWith (fun _ -> 0)
-    /// safeDiv 10 0 |> Async.RunSynchronouslyImmediate // evaluates to 0
+    /// safeDiv 10 0 |> Async.RunSynchronously // evaluates to 0
     /// </code>
     /// </example>
     let catchWith (handler: exn -> 'T) (computation: Async<'T>) : Async<'T> =
@@ -330,8 +330,8 @@ module Async =
     /// <code lang="fsharp">
     /// let safeDiv x y =
     ///     async { return x / y } |> Async.catch
-    /// safeDiv 10 2 |> Async.RunSynchronouslyImmediate // evaluates to Ok 5
-    /// safeDiv 10 0 |> Async.RunSynchronouslyImmediate // evaluates to Error (DivideByZeroException ...)
+    /// safeDiv 10 2 |> Async.RunSynchronously // evaluates to Ok 5
+    /// safeDiv 10 0 |> Async.RunSynchronously // evaluates to Error (DivideByZeroException ...)
     /// </code>
     /// </example>
     let catch (computation: Async<'T>) : Async<Result<'T, exn>> =
@@ -350,7 +350,7 @@ module Async =
     /// <summary>An asynchronous computation that returns <c>unit</c>. This is equivalent to <c>async.Zero()</c>.</summary>
     /// <example>
     /// <code lang="fsharp">
-    /// Async.empty |> Async.RunSynchronouslyImmediate // evaluates to ()
+    /// Async.empty |> Async.RunSynchronously // evaluates to ()
     /// </code>
     /// </example>
     let empty: Async<unit> =
@@ -368,7 +368,7 @@ module Async =
     /// // NOTE numbers are guaranteed to be printed in order 1..10
     /// seq { for i in 1..10 -> async { printfn "%d" i } }
     /// |> Async.sequentialDo
-    /// |> Async.RunSynchronouslyImmediate
+    /// |> Async.RunSynchronously
     /// </code>
     /// </example>
     let sequentialDo (computations: seq<Async<unit>>) : Async<unit> =
@@ -391,7 +391,7 @@ module Async =
     /// let results =
     ///     seq { for i in 1..10 -> async { return i * i } }
     ///     |> Async.parallelLimit 3
-    ///     |> Async.RunSynchronouslyImmediate
+    ///     |> Async.RunSynchronously
     /// results // evaluates to [| 1; 4; 9; 16; 25; 36; 49; 64; 81; 100 |]
     /// </code>
     /// </example>
@@ -443,7 +443,7 @@ module Async =
     /// <code lang="fsharp">
     /// seq { for i in 1..10 -> async { printfn "%d" i } } // NOTE output order can vary
     /// |> Async.parallelDoLimit 3
-    /// |> Async.RunSynchronouslyImmediate
+    /// |> Async.RunSynchronously
     /// </code>
     /// </example>
     let parallelDoLimit

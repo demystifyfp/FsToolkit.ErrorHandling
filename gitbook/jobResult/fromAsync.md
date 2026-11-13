@@ -23,5 +23,5 @@ let result = JobResult.fromAsync (async { return 42 })
 
 ```fsharp
 let result = JobResult.fromAsync (async { return System.Exception("error") })
-// job { return Error System.Exception("error") }
+// job { return Ok (System.Exception("error")) }
 ```

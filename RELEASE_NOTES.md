@@ -9,7 +9,7 @@
   - (net10 and lower TFMs) feat(Async, Task, ValueTask): Shims of `Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate` and related functions to align with FSharp.Core >= 11.0.0.
   - (net11 and later TFMs) remove(`Async`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`
   - (net11 and later TFMs) remove(`Task`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`, `catch`
-  - (net10 and later TFMs) remove(`Result`): functions shadowing FSharp.Core equivalents: `map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
+  - (all TFMs) remove(`Result`): functions shadowing FSharp.Core equivalents: `map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
     - Moved to `FsToolkit.ErrorHandling.FSharpCore11ResultShims.Result` AutoOpen module; accessible via `open FsToolkit.ErrorHandling` as previous (but not binary backward compatible).
 - [`Async.Await` and `catch`/`catchWith` consistency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(AsyncResult, JobResult, TaskResult): `catchWith`.
