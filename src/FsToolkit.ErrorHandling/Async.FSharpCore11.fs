@@ -10,7 +10,7 @@
 [<AutoOpen>]
 #else
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-[<System.Obsolete "These shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+[<System.Obsolete "These shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
 module FsToolkit.ErrorHandling.FSharpCore11AsyncShims
 
@@ -65,7 +65,7 @@ type Async =
     /// </example>
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     [<System.Diagnostics.DebuggerStepThrough>]
     static member Await(task: Task<'T>) : Async<'T> =
@@ -117,7 +117,7 @@ type Async =
     /// </example>
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     [<System.Diagnostics.DebuggerStepThrough>]
     static member Await(task: Task) : Async<unit> =
@@ -133,7 +133,7 @@ type Async =
 #endif
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member Await(task: ValueTask) : Async<unit> =
 #if NET11_0_OR_GREATER
@@ -143,7 +143,7 @@ type Async =
 #endif
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member Await(task: ValueTask<'t>) : Async<'t> =
 #if NET11_0_OR_GREATER
@@ -154,7 +154,7 @@ type Async =
 
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> Task<'T>) : Async<'T> =
 #if NET11_0_OR_GREATER
@@ -165,7 +165,7 @@ type Async =
 
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> Task) : Async<unit> =
 #if NET11_0_OR_GREATER
@@ -176,7 +176,7 @@ type Async =
 
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> ValueTask<'T>) : Async<'T> =
 #if NET11_0_OR_GREATER
@@ -187,7 +187,7 @@ type Async =
 
 #if NET11_0_OR_GREATER
     [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+    [<System.Obsolete "Shim is included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
     static member StartTaskImmediate(createTask: CancellationToken -> ValueTask) : Async<unit> =
 #if NET11_0_OR_GREATER
@@ -199,13 +199,13 @@ type Async =
 #endif
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:Async`1"/> computations.</p>
-/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net10</code> and later TFM builds forward to the intrinsics.</p>
+/// <p>NOTE these functions duplicate those available in FSharp.Core >= 11. <code>net11</code> and later TFM builds forward to the intrinsics.</p>
 /// </summary>
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 #if NET11_0_OR_GREATER
 [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net10.">]
+[<System.Obsolete "Shims are included solely to support inline methods compiled against FsToolkit.ErrorHandling builds for TFMs before net11.">]
 #endif
 module Async =
 
@@ -396,10 +396,41 @@ module Async =
     /// </code>
     /// </example>
     let parallelLimit (maxDegreeOfParallelism: int) (computations: seq<Async<'T>>) : Async<'T[]> =
+#if FABLE_COMPILER_PYTHON
+        // fable-library for Python implements Async.Parallel without the maxDegreeOfParallelism argument.
+        async {
+            if maxDegreeOfParallelism < 1 then
+                invalidArg
+                    (nameof maxDegreeOfParallelism)
+                    $"maxDegreeOfParallelism must be positive, was {maxDegreeOfParallelism}"
+
+            let computations = Seq.toArray computations
+            let results = Array.zeroCreate<'T> computations.Length
+            let next = ref 0
+
+            let rec worker () =
+                async {
+                    if next.Value < computations.Length then
+                        let index = next.Value
+                        next.Value <- index + 1
+                        let! result = computations[index]
+                        results[index] <- result
+                        return! worker ()
+                }
+
+            let! _ =
+                Async.Parallel [
+                    for _ in 1 .. min maxDegreeOfParallelism computations.Length -> worker ()
+                ]
+
+            return results
+        }
+#else
 #if NET11_0_OR_GREATER
         Async.parallelLimit maxDegreeOfParallelism computations
 #else
         Async.Parallel(computations, maxDegreeOfParallelism = maxDegreeOfParallelism)
+#endif
 #endif
 
     /// <summary>Creates an asynchronous computation that executes all the supplied asynchronous computations returning unit,
@@ -419,7 +450,7 @@ module Async =
         (maxDegreeOfParallelism: int)
         (computations: seq<Async<unit>>)
         : Async<unit> =
-#if NET11_0_OR_GREATER
+#if NET11_0_OR_GREATER && !FABLE_COMPILER_PYTHON
         Async.parallelDoLimit maxDegreeOfParallelism computations
 #else
         parallelLimit maxDegreeOfParallelism computations

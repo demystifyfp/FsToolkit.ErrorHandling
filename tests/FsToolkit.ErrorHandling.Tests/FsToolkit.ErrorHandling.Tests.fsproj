@@ -55,6 +55,7 @@
         <Compile Include="ParallelAsyncResultCE.fs" />
         <Compile Include="ParallelAsyncValidation.fs" />
         <Compile Include="ParallelAsyncValidationCE.fs" />
+        <Compile Include="AsyncParallelLimit.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 </Project>

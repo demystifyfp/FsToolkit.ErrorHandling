@@ -43,6 +43,7 @@ let allTests =
         ParallelAsyncResultCETests.allTests
         ParallelAsyncValidationTests.allTests
         ParallelAsyncValidationCETests.allTests
+        AsyncParallelLimitTests.allTests
         #if !FABLE_COMPILER
         BackgroundTaskOptionCETests.allTests
         BackgroundTaskValueOptionCETests.allTests
