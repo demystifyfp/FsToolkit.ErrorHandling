@@ -916,7 +916,7 @@ let ``TaskValidationCE inference checks`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! x = Async.singleton (Ok 42: Result<int, string>)
+                        let! x = Async.result (Ok 42: Result<int, string>)
                         return x
                     }
 
