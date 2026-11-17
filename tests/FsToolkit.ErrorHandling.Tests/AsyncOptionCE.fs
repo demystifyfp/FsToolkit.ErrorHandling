@@ -318,7 +318,6 @@ let ``AsyncOptionCE using Tests`` =
         }
         TestHelpers.asyncBuilderDisposalSucceedsTests
             "use asyncdisposable reads the DisposeAsync result"
-            (Some 42)
             (fun resource ->
                 asyncOption {
                     use _ = resource

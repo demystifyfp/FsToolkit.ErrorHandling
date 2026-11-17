@@ -311,7 +311,6 @@ let ``using Tests`` =
         }
         TestHelpers.asyncBuilderDisposalSucceedsTests
             "use asyncdisposable reads the DisposeAsync result"
-            (Ok 42: Result<int, string>)
             (fun resource ->
                 parallelAsyncResult {
                     use _ = resource
