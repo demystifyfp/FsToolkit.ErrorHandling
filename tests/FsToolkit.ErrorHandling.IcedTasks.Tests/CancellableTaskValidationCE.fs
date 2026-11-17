@@ -19,12 +19,6 @@ module ValidationCompileTests =
             System.Console.WriteLine(dto)
         }
 
-// let testFunctionBCTV<'Dto> () =
-//     backgroundCancellableTaskValidation {
-//         let dto = Unchecked.defaultof<'Dto>
-//         System.Console.WriteLine(dto)
-//     }
-
 module CancellableTaskValidationCE =
 
     let lift = CancellableTaskValidation.ofResult
@@ -117,8 +111,7 @@ module CancellableTaskValidationCE =
                     task {
                         let data = 42
 
-                        let ctr =
-                            cancellableTaskValidation { return! ValueTask.FromResult(Ok data) }
+                        let ctr = cancellableTaskValidation { return! ValueTask.result (Ok data) }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valueTaskResult"
@@ -132,7 +125,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                return! ValueTask.FromResult(Validation.ok data)
+                                return! ValueTask.result (Validation.ok data)
                             }
 
                         let! (actual: Validation<int, obj>) = ctr CancellationToken.None
@@ -198,7 +191,7 @@ module CancellableTaskValidationCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableTaskValidation { return! ValueTask.FromResult data }
+                        let ctr = cancellableTaskValidation { return! ValueTask.result data }
 
                         let! actual = ctr CancellationToken.None
                         Expect.equal actual (Ok data) "Should be able to Return! valuetask<'T>"
@@ -423,7 +416,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                let! someValue = ValueTask.FromResult(Ok data)
+                                let! someValue = ValueTask.result (Ok data)
                                 return someValue
                             }
 
@@ -565,7 +558,7 @@ module CancellableTaskValidationCE =
 
                         let ctr =
                             cancellableTaskValidation {
-                                let! someValue = ValueTask.FromResult data
+                                let! someValue = ValueTask.result data
                                 return someValue
                             }
 
@@ -899,7 +892,7 @@ module CancellableTaskValidationCE =
                         let ctr =
                             cancellableTaskValidation {
                                 while loopCount < data.Length do
-                                    let! x = data.[loopCount]
+                                    let! x = data[loopCount]
 
                                     loopCount <-
                                         loopCount
@@ -1325,7 +1318,7 @@ module CancellableTaskValidationCE =
                             cancellableTaskValidation {
                                 let! a = Ok 3
                                 and! b = Choice1Of2 2
-                                and! c = CancellableTaskValidation.singleton 1
+                                and! c = CancellableTaskValidation.ok 1
                                 return a + b - c
                             }
 
@@ -1399,8 +1392,8 @@ module CancellableTaskValidationCE =
 
                         let actual =
                             cancellableTaskValidation {
-                                let! a = CancellableTaskValidation.singleton 3
-                                and! b = CancellableTaskValidation.singleton 2
+                                let! a = CancellableTaskValidation.ok 3
+                                and! b = CancellableTaskValidation.ok 2
                                 and! c = expected
                                 return a + b - c
                             }
@@ -1464,7 +1457,7 @@ module CancellableTaskValidationCE =
                         async {
                             return!
                                 innerTask
-                                |> Async.AwaitCancellableTaskValidation
+                                |> Async.StartTaskImmediate
                         }
 
                     use cts = new CancellationTokenSource()
@@ -1612,7 +1605,7 @@ module CancellableTaskValidationCE =
             testList "singleton" [
                 testCaseAsync "Simple"
                 <| async {
-                    let innerCall = CancellableTaskValidation.singleton "lol"
+                    let innerCall = CancellableTaskValidation.ok "lol"
 
                     let! someTask = innerCall
 
@@ -2089,7 +2082,7 @@ module CancellableTaskValidationCE =
                 let f res =
                     cancellableTaskValidation { return! res }
 
-                f (CancellableTaskValidation.singleton (()))
+                f (CancellableTaskValidation.ok ())
                 |> ignore
         ]
 

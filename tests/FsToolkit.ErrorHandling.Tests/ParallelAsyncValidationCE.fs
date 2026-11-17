@@ -42,7 +42,7 @@ let ``return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = parallelAsyncValidation { return! Async.singleton data }
+            let! actual = parallelAsyncValidation { return! Async.result data }
 
             Expect.equal actual (data) "Should be ok"
         }
@@ -50,7 +50,7 @@ let ``return! Tests`` =
         testCaseAsync "Return Async"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncValidation { return! Async.singleton innerData }
+            let! actual = parallelAsyncValidation { return! Async.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
@@ -59,21 +59,21 @@ let ``return! Tests`` =
         <| async {
             let innerData = "Foo"
             let data = Result.Ok innerData
-            let! actual = parallelAsyncValidation { return! Task.FromResult data }
+            let! actual = parallelAsyncValidation { return! Task.result data }
 
             Expect.equal actual (data) "Should be ok"
         }
         testCaseAsync "Return Task Generic"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncValidation { return! Task.FromResult innerData }
+            let! actual = parallelAsyncValidation { return! Task.result innerData }
 
             Expect.equal actual (Result.Ok innerData) "Should be ok"
         }
         testCaseAsync "Return Task"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncValidation { return! Task.FromResult innerData :> Task }
+            let! actual = parallelAsyncValidation { return! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }
@@ -119,7 +119,7 @@ let ``bind Tests`` =
 
             let data =
                 Result.Ok innerData
-                |> Async.singleton
+                |> Async.result
 
             let! actual =
                 parallelAsyncValidation {
@@ -134,7 +134,7 @@ let ``bind Tests`` =
         testCaseAsync "Bind Async"
         <| async {
             let innerData = "Foo"
-            let d = Async.singleton innerData
+            let d = Async.result innerData
 
             let! actual =
                 parallelAsyncValidation {
@@ -151,9 +151,7 @@ let ``bind Tests`` =
         <| async {
             let innerData = "Foo"
 
-            let data =
-                Result.Ok innerData
-                |> Task.FromResult
+            let data = TaskResult.ok innerData
 
             let! actual =
                 parallelAsyncValidation {
@@ -178,7 +176,7 @@ let ``bind Tests`` =
         testCaseAsync "Bind Task"
         <| async {
             let innerData = "Foo"
-            let! actual = parallelAsyncValidation { do! Task.FromResult innerData :> Task }
+            let! actual = parallelAsyncValidation { do! Task.result innerData :> Task }
 
             Expect.equal actual (Result.Ok()) "Should be ok"
         }

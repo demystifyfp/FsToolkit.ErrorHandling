@@ -75,16 +75,13 @@
 |map3|FSharp.Core|FSharp.Core|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |mapError|||||FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |mapErrors||||||FsToolkit||||
-|ofAsync|||||||FsToolkit|FsToolkit|FsToolkit|
 |ofChoice|||||FsToolkit|FsToolkit||||
-|ofJob|||||||||FsToolkit|
 |ofJobOn|||Hopac|||||||
 |ofNull|FsToolkit|FsToolkit||||||||
 |ofNullable|FSharp.Core|FSharp.Core||||||||
 |ofObj|FSharp.Core|FSharp.Core||||||||
 |ofOption||FsToolkit||||||||
 |ofResult|FsToolkit|FsToolkit||||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
-|ofTask|||||||FsToolkit|FsToolkit||
 |ofTaskAction|||||||FsToolkit|||
 |ofValueOption|FsToolkit|||||||||
 |ok||||||FsToolkit|FsToolkit|FsToolkit|FsToolkit|

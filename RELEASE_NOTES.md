@@ -1,7 +1,91 @@
-### 6.0.0-beta004 - Unreleased
+### 6.0.0-beta005 - tba
 
+- [`Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
+  - feat(Async, Task, ValueTask): `result`. Replaces `singleton`; aligned with FSharp.Core >= 11 naming.  
+  - BREAKING(Task)!: `catch` returns `Task<Result<_,_>>` (was `Task<Choice<_,_>>`) to match FSharp.Core >= 11.
+  - NOTE BEHAVIOR CHANGE(Task): `map` on an already completed task runs the mapper at once. If the mapper throws `OperationCanceledException`, the result is now `Faulted` (was `Canceled`), as in FSharp.Core >= 11. A task that is still running gives `Canceled` as before.
+  - BREAKING(Async, Task, Option)!: Add `RequiresExplicitTypeArguments` to `ignore` align with FSharp.Core Task/Async naming.
+  - feat: `net11.0` target, which forwards the `Async` and `Task` shims to FSharp.Core 11. FSharp.Core minimum: `netstandard2.0`, `netstandard2.1`, `net6.0` 6.0.4, `net9.0` 9.0.300, `net10.0` 10.0.100, `net11.0` 11.0.101.
+  - (net10 and lower TFMs) feat(Async, Task, ValueTask): Shims of `Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate` and related functions to align with FSharp.Core >= 11.0.0.
+    - The `ValueTask` overloads, the `ValueTask` module, and `Task.ofValueTask` are also on `netstandard2.0`, through `Microsoft.Bcl.AsyncInterfaces`. FSharp.Core 11 has them only on `netstandard2.1` and later.
+    - NOTE KNOWN DIFFERENCE(Task): with an already canceled token, `sequential` and `sequentialDo` give `Canceled` and call no factory. On net11, FSharp.Core 11.0.101 calls the factories, because it does not contain dotnet/fsharp#20695. [#384](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/384) tracks the FSharp.Core release with the fix.
+  - (all TFMs) remove(`Async`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`
+    - Moved to `FsToolkit.ErrorHandling.FSharpCore11AsyncShims.Async`, which is AutoOpen below net11 and on Fable. On net11, FSharp.Core supplies them.
+  - (all TFMs) remove(`Task`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`, `catch`
+    - Moved to `FsToolkit.ErrorHandling.FSharpCore11TaskShims.Task`, which is AutoOpen below net11. On net11, FSharp.Core supplies them.
+  - (all TFMs) remove(`Result`): functions shadowing FSharp.Core equivalents: `map`, `mapError`, `bind`, `isOk`, `isError`, `defaultWith`, `defaultValue`
+    - Moved to `FsToolkit.ErrorHandling.FSharpCore11ResultShims.Result`, which is AutoOpen below net9 and on Fable. On net9 and later, FSharp.Core supplies them.
+  - These moves keep source compatibility through `open FsToolkit.ErrorHandling`. They are binary breaks on all TFMs.
+- [`Async.Await` and `catch`/`catchWith` consistency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
+  - feat(AsyncResult, JobResult, TaskResult): `catchWith`.
+    - Same signature as `catch` but aligning with FSharp.Core naming and semantics.
+    - NOTE KEY BEHAVIOR: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing `catch` and `Task.ofCatchTask` functions did, the incoming `Task.catch` and `Task.catchWith` functions do not).
+    - NOTE In contrast, `JobResult.catchWith` _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled. This is consistent with the `Job.catch` semantics.
+    - NOTE In contrast, `Async.catchWith` **at present** _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled, but this is consistent with the incoming `Async.catch`/`Async.catchWith` semantics as they presently stand.
+  - BREAKING(AsyncOption, AsyncResult, AsyncResultOption, AsyncValidation, CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskOption, ParallelAsyncResult, ParallelAsyncValidation)!:
+    - Internal usage of `AwaitTask` switches to `Await`
+    - NOTE BEHAVIOR CHANGE: exceptions surfaced in calling code are no longer egregiously wrapped in `AggregateException`, i.e. you can now `try ... with` targeting the actual exception type to handle exceptions from the awaited Task. [#154](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/154).
+  - Renames:
+    - OBSOLETE(Async, Task, Job): `singleton`
+        - -> `result`.
+    - OBSOLETE(CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskResult): `singleton`
+        - -> `ok`.
+  - Removals:
+      - remove(`Option`)!: functions shadowing FSharp.Core equivalents: `map`, `map2`, `map3`, `bind`
+        - Present in all supported FSharp.Core versions and Fable, so no reason for them to be in the library.
+    - OBSOLETE(AsyncResult): `ofAsync`
+      - -> `Async.map Ok`
+      - -> CONSIDER `Async.catch`
+      - NOTE semantics did not match those of `TaskResult.ofAsync`
+    - OBSOLETE(JobResult): `ofAsync`
+      - -> `JobResult.fromAsync`
+      - -> CONSIDER `Job.map Ok`
+      - NOTE semantics did not match those of `AsyncResult.ofAsync`
+    - OBSOLETE(TaskResult): `ofAsync`
+      - -> `Task.startAsyncImmediate ct >> Task.catch`
+      - OR (if no `CancellationToken` available) -> `Async.StartImmediateAsTask >> Task.catch`
+      - NOTE semantics did not match those of `AsyncResult.ofAsync`
+      - NOTE semantics did not cover flowing cancellation
+    - OBSOLETE(AsyncResult): `ofTask`
+      - -> `Async.Await >> Async.catch`.
+      - NOTE semantics did not match those of `TaskResult.ofTask`
+    - OBSOLETE(TaskResult): `ofTask`
+      - -> `Task.map Ok`
+      - -> CONSIDER `Task.catch`
+      - NOTE semantics did not match those of `AsyncResult.ofTask`
+    - OBSOLETE(Async): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableTaskValidation`, `AwaitCancellableValueTaskOption`
+      - -> `Async.StartTaskImmediate` has overloads supporting `Task` and `ValueTask`, and flows cancellation correctly.
+    - OBSOLETE(AsyncEx): `AwaitCancellableTaskOption`, `AwaitCancellableTaskResult`, `AwaitCancellableValueTaskOption`
+      - -> `Async.StartTaskImmediate` has overloads supporting `Task` and `ValueTask`, and flows cancellation correctly.
+    - OBSOLETE(AsyncResult): `ofTaskAction`
+      - -> `Async.Await >> Async.catch`.
+      - NOTE did not exist on `TaskResult` or `JobResult`.
+    - OBSOLETE(AsyncResult, JobResult, TaskResult): `XResult.ofResult`
+      - -> `X.result`.
+    - OBSOLETE(AsyncResult, JobResult, TaskResult): `catch`
+      - -> `catchWith`.
+      - NOTE BEHAVIOR CHANGE: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing function did, but this is inconsistent with the FSharp.Core 11 `Task.catch`/`catchWith` semantics).
+    - OBSOLETE(TaskResult): `ofCatchTask`
+      - -> `Task.catch`.
+      - NOTE BEHAVIOR CHANGE: `Task.catch` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing function did, but this is inconsistent with the FSharp.Core 11 `Task.catch`/`catchWith` semantics).
+- [Stragglers from beta003](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
+  - feat(CancellableTask, CancellableValueTask): `result`
+  - feat(CancellableTaskResult, CancellableTaskValidation): `ok`
+  - feat(CancellableTaskResult): `error`
+  - feat(JobOption): `none`
+  - feat(CancellableTaskValidation, Validation): `errors`
+  - Renames:
+    - OBSOLETE(JobOption): `singleton`
+      - -> `some`.
 - [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
     - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
+
+### 6.0.0-beta004 - November 17, 2026
+
+- [Observe DisposeAsync faults and cancellations in task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/385) Credits @TheAngryByrd
+    - NOTE BEHAVIOR CHANGE: `use` in `taskResult`, `taskOption`, `taskValueOption`, `taskValidation`, their `background*` variants, and `valueTaskValueOption`, and `for` over `IAsyncEnumerable` in the eight `task*` and `backgroundTask*` builders, now fault or cancel when `DisposeAsync` faults or cancels. The `DisposeAsync` exception replaces the body result. Recompile assemblies that inline these builders.
+- [Prioritize Result sources in taskValidation inference](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/380) Credits @dajiaohuang
+    - fix(TaskValidation): `let!` and `and!` bind `Task<Result<_, _>>` and `Async<Result<_, _>>` without `FS0041`
 
 ### 6.0.0-beta003 - October 12, 2026
 
@@ -106,10 +190,10 @@ FsToolkit.ErrorHandling.IcedTasks as a dependency.
 ### 4.17.0 - September 23, 2024
 - [Adding Seq.traverse & sequence functions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/277) Credits @1eyewonder
 
-### [4.16.0] - July 15, 2024
+### 4.16.0 - July 15, 2024
 - [Add Task.ignore](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/272) Credits @odytrice
 
-### [4.15.3] - July 13, 2024
+### 4.15.3 - July 13, 2024
 - [Added XML Comments](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/268) Credits @1eyewonder
 - [Fix Using/TryFinally asyncValidation CE](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/271) Credits @1eyewonder
 

@@ -15,7 +15,7 @@ Like [Task.map](../task/map.md), but taking a `ValueTask<'a>` as input
 ### Example 1
 
 ```fsharp
-Task.mapV (fun x -> x + 1) (ValueTask.FromResult(1))
+Task.mapV (fun x -> x + 1) (ValueTask.result 1)
 
 // task { 2 }
 ```

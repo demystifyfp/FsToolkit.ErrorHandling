@@ -12,6 +12,8 @@ open Expecto
 let allTests =
     testList "All Tests" [
         ReqTests.allTests
+        FSharpCoreShimTests.allTests
+        FSharpCoreShimConsumerTests.allTests
         ResultTests.allTests
         ResultCETests.allTests
         ResultOptionTests.allTests
@@ -23,6 +25,10 @@ let allTests =
         ListTests.allTests
         ArrayTests.allTests
         SeqTests.allTests
+        #if !FABLE_COMPILER
+        AsyncTests.asyncAwaitTests
+        FSharpCore11ShimBehaviorTests.allTests
+        #endif
         AsyncResultTests.allTests
         AsyncResultCETests.allTests
         AsyncResultOptionTests.allTests
@@ -37,6 +43,7 @@ let allTests =
         ParallelAsyncResultCETests.allTests
         ParallelAsyncValidationTests.allTests
         ParallelAsyncValidationCETests.allTests
+        AsyncParallelLimitTests.allTests
         #if !FABLE_COMPILER
         BackgroundTaskOptionCETests.allTests
         BackgroundTaskValueOptionCETests.allTests
@@ -66,7 +73,16 @@ open Fable.Core.JsInterop
 
 [<EntryPoint>]
 let main argv =
-#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT || FABLE_COMPILER_PYTHON
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+    // Pyxpecto ends every finished run with process.exit, so "beforeExit" fires only when a test never completes.
+    emitJsStatement () """
+process.on("beforeExit", () => {
+    console.error("Test run did not finish: a test never completed.");
+    process.exitCode = 1;
+});"""
+    !!Pyxpecto.runTests [||] allTests
+#endif
+#if FABLE_COMPILER_PYTHON
     !!Pyxpecto.runTests  [||] allTests
 #endif
 #if !FABLE_COMPILER

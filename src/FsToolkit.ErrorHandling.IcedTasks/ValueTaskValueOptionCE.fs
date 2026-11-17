@@ -161,13 +161,16 @@ type ValueTaskValueOptionBuilderBase() =
                     let mutable __stack_condition_fin = true
                     let __stack_vtask = compensation ()
 
-                    if not __stack_vtask.IsCompleted then
-                        let mutable awaiter = __stack_vtask.GetAwaiter()
+                    let mutable awaiter = __stack_vtask.GetAwaiter()
+
+                    if not awaiter.IsCompleted then
                         let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
                         __stack_condition_fin <- __stack_yield_fin
 
-                        if not __stack_condition_fin then
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                    if __stack_condition_fin then
+                        awaiter.GetResult()
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     __stack_condition_fin
                 else
@@ -184,7 +187,7 @@ type ValueTaskValueOptionBuilderBase() =
 
                     // shortcut to continue immediately
                     if awaiter.IsCompleted then
-                        true
+                        cont.Invoke(&sm)
                     else
                         sm.ResumptionDynamicInfo.ResumptionData <-
                             (awaiter :> ICriticalNotifyCompletion)
@@ -549,12 +552,9 @@ module ValueTaskValueOptionCEExtensionsMediumPriority =
             ValueTask<'T voption>(opt)
 
         member inline this.Source(computation: Async<'T>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(
-                computation
-                |> Async.map ValueSome
-                |> Async.StartImmediateAsTask
-            )
-
+            Async.StartImmediateAsTask computation
+            |> ValueTask.ofTask
+            |> ValueTask.map ValueSome
 
 [<AutoOpen>]
 module ValueTaskValueOptionCEExtensionsHighPriority2 =
@@ -563,10 +563,8 @@ module ValueTaskValueOptionCEExtensionsHighPriority2 =
     type ValueTaskValueOptionBuilderBase with
 
         member inline this.Source(computation: Async<'T voption>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(
-                computation
-                |> Async.StartImmediateAsTask
-            )
+            Async.StartImmediateAsTask computation
+            |> ValueTask.ofTask
 
         member inline this.Source(taskValueOption: Task<'T voption>) : ValueTaskValueOption<'T> =
-            ValueTask<'T voption>(taskValueOption)
+            ValueTask.ofTask taskValueOption

@@ -39,28 +39,28 @@ let ceTests =
         <| fun () ->
             task {
                 let expected = None
-                let! actual = taskOption { return! (async.Return None) }
+                let! actual = taskOption { return! Async.result None }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Async"
         <| fun () ->
             task {
                 let expected = Some 42
-                let! actual = taskOption { return! (async.Return 42) }
+                let! actual = taskOption { return! Async.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task None"
         <| fun () ->
             task {
                 let expected = None
-                let! actual = taskOption { return! (Task.FromResult None) }
+                let! actual = taskOption { return! Task.result None }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task Generic"
         <| fun () ->
             task {
                 let expected = Some 42
-                let! actual = taskOption { return! (Task.FromResult 42) }
+                let! actual = taskOption { return! Task.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom Task"
@@ -74,7 +74,7 @@ let ceTests =
         <| fun () ->
             task {
                 let expected = Some 42
-                let! actual = taskOption { return! (ValueTask.FromResult 42) }
+                let! actual = taskOption { return! ValueTask.result 42 }
                 Expect.equal actual expected "Should return value wrapped in option"
             }
         testCaseTask "ReturnFrom ValueTask"
@@ -130,7 +130,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        let! value = async.Return 42
+                        let! value = Async.result 42
                         return value
                     }
 
@@ -143,7 +143,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        let! value = Task.FromResult None
+                        let! value = Task.result None
                         return value
                     }
 
@@ -156,7 +156,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        let! value = Task.FromResult 42
+                        let! value = Task.result 42
                         return value
                     }
 
@@ -182,7 +182,7 @@ let ceTests =
 
                 let! actual =
                     taskOption {
-                        let! value = ValueTask.FromResult 42
+                        let! value = ValueTask.result 42
                         return value
                     }
 
@@ -410,7 +410,7 @@ let ceTests =
                 let items = [
                     TaskOption.some 3
                     TaskOption.some 4
-                    Task.singleton (None)
+                    TaskOption.none
                 ]
 
                 let mutable index = 0
@@ -606,7 +606,7 @@ let specialCaseTask returnValue =
 #if NETSTANDARD2_0
     Unsafe.uply { return returnValue }
 #else
-    Task.FromResult returnValue
+    Task.result returnValue
 #endif
 
 let ceTestsApplicative =
@@ -620,10 +620,10 @@ let ceTestsApplicative =
 
                         let! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
                         let! c = specialCaseTask (Some 3)
-                        let! d = ValueTask.FromResult(Some 5)
+                        let! d = ValueTask.result (Some 5)
 
                         return
                             a + b
@@ -642,10 +642,10 @@ let ceTestsApplicative =
 
                         and! b =
                             Some 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = specialCaseTask None
-                        and! d = ValueTask.FromResult(Some 5)
+                        and! d = ValueTask.result (Some 5)
 
                         return
                             a + b
@@ -713,10 +713,78 @@ let ``TaskOptionCE inference checks`` =
             |> ignore
     ]
 
+let ``TaskOptionCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit option> =
+        taskOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! None
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit option> =
+        TestHelpers.dynamicTaskOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! None
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskOptionCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``TaskOptionCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit option> =
+        taskOption {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! None
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit option> =
+        TestHelpers.dynamicTaskOption {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! None
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskOptionCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
 let allTests =
     testList "TaskOption CE Tests" [
         ceTests
         ceTestsApplicative
         ``TaskOptionCE while None async disposal Tests``
+        ``TaskOptionCE async disposal outcome Tests``
+        ``TaskOptionCE async enumerator disposal outcome Tests``
         ``TaskOptionCE inference checks``
     ]

@@ -155,15 +155,18 @@ type TaskResultBuilderBase() =
                     let mutable __stack_condition_fin = true
                     let __stack_vtask = compensation ()
 
-                    if not __stack_vtask.IsCompleted then
-                        let mutable awaiter = __stack_vtask.GetAwaiter()
+                    let mutable awaiter = __stack_vtask.GetAwaiter()
+
+                    if not awaiter.IsCompleted then
                         // printfn "TryFinallyAsync Before Invoke Task.Status --> %A" sm.Data.MethodBuilder.Task.Status
                         let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
                         __stack_condition_fin <- __stack_yield_fin
                         // printfn "TryFinallyAsync Task.Status --> %A" sm.Data.MethodBuilder.Task.Status
 
-                        if not __stack_condition_fin then
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                    if __stack_condition_fin then
+                        awaiter.GetResult()
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     __stack_condition_fin
                 else
@@ -180,7 +183,7 @@ type TaskResultBuilderBase() =
 
                     // shortcut to continue immediately
                     if awaiter.IsCompleted then
-                        true
+                        cont.Invoke(&sm)
                     else
                         sm.ResumptionDynamicInfo.ResumptionData <-
                             (awaiter :> ICriticalNotifyCompletion)
@@ -646,9 +649,8 @@ module TaskResultCEExtensionsMediumPriority =
             |> Task.map Ok
 
         member inline this.Source(computation: Async<'T>) : TaskResult<'T, 'Error> =
-            computation
-            |> Async.map Ok
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
+            |> Task.map Ok
 
 [<AutoOpen>]
 module TaskResultCEExtensionsHighPriority2 =
@@ -656,15 +658,14 @@ module TaskResultCEExtensionsHighPriority2 =
     // Medium priority extensions
     type TaskResultBuilderBase with
 
-        member inline _.Source(result: Async<Result<_, _>>) : Task<Result<_, _>> =
-            result
-            |> Async.StartImmediateAsTask
+        member inline _.Source(asyncResult: Async<Result<_, _>>) : Task<Result<_, _>> =
+            Async.StartImmediateAsTask asyncResult
 
         member inline _.Source(t: ValueTask<Result<_, _>>) : Task<Result<_, _>> = task { return! t }
 
-        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.singleton result
+        member inline _.Source(result: Result<_, _>) : Task<Result<_, _>> = Task.result result
 
         member inline _.Source(result: Choice<_, _>) : Task<Result<_, _>> =
             result
             |> Result.ofChoice
-            |> Task.singleton
+            |> Task.result

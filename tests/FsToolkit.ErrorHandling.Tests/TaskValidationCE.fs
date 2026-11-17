@@ -40,7 +40,7 @@ let ``TaskValidationCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Validation.ok innerData
-                let! actual = taskValidation { return! Async.singleton data }
+                let! actual = taskValidation { return! Async.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -49,7 +49,7 @@ let ``TaskValidationCE return! Tests`` =
             task {
                 let innerData = "Foo"
                 let data = Validation.ok innerData
-                let! actual = taskValidation { return! Task.FromResult data }
+                let! actual = taskValidation { return! Task.result data }
 
                 Expect.equal actual data "Should be ok"
             }
@@ -57,7 +57,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Async.singleton innerData }
+                let! actual = taskValidation { return! Async.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -65,7 +65,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Task.singleton innerData }
+                let! actual = taskValidation { return! Task.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -73,7 +73,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! Task.FromResult innerData :> Task }
+                let! actual = taskValidation { return! Task.result innerData :> Task }
 
                 Expect.equal actual (Validation.ok ()) "Should be ok"
             }
@@ -81,7 +81,7 @@ let ``TaskValidationCE return! Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { return! ValueTask.FromResult innerData }
+                let! actual = taskValidation { return! ValueTask.result innerData }
 
                 Expect.equal actual (Validation.ok innerData) "Should be ok"
             }
@@ -133,7 +133,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let data =
                     Validation.ok innerData
-                    |> Async.singleton
+                    |> Async.result
 
                 let! actual =
                     taskValidation {
@@ -154,7 +154,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let data =
                     Validation.ok innerData
-                    |> Task.singleton
+                    |> Task.result
 
                 let! actual =
                     taskValidation {
@@ -171,7 +171,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = Async.singleton innerData
+                        let! data = Async.result innerData
                         return data
                     }
 
@@ -184,7 +184,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = Task.FromResult innerData
+                        let! data = Task.result innerData
                         return data
                     }
 
@@ -194,7 +194,7 @@ let ``TaskValidationCE bind Tests`` =
         <| fun () ->
             task {
                 let innerData = "Foo"
-                let! actual = taskValidation { do! Task.FromResult innerData :> Task }
+                let! actual = taskValidation { do! Task.result innerData :> Task }
 
                 Expect.equal actual (Validation.ok ()) "Should be ok"
             }
@@ -205,7 +205,7 @@ let ``TaskValidationCE bind Tests`` =
 
                 let! actual =
                     taskValidation {
-                        let! data = ValueTask.FromResult innerData
+                        let! data = ValueTask.result innerData
                         return data
                     }
 
@@ -653,9 +653,9 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
-                        and! c = Async.singleton 1 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
+                        and! c = Async.result 1 //: Async<int>
                         return a + b - c
                     }
 
@@ -667,8 +667,8 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Async.singleton 3 //: Async<int>
-                        and! b = Async.singleton 2 //: Async<int>
+                        let! a = Async.result 3 //: Async<int>
+                        and! b = Async.result 2 //: Async<int>
                         return a + b
                     }
 
@@ -680,14 +680,14 @@ let ``TaskValidationCE applicative tests`` =
             task {
                 let! actual =
                     taskValidation {
-                        let! a = Task.FromResult 3
-                        and! b = Task.FromResult 2
+                        let! a = Task.result 3
+                        and! b = Task.result 2
                         return a + b
                     }
 
                 Expect.equal actual (Validation.ok 5) "Should be ok"
             }
-        let specialCaseTask returnValue = Task.FromResult returnValue
+        let specialCaseTask returnValue = Task.result returnValue
 
         testCaseTask "Happy Path Validation/Choice/AsyncValidation/Ply/ValueTask"
         <| fun () ->
@@ -699,10 +699,10 @@ let ``TaskValidationCE applicative tests`` =
 
                         and! c =
                             Validation.ok 1
-                            |> Async.singleton
+                            |> Async.result
 
                         and! d = specialCaseTask (Validation.ok 3)
-                        and! e = ValueTask.FromResult(Validation.ok 5)
+                        and! e = ValueTask.result (Validation.ok 5)
 
                         return
                             a + b
@@ -782,7 +782,7 @@ let ``TaskValidationCE applicative tests`` =
 
                         and! b =
                             Validation.ok 2
-                            |> Async.singleton
+                            |> Async.result
 
                         and! c = Validation.error errorMsg
                         return a + b - c
@@ -881,6 +881,47 @@ let ``TaskValidationCE while Error async disposal Tests`` =
 
 let ``TaskValidationCE inference checks`` =
     testList "TaskValidationCE inference checks" [
+        testCaseTask "Bind Task Result without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Task.FromResult(Ok 20: Result<int, string>)
+                        and! y = Task.FromResult(Ok 22: Result<int, string>)
+                        return x + y
+                    }
+
+                Expect.equal actual (Ok 42) "Should bind the Result values"
+            }
+        testCaseTask "Accumulate Task Result errors without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Task.FromResult(Error "first": Result<int, string>)
+                        and! y = Task.FromResult(Error "second": Result<int, string>)
+                        return x + y
+                    }
+
+                Expect.equal
+                    actual
+                    (Error [
+                        "first"
+                        "second"
+                    ])
+                    "Should accumulate errors"
+            }
+        testCaseTask "Bind Async Result without overload ambiguity"
+        <| fun () ->
+            task {
+                let! actual =
+                    taskValidation {
+                        let! x = Async.result (Ok 42: Result<int, string>)
+                        return x
+                    }
+
+                Expect.equal actual (Ok 42) "Should bind the Result value"
+            }
         testCase "Inference checks"
         <| fun () ->
             // Compilation is success
@@ -889,6 +930,138 @@ let ``TaskValidationCE inference checks`` =
             f TaskValidation.ok
             |> ignore
     ]
+
+let ``TaskValidationCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        taskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskValidationCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``TaskValidationCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        taskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskValidationCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
+let ``BackgroundTaskValidationCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        backgroundTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskValidationCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``BackgroundTaskValidationCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        backgroundTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "BackgroundTaskValidationCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
 
 let allTests =
     testList "TaskValidation CE Tests" [
@@ -901,5 +1074,9 @@ let allTests =
         ``TaskValidationCE loop Tests``
         ``TaskValidationCE applicative tests``
         ``TaskValidationCE while Error async disposal Tests``
+        ``TaskValidationCE async disposal outcome Tests``
+        ``TaskValidationCE async enumerator disposal outcome Tests``
+        ``BackgroundTaskValidationCE async disposal outcome Tests``
+        ``BackgroundTaskValidationCE async enumerator disposal outcome Tests``
         ``TaskValidationCE inference checks``
     ]

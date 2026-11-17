@@ -151,13 +151,16 @@ type TaskOptionBuilderBase() =
                     let mutable __stack_condition_fin = true
                     let __stack_vtask = compensation ()
 
-                    if not __stack_vtask.IsCompleted then
-                        let mutable awaiter = __stack_vtask.GetAwaiter()
+                    let mutable awaiter = __stack_vtask.GetAwaiter()
+
+                    if not awaiter.IsCompleted then
                         let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
                         __stack_condition_fin <- __stack_yield_fin
 
-                        if not __stack_condition_fin then
-                            sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                    if __stack_condition_fin then
+                        awaiter.GetResult()
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
 
                     __stack_condition_fin
                 else
@@ -174,7 +177,7 @@ type TaskOptionBuilderBase() =
 
                     // shortcut to continue immediately
                     if awaiter.IsCompleted then
-                        true
+                        cont.Invoke(&sm)
                     else
                         sm.ResumptionDynamicInfo.ResumptionData <-
                             (awaiter :> ICriticalNotifyCompletion)
@@ -669,13 +672,11 @@ module TaskOptionCEExtensionsMediumPriority =
                 return Some()
             }
 
-        member inline this.Source(opt: 'T option) : TaskOption<'T> = Task.FromResult opt
+        member inline this.Source(opt: 'T option) : TaskOption<'T> = Task.result opt
 
         member inline this.Source(computation: Async<'T>) : TaskOption<'T> =
-            computation
-            |> Async.map Some
-            |> Async.StartImmediateAsTask
-
+            Async.StartImmediateAsTask computation
+            |> Task.map Some
 
 [<AutoOpen>]
 module TaskOptionCEExtensionsHighPriority2 =
@@ -684,8 +685,7 @@ module TaskOptionCEExtensionsHighPriority2 =
     type TaskOptionBuilderBase with
 
         member inline this.Source(computation: Async<'T option>) : TaskOption<'T> =
-            computation
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
 
         member inline this.Source(taskOption: ValueTask<'T option>) : TaskOption<'T> =
             taskOption.AsTask()
