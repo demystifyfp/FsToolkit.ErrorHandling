@@ -817,6 +817,20 @@ let fableExamples =
                 "Output"
         }
 
+        test "a file excluded from Fable can have nested #if blocks of attributes before its module" {
+            let header =
+                "#if A\n#if B\n[<AutoOpen>]\n#else\n[<RequireQualifiedAccess>]\n#endif\n#endif\n"
+
+            Expect.equal
+                (transform
+                    ExcludedFromFable
+                    "Task.fs"
+                    $"{header}module FsToolkit.ErrorHandling.Shims\nlet x = 1\n")
+                (Ok
+                    $"{header}module {VisibilityToken} {NamespaceToken}.Shims\n{NoWarnLine}\n{FableGuardStart}\nlet x = 1\n{FableGuardEnd}\n")
+                "Output"
+        }
+
         test "a file excluded from Fable must not have its declaration inside an #if block" {
             for source in
                 [

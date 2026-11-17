@@ -1160,3 +1160,25 @@ module SourcesPackage =
         )
         |> Seq.sort
         |> Seq.toList
+
+    let nuspecDependencyGroups (nuspecXml: string) =
+        let attribute name (element: XElement) =
+            match element.Attribute(XName.Get name) with
+            | null -> ""
+            | value -> value.Value
+
+        XDocument.Parse(nuspecXml).Descendants()
+        |> Seq.filter (fun element ->
+            element.Name.LocalName = "group"
+            && element.Parent.Name.LocalName = "dependencies"
+        )
+        |> Seq.map (fun group ->
+            attribute "targetFramework" group,
+            group.Elements()
+            |> Seq.filter (fun element -> element.Name.LocalName = "dependency")
+            |> Seq.map (fun dependency ->
+                attribute "id" dependency, attribute "version" dependency
+            )
+            |> Map.ofSeq
+        )
+        |> Map.ofSeq

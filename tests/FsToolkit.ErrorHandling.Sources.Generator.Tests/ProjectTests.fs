@@ -393,3 +393,40 @@ let generation =
             )
         }
     ]
+
+[<Tests>]
+let nuspecDependencies =
+    testList "nuspec dependencies" [
+        test "dependency groups map each target framework to its dependency versions" {
+            let nuspec =
+                """<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>P</id>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="FSharp.Core" version="6.0.4" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework="net11.0">
+        <dependency id="FSharp.Core" version="11.0.101" />
+      </group>
+      <group targetFramework="net12.0" />
+    </dependencies>
+  </metadata>
+</package>"""
+
+            Expect.equal
+                (nuspecDependencyGroups nuspec)
+                (Map.ofList [
+                    ".NETStandard2.0",
+                    Map.ofList [
+                        "FSharp.Core", "6.0.4"
+                        "Microsoft.Bcl.AsyncInterfaces", "6.0.0"
+                    ]
+                    "net11.0", Map.ofList [ "FSharp.Core", "11.0.101" ]
+                    "net12.0", Map.empty
+                ])
+                "Dependency groups"
+        }
+    ]

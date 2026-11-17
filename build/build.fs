@@ -672,10 +672,40 @@ let failOnSourceVisibility () =
                 "%s must export FsToolkit.ErrorHandling.TaskResultBuilder with 'public' visibility."
                 assembly
 
+let failOnDependencyDrift () =
+    let dependencyGroups packageId =
+        let nupkg =
+            distDir
+            </> $"{packageId}.{release.NugetVersion}.nupkg"
+
+        use archive = System.IO.Compression.ZipFile.OpenRead nupkg
+
+        match
+            archive.Entries
+            |> Seq.tryFind (fun entry -> entry.FullName = $"{packageId}.nuspec")
+        with
+        | Some entry ->
+            use reader = new StreamReader(entry.Open())
+            SourcesPackage.nuspecDependencyGroups (reader.ReadToEnd())
+        | None -> failwithf "%s has no %s.nuspec" nupkg packageId
+
+    let expected = dependencyGroups "FsToolkit.ErrorHandling"
+    let actual = dependencyGroups "FsToolkit.ErrorHandling.Sources"
+
+    if
+        actual
+        <> expected
+    then
+        failwithf
+            "FsToolkit.ErrorHandling.Sources must have the dependency groups of FsToolkit.ErrorHandling, so that each consumer gets the same FSharp.Core minimum version. Set the same TargetFrameworks in both projects.\nFsToolkit.ErrorHandling: %A\nFsToolkit.ErrorHandling.Sources: %A"
+            expected
+            actual
+
 let sourcesTest ctx =
     failOnTestFileDrift ()
     failOnDocsDrift ()
     failOnTargetsDiagnostics ()
+    failOnDependencyDrift ()
 
     let packagesDir =
         rootDir
