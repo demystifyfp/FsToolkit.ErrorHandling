@@ -713,10 +713,29 @@ let ``TaskOptionCE inference checks`` =
             |> ignore
     ]
 
+let ``TaskOptionCE async disposal outcome Tests`` =
+    let startStatic (disposable: System.IAsyncDisposable) : Task<unit option> =
+        taskOption {
+            use _resource = disposable
+            return ()
+        }
+
+    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit option> =
+        TestHelpers.dynamicTaskOption {
+            use _resource = disposable
+            return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskOptionCE async disposal outcome Tests"
+        startStatic
+        startDynamic
+
 let allTests =
     testList "TaskOption CE Tests" [
         ceTests
         ceTestsApplicative
         ``TaskOptionCE while None async disposal Tests``
+        ``TaskOptionCE async disposal outcome Tests``
         ``TaskOptionCE inference checks``
     ]

@@ -931,6 +931,42 @@ let ``TaskValidationCE inference checks`` =
             |> ignore
     ]
 
+let ``TaskValidationCE async disposal outcome Tests`` =
+    let startStatic (disposable: System.IAsyncDisposable) : Task<Validation<unit, string>> =
+        taskValidation {
+            use _resource = disposable
+            return ()
+        }
+
+    let startDynamic (disposable: System.IAsyncDisposable) : Task<Validation<unit, string>> =
+        TestHelpers.dynamicTaskValidation {
+            use _resource = disposable
+            return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskValidationCE async disposal outcome Tests"
+        startStatic
+        startDynamic
+
+let ``BackgroundTaskValidationCE async disposal outcome Tests`` =
+    let startStatic (disposable: System.IAsyncDisposable) : Task<Validation<unit, string>> =
+        backgroundTaskValidation {
+            use _resource = disposable
+            return ()
+        }
+
+    let startDynamic (disposable: System.IAsyncDisposable) : Task<Validation<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskValidation {
+            use _resource = disposable
+            return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskValidationCE async disposal outcome Tests"
+        startStatic
+        startDynamic
+
 let allTests =
     testList "TaskValidation CE Tests" [
         ``TaskValidationCE return Tests``
@@ -942,5 +978,7 @@ let allTests =
         ``TaskValidationCE loop Tests``
         ``TaskValidationCE applicative tests``
         ``TaskValidationCE while Error async disposal Tests``
+        ``TaskValidationCE async disposal outcome Tests``
+        ``BackgroundTaskValidationCE async disposal outcome Tests``
         ``TaskValidationCE inference checks``
     ]

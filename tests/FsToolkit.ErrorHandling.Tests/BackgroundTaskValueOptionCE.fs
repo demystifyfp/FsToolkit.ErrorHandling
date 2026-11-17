@@ -589,10 +589,29 @@ let ``BackgroundTaskValueOptionCE inference checks`` =
             |> ignore
     ]
 
+let ``BackgroundTaskValueOptionCE async disposal outcome Tests`` =
+    let startStatic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+        backgroundTaskValueOption {
+            use _resource = disposable
+            return ()
+        }
+
+    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+        TestHelpers.dynamicBackgroundTaskValueOption {
+            use _resource = disposable
+            return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskValueOptionCE async disposal outcome Tests"
+        startStatic
+        startDynamic
+
 let allTests =
     testList "BackgroundTaskValueOptionCE CE Tests" [
         ceTests
         ceTestsApplicative
         ``BackgroundTaskValueOptionCE while ValueNone async disposal Tests``
+        ``BackgroundTaskValueOptionCE async disposal outcome Tests``
         ``BackgroundTaskValueOptionCE inference checks``
     ]

@@ -159,6 +159,99 @@ module TestHelpers =
 
     let assertWhileErrorWaitsForAsyncDisposal hasEarlierSuspension start =
         assertWhileShortCircuitWaitsForAsyncDisposal (Error "error") hasEarlierSuspension start
+
+    type AsyncDisposalOutcome =
+        | DisposalFaults
+        | DisposalCancels
+
+    let assertAsyncDisposalOutcomeIsObserved
+        (outcome: AsyncDisposalOutcome)
+        (isPending: bool)
+        (start: System.IAsyncDisposable -> Task<'Result>)
+        =
+        task {
+            let disposal =
+                TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let disposalStarted =
+                TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let completeDisposal () =
+                match outcome with
+                | DisposalFaults ->
+                    disposal.SetException(System.InvalidOperationException "dispose")
+                | DisposalCancels -> disposal.SetCanceled()
+
+            if not isPending then
+                completeDisposal ()
+
+            let disposable =
+                makeAsyncDisposable (fun () ->
+                    disposalStarted.SetResult(())
+                    ValueTask(disposal.Task :> Task)
+                )
+
+            let resultTask = start disposable
+            do! disposalStarted.Task
+
+            if isPending then
+                completeDisposal ()
+
+            let! observed =
+                task {
+                    try
+                        let! _ = resultTask
+                        return "completed"
+                    with
+                    | :? System.InvalidOperationException as e -> return $"faulted: {e.Message}"
+                    | :? System.OperationCanceledException -> return "canceled"
+                }
+
+            let expected =
+                match outcome with
+                | DisposalFaults -> "faulted: dispose"
+                | DisposalCancels -> "canceled"
+
+            Expecto.Expect.equal
+                observed
+                expected
+                "The result task must report the fault or cancellation of DisposeAsync"
+        }
+
+    let asyncDisposalOutcomeTests
+        name
+        (startStatic: System.IAsyncDisposable -> Task<'Result>)
+        (startDynamic: System.IAsyncDisposable -> Task<'Result>)
+        =
+        Expecto.Tests.testList name [
+            for isDynamic in
+                [
+                    false
+                    true
+                ] do
+                for outcome in
+                    [
+                        DisposalFaults
+                        DisposalCancels
+                    ] do
+                    for isPending in
+                        [
+                            false
+                            true
+                        ] do
+                        Expecto.Tests.testCaseTask
+                            (sprintf
+                                "%s execution, %A, %s disposal"
+                                (if isDynamic then "dynamic" else "static")
+                                outcome
+                                (if isPending then "pending" else "completed"))
+                            (fun () ->
+                                assertAsyncDisposalOutcomeIsObserved
+                                    outcome
+                                    isPending
+                                    (if isDynamic then startDynamic else startStatic)
+                            )
+        ]
 #endif
 
 #if !FABLE_COMPILER

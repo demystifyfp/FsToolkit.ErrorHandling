@@ -793,6 +793,24 @@ let ``BackgroundTaskResultCE inference checks`` =
             |> ignore
     ]
 
+let ``BackgroundTaskResultCE async disposal outcome Tests`` =
+    let startStatic (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
+        backgroundTaskResult {
+            use _resource = disposable
+            return ()
+        }
+
+    let startDynamic (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskResult {
+            use _resource = disposable
+            return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskResultCE async disposal outcome Tests"
+        startStatic
+        startDynamic
+
 let allTests =
     testList "BackgroundTaskResult CE Tests" [
         ``BackgroundTaskResultCE return Tests``
@@ -802,6 +820,7 @@ let allTests =
         ``BackgroundTaskResultCE try Tests``
         ``BackgroundTaskResultCE using Tests``
         ``BackgroundTaskResultCE while error async disposal Tests``
+        ``BackgroundTaskResultCE async disposal outcome Tests``
         ``BackgroundTaskResultCE loop Tests``
         ``BackgroundTaskResultCE applicative tests``
         ``BackgroundTaskResultCE inference checks``
