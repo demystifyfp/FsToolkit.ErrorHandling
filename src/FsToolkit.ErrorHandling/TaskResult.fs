@@ -5,19 +5,13 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module TaskResult =
 
-    let inline ok x = Task.singleton (Ok x)
+    let inline ok x = Task.result (Ok x)
 
-    let inline error x = Task.singleton (Error x)
+    let inline error x = Task.result (Error x)
 
     let inline map ([<InlineIfLambda>] f) tr = Task.map (Result.map f) tr
 
     let inline mapError ([<InlineIfLambda>] f) tr = Task.map (Result.mapError f) tr
-
-    let inline ofAsync aAsync =
-        aAsync
-        |> Async.Catch
-        |> Async.StartImmediateAsTask
-        |> Task.map Result.ofChoice
 
     let inline bind ([<InlineIfLambda>] f) (tr: Task<_>) =
         Task.bind (Result.eitherBind f error) tr
@@ -179,56 +173,47 @@ module TaskResult =
         Task.zip left right
         |> Task.map (fun (r1, r2) -> Result.zipError r1 r2)
 
-    /// Catches exceptions and maps them to the Error case using the provided function.
-    let inline catch ([<InlineIfLambda>] f) x =
-        x
-        |> Task.catch
-        |> Task.map (
-            function
-            | Choice1Of2(Ok v) -> Ok v
-            | Choice1Of2(Error err) -> Error err
-            | Choice2Of2 ex -> Error(f ex)
-        )
+    /// <summary>Catches exceptions and maps them to the <c>Error</c> case using the provided function.</summary>
+    /// <remarks>As with <c>Task.catch</c>, <c>TaskCancelledException</c> will be rethrown and not caught.</remarks>
+    let inline catchWith
+        ([<InlineIfLambda>] handler: exn -> 'error)
+        (x: Task<Result<'ok, 'error>>)
+        : Task<Result<'ok, 'error>> =
+        Task.catchWith (fun ex -> Error(handler ex)) x
 
-    /// <summary>
-    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, 'error&gt;&gt;</c> by wrapping the value in <c>Ok</c>.
-    /// Any exceptions thrown by the task will not be caught and will propagate as-is.
-    /// To catch exceptions and map them to the <c>Error</c> case, use <see cref="ofCatchTask"/>.
-    /// </summary>
-    /// <param name="x">The task to lift.</param>
-    /// <returns>A task containing <c>Ok</c> of the task's result value.</returns>
-    let inline ofTask x =
-        x
-        |> Task.map Ok
+    [<System.Obsolete "Please use TaskResult.catchWith instead of TaskResult.catch. NOTE TaskResult.catchWith will rethrow TaskCancelledException">]
+    let inline catch
+        ([<InlineIfLambda>] handler: exn -> 'error)
+        (task: Task<Result<'ok, 'error>>)
+        : Task<Result<'ok, 'error>> =
+        TaskBuilder.task {
+            try
+                return! task
+            with e ->
+                return Error(handler e)
+        }
 
-    /// <summary>
-    /// Lifts a <c>Task&lt;'ok&gt;</c> into a <c>Task&lt;Result&lt;'ok, exn&gt;&gt;</c>, catching any exceptions
-    /// thrown by the task and wrapping them in <c>Error</c>. If the task completes successfully,
-    /// the result is wrapped in <c>Ok</c>.
-    /// </summary>
-    /// <param name="x">The task to lift.</param>
-    /// <returns>
-    /// A task containing <c>Ok</c> of the result value if the task succeeds, or
-    /// <c>Error</c> of the exception if the task throws.
-    /// </returns>
-    /// <example>
-    /// <code>
-    ///     TaskResult.ofCatchTask (task { return 42 })
-    ///     // Returns: task { return Ok 42 }
-    ///
-    ///     TaskResult.ofCatchTask (task { failwith "something went wrong" })
-    ///     // Returns: task { return Error (System.Exception("something went wrong")) }
-    /// </code>
-    /// </example>
-    let inline ofCatchTask (x: Task<'ok>) : Task<Result<'ok, exn>> =
-        x
-        |> Task.catch
+    [<System.Obsolete "Please use 1. Task.startAsyncImmediate ct >> Task.catch OR 2. Async.StartImmediateAsTask >> Task.catch instead of TaskResult.ofAsync">]
+    let inline ofAsync async : Task<Result<'ok, exn>> =
+        Async.Catch async
+        |> Async.StartImmediateAsTask
         |> Task.map Result.ofChoice
 
-    /// Lift Result to TaskResult
-    let inline ofResult (x: Result<_, _>) =
-        x
-        |> Task.singleton
+    [<System.Obsolete "Please use Task.map Ok instead of TaskResult.ofTask (Consider Task.catch/catchWith if you want to trap exceptions as Error)">]
+    let inline ofTask (task: Task<'input>) : Task<Result<'input, 'error>> = Task.map Ok task
+
+    [<System.Obsolete "Please use Task.catch instead of TaskResult.ofCatchTask, NOTE Task.catch will rethrow TaskCancelledException.">]
+    let inline ofCatchTask (task: Task<'ok>) : Task<Result<'ok, exn>> =
+        TaskBuilder.task {
+            try
+                let! r = task
+                return Ok r
+            with e ->
+                return Error e
+        }
+
+    [<System.Obsolete "Please use Task.result instead of TaskResult.ofResult">]
+    let inline ofResult (x: Result<_, _>) = Task.result x
 
     /// Returns the task-wrapped result if it is Ok and the checkFunc returns a task-wrapped Ok result or if the task-wrapped result is Error.
     /// If the checkFunc returns a task-wrapped Error result, returns the task-wrapped Error result.

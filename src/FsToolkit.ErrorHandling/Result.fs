@@ -4,80 +4,6 @@
 [<RequireQualifiedAccess>]
 module FsToolkit.ErrorHandling.Result
 
-/// Applies a transformation to the value of a <c>Result</c> to a new value using the specified mapper function.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/map</href>
-/// </summary>
-/// <param name="mapper">The function to apply to the value of the <c>Result</c> if it is <c>Ok</c>.</param>
-/// <param name="input">The <c>Result</c> to map.</param>
-/// <returns>A new <c>Result</c>with the mapped value if the input <c>Result</c> is <c>Ok</c>, otherwise the original <c>Error</c>.</returns>
-let inline map
-    ([<InlineIfLambda>] mapper: 'okInput -> 'okOutput)
-    (input: Result<'okInput, 'error>)
-    : Result<'okOutput, 'error> =
-    match input with
-    | Ok x -> Ok(mapper x)
-    | Error e -> Error e
-
-/// <summary>
-/// Maps the error value of a <c>Result</c>to a new error value using the specified error mapper function.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/maperror</href>
-/// </summary>
-/// <param name="errorMapper">The function that maps the input error value to the output error value.</param>
-/// <param name="input">The <c>Result</c>value to map the error value of.</param>
-/// <returns>A new <c>Result</c>with the same Ok value and the mapped error value.</returns>
-let inline mapError
-    ([<InlineIfLambda>] errorMapper: 'errorInput -> 'errorOutput)
-    (input: Result<'ok, 'errorInput>)
-    : Result<'ok, 'errorOutput> =
-    match input with
-    | Ok x -> Ok x
-    | Error e -> Error(errorMapper e)
-
-/// <summary>
-/// Takes a transformation function and applies it to the <c>Result</c> if it is <c>Ok</c>.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/bind</href>
-/// </summary>
-/// <param name="binder">The transformation function</param>
-/// <param name="input">The input result</param>
-/// <typeparam name="'okInput">The type of the successful result.</typeparam>
-/// <typeparam name="'okOutput">The type of the result after binding.</typeparam>
-/// <typeparam name="'error">The type of the error.</typeparam>
-/// <returns>Returns a new <c>Result</c> if the input is <c>Ok</c>, otherwise returns the original <c>Result</c></returns>
-let inline bind
-    ([<InlineIfLambda>] binder: 'okInput -> Result<'okOutput, 'error>)
-    (input: Result<'okInput, 'error>)
-    : Result<'okOutput, 'error> =
-    match input with
-    | Ok x -> binder x
-    | Error e -> Error e
-
-/// <summary>
-/// Determines whether the specified <c>Result</c> is in a successful state.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#isok</href>
-/// </summary>
-/// <param name="value">The result to check.</param>
-/// <returns>True if the result is in a successful state; otherwise, false.</returns>
-let inline isOk (value: Result<'ok, 'error>) : bool =
-    match value with
-    | Ok _ -> true
-    | Error _ -> false
-
-/// <summary>
-/// Determines whether the specified <c>Result</c> is an error.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#iserror</href>
-/// </summary>
-/// <param name="value">The result to check.</param>
-/// <returns>True if the result is an error; otherwise, false.</returns>
-let inline isError (value: Result<'ok, 'error>) : bool =
-    match value with
-    | Ok _ -> false
-    | Error _ -> true
-
 /// <summary>
 /// Applies the appropriate function based on the result of the input.
 ///
@@ -205,7 +131,7 @@ let inline tryCreate (fieldName: string) (x: 'a) : Result< ^b, string * 'c > =
         (^b: (static member TryCreate: 'a -> Result< ^b, 'c >) x)
 
     tryCreate' x
-    |> mapError (fun z -> (fieldName, z))
+    |> Result.mapError (fun z -> (fieldName, z))
 
 /// <summary>
 /// Returns <paramref name="result"/> if it is <c>Ok</c>, otherwise returns <paramref name="ifError"/>
@@ -286,7 +212,7 @@ let inline ignore<'ok, 'error> (result: Result<'ok, 'error>) : Result<unit, 'err
 /// <returns>A new <c>Result</c> with the same Ok value and the new error value.</returns>
 let inline setError (error: 'error) (result: Result<'ok, 'errorIgnored>) : Result<'ok, 'error> =
     result
-    |> mapError (fun _ -> error)
+    |> Result.mapError (fun _ -> error)
 
 /// <summary>
 /// Replaces a unit error value with a custom error value. Safer than setError
@@ -299,20 +225,7 @@ let inline setError (error: 'error) (result: Result<'ok, 'errorIgnored>) : Resul
 /// <returns>A new <c>Result</c> with the same Ok value and the new error value.</returns>
 let inline withError (error: 'error) (result: Result<'ok, unit>) : Result<'ok, 'error> =
     result
-    |> mapError (fun () -> error)
-
-/// <summary>
-/// Returns the contained value if <c>Ok</c>, otherwise returns the provided value
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#defaultvalue</href>
-/// </summary>
-/// <param name="ifError">The value to use if the result is <c>Error</c>.</param>
-/// <param name="result">The input result.</param>
-/// <returns>The contained value if <c>Ok</c>, otherwise <paramref name="ifError"/>.</returns>
-let inline defaultValue (ifError: 'ok) (result: Result<'ok, 'error>) : 'ok =
-    match result with
-    | Ok x -> x
-    | Error _ -> ifError
+    |> Result.mapError (fun () -> error)
 
 /// <summary>
 /// Returns the contained value if <c>Error</c>, otherwise returns the provided value
@@ -328,22 +241,6 @@ let inline defaultError (ifOk: 'error) (result: Result<'ok, 'error>) : 'error =
     | Ok _ -> ifOk
 
 /// <summary>
-/// Returns the contained value if <c>Ok</c>, otherwise evaluates <param name="ifErrorThunk"/> and returns the value.
-///
-/// Documentation is found here: <href>https://demystifyfp.gitbook.io/fstoolkit-errorhandling/fstoolkit.errorhandling/result/others#defaultwith</href>
-/// </summary>
-/// <param name="ifErrorThunk">The function to evaluate if the result is <c>Error</c>.</param>
-/// <param name="result">The input result.</param>
-/// <returns>The contained value if <c>Ok</c>, otherwise the result of evaluating <paramref name="ifErrorThunk"/>.</returns>
-let inline defaultWith
-    ([<InlineIfLambda>] ifErrorThunk: 'error -> 'ok)
-    (result: Result<'ok, 'error>)
-    : 'ok =
-    match result with
-    | Ok x -> x
-    | Error e -> ifErrorThunk e
-
-/// <summary>
 /// Same as <c>defaultValue</c> for a result where the Ok value is unit. The name
 /// describes better what is actually happening in this case.
 ///
@@ -351,7 +248,7 @@ let inline defaultWith
 /// </summary>
 /// <param name="result">The input result.</param>
 /// <returns>Unit if <c>Ok</c>, otherwise the provided value.</returns>
-let inline ignoreError<'error> (result: Result<unit, 'error>) : unit = defaultValue () result
+let inline ignoreError<'error> (result: Result<unit, 'error>) : unit = Operators.ignore result
 
 /// <summary>
 /// If the result is <c>Ok</c> and the predicate returns true, executes the function on the <c>Ok</c> value. Passes through the input value.
@@ -442,7 +339,7 @@ let inline traverseAsync
     ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput>)
     (res: Result<'okInput, 'error>)
     : Async<Result<'okOutput, 'error>> =
-    sequenceAsync ((map f) res)
+    sequenceAsync ((Result.map f) res)
 
 #if !FABLE_COMPILER
 open System.Threading.Tasks
@@ -466,7 +363,7 @@ let sequenceTask (resTask: Result<Task<'a>, 'b>) : Task<Result<'a, 'b>> =
 /// <returns>The <c>Ok</c> value if the result is <c>Ok</c>, otherwise the result of running the function over the error value.</returns>
 [<System.Obsolete "Please use defaultWith instead of valueOr">]
 let inline valueOr ([<InlineIfLambda>] f: 'error -> 'ok) (res: Result<'ok, 'error>) : 'ok =
-    defaultWith f res
+    Result.defaultWith f res
 
 /// <summary>
 /// Takes two results and returns a tuple of the pair
@@ -502,7 +399,7 @@ let zipError
     | Ok e, _
     | _, Ok e -> Ok e
 
-let inline req ([<InlineIfLambda>] reqF) errOrF value = bind (reqF errOrF) value
+let inline req ([<InlineIfLambda>] reqF) errOrF value = Result.bind (reqF errOrF) value
 let inline reqFilter predicate error value = req (Req.filter predicate) error value
 
 /// <summary>

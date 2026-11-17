@@ -15,8 +15,8 @@ Task<'left> -> Task<'right> -> Task<('left * 'right)>
 ### Example 1
 
 ```fsharp
-let left = Task.singleton 123
-let right = Task.singleton "abc"
+let left = Task.result 123
+let right = Task.result "abc"
 
 Task.zip left right
 // task { (123, "abc") }

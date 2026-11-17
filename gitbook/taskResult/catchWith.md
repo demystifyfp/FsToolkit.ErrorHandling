@@ -1,4 +1,4 @@
-## TaskResult.catch
+## TaskResult.catchWith
 
 Namespace: `FsToolkit.ErrorHandling`
 
@@ -25,21 +25,26 @@ let taskThrow () =
 ### Example 1
 
 ```fsharp
-let result : Task<Result<int, string>> = TaskResult.catch (_.Message) (TaskResult.ok 42)
+let result : Task<Result<int, string>> =
+    TaskResult.ok 42
+    |> TaskResult.catchWith _.Message
 // task { Ok 42 }
 ```
 
 ### Example 2
 
 ```fsharp
-let result : Task<Result<int, string>> = TaskResult.catch (_.Message) (TaskResult.error "something bad happened")
+let result : Task<Result<int, string>> =
+    TaskResult.error "something bad happened"
+    |> TaskResult.catchWith _.Message
 // task { Error "something bad happened" }
 ```
 
 ### Example 3
 
 ```fsharp
-let result : Task<Result<int, string>> = TaskResult.catch (_.Message) (taskThrow ())
+let result : Task<Result<int, string>> =
+    taskThrow ()
+    |> TaskResult.catchWith (_.Message)
 // task { Error "an exception happened" }
 ```
-

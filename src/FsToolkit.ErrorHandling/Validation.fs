@@ -8,6 +8,7 @@ module Validation =
 
     let inline ok (value: 'ok) : Validation<'ok, 'error> = Ok value
     let inline error (error: 'error) : Validation<'ok, 'error> = Error [ error ]
+    let inline errors (errors: 'error list) : Validation<'ok, 'error> = Error errors
 
     let inline ofResult (result: Result<'ok, 'error>) : Validation<'ok, 'error> =
         Result.mapError List.singleton result

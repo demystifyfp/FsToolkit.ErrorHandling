@@ -1,3 +1,4 @@
 AssemblyInfo.fs
 tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/Main.fs
+src/FsToolkit.ErrorHandling/Async.FSharpCore11.fs
 tests/FsToolkit.ErrorHandling.Tests/Main.fs

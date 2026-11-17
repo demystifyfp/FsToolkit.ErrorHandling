@@ -636,32 +636,6 @@ let sequenceTaskTests =
 
 #endif
 
-let valueOrTests =
-    testList "valueOr replacement Tests" [
-        testCase "valueOr returns the value if Ok"
-        <| fun _ ->
-            let res = Ok "foo"
-
-            let value =
-                res
-                |> Result.defaultWith (fun _ -> "bar")
-
-            Expect.equal value "foo" ""
-
-        testCase "valueOr returns the function's result if Error"
-        <| fun _ ->
-            let res = Error "bar"
-
-            let value =
-                res
-                |> Result.defaultWith (fun err ->
-                    "foo"
-                    + err
-                )
-
-            Expect.equal value "foobar" ""
-    ]
-
 let zipTests =
     testList "zip tests" [
         testCase "Ok, Ok"
@@ -724,7 +698,6 @@ let allTests =
         defaultValueTests
         defaultErrorTests
         defaultWithTests
-        valueOrTests // deprecated in favor of defaultWith
         ignoreErrorTests
         teeTests
         teeIfTests

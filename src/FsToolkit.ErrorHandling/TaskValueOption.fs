@@ -6,30 +6,25 @@ open System.Threading.Tasks
 [<RequireQualifiedAccess>]
 module TaskValueOption =
 
+    /// <summary>Lifts an item to a Task.</summary>
+    /// <param name="x">The item to be the result of the Task.</param>
+    /// <returns>A Task with the item as the result.</returns>
+    let inline some x = Task.result (ValueSome x)
+    /// <summary>A Task that yields ValueNone.</summary>
+    /// <returns>A Task with ValueNone as the result.</returns>
+    let inline none<'a> : Task<'a voption> = Task.result ValueNone
+
+    [<System.Obsolete "Please use some instead of valueSome">]
+    let inline valueSome x = some x
+
     let inline map ([<InlineIfLambda>] f) ar = Task.map (ValueOption.map f) ar
 
     let inline bind ([<InlineIfLambda>] f) (ar: Task<_>) =
         task {
-            let! opt = ar
-
-            let t =
-                match opt with
-                | ValueSome x -> f x
-                | ValueNone -> Task.singleton ValueNone
-
-            return! t
+            match! ar with
+            | ValueSome x -> return! f x
+            | ValueNone -> return ValueNone
         }
-
-    /// <summary>Lifts an item to a Task.</summary>
-    /// <param name="x">The item to be the result of the Task.</param>
-    /// <returns>A Task with the item as the result.</returns>
-    let inline some x = Task.singleton (ValueSome x)
-    /// <summary>A Task that yields ValueNone.</summary>
-    /// <returns>A Task with ValueNone as the result.</returns>
-    let inline none<'a> : Task<'a voption> = Task.singleton ValueNone
-
-    [<System.Obsolete "Please use some instead of valueSome">]
-    let inline valueSome x = some x
 
     let inline apply f x =
         bind (fun f' -> bind (fun x' -> some (f' x')) x) f

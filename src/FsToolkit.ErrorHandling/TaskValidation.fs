@@ -10,15 +10,15 @@ module TaskValidation =
 
     let inline ok (value: 'ok) : TaskValidation<'ok, 'error> =
         Ok value
-        |> Task.singleton
+        |> Task.result
 
     let inline error (error: 'error) : TaskValidation<'ok, 'error> =
         Error [ error ]
-        |> Task.singleton
+        |> Task.result
 
     let inline ofResult (result: Result<'ok, 'error>) : TaskValidation<'ok, 'error> =
         Result.mapError List.singleton result
-        |> Task.singleton
+        |> Task.result
 
     let inline ofChoice (choice: Choice<'ok, 'error>) : TaskValidation<'ok, 'error> =
         match choice with

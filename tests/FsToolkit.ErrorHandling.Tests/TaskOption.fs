@@ -30,7 +30,7 @@ let mapTests =
     testList "TaskOption.map Tests" [
         testCase "map with Task(Some x)"
         <| fun _ ->
-            Task.singleton (Some validTweet)
+            TaskOption.some validTweet
             |> TaskOption.map remainingCharacters
             |> Expect.hasTaskSomeValue 267
 
@@ -73,14 +73,14 @@ let applyTests =
     testList "TaskOption.apply Tests" [
         testCase "apply with Task(Some x)"
         <| fun _ ->
-            Task.singleton (Some validTweet)
-            |> TaskOption.apply (Task.singleton (Some remainingCharacters))
+            TaskOption.some validTweet
+            |> TaskOption.apply (TaskOption.some remainingCharacters)
             |> Expect.hasTaskSomeValue 267
 
         testCase "apply with Task(None)"
         <| fun _ ->
             TaskOption.none
-            |> TaskOption.apply (Task.singleton (Some remainingCharacters))
+            |> TaskOption.apply (TaskOption.some remainingCharacters)
             |> Expect.hasTaskNoneValue
     ]
 
@@ -138,7 +138,7 @@ let eitherTests =
         testCaseTask "None"
         <| fun () ->
             task {
-                let value1 = Task.FromResult None
+                let value1 = Task.result None
                 let f () = 42
                 let add2 x = x + 2
 

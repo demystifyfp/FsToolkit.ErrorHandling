@@ -8,6 +8,19 @@ module ParallelAsyncResult =
     [<AutoOpen>]
     module InternalHelpers =
 
+#if FABLE_COMPILER
+        // Fable 5 reports "Generic args are ignored in type testing" for a generic exception type test.
+        type AsyncResultErrorException(value: obj) =
+            inherit Exception()
+            member this.Value = value
+
+        let toBoxedAsync (input: Async<Result<'ok, 'error>>) : Async<ObjNull> =
+            async {
+                match! input with
+                | Ok x -> return box x
+                | Error e -> return raise (AsyncResultErrorException(box e))
+            }
+#else
         type AsyncResultErrorException<'a>(value: 'a) =
             inherit Exception()
             member this.Value = value
@@ -18,6 +31,7 @@ module ParallelAsyncResult =
                 | Ok x -> return box x
                 | Error e -> return raise (AsyncResultErrorException<'error>(e))
             }
+#endif
 
     /// <summary>
     /// Transforms two AsyncResults in one that executes them concurrently and combines the results using the specified function.
@@ -44,8 +58,13 @@ module ParallelAsyncResult =
                         (toBoxedAsync input1)
                         (toBoxedAsync input2)
 
+#if FABLE_COMPILER
+            with :? AsyncResultErrorException as exn ->
+                return Error(unbox<'error> exn.Value)
+#else
             with :? AsyncResultErrorException<'error> as exn ->
                 return Error exn.Value
+#endif
         }
 
     /// <summary>
@@ -77,8 +96,13 @@ module ParallelAsyncResult =
                         (toBoxedAsync input2)
                         (toBoxedAsync input3)
 
+#if FABLE_COMPILER
+            with :? AsyncResultErrorException as exn ->
+                return Error(unbox<'error> exn.Value)
+#else
             with :? AsyncResultErrorException<'error> as exn ->
                 return Error exn.Value
+#endif
         }
 
     let inline zip

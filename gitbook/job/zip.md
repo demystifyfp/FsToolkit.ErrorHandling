@@ -15,8 +15,8 @@ Job<'left> -> Job<'right> -> Job<('left * 'right)>
 ### Example 1
 
 ```fsharp
-let left = Job.singleton 123
-let right = Job.singleton "abc"
+let left = Job.result 123
+let right = Job.result "abc"
 
 Job.zip left right
 // job { return (123, "abc") }

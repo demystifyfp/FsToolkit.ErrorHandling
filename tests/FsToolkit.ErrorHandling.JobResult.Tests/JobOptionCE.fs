@@ -35,27 +35,27 @@ let ceTests =
         testCaseJob "ReturnFrom Async None"
         <| job {
             let expected = None
-            let! actual = jobOption { return! (async.Return None) }
+            let! actual = jobOption { return! Async.result None }
             Expect.equal actual expected "Should return value wrapped in option"
         }
         testCaseJob "ReturnFrom Async"
         <| job {
             let expected = Some 42
-            let! actual = jobOption { return! (async.Return 42) }
+            let! actual = jobOption { return! Async.result 42 }
             Expect.equal actual expected "Should return value wrapped in option"
         }
 
         testCaseJob "ReturnFrom Task None"
         <| job {
             let expected = None
-            let! actual = jobOption { return! (Task.FromResult None) }
+            let! actual = jobOption { return! Task.result None }
             Expect.equal actual expected "Should return value wrapped in option"
         }
 
-        testCaseJob "ReturnFrom Job None"
+        testCaseJob "ReturnFrom Job Some"
         <| job {
             let expected = Some 42
-            let! actual = jobOption { return! (Job.result (Some 42)) }
+            let! actual = jobOption { return! JobOption.some 42 }
             Expect.equal actual expected "Should return value wrapped in option"
         }
 
@@ -89,7 +89,7 @@ let ceTests =
 
             let! actual =
                 jobOption {
-                    let! value = async.Return(None)
+                    let! value = Async.result None
                     return value
                 }
 
@@ -101,7 +101,7 @@ let ceTests =
 
             let! actual =
                 jobOption {
-                    let! value = async.Return 42
+                    let! value = Async.result 42
                     return value
                 }
 
@@ -113,7 +113,7 @@ let ceTests =
 
             let! actual =
                 jobOption {
-                    let! value = Task.FromResult None
+                    let! value = Task.result None
                     return value
                 }
 
@@ -125,7 +125,7 @@ let ceTests =
 
             let! actual =
                 jobOption {
-                    let! value = Task.FromResult 42
+                    let! value = Task.result 42
                     return value
                 }
 
@@ -342,6 +342,6 @@ let ``JobOptionCE inference checks`` =
             // Compilation is success
             let f res = jobOption { return! res }
 
-            f (JobOption.singleton ())
+            f (JobOption.some ())
             |> ignore
     ]
