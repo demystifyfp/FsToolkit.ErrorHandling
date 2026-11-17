@@ -108,6 +108,42 @@ let projectShape =
                 "Packaged items"
         }
 
+        test "the Fable condition is accepted with whitespace between its tokens" {
+            for condition in
+                [
+                    " '$(FABLE_COMPILER)' != 'true' "
+                    "'$(FABLE_COMPILER)'!='true'"
+                    "'$(FABLE_COMPILER)'  !=\t'true'"
+                ] do
+                let xml =
+                    project (itemGroup $"<Compile Include=\"A.fs\" Condition=\"{condition}\" />")
+
+                Expect.equal
+                    (packagedCompileItems "P.fsproj" xml)
+                    (Ok [
+                        {
+                            Include = "A.fs"
+                            Condition = ExcludedFromFable
+                        }
+                    ])
+                    condition
+        }
+
+        test "whitespace inside a quoted condition value is not ignored" {
+            for condition in
+                [
+                    "'$(FABLE_COMPILER)' != ' true'"
+                    "' $(FABLE_COMPILER)' != 'true'"
+                ] do
+                let xml =
+                    project (itemGroup $"<Compile Include=\"A.fs\" Condition=\"{condition}\" />")
+
+                Expect.equal
+                    (projectProblems (packagedCompileItems "P.fsproj" xml))
+                    [ UnsupportedCondition condition ]
+                    condition
+        }
+
         test "Compile without Include" {
             rejectedByBoth (project (itemGroup "<Compile />")) MissingInclude
         }

@@ -22,7 +22,7 @@ module SourcesPackage =
 
     [<Literal>]
     let NoWarnLine =
-        "#nowarn \"57\" \"1182\" \"3180\" \"3261\" \"3390\" \"3513\" \"3517\" \"3559\""
+        "#nowarn \"52\" \"57\" \"1182\" \"3180\" \"3261\" \"3390\" \"3513\" \"3517\" \"3559\""
 
     [<Literal>]
     let FableGuardStart = "#if !FABLE_COMPILER"
@@ -153,7 +153,7 @@ module SourcesPackage =
             | UnterminatedCommentOrString -> "the file ends inside a block comment or string"
             | NoDeclaration -> "has no column-0 namespace or module declaration"
             | CodeBeforeFableGuard ->
-                "a file excluded from Fable must have only comments before its first namespace or module declaration"
+                "a file excluded from Fable must have only comments, attributes, and closed #if blocks before its first namespace or module declaration"
             | IndentedNamespaceCode ->
                 "indented code at namespace level does not get FsToolkitErrorHandlingVisibility. Start each namespace-level declaration in column 0"
             | UnsupportedDirective ->
@@ -293,6 +293,23 @@ module SourcesPackage =
         parseCompileElements project projectXml
         |> Result.map (List.map snd)
 
+    // MSBuild ignores whitespace between condition tokens, but not inside a quoted string.
+    let private conditionTokens (condition: string) =
+        condition.Split '\''
+        |> Array.mapi (fun index part ->
+            if index % 2 = 0 then
+                System.String.Concat(
+                    part
+                    |> Seq.filter (
+                        System.Char.IsWhiteSpace
+                        >> not
+                    )
+                )
+            else
+                part
+        )
+        |> String.concat "'"
+
     let packagedCompileItems (project: string) (projectXml: string) =
         parseCompileElements project projectXml
         |> Result.bind (fun items ->
@@ -304,7 +321,9 @@ module SourcesPackage =
                         Include = item.Include
                         Condition = AllCompilers
                     }
-                | Some NotFableCondition ->
+                | Some condition when
+                    conditionTokens condition = conditionTokens NotFableCondition
+                    ->
                     Ok {
                         Include = item.Include
                         Condition = ExcludedFromFable
@@ -936,14 +955,42 @@ module SourcesPackage =
                 }
               ]
             | Some header, ExcludedFromFable ->
-                rewritten
-                |> List.tryFind (fun (index, kind) ->
-                    index < header
-                    && kind
-                       <> NoCode
-                )
-                |> Option.map (fun (index, _) -> error index CodeBeforeFableGuard)
-                |> Option.toList
+                let beforeHeader =
+                    rewritten
+                    |> List.takeWhile (fun (index, _) -> index < header)
+
+                let attachesToHeader (index, kind) =
+                    match kind with
+                    | NoCode
+                    | TopLevel IfStart
+                    | TopLevel IfElse
+                    | TopLevel IfEnd -> true
+                    | TopLevel NotDeclaration -> startsWith lines[index] "[<"
+                    | _ -> false
+
+                let openConditionals =
+                    beforeHeader
+                    |> List.sumBy (
+                        function
+                        | _, TopLevel IfStart -> 1
+                        | _, TopLevel IfEnd -> -1
+                        | _ -> 0
+                    )
+
+                match
+                    beforeHeader
+                    |> List.tryFind (
+                        attachesToHeader
+                        >> not
+                    )
+                with
+                | Some(index, _) -> [ error index CodeBeforeFableGuard ]
+                | None when
+                    openConditionals
+                    <> 0
+                      ->
+                      [ error header CodeBeforeFableGuard ]
+                | None -> []
             | Some _, AllCompilers -> []
 
         match

@@ -44,4 +44,4 @@ module Library =
         }
 
     let double (value: Result<int, string>) : Result<int, string> =
-        Contoso.Internal.ErrorHandling.Result.map (fun x -> x * 2) value
+        Contoso.Internal.ErrorHandling.Result.eitherMap (fun x -> x * 2) id value

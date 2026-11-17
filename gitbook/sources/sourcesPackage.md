@@ -10,7 +10,7 @@ The package contains only the source code of the `FsToolkit.ErrorHandling` packa
 ## Requirements
 
 - F# 9 or later (.NET SDK 9.0 or later).
-- For `net9.0` or later, FSharp.Core 9.0.300 or later. The package depends on that version. The .NET SDK 9.0.300 or later gives it by default. With an earlier SDK 9.0 version, restore reports `NU1605` (a package downgrade). Then use SDK 9.0.300 or later, or add a direct `FSharp.Core` reference of version 9.0.300 or later.
+- For `net9.0`, FSharp.Core 9.0.300 or later. For `net10.0`, FSharp.Core 10.0.100 or later. For `net11.0` or later, FSharp.Core 11.0.101 or later. The package depends on these versions. The .NET SDK of the same major version gives them by default, but SDK 9.0 versions before 9.0.300 do not. With such an SDK, restore reports `NU1605` (a package downgrade). Then use SDK 9.0.300 or later, or add a direct `FSharp.Core` reference of version 9.0.300 or later.
 - For `netstandard2.0` and `netstandard2.1`, FSharp.Core 6.0.4 or later.
 - If your project targets `net9.0` or later, do not set `LangVersion` lower than `9.0`.
 - Reference the package directly from each project that uses it. NuGet does not give content files to projects that reference your project.
@@ -70,7 +70,7 @@ The package files compile before the files of your project. If your project sets
 
 ## Compiler warnings
 
-Each source file has `#nowarn "57" "1182" "3180" "3261" "3390" "3513" "3517" "3559"` on the line after each `namespace` line and after its top-level `module` line. Thus strict project settings, such as `TreatWarningsAsErrors`, `Nullable`, and `GenerateDocumentationFile`, do not fail on the package files.
+Each source file has `#nowarn "52" "57" "1182" "3180" "3261" "3390" "3513" "3517" "3559"` on the line after each `namespace` line and after its top-level `module` line. Thus strict project settings, such as `TreatWarningsAsErrors`, `Nullable`, and `GenerateDocumentationFile`, do not fail on the package files.
 
 If you enable warning 3180 with `--warnon:3180`, the compiler reports FS3180 for the package files at `unknown(1,1)`. A `#nowarn` cannot suppress a warning without a source location. If you must enable warning 3180, add `FS3180` to `WarningsNotAsErrors`.
 

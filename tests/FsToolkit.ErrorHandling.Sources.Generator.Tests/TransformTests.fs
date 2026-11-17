@@ -806,12 +806,49 @@ let fableExamples =
                 "Output"
         }
 
-        test "a file excluded from Fable must start with its declaration" {
+        test "a file excluded from Fable can have closed #if blocks of attributes before its module" {
             Expect.equal
-                (problems (
-                    transform ExcludedFromFable "Task.fs" "#if NET9_0\nnamespace A\n#endif\n"
-                ))
-                [ Some 1, CodeBeforeFableGuard ]
-                "Problems"
+                (transform
+                    ExcludedFromFable
+                    "Task.fs"
+                    "// c\n#if !NET11_0_OR_GREATER\n[<AutoOpen>]\n#else\n[<System.Obsolete \"o\">]\n#endif\nmodule FsToolkit.ErrorHandling.Shims\n\nlet x = 1\n")
+                (Ok
+                    $"// c\n#if !NET11_0_OR_GREATER\n[<AutoOpen>]\n#else\n[<System.Obsolete \"o\">]\n#endif\nmodule {VisibilityToken} {NamespaceToken}.Shims\n{NoWarnLine}\n{FableGuardStart}\n\nlet x = 1\n{FableGuardEnd}\n")
+                "Output"
+        }
+
+        test "a file excluded from Fable must not have its declaration inside an #if block" {
+            for source in
+                [
+                    "#if NET9_0\nnamespace A\n#endif\n"
+                    "#if NET9_0\n[<AutoOpen>]\n#else\nmodule A\n#endif\n"
+                ] do
+                Expect.equal
+                    (problems (transform ExcludedFromFable "Task.fs" source))
+                    [
+                        Some(
+                            source.Split('\n')
+                            |> Array.findIndex (fun line ->
+                                line.StartsWith "namespace"
+                                || line.StartsWith "module"
+                            )
+                            |> (+) 1
+                        ),
+                        CodeBeforeFableGuard
+                    ]
+                    source
+        }
+
+        test "a file excluded from Fable must have no code before its declaration" {
+            for source, line in
+                [
+                    "#nowarn \"57\"\nnamespace A\n", 1
+                    "#if X\n#nowarn \"57\"\n#endif\nnamespace A\n", 2
+                    "open System\nmodule A\n", 1
+                ] do
+                Expect.equal
+                    (problems (transform ExcludedFromFable "Task.fs" source))
+                    [ Some line, CodeBeforeFableGuard ]
+                    source
         }
     ]

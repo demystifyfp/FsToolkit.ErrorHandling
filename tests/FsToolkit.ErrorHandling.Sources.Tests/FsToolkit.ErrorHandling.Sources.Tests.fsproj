@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <FsToolkitErrorHandlingVisibility>public</FsToolkitErrorHandlingVisibility>
   </PropertyGroup>
   <ItemGroup>
@@ -26,7 +26,11 @@
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/Async.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/FSharpCore11ShimBehavior.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Req.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/FSharpCoreShims.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/FSharpCoreShimConsumer.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Result.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/ResultCE.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/ResultOption.fs" />
@@ -52,6 +56,7 @@
     <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncResultCE.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncValidation.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/ParallelAsyncValidationCE.fs" />
+    <Compile Include="../FsToolkit.ErrorHandling.Tests/AsyncParallelLimit.fs" />
     <Compile Include="../FsToolkit.ErrorHandling.Tests/Main.fs" />
   </ItemGroup>
 </Project>
