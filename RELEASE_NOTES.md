@@ -1,4 +1,4 @@
-### 6.0.0-beta006 - Unreleased
+### 6.0.0-beta006 - November 17, 2026
 
 - [Read the DisposeAsync result in async builders when it completes successfully](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/386) Credits @TheAngryByrd
     - fix: `use` in `asyncResult`, `asyncOption`, `asyncResultOption`, `parallelAsyncResult`, and `parallelAsyncValidation` now calls `GetResult` on a `DisposeAsync` `ValueTask` that completed successfully. Recompile assemblies that inline these builders.
