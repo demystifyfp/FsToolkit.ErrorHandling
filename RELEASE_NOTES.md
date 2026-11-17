@@ -1,4 +1,4 @@
-### 6.0.0-beta005 - tba
+### 6.0.0-beta005 - November 17, 2026
 
 - [`Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(Async, Task, ValueTask): `result`. Replaces `singleton`; aligned with FSharp.Core >= 11 naming.  
