@@ -681,24 +681,32 @@ let ``ValueTaskValueOption helpers`` =
 
 [<Tests>]
 let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
-    let startStatic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useStatic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         valueTaskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
         |> _.AsTask()
 
-    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useDynamic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         dynamicValueTaskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
         |> _.AsTask()
 
     TestHelpers.asyncDisposalOutcomeTests
         "ValueTaskValueOptionCE async disposal outcome Tests"
-        startStatic
-        startDynamic
+        useStatic
+        useDynamic
 
 let allTests =
     testList "ValueTaskValueOption CE Tests" [

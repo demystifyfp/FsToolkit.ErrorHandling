@@ -824,22 +824,60 @@ let ``TaskResultCE inference checks`` =
     ]
 
 let ``TaskResultCE async disposal outcome Tests`` =
-    let startStatic (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
+    let useStatic bodyThrows (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
         taskResult {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
-    let startDynamic (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
+    let useDynamic bodyThrows (disposable: System.IAsyncDisposable) : Task<Result<unit, string>> =
         TestHelpers.dynamicTaskResult {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
     TestHelpers.asyncDisposalOutcomeTests
         "TaskResultCE async disposal outcome Tests"
-        startStatic
-        startDynamic
+        useStatic
+        useDynamic
+
+let ``TaskResultCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Result<unit, string>> =
+        taskResult {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    let forDynamic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Result<unit, string>> =
+        TestHelpers.dynamicTaskResult {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskResultCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
 
 let allTests =
     testList "TaskResult CE Tests" [
@@ -851,6 +889,7 @@ let allTests =
         ``TaskResultCE using Tests``
         ``TaskResultCE while error async disposal Tests``
         ``TaskResultCE async disposal outcome Tests``
+        ``TaskResultCE async enumerator disposal outcome Tests``
         ``TaskResultCE loop Tests``
         ``TaskResultCE applicative tests``
         ``TaskResultCE inference checks``

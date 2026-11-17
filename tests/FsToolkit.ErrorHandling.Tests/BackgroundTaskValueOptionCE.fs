@@ -590,22 +590,60 @@ let ``BackgroundTaskValueOptionCE inference checks`` =
     ]
 
 let ``BackgroundTaskValueOptionCE async disposal outcome Tests`` =
-    let startStatic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useStatic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         backgroundTaskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
-    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useDynamic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         TestHelpers.dynamicBackgroundTaskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
     TestHelpers.asyncDisposalOutcomeTests
         "BackgroundTaskValueOptionCE async disposal outcome Tests"
-        startStatic
-        startDynamic
+        useStatic
+        useDynamic
+
+let ``BackgroundTaskValueOptionCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        backgroundTaskValueOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    let forDynamic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        TestHelpers.dynamicBackgroundTaskValueOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "BackgroundTaskValueOptionCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
 
 let allTests =
     testList "BackgroundTaskValueOptionCE CE Tests" [
@@ -613,5 +651,6 @@ let allTests =
         ceTestsApplicative
         ``BackgroundTaskValueOptionCE while ValueNone async disposal Tests``
         ``BackgroundTaskValueOptionCE async disposal outcome Tests``
+        ``BackgroundTaskValueOptionCE async enumerator disposal outcome Tests``
         ``BackgroundTaskValueOptionCE inference checks``
     ]

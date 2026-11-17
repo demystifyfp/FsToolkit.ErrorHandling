@@ -714,22 +714,60 @@ let ``TaskOptionCE inference checks`` =
     ]
 
 let ``TaskOptionCE async disposal outcome Tests`` =
-    let startStatic (disposable: System.IAsyncDisposable) : Task<unit option> =
+    let useStatic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit option> =
         taskOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
-    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit option> =
+    let useDynamic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit option> =
         TestHelpers.dynamicTaskOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
     TestHelpers.asyncDisposalOutcomeTests
         "TaskOptionCE async disposal outcome Tests"
-        startStatic
-        startDynamic
+        useStatic
+        useDynamic
+
+let ``TaskOptionCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit option> =
+        taskOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    let forDynamic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit option> =
+        TestHelpers.dynamicTaskOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskOptionCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
 
 let allTests =
     testList "TaskOption CE Tests" [
@@ -737,5 +775,6 @@ let allTests =
         ceTestsApplicative
         ``TaskOptionCE while None async disposal Tests``
         ``TaskOptionCE async disposal outcome Tests``
+        ``TaskOptionCE async enumerator disposal outcome Tests``
         ``TaskOptionCE inference checks``
     ]

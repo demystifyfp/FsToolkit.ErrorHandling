@@ -714,22 +714,60 @@ let ``TaskValueOptionCE inference checks`` =
     ]
 
 let ``TaskValueOptionCE async disposal outcome Tests`` =
-    let startStatic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useStatic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         taskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
-    let startDynamic (disposable: System.IAsyncDisposable) : Task<unit voption> =
+    let useDynamic bodyThrows (disposable: System.IAsyncDisposable) : Task<unit voption> =
         TestHelpers.dynamicTaskValueOption {
             use _resource = disposable
+
+            if bodyThrows then
+                raise (System.ArgumentException "body")
+
             return ()
         }
 
     TestHelpers.asyncDisposalOutcomeTests
         "TaskValueOptionCE async disposal outcome Tests"
-        startStatic
-        startDynamic
+        useStatic
+        useDynamic
+
+let ``TaskValueOptionCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        taskValueOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    let forDynamic
+        bodyThrows
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        TestHelpers.dynamicTaskValueOption {
+            for _item in items do
+                if bodyThrows then
+                    raise (System.ArgumentException "body")
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskValueOptionCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
 
 let allTests =
     testList "TaskValueOption CE Tests" [
@@ -737,5 +775,6 @@ let allTests =
         ceTestsApplicative
         ``TaskValueOptionCE while ValueNone async disposal Tests``
         ``TaskValueOptionCE async disposal outcome Tests``
+        ``TaskValueOptionCE async enumerator disposal outcome Tests``
         ``TaskValueOptionCE inference checks``
     ]
