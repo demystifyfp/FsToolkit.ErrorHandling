@@ -321,6 +321,44 @@ let taskMapTests =
             }
     ]
 
+let taskOfValueTaskTests =
+    testList "Task.ofValueTask" [
+        testCaseTask "a completed value task gives its value"
+        <| fun () ->
+            task {
+                let! actual = Task.ofValueTask (ValueTask<int>(42))
+                Expect.equal actual 42 "Completed value task"
+            }
+
+        testCaseTask "a pending value task gives its value when it completes"
+        <| fun () ->
+            task {
+                let source = signal ()
+                let converted = Task.ofValueTask (ValueTask<unit>(source.Task))
+                Expect.isFalse converted.IsCompleted "The task waits for the value task"
+                source.SetResult()
+                do! converted
+            }
+
+        testCaseTask "a faulted value task gives a faulted task"
+        <| fun () ->
+            task {
+                let converted =
+                    Task.ofValueTask (ValueTask<int>(faulted [ InvalidOperationException "boom" ]))
+
+                do! settle converted
+
+                let isInvalidOperation =
+                    match converted.Exception with
+                    | null -> false
+                    | aggregate -> aggregate.InnerException :? InvalidOperationException
+
+                Expect.isTrue
+                    isInvalidOperation
+                    $"Faulted value task. Actual: %A{converted.Exception}"
+            }
+    ]
+
 let allTests =
     testList "FSharp.Core 11 shim behavior" [
         awaitTests
@@ -329,4 +367,5 @@ let allTests =
         taskSequentialTests
         taskParallelLimitTests
         taskMapTests
+        taskOfValueTaskTests
     ]

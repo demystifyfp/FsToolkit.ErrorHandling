@@ -7,6 +7,8 @@
   - BREAKING(Async, Task, Option)!: Add `RequiresExplicitTypeArguments` to `ignore` align with FSharp.Core Task/Async naming.
   - feat: `net11.0` target, which forwards the `Async` and `Task` shims to FSharp.Core 11. FSharp.Core minimum: `netstandard2.0`, `netstandard2.1`, `net6.0` 6.0.4, `net9.0` 9.0.300, `net10.0` 10.0.100, `net11.0` 11.0.101.
   - (net10 and lower TFMs) feat(Async, Task, ValueTask): Shims of `Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate` and related functions to align with FSharp.Core >= 11.0.0.
+    - The `ValueTask` overloads, the `ValueTask` module, and `Task.ofValueTask` are also on `netstandard2.0`, through `Microsoft.Bcl.AsyncInterfaces`. FSharp.Core 11 has them only on `netstandard2.1` and later.
+    - NOTE KNOWN DIFFERENCE(Task): with an already canceled token, `sequential` and `sequentialDo` give `Canceled` and call no factory. On net11, FSharp.Core 11.0.101 calls the factories, because it does not contain dotnet/fsharp#20695. [#384](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/384) tracks the FSharp.Core release with the fix.
   - (all TFMs) remove(`Async`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`
     - Moved to `FsToolkit.ErrorHandling.FSharpCore11AsyncShims.Async`, which is AutoOpen below net11 and on Fable. On net11, FSharp.Core supplies them.
   - (all TFMs) remove(`Task`): functions shadowing FSharp.Core equivalents: `map`, `bind`, `ignore`, `catch`

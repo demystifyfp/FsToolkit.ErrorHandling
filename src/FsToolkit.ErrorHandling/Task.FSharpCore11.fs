@@ -397,7 +397,6 @@ module Task =
         Async.StartImmediateAsTask(computation, cancellationToken = ct)
 #endif
 
-#if NETSTANDARD2_1 || NET
     /// <summary>Converts a <see cref="T:System.Threading.Tasks.ValueTask`1"/> to a <see cref="T:System.Threading.Tasks.Task`1"/>.</summary>
     /// <param name="valueTask">The input value task.</param>
     /// <returns>A task equivalent to the given value task.</returns>
@@ -413,7 +412,6 @@ module Task =
         Task.ofValueTask valueTask
 #else
         valueTask.AsTask()
-#endif
 #endif
 
 /// <summary><p>Contains camelCase module-level functions for <see cref="T:System.Threading.Tasks.ValueTask`1"/> computations.</p>
