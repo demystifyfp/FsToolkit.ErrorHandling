@@ -713,10 +713,78 @@ let ``TaskValueOptionCE inference checks`` =
             |> ignore
     ]
 
+let ``TaskValueOptionCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit voption> =
+        taskValueOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! ValueNone
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit voption> =
+        TestHelpers.dynamicTaskValueOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! ValueNone
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskValueOptionCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``TaskValueOptionCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        taskValueOption {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! ValueNone
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<unit voption> =
+        TestHelpers.dynamicTaskValueOption {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! ValueNone
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskValueOptionCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
 let allTests =
     testList "TaskValueOption CE Tests" [
         ceTests
         ceTestsApplicative
         ``TaskValueOptionCE while ValueNone async disposal Tests``
+        ``TaskValueOptionCE async disposal outcome Tests``
+        ``TaskValueOptionCE async enumerator disposal outcome Tests``
         ``TaskValueOptionCE inference checks``
     ]

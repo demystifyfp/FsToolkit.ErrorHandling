@@ -793,6 +793,72 @@ let ``BackgroundTaskResultCE inference checks`` =
             |> ignore
     ]
 
+let ``BackgroundTaskResultCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Result<unit, string>> =
+        backgroundTaskResult {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Result<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskResult {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskResultCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``BackgroundTaskResultCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Result<unit, string>> =
+        backgroundTaskResult {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Result<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskResult {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "BackgroundTaskResultCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
 let allTests =
     testList "BackgroundTaskResult CE Tests" [
         ``BackgroundTaskResultCE return Tests``
@@ -802,6 +868,8 @@ let allTests =
         ``BackgroundTaskResultCE try Tests``
         ``BackgroundTaskResultCE using Tests``
         ``BackgroundTaskResultCE while error async disposal Tests``
+        ``BackgroundTaskResultCE async disposal outcome Tests``
+        ``BackgroundTaskResultCE async enumerator disposal outcome Tests``
         ``BackgroundTaskResultCE loop Tests``
         ``BackgroundTaskResultCE applicative tests``
         ``BackgroundTaskResultCE inference checks``

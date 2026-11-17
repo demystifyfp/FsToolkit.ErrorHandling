@@ -679,12 +679,47 @@ let ``ValueTaskValueOption helpers`` =
             }
     ]
 
+let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit voption> =
+        valueTaskValueOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! ValueNone
+            | TestHelpers.BodyCompletes -> return ()
+        }
+        |> _.AsTask()
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<unit voption> =
+        dynamicValueTaskValueOption {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! ValueNone
+            | TestHelpers.BodyCompletes -> return ()
+        }
+        |> _.AsTask()
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "ValueTaskValueOptionCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
 [<Tests>]
 let allTests =
     testList "ValueTaskValueOption CE Tests" [
         ceTests
         ceTestsApplicative
         ``ValueTaskValueOptionCE while ValueNone async disposal Tests``
+        ``ValueTaskValueOptionCE async disposal outcome Tests``
         ``ValueTaskValueOptionCE inference checks``
         ``ValueTaskValueOption helpers``
     ]
