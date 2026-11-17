@@ -18,7 +18,7 @@
   - feat(AsyncResult, JobResult, TaskResult): `catchWith`.
     - Same signature as `catch` but aligning with FSharp.Core naming and semantics.
     - NOTE KEY BEHAVIOR: `Task.catchWith` does NOT trap `OperationCanceledException`/`TaskCanceledException` (the outgoing `catch` and `Task.ofCatchTask` functions did, the incoming `Task.catch` and `Task.catchWith` functions do not).
-    - NOTE In contrast, `JobResult.catchWith` _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled.catch` and `Job.catch` semantics.
+    - NOTE In contrast, `JobResult.catchWith` _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled. This is consistent with the `Job.catch` semantics.
     - NOTE In contrast, `Async.catchWith` **at present** _can_ yield `Error TaskCanceledException`/`OperationCanceledException` if the underlying computation is canceled, but this is consistent with the incoming `Async.catch`/`Async.catchWith` semantics as they presently stand.
   - BREAKING(AsyncOption, AsyncResult, AsyncResultOption, AsyncValidation, CancellableTaskResult, CancellableTaskValidation, CancellableValueTaskOption, ParallelAsyncResult, ParallelAsyncValidation)!:
     - Internal usage of `AwaitTask` switches to `Await`
