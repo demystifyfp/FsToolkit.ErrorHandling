@@ -1,3 +1,8 @@
+### 6.0.0-beta004 - Unreleased
+
+- [Observe DisposeAsync faults and cancellations in task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/385) Credits @TheAngryByrd
+    - NOTE BEHAVIOR CHANGE: `use` and `for` over `IAsyncEnumerable` in `taskResult`, `taskOption`, `taskValueOption`, `taskValidation`, their `background*` variants, and `valueTaskValueOption` now fault or cancel when `DisposeAsync` faults or cancels. The `DisposeAsync` exception replaces the body result. Recompile assemblies that inline these builders.
+
 ### 6.0.0-beta003 - October 12, 2026
 
 - [Consistency cleanups: `req`, `Req`, `bindResult`, `eitherBind`, `eitherMap`, `ok`, `ignore` and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/376) Credits @bartelink
