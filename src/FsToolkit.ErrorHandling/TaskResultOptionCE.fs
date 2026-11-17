@@ -267,8 +267,7 @@ module TaskResultOptionCEExtensionsLowPriority =
         /// Method lets us transform data types into our internal representation.
         /// </summary>
         member inline _.Source(computation: Async<'ok>) : TaskResultOption<'ok, 'error> =
-            computation
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask computation
             |> TaskResultOption.ofTask
 
 [<AutoOpen>]
@@ -312,8 +311,7 @@ module TaskResultOptionCEExtensionsMediumPriority =
         member inline _.Source
             (asyncResult: Async<Result<'ok, 'error>>)
             : TaskResultOption<'ok, 'error> =
-            asyncResult
-            |> Async.StartImmediateAsTask
+            Async.StartImmediateAsTask asyncResult
             |> TaskResultOption.ofTaskResult
 
         /// <summary>

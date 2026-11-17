@@ -2,7 +2,6 @@ namespace FsToolkit.ErrorHandling.IcedTasks.Tests
 
 open Expecto
 open System.Threading
-open System.Threading.Tasks
 open IcedTasks
 open FsToolkit.ErrorHandling
 
@@ -110,7 +109,7 @@ module CancellableValueTaskResultCE =
                     task {
                         let data = 42
 
-                        let ctr = cancellableValueTaskResult { return! ValueTask.FromResult data }
+                        let ctr = cancellableValueTaskResult { return! ValueTask.result data }
 
                         let! actual = (ctr CancellationToken.None).AsTask()
                         Expect.equal actual (Ok data) "Should be able to Return! valueTask<'T>"
@@ -246,7 +245,7 @@ module CancellableValueTaskResultCE =
 
                         let ctr =
                             cancellableValueTaskResult {
-                                let! someValue = ValueTask.FromResult data
+                                let! someValue = ValueTask.result data
                                 return someValue
                             }
 
@@ -321,8 +320,8 @@ module CancellableValueTaskResultCE =
                                 async {
                                     try
                                         let! _ =
-                                            (ctr cts.Token).AsTask()
-                                            |> Async.AwaitTask
+                                            ctr cts.Token
+                                            |> Async.Await
 
                                         return None
                                     with ex ->
@@ -394,7 +393,7 @@ module CancellableValueTaskResultCE =
                 testCase "eitherBind Ok"
                 <| fun () ->
                     let computation =
-                        CancellableValueTaskResult.singleton 5
+                        CancellableValueTaskResult.ok 5
                         |> CancellableValueTaskResult.eitherBind (fun x -> string (x + 2)) id
 
                     let actual = (computation CancellationToken.None).Result

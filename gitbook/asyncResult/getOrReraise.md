@@ -31,18 +31,19 @@ Re-raising an exception from a failing async computation:
 
 ```fsharp
 let value : Async<string> =
-  AsyncResult.ofTask (System.Threading.Tasks.Task.FromException<string>(System.Exception("oops")))
+  Async.Await (System.Threading.Tasks.Task.FromException<string>(System.Exception("oops")))
+  |> Async.catch
   |> AsyncResult.getOrReraise
 // raises System.Exception "oops"
 ```
 
 ### Example 3
 
-Using `catch` together with `getOrReraise` to control which exceptions become errors:
+Using `catchWith` together with `getOrReraise` to control which exceptions become errors:
 
 ```fsharp
 let run () : Async<int> =
   riskyOperation ()
-  |> AsyncResult.catch id
+  |> AsyncResult.catchWith id
   |> AsyncResult.getOrReraise
 ```

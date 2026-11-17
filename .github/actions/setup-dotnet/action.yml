@@ -1,0 +1,11 @@
+name: Setup .NET
+description: Install the SDK from global.json and the runtimes that the test projects target.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v6
+      with:
+        global-json-file: global.json
+        dotnet-version: |
+          10.x
+          11.x

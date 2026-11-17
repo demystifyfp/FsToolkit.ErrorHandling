@@ -146,7 +146,7 @@ let applyTests =
                 |> lift
                 |> AsyncValidation.apply (
                     Ok remainingCharacters
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -159,7 +159,7 @@ let applyTests =
             let! result =
                 AsyncValidation.apply
                     (Ok remainingCharacters
-                     |> Async.singleton)
+                     |> Async.result)
                     (lift emptyInvalidTweetR)
 
             return
@@ -181,7 +181,7 @@ let operatorsTests =
                 <*> (lift validTweetR)
                 >>= (fun tweet ->
                     Ok tweet
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -209,9 +209,9 @@ let zipTests =
             let! actual =
                 AsyncValidation.zip
                     (Ok 1
-                     |> Async.singleton)
+                     |> Async.result)
                     (Ok 2
-                     |> Async.singleton)
+                     |> Async.result)
 
             Expect.equal actual (Ok(1, 2)) "Should be ok"
         }
@@ -220,7 +220,7 @@ let zipTests =
             let! actual =
                 AsyncValidation.zip
                     (Ok 1
-                     |> Async.singleton)
+                     |> Async.result)
                     (AsyncValidation.error "Bad")
 
             Expect.equal actual (Error [ "Bad" ]) "Should be Error"
@@ -231,7 +231,7 @@ let zipTests =
                 AsyncValidation.zip
                     (AsyncValidation.error "Bad")
                     (Ok 1
-                     |> Async.singleton)
+                     |> Async.result)
 
             Expect.equal actual (Error [ "Bad" ]) "Should be Error"
         }
@@ -257,10 +257,10 @@ let orElseTests =
         <| async {
             let! result =
                 (Ok "First"
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElse (
                     Ok "Second"
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -271,10 +271,10 @@ let orElseTests =
         <| async {
             let! result =
                 (Ok "First"
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElse (
                     Error [ "Second" ]
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -285,10 +285,10 @@ let orElseTests =
         <| async {
             let! result =
                 (Error [ "First" ]
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElse (
                     Ok "Second"
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -299,10 +299,10 @@ let orElseTests =
         <| async {
             let! result =
                 (Error [ "First" ]
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElse (
                     Error [ "Second" ]
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -317,10 +317,10 @@ let orElseWithTests =
         <| async {
             let! result =
                 (Ok "First"
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElseWith (fun _ ->
                     Ok "Second"
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -331,10 +331,10 @@ let orElseWithTests =
         <| async {
             let! result =
                 (Ok "First"
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElseWith (fun _ ->
                     Error [ "Second" ]
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -345,10 +345,10 @@ let orElseWithTests =
         <| async {
             let! result =
                 (Error [ "First" ]
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElseWith (fun _ ->
                     Ok "Second"
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
@@ -359,10 +359,10 @@ let orElseWithTests =
         <| async {
             let! result =
                 (Error [ "First" ]
-                 |> Async.singleton)
+                 |> Async.result)
                 |> AsyncValidation.orElseWith (fun _ ->
                     Error [ "Second" ]
-                    |> Async.singleton
+                    |> Async.result
                 )
 
             return
