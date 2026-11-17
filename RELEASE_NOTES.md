@@ -1,4 +1,14 @@
-### 6.0.0-beta005 - tba
+### 6.0.0-beta007 - Unreleased
+
+- [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
+    - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
+
+### 6.0.0-beta006 - November 17, 2026
+
+- [Read the DisposeAsync result in async builders when it completes successfully](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/386) Credits @TheAngryByrd
+    - fix: `use` in `asyncResult`, `asyncOption`, `asyncResultOption`, `parallelAsyncResult`, and `parallelAsyncValidation` now calls `GetResult` on a `DisposeAsync` `ValueTask` that completed successfully. Recompile assemblies that inline these builders.
+
+### 6.0.0-beta005 - November 17, 2026
 
 - [`Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink
   - feat(Async, Task, ValueTask): `result`. Replaces `singleton`; aligned with FSharp.Core >= 11 naming.  
@@ -77,8 +87,6 @@
   - Renames:
     - OBSOLETE(JobOption): `singleton`
       - -> `some`.
-- [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
-    - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
 
 ### 6.0.0-beta004 - November 17, 2026
 

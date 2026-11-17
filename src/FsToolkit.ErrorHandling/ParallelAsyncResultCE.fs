@@ -58,7 +58,7 @@ module ParallelAsyncResultCE =
                     let vTask = compensation ()
 
                     if vTask.IsCompletedSuccessfully then
-                        return ()
+                        return vTask.GetAwaiter().GetResult()
                     else
                         return! Async.Await vTask
                 }
