@@ -344,6 +344,56 @@ module TestHelpers =
                     body
                     (singleItemAsyncEnumerable disposeAsync)
             )
+
+    let asyncBuilderDisposalSucceedsTests
+        name
+        (expected: 'Result)
+        (useResource: System.IAsyncDisposable -> Async<'Result>)
+        =
+        Expecto.Tests.testList name [
+            for isPending in
+                [
+                    false
+                    true
+                ] do
+                Expecto.Tests.testCaseTask
+                    (if isPending then
+                         "pending successful disposal"
+                     else
+                         "completed successful disposal")
+                    (fun () ->
+                        task {
+                            let source = ObservedDisposalSource()
+
+                            if not isPending then
+                                source.Complete DisposalSucceeds
+
+                            let resultTask =
+                                useResource (makeAsyncDisposable source.ValueTask)
+                                |> Async.StartAsTask
+
+                            if isPending then
+                                do!
+                                    source.ContinuationRegistered.WaitAsync(
+                                        System.TimeSpan.FromSeconds 10.
+                                    )
+
+                                source.Complete DisposalSucceeds
+
+                            let! actual = resultTask
+
+                            Expecto.Expect.equal
+                                actual
+                                expected
+                                "The body result must be preserved"
+
+                            Expecto.Expect.equal
+                                source.GetResultCalls
+                                1
+                                "The DisposeAsync result must be read exactly once"
+                        }
+                    )
+        ]
 #endif
 
 #if !FABLE_COMPILER

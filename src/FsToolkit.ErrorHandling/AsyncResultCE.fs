@@ -60,7 +60,7 @@ module AsyncResultCE =
                     let vTask = compensation ()
 
                     if vTask.IsCompletedSuccessfully then
-                        return ()
+                        return vTask.GetAwaiter().GetResult()
                     else
                         return!
                             vTask.AsTask()

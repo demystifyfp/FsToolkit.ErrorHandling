@@ -507,6 +507,15 @@ let ``AsyncResultOptionCE using Tests`` =
             Expect.equal actual (OkSome data) "Should be ok"
             Expect.isTrue isFinished "Expected disposable to be disposed"
         }
+        TestHelpers.asyncBuilderDisposalSucceedsTests
+            "use asyncdisposable reads the DisposeAsync result"
+            (Ok(Some 42): Result<int option, string>)
+            (fun resource ->
+                asyncResultOption {
+                    use _ = resource
+                    return 42
+                }
+            )
 #endif
 
         testCaseAsync "use! normal wrapped disposable"
