@@ -269,7 +269,7 @@ let ``AsyncOptionCE using Tests`` =
             Expect.isTrue disposed "Should be disposed"
         }
 
-#if NET7_0
+#if !FABLE_COMPILER
         testCaseAsync "use sync asyncdisposable"
         <| async {
             let data = 42
@@ -316,6 +316,14 @@ let ``AsyncOptionCE using Tests`` =
             Expect.equal actual (Some data) "Should be ok"
             Expect.isTrue isFinished ""
         }
+        TestHelpers.asyncBuilderDisposalSucceedsTests
+            "use asyncdisposable reads the DisposeAsync result"
+            (fun resource ->
+                asyncOption {
+                    use _ = resource
+                    return 42
+                }
+            )
 #endif
         testCaseAsync "use! normal wrapped disposable"
         <| async {

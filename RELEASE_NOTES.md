@@ -1,3 +1,8 @@
+### 6.0.0-beta006 - Unreleased
+
+- [Read the DisposeAsync result in async builders when it completes successfully](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/386) Credits @TheAngryByrd
+    - fix: `use` in `asyncResult`, `asyncOption`, `asyncResultOption`, `parallelAsyncResult`, and `parallelAsyncValidation` now calls `GetResult` on a `DisposeAsync` `ValueTask` that completed successfully. Recompile assemblies that inline these builders.
+
 ### 6.0.0-beta005 - November 17, 2026
 
 - [`Async.Await`, `Async.StartTaskImmediate`, `Task.startAsyncImmediate`, `Async`+`Task`+`ValueTask` shims and related obsoletions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/373) Credits @bartelink

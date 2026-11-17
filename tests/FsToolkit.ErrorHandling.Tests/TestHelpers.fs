@@ -335,6 +335,33 @@ module TestHelpers =
                     body
                     (singleItemAsyncEnumerable disposeAsync)
             )
+
+    let asyncBuilderDisposalSucceedsTests
+        name
+        (useResource: System.IAsyncDisposable -> Async<'Result>)
+        =
+        Expecto.Tests.testList name [
+            for isPending in
+                [
+                    false
+                    true
+                ] do
+                Expecto.Tests.testCaseTask
+                    (if isPending then
+                         "pending successful disposal"
+                     else
+                         "completed successful disposal")
+                    (fun () ->
+                        assertAsyncDisposalOutcome
+                            DisposalSucceeds
+                            isPending
+                            BodyCompletes
+                            (fun disposeAsync ->
+                                useResource (makeAsyncDisposable disposeAsync)
+                                |> Async.StartAsTask
+                            )
+                    )
+        ]
 #endif
 
 #if !FABLE_COMPILER
