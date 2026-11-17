@@ -1,7 +1,9 @@
-### 6.0.0-beta004 - Unreleased
+### 6.0.0-beta004 - November 17, 2026
 
 - [Observe DisposeAsync faults and cancellations in task computation expressions](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/385) Credits @TheAngryByrd
-    - NOTE BEHAVIOR CHANGE: `use` and `for` over `IAsyncEnumerable` in `taskResult`, `taskOption`, `taskValueOption`, `taskValidation`, their `background*` variants, and `valueTaskValueOption` now fault or cancel when `DisposeAsync` faults or cancels. The `DisposeAsync` exception replaces the body result. Recompile assemblies that inline these builders.
+    - NOTE BEHAVIOR CHANGE: `use` in `taskResult`, `taskOption`, `taskValueOption`, `taskValidation`, their `background*` variants, and `valueTaskValueOption`, and `for` over `IAsyncEnumerable` in the eight `task*` and `backgroundTask*` builders, now fault or cancel when `DisposeAsync` faults or cancels. The `DisposeAsync` exception replaces the body result. Recompile assemblies that inline these builders.
+- [Prioritize Result sources in taskValidation inference](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/380) Credits @dajiaohuang
+    - fix(TaskValidation): `let!` and `and!` bind `Task<Result<_, _>>` and `Async<Result<_, _>>` without `FS0041`
 
 ### 6.0.0-beta003 - October 12, 2026
 
