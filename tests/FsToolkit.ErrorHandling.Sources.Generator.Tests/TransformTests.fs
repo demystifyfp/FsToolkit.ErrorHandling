@@ -651,6 +651,8 @@ let examples =
                     4
                     "namespace Demo\nmodule M =\n    let f =\n        FsToolkit\n            .ErrorHandling.Result.either\n",
                     4
+                    "namespace Demo\nmodule M =\n    let g = f 'a'FsToolkit.ErrorHandling.Result.either\n",
+                    3
                 ] do
                 failsWith source [ Some line, UnreplacedSourceNamespace ]
         }
@@ -660,7 +662,7 @@ let examples =
                 (transform
                     AllCompilers
                     "Probe.fs"
-                    "namespace Demo\nmodule M =\n    let MyFsToolkit = 1\n    let FsToolkit' = 2\n    let s = \"FsToolkit\"\n")
+                    "namespace Demo\nmodule M =\n    let MyFsToolkit = 1\n    let FsToolkit' = 2\n    let FsToolkitX = 3\n    let v<'FsToolkit> (a: 'FsToolkit) = a\n    let s = \"FsToolkit\"\n")
                 "Output"
         }
 

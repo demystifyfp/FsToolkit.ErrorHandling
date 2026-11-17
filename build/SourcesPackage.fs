@@ -658,9 +658,10 @@ module SourcesPackage =
 
     let private namespaceKeyword = Regex(@"\G(namespace|module|open)(\s|$)")
 
+    // A ' directly before the name is a type variable, unless it closes a char literal such as 'a'.
     let private sourceRootIdentifier =
         Regex(
-            @"(?<![\w'])"
+            @"(?<!\w)(?<!(?<!\w)')"
             + Regex.Escape(SourceNamespace.Split('.').[0])
             + @"(?![\w'])"
         )
