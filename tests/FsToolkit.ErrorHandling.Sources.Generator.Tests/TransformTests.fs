@@ -836,6 +836,7 @@ let fableExamples =
                 [
                     "#if NET9_0\nnamespace A\n#endif\n"
                     "#if NET9_0\n[<AutoOpen>]\n#else\nmodule A\n#endif\n"
+                    "#if A\n#if B\n[<X>]\n#endif\nmodule M\n#endif\n"
                 ] do
                 Expect.equal
                     (problems (transform ExcludedFromFable "Task.fs" source))

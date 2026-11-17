@@ -413,6 +413,9 @@ let nuspecDependencies =
       </group>
       <group targetFramework="net12.0" />
     </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net11.0" />
+    </frameworkReferences>
   </metadata>
 </package>"""
 
