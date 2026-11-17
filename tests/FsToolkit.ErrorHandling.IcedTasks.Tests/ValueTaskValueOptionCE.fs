@@ -679,7 +679,6 @@ let ``ValueTaskValueOption helpers`` =
             }
     ]
 
-[<Tests>]
 let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
     let useStatic
         (body: TestHelpers.AsyncDisposalBody)
@@ -714,6 +713,7 @@ let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
         useStatic
         useDynamic
 
+[<Tests>]
 let allTests =
     testList "ValueTaskValueOption CE Tests" [
         ceTests
