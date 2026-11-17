@@ -636,6 +636,34 @@ let examples =
             ]
         }
 
+        test "a spelling of the source namespace that the generator does not replace" {
+            for source, line in
+                [
+                    "namespace ``FsToolkit``.ErrorHandling\nmodule M =\n    let x = 1\n", 1
+                    "namespace FsToolkit.``ErrorHandling``\nmodule M =\n    let x = 1\n", 1
+                    "namespace FsToolkit . ErrorHandling\nmodule M =\n    let x = 1\n", 1
+                    "namespace Demo\nopen ``FsToolkit``.ErrorHandling.Operator\n", 2
+                    "namespace Demo\nmodule M =\n    let f = ``FsToolkit``.ErrorHandling.Result.either\n",
+                    3
+                    "namespace Demo\nmodule M =\n    let f = FsToolkit . ErrorHandling.Result.either\n",
+                    3
+                    "namespace Demo\nmodule M =\n    let f =\n        FsToolkit.\n            ErrorHandling.Result.either\n",
+                    4
+                    "namespace Demo\nmodule M =\n    let f =\n        FsToolkit\n            .ErrorHandling.Result.either\n",
+                    4
+                ] do
+                failsWith source [ Some line, UnreplacedSourceNamespace ]
+        }
+
+        test "an identifier that only contains the first namespace segment is not a reference" {
+            Expect.isOk
+                (transform
+                    AllCompilers
+                    "Probe.fs"
+                    "namespace Demo\nmodule M =\n    let MyFsToolkit = 1\n    let FsToolkit' = 2\n    let s = \"FsToolkit\"\n")
+                "Output"
+        }
+
         test "an interpolation hole that contains a quote" {
             failsWith "module Demo\nlet s = $\"{System.String('\"', 1)}\"\ntype Foo = int\n" [
                 Some 2, UnsupportedInterpolationHole

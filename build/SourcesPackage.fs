@@ -145,7 +145,7 @@ module SourcesPackage =
             | CommentInNamespaceLine ->
                 "a namespace, module, or open line contains a comment, which the generator does not support. Put the comment on its own line"
             | UnreplacedSourceNamespace ->
-                $"code refers to '{SourceNamespace}' where the generator does not replace the namespace. The generator replaces it only directly after a namespace, module, or open keyword"
+                $"code names '{SourceNamespace.Split('.').[0]}' where the generator does not replace the namespace. The generator replaces only the exact text '{SourceNamespace}' directly after a namespace, module, or open keyword"
             | UnsupportedQuotedIdentifier ->
                 "a ``quoted`` identifier contains a quote, '(*', or '//', which the generator does not support"
             | UnsupportedInterpolationHole ->
@@ -658,6 +658,13 @@ module SourcesPackage =
 
     let private namespaceKeyword = Regex(@"\G(namespace|module|open)(\s|$)")
 
+    let private sourceRootIdentifier =
+        Regex(
+            @"(?<![\w'])"
+            + Regex.Escape(SourceNamespace.Split('.').[0])
+            + @"(?![\w'])"
+        )
+
     let private replaceFrom kind =
         match kind with
         | TopLevel _ -> Some 0
@@ -831,8 +838,7 @@ module SourcesPackage =
             && namespaceKeyword.IsMatch(scanned.Code, index)
             ->
             Error CommentInNamespaceLine
-        | _ when remaining.Contains(SourceNamespace, StringComparison.Ordinal) ->
-            Error UnreplacedSourceNamespace
+        | _ when sourceRootIdentifier.IsMatch remaining -> Error UnreplacedSourceNamespace
         | _ -> Ok kind
 
     let private insertVisibility (visibilityAt: int option) (line: string) =
