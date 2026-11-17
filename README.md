@@ -6,7 +6,7 @@ The library provides utility functions like `map`, `bind`, `apply`, `traverse`, 
 
 It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
-FsToolkit.ErrorHandling targets .NET Standard 2.0, .NET Standard2.1 and supports Fable.
+FsToolkit.ErrorHandling targets .NET Standard 2.0, .NET Standard 2.1, .NET 9.0, .NET 10.0, and .NET 11.0, and supports Fable.
 
 ## Documentation
 
@@ -43,9 +43,8 @@ This repository has a devcontainer setup for VSCode. For more information see:
 ### Local Setup
 
 * [.NET Core SDK](https://www.microsoft.com/net/download/)
-  * [v6.x](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-  * [v7.x](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
-  * [v8.x](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+  * [v11.x](https://dotnet.microsoft.com/en-us/download/dotnet/11.0), the SDK version in `global.json`
+  * [v10.x](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) runtime, for the `net10.0` tests
 
 #### Optional 
 
@@ -55,7 +54,7 @@ To test fable builds locally you will need:
   * v18.0.0 or Higher
   * Not required but recommend that you use [NVM](https://github.com/nvm-sh/nvm) to easily manage multiple versions of Node
 * [Python](https://www.python.org/downloads/)
-  * v3.10.0 or higher
+  * v3.12.0 or higher
   * Required for Fable-Python
 
 

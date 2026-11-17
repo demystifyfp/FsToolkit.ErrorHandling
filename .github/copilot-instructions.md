@@ -1,20 +1,20 @@
 # FsToolkit.ErrorHandling
 
-FsToolkit.ErrorHandling is an F# utility library to work with the Result type, enabling clear, simple and powerful error handling. The library provides computation expressions, utility functions, and supports multiple target frameworks including .NET Standard 2.0/2.1, .NET 9.0, and compiles to JavaScript and Python via Fable.
+FsToolkit.ErrorHandling is an F# utility library to work with the Result type, enabling clear, simple and powerful error handling. The library provides computation expressions, utility functions, and supports multiple target frameworks including .NET Standard 2.0/2.1, .NET 9.0, .NET 10.0, and .NET 11.0, and compiles to JavaScript and Python via Fable.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
 ## Working Effectively
 
 ### Bootstrap and Build the Repository
-- **Install .NET SDK**: Download and install .NET 9.0.100 SDK (required for project compilation)
-  - Also install .NET 8.0.x runtime (required for build tools)
+- **Install .NET SDK**: Download and install .NET SDK 11.0.100 or a later SDK 11 feature band (`global.json`)
+  - Also install the .NET 10.0.x runtime (the test projects target `net10.0` and `net11.0`)
   - Use `dotnet --version` to verify installation
-  - **CRITICAL**: Ensure both SDKs are in PATH before running any build commands
+  - **CRITICAL**: Ensure the SDK is in PATH before running any build commands
 - **Install Node.js**: Install Node.js v18.0.0 or higher (required for Fable JavaScript builds)
   - Current environment has v20.19.5 which works perfectly
   - Use `node --version` to verify installation
-- **Install Python**: Install Python 3.10.0 or higher (required for Fable Python builds)
+- **Install Python**: Install Python 3.12.0 or higher (required for Fable Python builds)
   - Current environment has Python 3.12.3 which works perfectly
   - Use `python3 --version` to verify installation
 
@@ -84,7 +84,7 @@ gitbook/                       # Documentation source
 
 ### Target Frameworks
 - **.NET Standard 2.0/2.1**: For broad compatibility
-- **.NET 9.0**: Latest .NET support
+- **.NET 9.0, 10.0, and 11.0**: `net11.0` forwards the `Async` and `Task` shims to FSharp.Core 11
 - **Fable JavaScript**: Compiles to JavaScript for web usage
 - **Fable Python**: Compiles to Python for cross-platform usage (limited test coverage)
 
@@ -119,10 +119,10 @@ gitbook/                       # Documentation source
 ## Environment Dependencies
 
 ### Required SDKs and Tools
-- **.NET SDK 9.0.100**: Primary development SDK
-- **.NET Runtime 8.0.x**: Required for build tools
+- **.NET SDK 11.0.100**: Primary development SDK (`global.json`)
+- **.NET Runtime 10.0.x**: Required for the `net10.0` tests
 - **Node.js 18.0.0+**: Required for Fable JavaScript compilation
-- **Python 3.10.0+**: Required for Fable Python compilation
+- **Python 3.12.0+**: Required for Fable Python compilation
 
 ### Package Management
 - **NuGet**: .NET package dependencies (automatic via `dotnet restore`)
@@ -132,8 +132,8 @@ gitbook/                       # Documentation source
 ## Troubleshooting
 
 ### Build Issues
-- **"SDK not found"**: Ensure .NET 9.0.100 SDK is installed and in PATH
-- **"Runtime not found"**: Install .NET 8.0.x runtime for build tools
+- **"SDK not found"**: Ensure .NET SDK 11.0.100 or later is installed and in PATH
+- **"Runtime not found"**: Install the .NET 10.0.x runtime for the `net10.0` tests
 - **npm errors**: Run `npm install` manually in repository root
 - **Fable compilation errors**: Run `./build.sh FemtoValidate` to check package compatibility
 - **Security vulnerability errors (NU1902)**: Known issue with System.Security.Cryptography.Xml package in build dependencies
@@ -144,7 +144,7 @@ gitbook/                       # Documentation source
 ### Test Failures
 - **F# test failures**: Run `./build.sh DotnetTest` to isolate .NET issues
 - **JavaScript test failures**: Check Node.js version (requires 18.0.0+), run `./build.sh NpmTest`
-- **Python test failures**: Check Python version (requires 3.10.0+), run `./build.sh PythonTest`
+- **Python test failures**: Check Python version (requires 3.12.0+), run `./build.sh PythonTest`
 - **Fable plugin warnings**: Ignore "Could not scan" warnings for Microsoft.TestPlatform assemblies - these are normal
 
 ### Format Issues
