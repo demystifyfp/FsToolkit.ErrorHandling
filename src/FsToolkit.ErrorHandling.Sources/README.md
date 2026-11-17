@@ -9,8 +9,8 @@ The package contains only the source code of the `FsToolkit.ErrorHandling` packa
 
 ## Requirements
 
-- F# 9 or later (.NET SDK 9.0 or later).
-- For `net9.0`, FSharp.Core 9.0.300 or later. For `net10.0`, FSharp.Core 10.0.100 or later. For `net11.0` or later, FSharp.Core 11.0.101 or later. The package depends on these versions. The .NET SDK of the same major version gives them by default, but SDK 9.0 versions before 9.0.300 do not. With such an SDK, restore reports `NU1605` (a package downgrade). Then use SDK 9.0.300 or later, or add a direct `FSharp.Core` reference of version 9.0.300 or later.
+- F# 10 or later (.NET SDK 10.0 or later).
+- For `net9.0`, FSharp.Core 9.0.300 or later. For `net10.0`, FSharp.Core 10.0.100 or later. For `net11.0` or later, FSharp.Core 11.0.101 or later. The package depends on these versions. For each target framework that it can build, the .NET SDK 10.0 or later gives a sufficient `FSharp.Core` version by default.
 - For `netstandard2.0` and `netstandard2.1`, FSharp.Core 6.0.4 or later.
 - If your project targets `net9.0` or later, do not set `LangVersion` lower than `9.0`.
 - Reference the package directly from each project that uses it. NuGet does not give content files to projects that reference your project.
@@ -74,7 +74,7 @@ Each source file has `#nowarn "52" "57" "1182" "3180" "3261" "3390" "3513" "3517
 
 If you enable warning 3180 with `--warnon:3180`, the compiler reports FS3180 for the package files at `unknown(1,1)`. A `#nowarn` cannot suppress a warning without a source location. If you must enable warning 3180, add `FS3180` to `WarningsNotAsErrors`.
 
-With F# 9, `--warnon:3517` reports FS3517 at the places where your code calls functions of this package. The binary `FsToolkit.ErrorHandling` package gives the same warnings. F# 10 does not report them.
+With .NET SDK 10.0.115, `--warnon:3517` reports FS3517 at the places where your code calls functions of this package. The binary `FsToolkit.ErrorHandling` package gives the same warnings. SDK 10.0.404 and 11.0.100 do not report them.
 
 ## Fable
 
