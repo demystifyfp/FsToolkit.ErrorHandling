@@ -165,6 +165,11 @@ module TestHelpers =
         | DisposalFaults
         | DisposalCancels
 
+    type AsyncDisposalBody =
+        | BodyCompletes
+        | BodyThrows
+        | BodyShortCircuits
+
     type ObservedDisposalSource() =
         let mutable core =
             System.Threading.Tasks.Sources.ManualResetValueTaskSourceCore<unit>()
@@ -222,7 +227,7 @@ module TestHelpers =
     let assertAsyncDisposalOutcome
         (outcome: AsyncDisposalOutcome)
         (isPending: bool)
-        (bodyThrows: bool)
+        (body: AsyncDisposalBody)
         (start: (unit -> ValueTask) -> Task<'Result>)
         =
         task {
@@ -249,13 +254,18 @@ module TestHelpers =
                 }
 
             let expected, expectedStatus =
-                match outcome, bodyThrows with
+                match outcome, body with
                 | DisposalFaults, _ -> "faulted: dispose", TaskStatus.Faulted
                 | DisposalCancels, _ -> "canceled", TaskStatus.Canceled
-                | DisposalSucceeds, true -> "faulted: body", TaskStatus.Faulted
-                | DisposalSucceeds, false -> "completed", TaskStatus.RanToCompletion
+                | DisposalSucceeds, BodyThrows -> "faulted: body", TaskStatus.Faulted
+                | DisposalSucceeds, (BodyCompletes | BodyShortCircuits) ->
+                    "completed", TaskStatus.RanToCompletion
 
-            Expecto.Expect.equal observed expected "The result must come from DisposeAsync first"
+            Expecto.Expect.equal
+                observed
+                expected
+                "A DisposeAsync fault or cancellation replaces the body result"
+
             Expecto.Expect.equal resultTask.Status expectedStatus "The result task status"
 
             Expecto.Expect.equal
@@ -266,7 +276,7 @@ module TestHelpers =
 
     let private asyncDisposalOutcomeCases
         name
-        (start: bool -> bool -> (unit -> ValueTask) -> Task<'Result>)
+        (start: bool -> AsyncDisposalBody -> (unit -> ValueTask) -> Task<'Result>)
         =
         Expecto.Tests.testList name [
             for isDynamic in
@@ -285,50 +295,53 @@ module TestHelpers =
                             false
                             true
                         ] do
-                        for bodyThrows in
+                        for body in
                             [
-                                false
-                                true
+                                BodyCompletes
+                                BodyThrows
+                                BodyShortCircuits
                             ] do
                             Expecto.Tests.testCaseTask
                                 (sprintf
-                                    "%s execution, %A, %s disposal, body %s"
+                                    "%s execution, %A, %s disposal, %A"
                                     (if isDynamic then "dynamic" else "static")
                                     outcome
                                     (if isPending then "pending" else "completed")
-                                    (if bodyThrows then "throws" else "completes"))
+                                    body)
                                 (fun () ->
                                     assertAsyncDisposalOutcome
                                         outcome
                                         isPending
-                                        bodyThrows
-                                        (start isDynamic bodyThrows)
+                                        body
+                                        (start isDynamic body)
                                 )
         ]
 
     let asyncDisposalOutcomeTests
         name
-        (useStatic: bool -> System.IAsyncDisposable -> Task<'Result>)
-        (useDynamic: bool -> System.IAsyncDisposable -> Task<'Result>)
+        (useStatic: AsyncDisposalBody -> System.IAsyncDisposable -> Task<'Result>)
+        (useDynamic: AsyncDisposalBody -> System.IAsyncDisposable -> Task<'Result>)
         =
         asyncDisposalOutcomeCases
             name
-            (fun isDynamic bodyThrows disposeAsync ->
+            (fun isDynamic body disposeAsync ->
                 (if isDynamic then useDynamic else useStatic)
-                    bodyThrows
+                    body
                     (makeAsyncDisposable disposeAsync)
             )
 
     let asyncEnumeratorDisposalOutcomeTests
         name
-        (forStatic: bool -> System.Collections.Generic.IAsyncEnumerable<int> -> Task<'Result>)
-        (forDynamic: bool -> System.Collections.Generic.IAsyncEnumerable<int> -> Task<'Result>)
+        (forStatic:
+            AsyncDisposalBody -> System.Collections.Generic.IAsyncEnumerable<int> -> Task<'Result>)
+        (forDynamic:
+            AsyncDisposalBody -> System.Collections.Generic.IAsyncEnumerable<int> -> Task<'Result>)
         =
         asyncDisposalOutcomeCases
             name
-            (fun isDynamic bodyThrows disposeAsync ->
+            (fun isDynamic body disposeAsync ->
                 (if isDynamic then forDynamic else forStatic)
-                    bodyThrows
+                    body
                     (singleItemAsyncEnumerable disposeAsync)
             )
 #endif
