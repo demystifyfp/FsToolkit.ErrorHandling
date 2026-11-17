@@ -931,6 +931,138 @@ let ``TaskValidationCE inference checks`` =
             |> ignore
     ]
 
+let ``TaskValidationCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        taskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "TaskValidationCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``TaskValidationCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        taskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "TaskValidationCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
+let ``BackgroundTaskValidationCE async disposal outcome Tests`` =
+    let useStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        backgroundTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    let useDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (disposable: System.IAsyncDisposable)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskValidation {
+            use _resource = disposable
+
+            match body with
+            | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+            | TestHelpers.BodyShortCircuits -> return! Validation.error "body"
+            | TestHelpers.BodyCompletes -> return ()
+        }
+
+    TestHelpers.asyncDisposalOutcomeTests
+        "BackgroundTaskValidationCE async disposal outcome Tests"
+        useStatic
+        useDynamic
+
+let ``BackgroundTaskValidationCE async enumerator disposal outcome Tests`` =
+    let forStatic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        backgroundTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    let forDynamic
+        (body: TestHelpers.AsyncDisposalBody)
+        (items: System.Collections.Generic.IAsyncEnumerable<int>)
+        : Task<Validation<unit, string>> =
+        TestHelpers.dynamicBackgroundTaskValidation {
+            for _item in items do
+                match body with
+                | TestHelpers.BodyThrows -> raise (System.ArgumentException "body")
+                | TestHelpers.BodyShortCircuits -> do! Validation.error "body"
+                | TestHelpers.BodyCompletes -> ()
+
+            return ()
+        }
+
+    TestHelpers.asyncEnumeratorDisposalOutcomeTests
+        "BackgroundTaskValidationCE async enumerator disposal outcome Tests"
+        forStatic
+        forDynamic
+
 let allTests =
     testList "TaskValidation CE Tests" [
         ``TaskValidationCE return Tests``
@@ -942,5 +1074,9 @@ let allTests =
         ``TaskValidationCE loop Tests``
         ``TaskValidationCE applicative tests``
         ``TaskValidationCE while Error async disposal Tests``
+        ``TaskValidationCE async disposal outcome Tests``
+        ``TaskValidationCE async enumerator disposal outcome Tests``
+        ``BackgroundTaskValidationCE async disposal outcome Tests``
+        ``BackgroundTaskValidationCE async enumerator disposal outcome Tests``
         ``TaskValidationCE inference checks``
     ]
