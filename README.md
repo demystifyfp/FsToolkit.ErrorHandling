@@ -48,11 +48,12 @@ This repository has a devcontainer setup for VSCode. For more information see:
 
 #### Optional 
 
-To test fable builds locally you will need:
+To test Fable and WebSharper builds locally you will need:
 
 * [Node](https://nodejs.org/en/)
   * v18.0.0 or Higher
   * Not required but recommend that you use [NVM](https://github.com/nvm-sh/nvm) to easily manage multiple versions of Node
+  * Required for Fable-JavaScript and WebSharper
 * [Python](https://www.python.org/downloads/)
   * v3.12.0 or higher
   * Required for Fable-Python
@@ -73,7 +74,8 @@ Without specifying a build target, the default target is `SourcesTest`, which wi
 - `DotnetTest` - Will run tests for `dotnet` projects
 - `NpmTest` - Will run tests for `fable-javascript` projects
 - `PythonTest` - Will run tests for `fable-python` projects
-- `RunTests` - Will run tests for `dotnet`, `fable-javascript` and `fable-python` projects
+- `WebSharperTest` - Will run the `FsToolkit.ErrorHandling.Tests` tests under WebSharper in Node.js, with a proxy project that compiles the `FsToolkit.ErrorHandling.Sources` package
+- `RunTests` - Will run tests for `dotnet`, `fable-javascript`, `fable-python`, and WebSharper
 - `SourcesTest` - Will pack the projects and test the `FsToolkit.ErrorHandling.Sources` package: the full test suite against the package, a consumer build, and the package's MSBuild checks
 - `FormatCode` - Will run `fantomas` to format the codebase
 

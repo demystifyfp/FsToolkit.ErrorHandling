@@ -44,6 +44,28 @@ let traverseResultMTests =
                 actual
                 (Error emptyTweetErrMsg)
                 "traverse the array and return the first error"
+
+        testCase "traverseResultM with few invalid data should exit early"
+        <| fun _ ->
+            let callCount = ref 0
+
+            let tryCreate tweet =
+                callCount.Value <-
+                    callCount.Value
+                    + 1
+
+                Tweet.TryCreate tweet
+
+            let actual =
+                Array.traverseResultM tryCreate [|
+                    "Hello"
+                    ""
+                    aLongerInvalidTweet
+                    "World"
+                |]
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error emptyTweetErrMsg) "Should return the first error"
     ]
 
 let traverseOptionMTests =
@@ -346,6 +368,31 @@ let traverseAsyncResultMTests =
                 Array.traverseAsyncResultM (notifyNewPostFailure (PostId newPostId)) userIds
 
             do! Expect.hasAsyncErrorValue expected actual
+        }
+
+        testCaseAsync "traverseAsyncResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                async {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual =
+                Array.traverseAsyncResultM evenIsError [|
+                    1
+                    2
+                    3
+                    4
+                |]
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
         }
     ]
 

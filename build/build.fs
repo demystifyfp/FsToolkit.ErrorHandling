@@ -70,6 +70,8 @@ let srcAndTest =
     // These projects do not track an AssemblyInfo.fs, and GitRelease stages every file.
     -- (rootDir
         </> "tests/FsToolkit.ErrorHandling.Sources.*/**")
+    -- (rootDir
+        </> "tests/FsToolkit.ErrorHandling.WebSharper/**")
 
 let srcCodeGlob =
     !!(rootDir
@@ -784,6 +786,128 @@ let sourcesTest ctx =
 
     failOnSourceVisibility ()
 
+let webSharperDir =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.WebSharper"
+
+let webSharperRunnerDir =
+    webSharperDir
+    </> "Runner"
+
+let failOnWebSharperDocsDrift () =
+    let readNormalized (path: string) =
+        (File.ReadAllText path).Replace("\r\n", "\n")
+
+    let targetsPath =
+        webSharperDir
+        </> "Directory.Build.targets"
+
+    let gitbookPath =
+        rootDir
+        </> "gitbook/sources/sourcesPackage.md"
+
+    let expected =
+        "```xml\n"
+        + (readNormalized targetsPath).TrimEnd('\n')
+        + "\n```\n"
+
+    if not ((readNormalized gitbookPath).Contains(expected, System.StringComparison.Ordinal)) then
+        failwithf
+            "%s must contain the full text of %s in an xml code block. Make the same change in both files."
+            gitbookPath
+            targetsPath
+
+let webSharperTest ctx =
+    failOnWebSharperDocsDrift ()
+
+    let feedDir =
+        rootDir
+        </> "obj/websharper-test-feed"
+
+    let packagesDir =
+        rootDir
+        </> "obj/websharper-test-packages"
+
+    // NuGet does not replace a package version that is already in its packages folder.
+    Shell.cleanDirs [ feedDir ]
+    Shell.deleteDir packagesDir
+
+    let sourcesVersion = "0.0.0-websharpertest"
+
+    let withSourcesParams (msbuildParams: MSBuild.CliArguments) =
+        {
+            msbuildParams with
+                Properties = [
+                    ("RestorePackagesPath", packagesDir)
+                    ("FsToolkitErrorHandlingVersion", sourcesVersion)
+                ]
+        }
+        |> BuildParameters.common
+
+    DotNet.pack
+        (fun p -> {
+            p with
+                OutputPath = Some feedDir
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams =
+                    {
+                        p.MSBuildParams with
+                            Properties = [ ("Version", sourcesVersion) ]
+                    }
+                    |> BuildParameters.common
+        })
+        sourcesProject
+
+    let runnerProject =
+        webSharperRunnerDir
+        </> "FsToolkit.ErrorHandling.WebSharper.Runner.fsproj"
+
+    DotNet.restore
+        (fun c -> {
+            c with
+                Sources = [
+                    "https://api.nuget.org/v3/index.json"
+                    feedDir
+                ]
+                MSBuildParams = withSourcesParams c.MSBuildParams
+        })
+        runnerProject
+
+    DotNet.build
+        (fun c -> {
+            c with
+                NoRestore = true
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams = withSourcesParams c.MSBuildParams
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs [ maxCpuMsBuild.Value ]
+        })
+        runnerProject
+
+    Npm.exec
+        "ci --no-audit --no-fund"
+        (fun o -> {
+            o with
+                WorkingDirectory = webSharperRunnerDir
+        })
+
+    let result =
+        CreateProcess.fromRawCommand "node" [
+            webSharperRunnerDir
+            </> "bin/js/FsToolkit.ErrorHandling.WebSharper.Runner.js"
+        ]
+        |> CreateProcess.withWorkingDirectory webSharperRunnerDir
+        |> Proc.run
+
+    if
+        result.ExitCode
+        <> 0
+    then
+        Fake.Testing.Common.FailedTestsException
+            "WebSharper tests failed, see output for more information."
+        |> raise
+
 let dotnetPack ctx =
     [
         solutionFile
@@ -898,6 +1022,7 @@ let initTargets () =
     Target.create "GenerateSources" generateSources
     Target.create "DotnetPack" dotnetPack
     Target.create "SourcesTest" sourcesTest
+    Target.create "WebSharperTest" webSharperTest
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
     Target.create "Analyzers" analyze
@@ -967,6 +1092,14 @@ let initTargets () =
 
     "NpmTest"
     ==>! "RunTests"
+
+    //*** WebSharper *** //
+    "GenerateSources"
+    ==>! "WebSharperTest"
+
+    "WebSharperTest"
+    ==>! "RunTests"
+    //*** WebSharper *** //
 
 
     //*** Publishing ***//

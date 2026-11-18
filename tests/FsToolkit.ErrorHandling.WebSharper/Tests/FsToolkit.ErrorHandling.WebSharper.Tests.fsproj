@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <WebSharperProject>Library</WebSharperProject>
+    <TargetFramework>net10.0</TargetFramework>
+    <DefineConstants>$(DefineConstants);FABLE_COMPILER;FABLE_COMPILER_JAVASCRIPT</DefineConstants>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <FsToolkitErrorHandlingTestsProject>$(MSBuildThisFileDirectory)../../FsToolkit.ErrorHandling.Tests/FsToolkit.ErrorHandling.Tests.fsproj</FsToolkitErrorHandlingTestsProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="wsconfig.json" />
+    <None Include="CompileItems.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj" />
+    <ProjectReference Include="../Proxy/FsToolkit.ErrorHandling.WebSharper.Proxy.fsproj" />
+    <ProjectReference Include="../TestAdapter/FsToolkit.ErrorHandling.WebSharper.TestAdapter.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" VersionOverride="10.0.100" />
+    <PackageReference Include="WebSharper" />
+    <PackageReference Include="WebSharper.FSharp" />
+    <PackageReference Include="WebSharper.MathJS" />
+  </ItemGroup>
+
+  <!-- Compiles the files that Fable compiles from FsToolkit.ErrorHandling.Tests.fsproj, in the same order. -->
+  <Target Name="FsToolkitErrorHandlingLinkTestFiles" BeforeTargets="BeforeCompile">
+    <MSBuild Projects="$(FsToolkitErrorHandlingTestsProject)"
+             Targets="FsToolkitErrorHandlingCompileItems"
+             Properties="TargetFramework=net10.0;FABLE_COMPILER=true;CustomAfterMicrosoftCommonTargets=$(MSBuildThisFileDirectory)CompileItems.targets">
+      <Output TaskParameter="TargetOutputs" ItemName="_FsToolkitErrorHandlingTestFile" />
+    </MSBuild>
+    <Error Condition="'@(_FsToolkitErrorHandlingTestFile)' == ''" Text="No Compile items in $(FsToolkitErrorHandlingTestsProject)." />
+    <ItemGroup>
+      <Compile Include="@(_FsToolkitErrorHandlingTestFile)" Link="FsToolkit.ErrorHandling.Tests/%(Filename)%(Extension)" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -80,6 +80,107 @@ With .NET SDK 10.0.115, `--warnon:3517` reports FS3517 at the places where your 
 
 The files that the `FsToolkit.ErrorHandling` project does not compile for Fable (the `Task` files) are in `#if !FABLE_COMPILER` blocks. Fable is not tested with this package.
 
+## WebSharper
+
+WebSharper compiles F# to JavaScript. To translate client code that calls `FsToolkit.ErrorHandling`, WebSharper needs a proxy project. A proxy project compiles the source code of `FsToolkit.ErrorHandling` with WebSharper. This package supplies that source code.
+
+The CI of FsToolkit.ErrorHandling builds a proxy project in this way and runs the FsToolkit.ErrorHandling tests with it in Node.js. The projects are in [tests/FsToolkit.ErrorHandling.WebSharper](https://github.com/demystifyfp/FsToolkit.ErrorHandling/tree/master/tests/FsToolkit.ErrorHandling.WebSharper).
+
+### Proxy project
+
+Make a proxy project, for example `FsToolkit.ErrorHandling.WebSharper.fsproj`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <WebSharperProject>Proxy</WebSharperProject>
+    <DefineConstants>$(DefineConstants);FABLE_COMPILER</DefineConstants>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="wsconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingVersion)" PrivateAssets="all" />
+    <PackageReference Include="WebSharper" Version="10.1.10.687" />
+    <PackageReference Include="WebSharper.FSharp" Version="10.1.10.687" />
+  </ItemGroup>
+</Project>
+```
+
+Put this `wsconfig.json` file in the folder of the proxy project:
+
+```json
+{
+  "project": "proxy",
+  "proxyTargetName": "FsToolkit.ErrorHandling"
+}
+```
+
+These settings are necessary:
+
+- `"proxyTargetName": "FsToolkit.ErrorHandling"` tells WebSharper that the proxy translates the types of the `FsToolkit.ErrorHandling` assembly. The proxy assembly does not contain the .NET types.
+- `FABLE_COMPILER` removes the `Task` files. WebSharper cannot translate them.
+- Keep the default `FsToolkitErrorHandlingNamespace`. WebSharper finds the proxy types by their full names, so the namespace must be `FsToolkit.ErrorHandling`.
+- `IsPackable` `false` and `PrivateAssets="all"` each prevent warning `FSTKSRC001`.
+
+`FsToolkitErrorHandlingVisibility` can keep its default, `internal`. The tests pass with `internal` and with `public`.
+
+Use the WebSharper version of your client projects.
+
+### Client projects
+
+Reference the binary package and the proxy project from each project whose client code calls `FsToolkit.ErrorHandling`:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="FsToolkit.ErrorHandling" Version="$(FsToolkitErrorHandlingVersion)" />
+  <ProjectReference Include="../FsToolkit.ErrorHandling.WebSharper/FsToolkit.ErrorHandling.WebSharper.fsproj" />
+</ItemGroup>
+```
+
+WebSharper compiles the client code against the binary package and gets the JavaScript from the proxy. Server code runs the binary package.
+
+### Versions
+
+`FsToolkit.ErrorHandling` and `FsToolkit.ErrorHandling.Sources` must have the same version. If the versions are different, the JavaScript can behave differently from the .NET code, or WebSharper cannot find a function. Set the version one time, in `Directory.Build.props`:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <FsToolkitErrorHandlingVersion>x.y.z</FsToolkitErrorHandlingVersion>
+  </PropertyGroup>
+</Project>
+```
+
+This `Directory.Build.targets` file stops the restore and the build when a reference to one of the two packages has a different version. It reads the `Version` of `PackageReference` items and of the `PackageVersion` items of central package management. It does not read `VersionOverride`.
+
+```xml
+<Project>
+  <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
+    <ItemGroup>
+      <_FsToolkitErrorHandlingVersion Include="@(PackageReference)" Condition="('%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling.Sources') and '%(PackageReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+    </ItemGroup>
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '$(FsToolkitErrorHandlingVersion)'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must have the same version, $(FsToolkitErrorHandlingVersion)." />
+  </Target>
+</Project>
+```
+
+Paket does not make `PackageReference` items, so the check does not see a Paket reference. If Paket references `FsToolkit.ErrorHandling`, set the same version in `paket.dependencies` yourself.
+
+### Known WebSharper problems
+
+With WebSharper 10.1.10, some code compiles to JavaScript that does not behave as on .NET:
+
+- `use` and `try`/`finally` in the `result`, `resultOption`, `validation`, and `voption` computation expressions, and `Validation.apply`, compile to JavaScript that uses an undeclared variable.
+- `ValueOption.tryGetValue` calls `TryGetValue` as a JavaScript method. The object that `dict` makes does not have that method.
+- WebSharper compiles `()` to `null` in some places and to `undefined` in others. `=` then gives `false` for two `unit` values.
+
+[WebSharperPending.fs](https://github.com/demystifyfp/FsToolkit.ErrorHandling/blob/master/tests/FsToolkit.ErrorHandling.WebSharper/TestAdapter/WebSharperPending.fs) lists each test that fails only with WebSharper.
+
 ## netstandard2.0
 
 On `netstandard2.0`, the source code uses `Microsoft.Bcl.AsyncInterfaces`. This package has a dependency on it, and your project gets it.

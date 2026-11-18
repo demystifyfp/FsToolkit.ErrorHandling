@@ -20,26 +20,25 @@ let inline traverseResultM'
     (xs: SeqNull<'okInput>)
     : Result<'okOutput[], 'error> =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     match state with
     | Error e -> Error e
     | Ok initialSuccesses ->
 
         let oks = ResizeArray(initialSuccesses)
-        let mutable err = Unchecked.defaultof<'error>
-        let mutable ok = true
+        let mutable err: 'error voption = ValueNone
         use e = xs.GetEnumerator()
 
-        while ok
+        while err.IsNone
               && e.MoveNext() do
             match f e.Current with
             | Ok r -> oks.Add r
-            | Error e ->
-                err <- e
-                ok <- false
+            | Error e -> err <- ValueSome e
 
-        if ok then Ok(oks.ToArray()) else Error err
+        match err with
+        | ValueNone -> Ok(oks.ToArray())
+        | ValueSome e -> Error e
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -72,7 +71,7 @@ let inline traverseResultA'
     =
 
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     match state with
     | Error failuresToDate ->
@@ -130,26 +129,26 @@ let inline traverseAsyncResultM'
     (xs: SeqNull<'okInput>)
     : Async<Result<'okOutput[], 'error>> =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     async {
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
             let oks = ResizeArray initialSuccesses
-            let mutable err = Unchecked.defaultof<'error>
-            let mutable ok = true
+            let mutable err: 'error voption = ValueNone
             use e = xs.GetEnumerator()
 
-            while ok
+            while err.IsNone
                   && e.MoveNext() do
                 match! f e.Current with
                 | Ok r -> oks.Add r
-                | Error e ->
-                    err <- e
-                    ok <- false
+                | Error e -> err <- ValueSome e
 
-            return if ok then Ok(oks.ToArray()) else Error err
+            return
+                match err with
+                | ValueNone -> Ok(oks.ToArray())
+                | ValueSome e -> Error e
     }
 
 /// <summary>
@@ -184,26 +183,26 @@ let inline traverseTaskResultM'
     (xs: SeqNull<'okInput>)
     : TaskResult<'okOutput[], 'error> =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     task {
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
             let oks = ResizeArray initialSuccesses
-            let mutable err = Unchecked.defaultof<'error>
-            let mutable ok = true
+            let mutable err: 'error voption = ValueNone
             use e = xs.GetEnumerator()
 
-            while ok
+            while err.IsNone
                   && e.MoveNext() do
                 match! f e.Current with
                 | Ok r -> oks.Add r
-                | Error e ->
-                    err <- e
-                    ok <- false
+                | Error e -> err <- ValueSome e
 
-            return if ok then Ok(oks.ToArray()) else Error err
+            return
+                match err with
+                | ValueNone -> Ok(oks.ToArray())
+                | ValueSome e -> Error e
     }
 
 /// <summary>
@@ -365,7 +364,7 @@ let inline traverseOptionM'
     (xs: SeqNull<'okInput>)
     : 'okOutput[] option =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     match state with
     | None -> None
@@ -412,7 +411,7 @@ let inline traverseAsyncOptionM'
     (xs: SeqNull<'okInput>)
     : Async<'okOutput[] option> =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     async {
         match! state with
@@ -464,7 +463,7 @@ let inline traverseVOptionM'
     (xs: SeqNull<'okInput>)
     : ValueOption<'okOutput[]> =
     if isNull xs then
-        nullArg (nameof xs)
+        raise (System.ArgumentNullException(nameof xs))
 
     match state with
     | ValueNone -> ValueNone
@@ -509,7 +508,7 @@ let sequenceVOptionM xs = traverseVOptionM id xs
 /// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
 let partitionResults (input: SeqNull<Result<'ok, 'error>>) : 'ok[] * 'error[] =
     if isNull input then
-        nullArg (nameof input)
+        raise (System.ArgumentNullException(nameof input))
 
     let oks = ResizeArray()
     let errors = ResizeArray()

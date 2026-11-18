@@ -8,20 +8,19 @@ module Array =
         =
         let results = ResizeArray<'okOutput>(xs.Length)
         let mutable index = 0
-        let mutable error = Unchecked.defaultof<'error>
-        let mutable ok = true
+        let mutable error: 'error voption = ValueNone
 
-        while ok
+        while error.IsNone
               && index < xs.Length do
             match f xs[index] with
             | Ok value ->
                 results.Add value
                 index <- index + 1
-            | Error e ->
-                error <- e
-                ok <- false
+            | Error e -> error <- ValueSome e
 
-        if ok then Ok(results.ToArray()) else Error error
+        match error with
+        | ValueNone -> Ok(results.ToArray())
+        | ValueSome e -> Error e
 
     let sequenceResultM xs = traverseResultM id xs
 
@@ -29,10 +28,9 @@ module Array =
         async {
             let results = ResizeArray(xs.Length)
             let mutable index = 0
-            let mutable error = Unchecked.defaultof<_>
-            let mutable ok = true
+            let mutable error = ValueNone
 
-            while ok
+            while error.IsNone
                   && index < xs.Length do
                 let! result = f xs[index]
 
@@ -40,11 +38,12 @@ module Array =
                 | Ok value ->
                     results.Add value
                     index <- index + 1
-                | Error e ->
-                    error <- e
-                    ok <- false
+                | Error e -> error <- ValueSome e
 
-            return if ok then Ok(results.ToArray()) else Error error
+            return
+                match error with
+                | ValueNone -> Ok(results.ToArray())
+                | ValueSome e -> Error e
         }
 
     let sequenceAsyncResultM xs = traverseAsyncResultM id xs
@@ -250,7 +249,7 @@ module Array =
     /// <returns>A tuple where the first element is an array of all Ok values and the second is an array of all Error values.</returns>
     let partitionResults (input: Result<'ok, 'error>[]) : 'ok[] * 'error[] =
         if System.Object.ReferenceEquals(input, null) then
-            nullArg (nameof input)
+            raise (System.ArgumentNullException(nameof input))
 
         let oks = ResizeArray()
         let errors = ResizeArray()

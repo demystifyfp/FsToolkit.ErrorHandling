@@ -349,6 +349,25 @@ let traverseAsyncResultMTests =
 
             do! Expect.hasAsyncErrorValue expected actual
         }
+
+        testCaseAsync "traverseAsyncResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                async {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual = Seq.traverseAsyncResultM evenIsError (seq { 1..4 })
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
+        }
     ]
 
 #if !FABLE_COMPILER
@@ -394,6 +413,27 @@ let traverseTaskResultMTests =
             do!
                 Expect.hasTaskErrorValue expected actual
                 |> Async.Await
+        }
+
+        testCaseAsync "traverseTaskResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                task {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual =
+                Seq.traverseTaskResultM evenIsError (seq { 1..4 })
+                |> Async.Await
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
         }
     ]
 

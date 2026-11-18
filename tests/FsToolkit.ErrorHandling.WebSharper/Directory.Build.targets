@@ -1,0 +1,10 @@
+<Project>
+  <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
+    <ItemGroup>
+      <_FsToolkitErrorHandlingVersion Include="@(PackageReference)" Condition="('%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling.Sources') and '%(PackageReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+    </ItemGroup>
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '$(FsToolkitErrorHandlingVersion)'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must have the same version, $(FsToolkitErrorHandlingVersion)." />
+  </Target>
+</Project>
