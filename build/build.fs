@@ -828,11 +828,34 @@ let webSharperTest ctx =
         rootDir
         </> "obj/websharper-test-packages"
 
-    // NuGet does not replace a package version that is already in its packages folder.
+    // NuGet and the SDK do not write a package or its preprocessed content files again for a version that they already have.
     Shell.cleanDirs [ feedDir ]
-    Shell.deleteDir packagesDir
 
-    let sourcesVersion = "0.0.0-websharpertest"
+    Shell.deleteDir (
+        packagesDir
+        </> "fstoolkit.errorhandling.sources"
+    )
+
+    [
+        for project in
+            [
+                "Proxy"
+                "TestAdapter"
+                "Tests"
+                "Runner"
+            ] do
+            for output in
+                [
+                    "bin"
+                    "obj"
+                ] do
+                webSharperDir
+                </> project
+                </> output
+    ]
+    |> Shell.cleanDirs
+
+    let sourcesVersion = $"0.0.0-websharpertest.{System.DateTime.UtcNow:yyyyMMddHHmmss}"
 
     let withSourcesParams (msbuildParams: MSBuild.CliArguments) =
         {
@@ -898,6 +921,7 @@ let webSharperTest ctx =
             </> "bin/js/FsToolkit.ErrorHandling.WebSharper.Runner.js"
         ]
         |> CreateProcess.withWorkingDirectory webSharperRunnerDir
+        |> CreateProcess.withTimeout (System.TimeSpan.FromMinutes 15.0)
         |> Proc.run
 
     if

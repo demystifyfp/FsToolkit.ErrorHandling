@@ -656,6 +656,31 @@ let sequenceVOptionMTests =
 
 #endif
 
+#if !FABLE_COMPILER
+let nullInputTests =
+    let argumentNullParamName (call: unit -> 'a) =
+        try
+            call ()
+            |> ignore
+
+            None
+        with :? ArgumentNullException as e ->
+            Some e.ParamName
+
+    testList "Array null input Tests" [
+        testCase "partitionResults raises ArgumentNullException for input"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Array.partitionResults (Unchecked.defaultof<Result<int, string>[]>)
+                ))
+                (Some "input")
+                "Should name the null parameter"
+
+    ]
+
+#endif
+
 let allTests =
     testList "Array Tests" [
         traverseResultMTests
@@ -675,5 +700,6 @@ let allTests =
 #if !FABLE_COMPILER
         traverseVOptionMTests
         sequenceVOptionMTests
+        nullInputTests
 #endif
     ]

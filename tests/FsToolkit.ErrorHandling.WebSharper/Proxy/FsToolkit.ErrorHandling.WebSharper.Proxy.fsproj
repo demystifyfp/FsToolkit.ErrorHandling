@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <WebSharperProject>Proxy</WebSharperProject>
     <DefineConstants>$(DefineConstants);FABLE_COMPILER</DefineConstants>
+    <FsToolkitErrorHandlingVisibility>public</FsToolkitErrorHandlingVisibility>
     <IsPackable>false</IsPackable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -10,7 +11,7 @@
     <None Include="wsconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingVersion)" />
+    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="[$(FsToolkitErrorHandlingVersion)]" />
     <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="all" />
     <PackageReference Include="FSharp.Core" VersionOverride="6.0.4" />
     <PackageReference Include="WebSharper" />

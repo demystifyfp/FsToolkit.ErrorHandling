@@ -96,13 +96,14 @@ Make a proxy project, for example `FsToolkit.ErrorHandling.WebSharper.fsproj`:
     <TargetFramework>netstandard2.0</TargetFramework>
     <WebSharperProject>Proxy</WebSharperProject>
     <DefineConstants>$(DefineConstants);FABLE_COMPILER</DefineConstants>
+    <FsToolkitErrorHandlingVisibility>public</FsToolkitErrorHandlingVisibility>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <None Include="wsconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingVersion)" PrivateAssets="all" />
+    <PackageReference Include="FsToolkit.ErrorHandling.Sources" Version="[$(FsToolkitErrorHandlingVersion)]" PrivateAssets="all" />
     <PackageReference Include="WebSharper" Version="10.1.10.687" />
     <PackageReference Include="WebSharper.FSharp" Version="10.1.10.687" />
   </ItemGroup>
@@ -121,11 +122,11 @@ Put this `wsconfig.json` file in the folder of the proxy project:
 These settings are necessary:
 
 - `"proxyTargetName": "FsToolkit.ErrorHandling"` tells WebSharper that the proxy translates the types of the `FsToolkit.ErrorHandling` assembly. The proxy assembly does not contain the .NET types.
-- `FABLE_COMPILER` removes the `Task` files. WebSharper cannot translate them.
+- `FABLE_COMPILER` removes the `Task` files, which WebSharper cannot translate. It also removes the other code in `#if !FABLE_COMPILER` blocks: `traverseVOptionM` and `sequenceVOptionM` of `Array`, `List`, and `Seq`, `Option.tryParse`, `Option.tryGetValue`, and the `Task` and `IAsyncDisposable` overloads of the async computation expressions. Client code cannot call these functions.
 - Keep the default `FsToolkitErrorHandlingNamespace`. WebSharper finds the proxy types by their full names, so the namespace must be `FsToolkit.ErrorHandling`.
 - `IsPackable` `false` and `PrivateAssets="all"` each prevent warning `FSTKSRC001`.
 
-`FsToolkitErrorHandlingVisibility` can keep its default, `internal`. The tests pass with `internal` and with `public`.
+`FsToolkitErrorHandlingVisibility` `public` gives the proxy types the visibility of the types in the binary package. The tests also pass with the default, `internal`.
 
 Use the WebSharper version of your client projects.
 
@@ -135,7 +136,7 @@ Reference the binary package and the proxy project from each project whose clien
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="FsToolkit.ErrorHandling" Version="$(FsToolkitErrorHandlingVersion)" />
+  <PackageReference Include="FsToolkit.ErrorHandling" Version="[$(FsToolkitErrorHandlingVersion)]" />
   <ProjectReference Include="../FsToolkit.ErrorHandling.WebSharper/FsToolkit.ErrorHandling.WebSharper.fsproj" />
 </ItemGroup>
 ```
@@ -144,7 +145,7 @@ WebSharper compiles the client code against the binary package and gets the Java
 
 ### Versions
 
-`FsToolkit.ErrorHandling` and `FsToolkit.ErrorHandling.Sources` must have the same version. If the versions are different, the JavaScript can behave differently from the .NET code, or WebSharper cannot find a function. Set the version one time, in `Directory.Build.props`:
+`FsToolkit.ErrorHandling` and `FsToolkit.ErrorHandling.Sources` must have the same version. If the versions are different, the JavaScript can behave differently from the .NET code, or WebSharper cannot find a function. Set the version one time, in `Directory.Build.props`, and reference both packages with the exact range `[$(FsToolkitErrorHandlingVersion)]`. NuGet treats a version without brackets as a minimum, and it can restore a later version.
 
 ```xml
 <Project>
@@ -154,17 +155,19 @@ WebSharper compiles the client code against the binary package and gets the Java
 </Project>
 ```
 
-This `Directory.Build.targets` file stops the restore and the build when a reference to one of the two packages has a different version. It reads the `Version` of `PackageReference` items and of the `PackageVersion` items of central package management. It does not read `VersionOverride`.
+This `Directory.Build.targets` file stops the restore and the build when a reference to one of the two packages does not have the exact range `[$(FsToolkitErrorHandlingVersion)]`. It reads the `Version` and the `VersionOverride` of `PackageReference` items. With central package management, it also reads the `PackageVersion` items of the packages that the project references. It does not see a version that a project gets through another package.
 
 ```xml
 <Project>
   <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
     <ItemGroup>
-      <_FsToolkitErrorHandlingVersion Include="@(PackageReference)" Condition="('%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling.Sources') and '%(PackageReference.Version)' != ''" />
-      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+      <_FsToolkitErrorHandlingReference Include="@(PackageReference)" Condition="'%(Identity)' == 'FsToolkit.ErrorHandling' or '%(Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Condition="'%(_FsToolkitErrorHandlingReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Version="%(_FsToolkitErrorHandlingReference.VersionOverride)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingReference)' != ''" />
     </ItemGroup>
-    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '$(FsToolkitErrorHandlingVersion)'"
-           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must have the same version, $(FsToolkitErrorHandlingVersion)." />
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '[$(FsToolkitErrorHandlingVersion)]'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
   </Target>
 </Project>
 ```
@@ -175,7 +178,7 @@ Paket does not make `PackageReference` items, so the check does not see a Paket 
 
 With WebSharper 10.1.10, some code compiles to JavaScript that does not behave as on .NET:
 
-- `use` and `try`/`finally` in the `result`, `resultOption`, `validation`, and `voption` computation expressions, and `Validation.apply`, compile to JavaScript that uses an undeclared variable.
+- `use` in the `result`, `resultOption`, and `validation` computation expressions, `use` and `try`/`finally` in the `voption` computation expression, and `Validation.apply` compile to JavaScript that uses an undeclared variable.
 - `ValueOption.tryGetValue` calls `TryGetValue` as a JavaScript method. The object that `dict` makes does not have that method.
 - WebSharper compiles `()` to `null` in some places and to `undefined` in others. `=` then gives `false` for two `unit` values.
 

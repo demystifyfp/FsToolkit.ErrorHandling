@@ -1,2 +1,5 @@
-<!-- Stops the import of tests/Directory.Build.props, so these projects do not get Expecto, Fable.Pyxpecto, or the .NET test SDK. -->
+<!--
+  Stops the import of tests/Directory.Build.props and of the root Directory.Build.props that it imports.
+  These projects do not get Expecto, Fable.Pyxpecto, the .NET test SDK, or the LangVersion, NoWarn, and Nullable settings of the library build.
+-->
 <Project />

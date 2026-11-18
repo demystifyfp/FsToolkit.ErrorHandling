@@ -1,10 +1,12 @@
 <Project>
   <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
     <ItemGroup>
-      <_FsToolkitErrorHandlingVersion Include="@(PackageReference)" Condition="('%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageReference.Identity)' == 'FsToolkit.ErrorHandling.Sources') and '%(PackageReference.Version)' != ''" />
-      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling' or '%(PackageVersion.Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+      <_FsToolkitErrorHandlingReference Include="@(PackageReference)" Condition="'%(Identity)' == 'FsToolkit.ErrorHandling' or '%(Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Condition="'%(_FsToolkitErrorHandlingReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Version="%(_FsToolkitErrorHandlingReference.VersionOverride)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingReference)' != ''" />
     </ItemGroup>
-    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '$(FsToolkitErrorHandlingVersion)'"
-           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must have the same version, $(FsToolkitErrorHandlingVersion)." />
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '[$(FsToolkitErrorHandlingVersion)]'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
   </Target>
 </Project>

@@ -765,6 +765,31 @@ let sequenceTaskResultATests =
 
 #endif
 
+#if !FABLE_COMPILER
+let nullInputTests =
+    let argumentNullParamName (call: unit -> 'a) =
+        try
+            call ()
+            |> ignore
+
+            None
+        with :? ArgumentNullException as e ->
+            Some e.ParamName
+
+    testList "List null input Tests" [
+        testCase "partitionResults raises ArgumentNullException for input"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    List.partitionResults (Unchecked.defaultof<Result<int, string> list>)
+                ))
+                (Some "input")
+                "Should name the null parameter"
+
+    ]
+
+#endif
+
 let allTests =
     testList "List Tests" [
         traverseResultMTests
@@ -788,5 +813,6 @@ let allTests =
         traverseTaskResultATests
         sequenceTaskResultMTests
         sequenceTaskResultATests
+        nullInputTests
 #endif
     ]
