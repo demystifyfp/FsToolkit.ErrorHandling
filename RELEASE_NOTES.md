@@ -1,7 +1,8 @@
-### 6.0.0-beta007 - Unreleased
+### 6.0.0-beta007 - November 17, 2026
 
 - [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
     - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
+- [docs: Update the SDK, runtime, and Python requirements](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/387) Credits @TheAngryByrd
 
 ### 6.0.0-beta006 - November 17, 2026
 
