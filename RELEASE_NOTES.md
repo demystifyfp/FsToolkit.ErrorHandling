@@ -1,3 +1,8 @@
+### 6.0.0-beta007 - Unreleased
+
+- [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd
+    - New `FsToolkit.ErrorHandling.Sources` package that compiles the `FsToolkit.ErrorHandling` source code inside your project, with a configurable namespace and visibility
+
 ### 6.0.0-beta006 - November 17, 2026
 
 - [Read the DisposeAsync result in async builders when it completes successfully](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/386) Credits @TheAngryByrd

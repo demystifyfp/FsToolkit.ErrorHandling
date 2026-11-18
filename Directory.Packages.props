@@ -16,6 +16,7 @@
     <!-- Test group dependencies -->
     <PackageVersion Include="Expecto" Version="10.2.3" />
     <PackageVersion Include="Expecto.Hopac" Version="10.2.3" />
+    <PackageVersion Include="Expecto.FsCheck" Version="10.2.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
     <PackageVersion Include="Fable.Python" Version="4.3.0" />

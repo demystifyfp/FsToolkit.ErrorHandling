@@ -33,7 +33,7 @@ Always reference these instructions first and fallback to search or bash command
 - `./build.sh Clean` -- cleans bin/obj folders. Takes <1 second.
 
 ### Default Build Target
-- `./build.sh` (no arguments) -- runs `DotnetPack` target which builds and packages all projects. Takes ~5-7 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
+- `./build.sh` (no arguments) -- runs `SourcesTest` target which builds, tests, and packages all projects, and then tests the `FsToolkit.ErrorHandling.Sources` package. Takes ~5-7 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
 
 ## Validation Requirements
 
@@ -41,6 +41,7 @@ Always reference these instructions first and fallback to search or bash command
 Always run these commands before committing changes:
 - `./build.sh CheckFormatCode` -- ensures code follows formatting standards
 - `./build.sh RunTests` -- runs complete test suite across all platforms (F#, JavaScript, Python)
+- `./build.sh SourcesTest` -- tests the `FsToolkit.ErrorHandling.Sources` package, as CI does. Run it when you change `src/FsToolkit.ErrorHandling`, `tests/FsToolkit.ErrorHandling.Tests`, `build/`, or the Sources README
 
 ### Complete Development Workflow Validation
 Test the complete workflow with: `./build.sh CheckFormatCode && ./build.sh RunTests`

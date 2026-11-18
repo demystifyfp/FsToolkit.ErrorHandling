@@ -4,22 +4,25 @@ namespace FsToolkit.ErrorHandling
 open System.Threading.Tasks
 #endif
 
-[<RequireQualifiedAccess>]
-module Async =
+[<AutoOpen>]
+module TestAsync =
 
-    open System
+    [<RequireQualifiedAccess>]
+    module Async =
 
-    /// An Async that never completes but can be cancelled
-    let never<'a> : Async<'a> =
-        async {
-            let! ct = Async.CancellationToken
+        open System
 
-            return!
-                Async.FromContinuations(fun (_, _, cancel) ->
-                    ct.Register(fun () -> cancel (OperationCanceledException()))
-                    |> ignore
-                )
-        }
+        /// An Async that never completes but can be cancelled
+        let never<'a> : Async<'a> =
+            async {
+                let! ct = Async.CancellationToken
+
+                return!
+                    Async.FromContinuations(fun (_, _, cancel) ->
+                        ct.Register(fun () -> cancel (OperationCanceledException()))
+                        |> ignore
+                    )
+            }
 
 module TestHelpers =
     let makeDisposable (callback) =
