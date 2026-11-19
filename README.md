@@ -4,7 +4,7 @@
 
 The library provides utility functions like `map`, `bind`, `apply`, `traverse`, `sequence` as well as computation expressions and infix operators to work with `Result<'a, 'b>`, `Result<'a option, 'b>`, `Async<Result<'a, 'b>>`, `Async<Result<'a option, 'b>>`, and `Result<'a, 'b list>`.
 
-It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
+It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and `Cvdm.ErrorHandling` (the latter has now been merged into `FsToolkit.ErrorHandling`).
 
 FsToolkit.ErrorHandling targets .NET Standard 2.0, .NET Standard 2.1, .NET 9.0, .NET 10.0, and .NET 11.0, and supports Fable.
 
