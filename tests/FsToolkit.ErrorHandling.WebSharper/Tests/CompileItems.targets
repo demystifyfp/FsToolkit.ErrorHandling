@@ -1,0 +1,8 @@
+<Project>
+  <!-- FsToolkit.ErrorHandling.WebSharper.Tests imports this file into FsToolkit.ErrorHandling.Tests.fsproj, to read its Compile items. -->
+  <Target Name="FsToolkitErrorHandlingCompileItems" Returns="@(_FsToolkitErrorHandlingCompileItem)">
+    <ItemGroup>
+      <_FsToolkitErrorHandlingCompileItem Include="@(Compile->'%(FullPath)')" />
+    </ItemGroup>
+  </Target>
+</Project>

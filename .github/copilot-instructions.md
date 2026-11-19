@@ -27,7 +27,8 @@ Always reference these instructions first and fallback to search or bash command
 - `./build.sh NpmRestore` -- installs JavaScript dependencies. Takes ~11 seconds. NEVER CANCEL. Set timeout to 60+ seconds.
 - `./build.sh NpmTest` -- compiles F# to JavaScript via Fable and runs tests. Takes ~50 seconds. NEVER CANCEL. Set timeout to 120+ seconds.
 - `./build.sh PythonTest` -- compiles F# to Python via Fable and runs tests. Takes ~2 minutes. NEVER CANCEL. Set timeout to 300+ seconds.
-- `./build.sh RunTests` -- runs ALL tests (F#, JavaScript, Python). Takes ~4.5 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
+- `./build.sh WebSharperTest` -- packs `FsToolkit.ErrorHandling.Sources`, compiles a WebSharper proxy from it, and runs the `FsToolkit.ErrorHandling.Tests` tests under WebSharper in Node.js. Takes ~1 minute. NEVER CANCEL. Set timeout to 300+ seconds.
+- `./build.sh RunTests` -- runs ALL tests (F#, JavaScript, Python, WebSharper). Takes ~6 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
 - `./build.sh FormatCode` -- formats F# code using Fantomas. Takes ~5 seconds. NEVER CANCEL.
 - `./build.sh CheckFormatCode` -- validates code formatting. Takes ~5 seconds. NEVER CANCEL.
 - `./build.sh Clean` -- cleans bin/obj folders. Takes <1 second.
@@ -40,7 +41,7 @@ Always reference these instructions first and fallback to search or bash command
 ### Pre-commit Validation
 Always run these commands before committing changes:
 - `./build.sh CheckFormatCode` -- ensures code follows formatting standards
-- `./build.sh RunTests` -- runs complete test suite across all platforms (F#, JavaScript, Python)
+- `./build.sh RunTests` -- runs complete test suite across all platforms (F#, JavaScript, Python, WebSharper)
 - `./build.sh SourcesTest` -- tests the `FsToolkit.ErrorHandling.Sources` package, as CI does. Run it when you change `src/FsToolkit.ErrorHandling`, `tests/FsToolkit.ErrorHandling.Tests`, `build/`, or the Sources README
 
 ### Complete Development Workflow Validation
@@ -58,7 +59,7 @@ After making changes, validate functionality by:
 ### CI Build Requirements
 The GitHub Actions CI will fail if:
 - Code formatting is incorrect (run `./build.sh FormatCode` to fix)
-- Any tests fail in F#, JavaScript, or Python targets
+- Any tests fail in F#, JavaScript, Python, or WebSharper targets
 - Build fails on any supported platform (Ubuntu, Windows, macOS)
 - Code analysis issues are detected
 
@@ -76,7 +77,8 @@ tests/                         # Test projects
 ├── FsToolkit.ErrorHandling.Tests/          # Core tests (majority of test coverage)
 ├── FsToolkit.ErrorHandling.AsyncSeq.Tests/ # AsyncSeq tests (limited Fable support)
 ├── FsToolkit.ErrorHandling.JobResult.Tests/ # JobResult tests
-└── FsToolkit.ErrorHandling.IcedTasks.Tests/ # IcedTasks tests
+├── FsToolkit.ErrorHandling.IcedTasks.Tests/ # IcedTasks tests
+└── FsToolkit.ErrorHandling.WebSharper/      # Runs the core tests under WebSharper (proxy, test adapter, runner)
 
 build/                         # Build scripts and configuration
 gitbook/                       # Documentation source
@@ -88,6 +90,7 @@ gitbook/                       # Documentation source
 - **.NET 9.0, 10.0, and 11.0**: `net11.0` forwards the `Async` and `Task` shims to FSharp.Core 11
 - **Fable JavaScript**: Compiles to JavaScript for web usage
 - **Fable Python**: Compiles to Python for cross-platform usage (limited test coverage)
+- **WebSharper**: A proxy project compiles `FsToolkit.ErrorHandling.Sources` to JavaScript. `WebSharperPending.fs` lists the tests that fail only under WebSharper
 
 ## Development Workflow
 
@@ -122,7 +125,7 @@ gitbook/                       # Documentation source
 ### Required SDKs and Tools
 - **.NET SDK 11.0.100**: Primary development SDK (`global.json`)
 - **.NET Runtime 10.0.x**: Required for the `net10.0` tests
-- **Node.js 18.0.0+**: Required for Fable JavaScript compilation
+- **Node.js 18.0.0+**: Required for Fable JavaScript compilation and the WebSharper tests
 - **Python 3.12.0+**: Required for Fable Python compilation
 
 ### Package Management
@@ -146,6 +149,7 @@ gitbook/                       # Documentation source
 - **F# test failures**: Run `./build.sh DotnetTest` to isolate .NET issues
 - **JavaScript test failures**: Check Node.js version (requires 18.0.0+), run `./build.sh NpmTest`
 - **Python test failures**: Check Python version (requires 3.12.0+), run `./build.sh PythonTest`
+- **WebSharper test failures**: Run `./build.sh WebSharperTest`. A test that fails only under WebSharper because of a WebSharper limitation goes in `tests/FsToolkit.ErrorHandling.WebSharper/TestAdapter/WebSharperPending.fs` with its `Cause`. The runner still runs the test and accepts only the failure message that `Cause.explains` matches. For a new kind of failure, add a `Cause` case with its `reason` and `explains` rule
 - **Fable plugin warnings**: Ignore "Could not scan" warnings for Microsoft.TestPlatform assemblies - these are normal
 
 ### Format Issues

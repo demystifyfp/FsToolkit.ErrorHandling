@@ -314,6 +314,12 @@ let userId2 = Guid.NewGuid()
 let userId3 = Guid.NewGuid()
 let userId4 = Guid.NewGuid()
 
+let seqThatFailsAfter items =
+    seq {
+        yield! items
+        failwith "Read past the first error"
+    }
+
 let traverseAsyncResultMTests =
 
     let userIds =
@@ -348,6 +354,31 @@ let traverseAsyncResultMTests =
                 Seq.traverseAsyncResultM (notifyNewPostFailure (PostId newPostId)) userIds
 
             do! Expect.hasAsyncErrorValue expected actual
+        }
+
+        testCaseAsync "traverseAsyncResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                async {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual =
+                Seq.traverseAsyncResultM
+                    evenIsError
+                    (seqThatFailsAfter [
+                        1
+                        2
+                    ])
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
         }
     ]
 
@@ -394,6 +425,32 @@ let traverseTaskResultMTests =
             do!
                 Expect.hasTaskErrorValue expected actual
                 |> Async.Await
+        }
+
+        testCaseAsync "traverseTaskResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                task {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual =
+                Seq.traverseTaskResultM
+                    evenIsError
+                    (seqThatFailsAfter [
+                        1
+                        2
+                    ])
+                |> Async.Await
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
         }
     ]
 
@@ -891,6 +948,96 @@ let sequenceVOptionMTests =
 
 #endif
 
+#if !FABLE_COMPILER
+let nullInputTests =
+    let argumentNullParamName (call: unit -> 'a) =
+        try
+            call ()
+            |> ignore
+
+            None
+        with :? ArgumentNullException as e ->
+            Some e.ParamName
+
+    testList "Seq null input Tests" [
+        testCase "traverseResultM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseResultM (fun (x: int) -> Ok x: Result<int, string>) null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseResultA raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseResultA (fun (x: int) -> Ok x: Result<int, string>) null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseAsyncResultM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseAsyncResultM
+                        (fun (x: int) -> async { return (Ok x: Result<int, string>) })
+                        null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseTaskResultM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseTaskResultM
+                        (fun (x: int) -> TaskResult.ok x: TaskResult<int, string>)
+                        null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseOptionM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () -> Seq.traverseOptionM (fun (x: int) -> Some x) null))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseAsyncOptionM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseAsyncOptionM (fun (x: int) -> async { return Some x }) null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "traverseVOptionM raises ArgumentNullException for xs"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.traverseVOptionM (fun (x: int) -> ValueSome x) null
+                ))
+                (Some "xs")
+                "Should name the null parameter"
+
+        testCase "partitionResults raises ArgumentNullException for input"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Seq.partitionResults (Unchecked.defaultof<seq<Result<int, string>>>)
+                ))
+                (Some "input")
+                "Should name the null parameter"
+
+    ]
+
+#endif
+
 let allTests =
     testList "Seq Tests" [
         traverseResultMTests
@@ -916,5 +1063,6 @@ let allTests =
         sequenceTaskResultATests
         traverseVOptionMTests
         sequenceVOptionMTests
+        nullInputTests
 #endif
     ]

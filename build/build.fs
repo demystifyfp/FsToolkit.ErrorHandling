@@ -70,6 +70,8 @@ let srcAndTest =
     // These projects do not track an AssemblyInfo.fs, and GitRelease stages every file.
     -- (rootDir
         </> "tests/FsToolkit.ErrorHandling.Sources.*/**")
+    -- (rootDir
+        </> "tests/FsToolkit.ErrorHandling.WebSharper/**")
 
 let srcCodeGlob =
     !!(rootDir
@@ -701,6 +703,66 @@ let failOnDependencyDrift () =
             expected
             actual
 
+/// Packs FsToolkit.ErrorHandling.Sources into feedDir with a version that nuget.org does not have,
+/// so that a restore from nuget.org and feedDir can only take this package.
+let packSourcesForTest ctx (feedDir: string) =
+    Shell.cleanDirs [ feedDir ]
+    let version = $"0.0.0-t.{System.DateTime.UtcNow:yyMMddHHmmss}"
+
+    DotNet.pack
+        (fun p -> {
+            p with
+                OutputPath = Some feedDir
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams =
+                    {
+                        p.MSBuildParams with
+                            Properties = [ ("Version", version) ]
+                    }
+                    |> BuildParameters.common
+        })
+        sourcesProject
+
+    version
+
+let failOnPackageContentDrift (testPackage: string) =
+    let releasePackage =
+        distDir
+        </> $"FsToolkit.ErrorHandling.Sources.{release.NugetVersion}.nupkg"
+
+    let content (nupkg: string) =
+        use archive = System.IO.Compression.ZipFile.OpenRead nupkg
+        use sha = System.Security.Cryptography.SHA256.Create()
+
+        archive.Entries
+        |> Seq.filter (fun entry ->
+            entry.FullName.StartsWith("contentFiles/", System.StringComparison.Ordinal)
+            || entry.FullName.StartsWith("build/", System.StringComparison.Ordinal)
+        )
+        |> Seq.map (fun entry ->
+            use stream = entry.Open()
+            entry.FullName, System.Convert.ToHexString(sha.ComputeHash stream)
+        )
+        |> Seq.sort
+        |> Seq.toList
+
+    let expected = content releasePackage
+    let actual = content testPackage
+
+    if expected.IsEmpty then
+        failwithf "%s has no contentFiles or build entries." releasePackage
+
+    if
+        actual
+        <> expected
+    then
+        failwithf
+            "The contentFiles and build entries of %s must be the same as in %s, so that SourcesTest tests the files that the release ships.\nRelease: %A\nTest: %A"
+            testPackage
+            releasePackage
+            expected
+            actual
+
 let sourcesTest ctx =
     failOnTestFileDrift ()
     failOnDocsDrift ()
@@ -713,12 +775,23 @@ let sourcesTest ctx =
 
     Shell.deleteDir packagesDir
 
+    let feedDir =
+        rootDir
+        </> "obj/sources-test-feed"
+
+    let sourcesVersion = packSourcesForTest ctx feedDir
+
+    failOnPackageContentDrift (
+        feedDir
+        </> $"FsToolkit.ErrorHandling.Sources.{sourcesVersion}.nupkg"
+    )
+
     let withFixtureParams (msbuildParams: MSBuild.CliArguments) =
         {
             msbuildParams with
                 Properties = [
                     ("RestorePackagesPath", packagesDir)
-                    ("FsToolkitErrorHandlingSourcesVersion", release.NugetVersion)
+                    ("FsToolkitErrorHandlingSourcesVersion", sourcesVersion)
                 ]
         }
         |> BuildParameters.common
@@ -744,7 +817,7 @@ let sourcesTest ctx =
                     // SDK 10.0.403 reads a URL source that follows a local folder source as a relative path (NU1301).
                     Sources = [
                         "https://api.nuget.org/v3/index.json"
-                        distDir
+                        feedDir
                     ]
                     MSBuildParams = withFixtureParams c.MSBuildParams
             })
@@ -783,6 +856,136 @@ let sourcesTest ctx =
         sourcesTestsFixture
 
     failOnSourceVisibility ()
+
+let webSharperDir =
+    rootDir
+    </> "tests/FsToolkit.ErrorHandling.WebSharper"
+
+let webSharperRunnerDir =
+    webSharperDir
+    </> "Runner"
+
+let failOnWebSharperDocsDrift () =
+    let readNormalized (path: string) =
+        (File.ReadAllText path).Replace("\r\n", "\n")
+
+    let targetsPath =
+        webSharperDir
+        </> "Directory.Build.targets"
+
+    let gitbookPath =
+        rootDir
+        </> "gitbook/sources/sourcesPackage.md"
+
+    let expected =
+        "```xml\n"
+        + (readNormalized targetsPath).TrimEnd('\n')
+        + "\n```\n"
+
+    if not ((readNormalized gitbookPath).Contains(expected, System.StringComparison.Ordinal)) then
+        failwithf
+            "%s must contain the full text of %s in an xml code block. Make the same change in both files."
+            gitbookPath
+            targetsPath
+
+let webSharperTest ctx =
+    failOnWebSharperDocsDrift ()
+
+    let feedDir =
+        rootDir
+        </> "obj/websharper-test-feed"
+
+    let packagesDir =
+        rootDir
+        </> "obj/websharper-test-packages"
+
+    // NuGet and the SDK do not write a package or its preprocessed content files again for a version that they already have.
+    Shell.deleteDir (
+        packagesDir
+        </> "fstoolkit.errorhandling.sources"
+    )
+
+    [
+        for project in
+            [
+                "Proxy"
+                "TestAdapter"
+                "Tests"
+                "Runner"
+            ] do
+            for output in
+                [
+                    "bin"
+                    "obj"
+                ] do
+                webSharperDir
+                </> project
+                </> output
+    ]
+    |> Shell.cleanDirs
+
+    let sourcesVersion = packSourcesForTest ctx feedDir
+
+    let withSourcesParams (msbuildParams: MSBuild.CliArguments) =
+        {
+            msbuildParams with
+                Properties = [
+                    ("RestorePackagesPath", packagesDir)
+                    ("FsToolkitErrorHandlingVersion", sourcesVersion)
+                ]
+        }
+        |> BuildParameters.common
+
+    let runnerProject =
+        webSharperRunnerDir
+        </> "FsToolkit.ErrorHandling.WebSharper.Runner.fsproj"
+
+    DotNet.restore
+        (fun c -> {
+            c with
+                Sources = [
+                    "https://api.nuget.org/v3/index.json"
+                    feedDir
+                ]
+                MSBuildParams = withSourcesParams c.MSBuildParams
+        })
+        runnerProject
+
+    DotNet.build
+        (fun c -> {
+            c with
+                NoRestore = true
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams = withSourcesParams c.MSBuildParams
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs [ maxCpuMsBuild.Value ]
+        })
+        runnerProject
+
+    Npm.exec
+        "ci --no-audit --no-fund"
+        (fun o -> {
+            o with
+                WorkingDirectory = webSharperRunnerDir
+        })
+
+    let result =
+        CreateProcess.fromRawCommand "node" [
+            webSharperRunnerDir
+            </> "bin/js/FsToolkit.ErrorHandling.WebSharper.Runner.js"
+        ]
+        |> CreateProcess.withWorkingDirectory webSharperRunnerDir
+        |> CreateProcess.withTimeout (System.TimeSpan.FromMinutes 15.0)
+        |> Proc.run
+
+    if
+        result.ExitCode
+        <> 0
+    then
+        Fake.Testing.Common.FailedTestsException
+            "WebSharper tests failed, see output for more information."
+        |> raise
 
 let dotnetPack ctx =
     [
@@ -898,6 +1101,7 @@ let initTargets () =
     Target.create "GenerateSources" generateSources
     Target.create "DotnetPack" dotnetPack
     Target.create "SourcesTest" sourcesTest
+    Target.create "WebSharperTest" webSharperTest
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
     Target.create "Analyzers" analyze
@@ -967,6 +1171,14 @@ let initTargets () =
 
     "NpmTest"
     ==>! "RunTests"
+
+    //*** WebSharper *** //
+    "GenerateSources"
+    ==>! "WebSharperTest"
+
+    "WebSharperTest"
+    ==>! "RunTests"
+    //*** WebSharper *** //
 
 
     //*** Publishing ***//

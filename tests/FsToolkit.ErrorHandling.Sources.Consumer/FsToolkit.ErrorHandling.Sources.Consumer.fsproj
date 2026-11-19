@@ -11,7 +11,7 @@
     <FsToolkitErrorHandlingNamespace>Contoso.Internal.ErrorHandling</FsToolkitErrorHandlingNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="$(FsToolkitErrorHandlingSourcesVersion)" />
+    <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="[$(FsToolkitErrorHandlingSourcesVersion)]" />
     <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>

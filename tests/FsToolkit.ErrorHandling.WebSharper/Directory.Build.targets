@@ -1,0 +1,16 @@
+<Project>
+  <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
+    <ItemGroup>
+      <_FsToolkitErrorHandlingReference Include="@(PackageReference)" Condition="'%(Identity)' == 'FsToolkit.ErrorHandling' or '%(Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" EffectiveVersion="%(_FsToolkitErrorHandlingReference.VersionOverride)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" EffectiveVersion="%(_FsToolkitErrorHandlingReference.Version)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' == '' and '%(_FsToolkitErrorHandlingReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingCentral Include="@(_FsToolkitErrorHandlingReference)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' == '' and '%(_FsToolkitErrorHandlingReference.Version)' == ''" />
+      <_FsToolkitErrorHandlingCentralVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentral)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentralVersion)" EffectiveVersion="%(_FsToolkitErrorHandlingCentralVersion.Version)" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' != 'true'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' == 'true' and '%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentralVersion)' == ''" />
+    </ItemGroup>
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)' != '[$(FsToolkitErrorHandlingVersion)]'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)'. FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
+  </Target>
+</Project>

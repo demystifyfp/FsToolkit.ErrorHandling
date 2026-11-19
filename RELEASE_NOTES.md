@@ -1,3 +1,12 @@
+### 6.0.0-beta008 - Unreleased
+
+- [Fix Array and Seq for WebSharper, and run the tests under WebSharper](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/389) Credits @TheAngryByrd
+    - fix: `Array.traverseResultM`, `Array.traverseAsyncResultM`, `Seq.traverseResultM'`, and `Seq.traverseAsyncResultM'` keep the first error in a `voption`, not in `Unchecked.defaultof`. WebSharper can now compile them. The .NET-only `Seq.traverseTaskResultM'` gets the same change.
+    - fix: `List`, `Array`, and `Seq` functions raise `ArgumentNullException` directly, not through `nullArg`. WebSharper has no translation of `nullArg`. The exception is the same.
+    - test: CI runs the `FsToolkit.ErrorHandling` tests under WebSharper in Node.js, with a proxy project that compiles `FsToolkit.ErrorHandling.Sources`.
+    - docs: How to make a WebSharper proxy project from `FsToolkit.ErrorHandling.Sources`.
+    - build: `SourcesTest` and `WebSharperTest` pack `FsToolkit.ErrorHandling.Sources` with a local test version that differs from the release version, so that a restore cannot take the published package. `SourcesTest` checks that the test package has the same source and build files as the release package.
+
 ### 6.0.0-beta007 - November 17, 2026
 
 - [feat(Sources): Add FsToolkit.ErrorHandling.Sources source package](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/382) Credits @TheAngryByrd

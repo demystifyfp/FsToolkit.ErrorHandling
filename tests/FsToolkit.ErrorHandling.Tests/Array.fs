@@ -44,6 +44,28 @@ let traverseResultMTests =
                 actual
                 (Error emptyTweetErrMsg)
                 "traverse the array and return the first error"
+
+        testCase "traverseResultM with few invalid data should exit early"
+        <| fun _ ->
+            let callCount = ref 0
+
+            let tryCreate tweet =
+                callCount.Value <-
+                    callCount.Value
+                    + 1
+
+                Tweet.TryCreate tweet
+
+            let actual =
+                Array.traverseResultM tryCreate [|
+                    "Hello"
+                    ""
+                    aLongerInvalidTweet
+                    "World"
+                |]
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error emptyTweetErrMsg) "Should return the first error"
     ]
 
 let traverseOptionMTests =
@@ -347,6 +369,31 @@ let traverseAsyncResultMTests =
 
             do! Expect.hasAsyncErrorValue expected actual
         }
+
+        testCaseAsync "traverseAsyncResultM with few invalid data should exit early"
+        <| async {
+            let callCount = ref 0
+
+            let evenIsError x =
+                async {
+                    callCount.Value <-
+                        callCount.Value
+                        + 1
+
+                    return if x % 2 = 0 then Error(sprintf "error: %d" x) else Ok x
+                }
+
+            let! actual =
+                Array.traverseAsyncResultM evenIsError [|
+                    1
+                    2
+                    3
+                    4
+                |]
+
+            Expect.equal callCount.Value 2 "Should stop at the first error"
+            Expect.equal actual (Error "error: 2") "Should return the first error"
+        }
     ]
 
 let traverseAsyncOptionMTests =
@@ -609,6 +656,31 @@ let sequenceVOptionMTests =
 
 #endif
 
+#if !FABLE_COMPILER
+let nullInputTests =
+    let argumentNullParamName (call: unit -> 'a) =
+        try
+            call ()
+            |> ignore
+
+            None
+        with :? ArgumentNullException as e ->
+            Some e.ParamName
+
+    testList "Array null input Tests" [
+        testCase "partitionResults raises ArgumentNullException for input"
+        <| fun _ ->
+            Expect.equal
+                (argumentNullParamName (fun () ->
+                    Array.partitionResults (Unchecked.defaultof<Result<int, string>[]>)
+                ))
+                (Some "input")
+                "Should name the null parameter"
+
+    ]
+
+#endif
+
 let allTests =
     testList "Array Tests" [
         traverseResultMTests
@@ -628,5 +700,6 @@ let allTests =
 #if !FABLE_COMPILER
         traverseVOptionMTests
         sequenceVOptionMTests
+        nullInputTests
 #endif
     ]
