@@ -68,7 +68,7 @@ module Pyxpecto =
     type private Kind =
         | Run
         | SourcePending
-        | WebSharperPending of reason: string
+        | WebSharperPending of WebSharperPending.Cause
 
     type private FlatTest = {
         Name: string
@@ -80,6 +80,7 @@ module Pyxpecto =
     type private Outcome =
         | Passed
         | Failed of string
+        | TimedOut
         | NotRun
 
     let rec private hasFocus test =
@@ -144,16 +145,24 @@ module Pyxpecto =
         |> List.map fst
 
     let private applyWebSharperPending (tests: FlatTest list) =
-        let unknown =
-            WebSharperPending.tests
-            |> List.map fst
-            |> List.filter (fun name ->
-                tests
-                |> List.forall (fun test ->
-                    test.Name
-                    <> name
-                )
-            )
+        let problems = [
+            for name, _ in WebSharperPending.tests do
+                match
+                    tests
+                    |> List.tryFind (fun test -> test.Name = name)
+                with
+                | None -> $"WebSharperPending names a test that does not exist: {name}"
+                | Some test when test.Kind = SourcePending ->
+                    $"WebSharperPending names a test that the source marks pending: {name}"
+                | Some _ -> ()
+
+            for name in
+                duplicates (
+                    WebSharperPending.tests
+                    |> List.map fst
+                ) do
+                $"WebSharperPending names this test more than one time: {name}"
+        ]
 
         let tests =
             tests
@@ -162,14 +171,14 @@ module Pyxpecto =
                     WebSharperPending.tests
                     |> List.tryFind (fun (name, _) -> name = test.Name)
                 with
-                | Some(_, reason) when test.Kind = Run -> {
+                | Some(_, cause) when test.Kind = Run -> {
                       test with
-                          Kind = WebSharperPending reason
+                          Kind = WebSharperPending cause
                   }
                 | _ -> test
             )
 
-        tests, unknown
+        tests, problems
 
     let private run (test: FlatTest) =
         async {
@@ -177,8 +186,9 @@ module Pyxpecto =
                 let! child = Async.StartChild(test.Body, testTimeoutMilliseconds)
                 do! child
                 return Passed
-            with e ->
-                return Failed e.Message
+            with
+            | :? System.TimeoutException -> return TimedOut
+            | e -> return Failed e.Message
         }
 
     [<Inline "process.stdout.write('', () => process.exit($code))">]
@@ -187,20 +197,9 @@ module Pyxpecto =
     let runTests (_args: string[]) (tests: TestCase) : obj =
         async {
             let anyFocused = hasFocus tests
-            let all, unknown = applyWebSharperPending (flatten "" false false tests)
+            let all, pendingProblems = applyWebSharperPending (flatten "" false false tests)
 
-            let duplicateNames =
-                duplicates (
-                    all
-                    |> List.map (fun test -> test.Name)
-                )
-
-            let duplicatePending =
-                duplicates (
-                    WebSharperPending.tests
-                    |> List.map fst
-                )
-
+            // A test that times out can still run, so the run stops at the first timeout.
             let rec runAll (remaining: FlatTest list) results =
                 async {
                     match remaining with
@@ -217,84 +216,90 @@ module Pyxpecto =
                             | Run
                             | WebSharperPending _ -> run test
 
-                        return!
-                            runAll
-                                rest
-                                ((test, outcome)
-                                 :: results)
+                        let results =
+                            (test, outcome)
+                            :: results
+
+                        if outcome = TimedOut then
+                            return List.rev results
+                        else
+                            return! runAll rest results
                 }
 
             let! results = runAll all []
 
-            let count predicate =
-                results
-                |> List.filter predicate
-                |> List.length
+            let problems = [
+                yield! pendingProblems
+
+                for name in
+                    duplicates (
+                        all
+                        |> List.map (fun test -> test.Name)
+                    ) do
+                    $"Two or more tests have the name: {name}"
+
+                if anyFocused then
+                    "The run has focused tests. Remove ftestCase, ftestCaseAsync, and ftestList."
+
+                for test, outcome in results do
+                    match test.Kind, outcome with
+                    | _, TimedOut ->
+                        $"{test.Name} did not finish in {testTimeoutMilliseconds} ms. The run stopped."
+                    | WebSharperPending _, Passed ->
+                        $"{test.Name} passes now. Remove it from WebSharperPending.fs."
+                    | WebSharperPending cause, Failed message when
+                        not (message.Contains(WebSharperPending.Cause.messageFragment cause))
+                        ->
+                        $"{test.Name} fails for another cause than the one in WebSharperPending.fs: {message}"
+                    | _ -> ()
+            ]
+
+            let failed = [
+                for test, outcome in results do
+                    match test.Kind, outcome with
+                    | Run, Failed message -> test.Name, message
+                    | _ -> ()
+            ]
 
             let passed =
-                count (fun (test, outcome) ->
+                results
+                |> List.filter (fun (test, outcome) ->
                     test.Kind = Run
                     && outcome = Passed
                 )
+                |> List.length
 
-            let failed =
-                results
-                |> List.choose (fun (test, outcome) ->
-                    match test.Kind, outcome with
-                    | Run, Failed message -> Some(test.Name, message)
-                    | _ -> None
-                )
-
-            let pendingOnWebSharper =
-                results
-                |> List.choose (fun (test, outcome) ->
+            let pendingOnWebSharper = [
+                for test, _ in results do
                     match test.Kind with
-                    | WebSharperPending reason -> Some(test.Name, reason, outcome)
-                    | _ -> None
-                )
+                    | WebSharperPending cause -> test.Name, WebSharperPending.Cause.reason cause
+                    | _ -> ()
+            ]
 
-            let passedOnWebSharper =
-                pendingOnWebSharper
-                |> List.filter (fun (_, _, outcome) -> outcome = Passed)
-
-            for name, reason, _ in pendingOnWebSharper do
+            for name, reason in pendingOnWebSharper do
                 printfn "PENDING %s [pending on WebSharper: %s]" name reason
 
             for name, message in failed do
                 printfn "FAILED %s\n    %s" name message
 
-            for name, _, _ in passedOnWebSharper do
-                printfn "ERROR %s passes now. Remove it from WebSharperPending.fs." name
-
-            for name in unknown do
-                printfn "ERROR WebSharperPending names a test that does not exist: %s" name
-
-            for name in duplicateNames do
-                printfn "ERROR Two or more tests have the name: %s" name
-
-            for name in duplicatePending do
-                printfn "ERROR WebSharperPending names this test more than one time: %s" name
-
-            if anyFocused then
-                printfn
-                    "ERROR The run has focused tests. Remove ftestCase, ftestCaseAsync, and ftestList."
+            for problem in problems do
+                printfn "ERROR %s" problem
 
             printfn
-                "WebSharper: %d passed, %d failed, %d pending on WebSharper, %d not run, %d total."
+                "WebSharper: %d passed, %d failed, %d pending on WebSharper, %d not run, %d of %d tests reached."
                 passed
                 failed.Length
                 pendingOnWebSharper.Length
-                (count (fun (_, outcome) -> outcome = NotRun))
+                (results
+                 |> List.filter (fun (_, outcome) -> outcome = NotRun)
+                 |> List.length)
                 results.Length
+                all.Length
 
             let succeeded =
                 failed.IsEmpty
-                && passedOnWebSharper.IsEmpty
-                && unknown.IsEmpty
-                && duplicateNames.IsEmpty
-                && duplicatePending.IsEmpty
+                && problems.IsEmpty
                 && passed > 0
-                && not anyFocused
 
             exitAfterOutput (if succeeded then 0 else 1)
         }

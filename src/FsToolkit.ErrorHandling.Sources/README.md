@@ -122,7 +122,7 @@ Put this `wsconfig.json` file in the folder of the proxy project:
 These settings are necessary:
 
 - `"proxyTargetName": "FsToolkit.ErrorHandling"` tells WebSharper that the proxy translates the types of the `FsToolkit.ErrorHandling` assembly. The proxy assembly does not contain the .NET types.
-- `FABLE_COMPILER` removes the `Task` files, which WebSharper cannot translate. It also removes the other code in `#if !FABLE_COMPILER` blocks: `traverseVOptionM` and `sequenceVOptionM` of `Array`, `List`, and `Seq`, `Option.tryParse`, `Option.tryGetValue`, and the `Task` and `IAsyncDisposable` overloads of the async computation expressions. Client code cannot call these functions.
+- `FABLE_COMPILER` removes the `Task` files, which WebSharper cannot translate. It also removes the other code in `#if !FABLE_COMPILER` blocks: each function that takes or returns a `Task`, for example `List.traverseTaskResultM` and `AsyncResult.ofTask`, and also `traverseVOptionM` and `sequenceVOptionM` of `Array`, `List`, and `Seq`, `Option.tryParse`, `Option.tryGetValue`, and the `IAsyncDisposable` overloads of the async computation expressions. Client code cannot call this code.
 - Keep the default `FsToolkitErrorHandlingNamespace`. WebSharper finds the proxy types by their full names, so the namespace must be `FsToolkit.ErrorHandling`.
 - `IsPackable` `false` and `PrivateAssets="all"` each prevent warning `FSTKSRC001`.
 
@@ -155,19 +155,22 @@ WebSharper compiles the client code against the binary package and gets the Java
 </Project>
 ```
 
-This `Directory.Build.targets` file stops the restore and the build when a reference to one of the two packages does not have the exact range `[$(FsToolkitErrorHandlingVersion)]`. It reads the `Version` and the `VersionOverride` of `PackageReference` items. With central package management, it also reads the `PackageVersion` items of the packages that the project references. It does not see a version that a project gets through another package.
+This `Directory.Build.targets` file stops the restore and the build when a direct reference to one of the two packages does not have the exact range `[$(FsToolkitErrorHandlingVersion)]`. For each reference, it reads the `VersionOverride`, then the `Version`, then the `PackageVersion` of central package management. A reference without a version also stops the build. The check does not see a version that a project gets through another package.
 
 ```xml
 <Project>
   <Target Name="FsToolkitErrorHandlingVersionCheck" BeforeTargets="CollectPackageReferences">
     <ItemGroup>
       <_FsToolkitErrorHandlingReference Include="@(PackageReference)" Condition="'%(Identity)' == 'FsToolkit.ErrorHandling' or '%(Identity)' == 'FsToolkit.ErrorHandling.Sources'" />
-      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Condition="'%(_FsToolkitErrorHandlingReference.Version)' != ''" />
-      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" Version="%(_FsToolkitErrorHandlingReference.VersionOverride)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' != ''" />
-      <_FsToolkitErrorHandlingVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingReference)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" EffectiveVersion="%(_FsToolkitErrorHandlingReference.VersionOverride)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingReference)" EffectiveVersion="%(_FsToolkitErrorHandlingReference.Version)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' == '' and '%(_FsToolkitErrorHandlingReference.Version)' != ''" />
+      <_FsToolkitErrorHandlingCentral Include="@(_FsToolkitErrorHandlingReference)" Condition="'%(_FsToolkitErrorHandlingReference.VersionOverride)' == '' and '%(_FsToolkitErrorHandlingReference.Version)' == ''" />
+      <_FsToolkitErrorHandlingCentralVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentral)' != ''" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentralVersion)" EffectiveVersion="%(_FsToolkitErrorHandlingCentralVersion.Version)" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' != 'true'" />
     </ItemGroup>
-    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.Version)' != '[$(FsToolkitErrorHandlingVersion)]'"
-           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version %(_FsToolkitErrorHandlingVersion.Version). FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
+    <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)' != '[$(FsToolkitErrorHandlingVersion)]'"
+           Text="%(_FsToolkitErrorHandlingVersion.Identity) has version '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)'. FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
   </Target>
 </Project>
 ```
@@ -178,7 +181,7 @@ Paket does not make `PackageReference` items, so the check does not see a Paket 
 
 With WebSharper 10.1.10, some code compiles to JavaScript that does not behave as on .NET:
 
-- `use` in the `result`, `resultOption`, and `validation` computation expressions, `use` and `try`/`finally` in the `voption` computation expression, and `Validation.apply` compile to JavaScript that uses an undeclared variable.
+- `use` in the `result`, `resultOption`, and `validation` computation expressions, `use` and `try`/`finally` in the `voption` computation expression, and some calls of `Validation.apply` compile to JavaScript that uses an undeclared variable.
 - `ValueOption.tryGetValue` calls `TryGetValue` as a JavaScript method. The object that `dict` makes does not have that method.
 - WebSharper compiles `()` to `null` in some places and to `undefined` in others. `=` then gives `false` for two `unit` values.
 

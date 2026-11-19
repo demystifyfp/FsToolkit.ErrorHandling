@@ -855,7 +855,7 @@ let webSharperTest ctx =
     ]
     |> Shell.cleanDirs
 
-    let sourcesVersion = $"0.0.0-websharpertest.{System.DateTime.UtcNow:yyyyMMddHHmmss}"
+    let sourcesVersion = $"0.0.0-ws.{System.DateTime.UtcNow:yyMMddHHmmss}"
 
     let withSourcesParams (msbuildParams: MSBuild.CliArguments) =
         {
