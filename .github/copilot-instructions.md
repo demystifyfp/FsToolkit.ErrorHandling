@@ -28,7 +28,7 @@ Always reference these instructions first and fallback to search or bash command
 - `./build.sh NpmTest` -- compiles F# to JavaScript via Fable and runs tests. Takes ~50 seconds. NEVER CANCEL. Set timeout to 120+ seconds.
 - `./build.sh PythonTest` -- compiles F# to Python via Fable and runs tests. Takes ~2 minutes. NEVER CANCEL. Set timeout to 300+ seconds.
 - `./build.sh WebSharperTest` -- packs `FsToolkit.ErrorHandling.Sources`, compiles a WebSharper proxy from it, and runs the `FsToolkit.ErrorHandling.Tests` tests under WebSharper in Node.js. Takes ~1 minute. NEVER CANCEL. Set timeout to 300+ seconds.
-- `./build.sh RunTests` -- runs ALL tests (F#, JavaScript, Python, WebSharper). Takes ~4.5 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
+- `./build.sh RunTests` -- runs ALL tests (F#, JavaScript, Python, WebSharper). Takes ~6 minutes. NEVER CANCEL. Set timeout to 600+ seconds.
 - `./build.sh FormatCode` -- formats F# code using Fantomas. Takes ~5 seconds. NEVER CANCEL.
 - `./build.sh CheckFormatCode` -- validates code formatting. Takes ~5 seconds. NEVER CANCEL.
 - `./build.sh Clean` -- cleans bin/obj folders. Takes <1 second.
@@ -149,7 +149,7 @@ gitbook/                       # Documentation source
 - **F# test failures**: Run `./build.sh DotnetTest` to isolate .NET issues
 - **JavaScript test failures**: Check Node.js version (requires 18.0.0+), run `./build.sh NpmTest`
 - **Python test failures**: Check Python version (requires 3.12.0+), run `./build.sh PythonTest`
-- **WebSharper test failures**: Run `./build.sh WebSharperTest`. A test that fails only under WebSharper because of a WebSharper limitation goes in `tests/FsToolkit.ErrorHandling.WebSharper/TestAdapter/WebSharperPending.fs`, with the reason
+- **WebSharper test failures**: Run `./build.sh WebSharperTest`. A test that fails only under WebSharper because of a WebSharper limitation goes in `tests/FsToolkit.ErrorHandling.WebSharper/TestAdapter/WebSharperPending.fs` with its `Cause`. The runner still runs the test and accepts only the failure message that `Cause.explains` matches. For a new kind of failure, add a `Cause` case with its `reason` and `explains` rule
 - **Fable plugin warnings**: Ignore "Could not scan" warnings for Microsoft.TestPlatform assemblies - these are normal
 
 ### Format Issues
