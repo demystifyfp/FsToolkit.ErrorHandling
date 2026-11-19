@@ -8,6 +8,7 @@
       <_FsToolkitErrorHandlingCentralVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentral)' != ''" />
       <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentralVersion)" EffectiveVersion="%(_FsToolkitErrorHandlingCentralVersion.Version)" />
       <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' != 'true'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' == 'true' and '%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentralVersion)' == ''" />
     </ItemGroup>
     <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)' != '[$(FsToolkitErrorHandlingVersion)]'"
            Text="%(_FsToolkitErrorHandlingVersion.Identity) has version '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)'. FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />

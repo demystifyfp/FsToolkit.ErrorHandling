@@ -182,13 +182,23 @@ module Pyxpecto =
 
     let private run (test: FlatTest) =
         async {
+            let body =
+                async {
+                    try
+                        do! test.Body
+                        return None
+                    with e ->
+                        return Some e.Message
+                }
+
             try
-                let! child = Async.StartChild(test.Body, testTimeoutMilliseconds)
-                do! child
-                return Passed
-            with
-            | :? System.TimeoutException -> return TimedOut
-            | e -> return Failed e.Message
+                let! child = Async.StartChild(body, testTimeoutMilliseconds)
+
+                match! child with
+                | None -> return Passed
+                | Some message -> return Failed message
+            with :? System.TimeoutException ->
+                return TimedOut
         }
 
     [<Inline "process.stdout.write('', () => process.exit($code))">]
@@ -248,7 +258,7 @@ module Pyxpecto =
                     | WebSharperPending _, Passed ->
                         $"{test.Name} passes now. Remove it from WebSharperPending.fs."
                     | WebSharperPending cause, Failed message when
-                        not (message.Contains(WebSharperPending.Cause.messageFragment cause))
+                        not (WebSharperPending.Cause.explains cause message)
                         ->
                         $"{test.Name} fails for another cause than the one in WebSharperPending.fs: {message}"
                     | _ -> ()
@@ -258,6 +268,7 @@ module Pyxpecto =
                 for test, outcome in results do
                     match test.Kind, outcome with
                     | Run, Failed message -> test.Name, message
+                    | Run, TimedOut -> test.Name, $"did not finish in {testTimeoutMilliseconds} ms"
                     | _ -> ()
             ]
 

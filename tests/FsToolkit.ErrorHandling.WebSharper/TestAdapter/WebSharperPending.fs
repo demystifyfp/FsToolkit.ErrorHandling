@@ -15,12 +15,53 @@ module Cause =
         | MemberConstraint ->
             "WebSharper calls the TryGetValue member constraint as a JavaScript method that the dict object does not have"
 
-    /// The failure message of a test with this cause contains this text.
-    let messageFragment cause =
+    let private expectedAndActual (message: string) =
+        let split (start: string) (separator: string) =
+            let i = message.IndexOf start
+            let j = message.LastIndexOf separator
+
+            if
+                i >= 0
+                && j > i
+            then
+                Some(
+                    message.Substring(
+                        i
+                        + start.Length,
+                        j
+                        - i
+                        - start.Length
+                    ),
+                    message.Substring(
+                        j
+                        + separator.Length
+                    )
+                )
+            else
+                None
+
+        match split "Expected: " ". Actual: " with
+        | Some pair -> Some pair
+        | None -> split "Expected " ", was "
+
+    /// True when the failure message is the one that this cause gives.
+    let explains cause (message: string) =
         match cause with
-        | UnitEquality -> "undefined"
-        | UndeclaredVariable -> "MISSINGVAR"
-        | MemberConstraint -> "TryGetValue is not a function"
+        | UnitEquality ->
+            // Expect.equal and TestHelpers.Expect name both values. They must differ only in null and undefined.
+            match expectedAndActual message with
+            | Some(expected, actual) ->
+                let normalize (value: string) =
+                    value.TrimEnd('.').Replace("undefined", "null")
+
+                expected
+                <> actual.TrimEnd('.')
+                && normalize expected = normalize actual
+            | None -> false
+        | UndeclaredVariable ->
+            message.StartsWith "MISSINGVAR"
+            && message.EndsWith "is not defined"
+        | MemberConstraint -> message.EndsWith "TryGetValue is not a function"
 
 /// Tests that fail only under WebSharper, as full test names with the cause.
 /// The run fails when a name does not match a test, or when a test passes or fails for another cause.

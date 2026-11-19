@@ -122,7 +122,7 @@ Put this `wsconfig.json` file in the folder of the proxy project:
 These settings are necessary:
 
 - `"proxyTargetName": "FsToolkit.ErrorHandling"` tells WebSharper that the proxy translates the types of the `FsToolkit.ErrorHandling` assembly. The proxy assembly does not contain the .NET types.
-- `FABLE_COMPILER` removes the `Task` files, which WebSharper cannot translate. It also removes the other code in `#if !FABLE_COMPILER` blocks: each function that takes or returns a `Task`, for example `List.traverseTaskResultM` and `AsyncResult.ofTask`, and also `traverseVOptionM` and `sequenceVOptionM` of `Array`, `List`, and `Seq`, `Option.tryParse`, `Option.tryGetValue`, and the `IAsyncDisposable` overloads of the async computation expressions. Client code cannot call this code.
+- `FABLE_COMPILER` removes the `Task` files, which WebSharper cannot translate. It also removes the other code in `#if !FABLE_COMPILER` blocks. Examples are each function that takes or returns a `Task` (such as `List.traverseTaskResultM` and `AsyncResult.ofTask`), the `voption` functions of `Array`, `List`, and `Seq` (such as `Seq.traverseVOptionM'`), `Option.tryParse`, `Option.tryGetValue`, and the `IAsyncDisposable` overloads of the async computation expressions. Client code cannot call this code.
 - Keep the default `FsToolkitErrorHandlingNamespace`. WebSharper finds the proxy types by their full names, so the namespace must be `FsToolkit.ErrorHandling`.
 - `IsPackable` `false` and `PrivateAssets="all"` each prevent warning `FSTKSRC001`.
 
@@ -155,7 +155,7 @@ WebSharper compiles the client code against the binary package and gets the Java
 </Project>
 ```
 
-This `Directory.Build.targets` file stops the restore and the build when a direct reference to one of the two packages does not have the exact range `[$(FsToolkitErrorHandlingVersion)]`. For each reference, it reads the `VersionOverride`, then the `Version`, then the `PackageVersion` of central package management. A reference without a version also stops the build. The check does not see a version that a project gets through another package.
+This `Directory.Build.targets` file stops the restore and the build when a direct reference to one of the two packages does not have the exact range `[$(FsToolkitErrorHandlingVersion)]`. For each reference, it reads the `VersionOverride`, then the `Version`, then the `PackageVersion` of central package management. A reference without a version, or without a central `PackageVersion`, also stops the build. The check does not see a version that a project gets through another package.
 
 ```xml
 <Project>
@@ -168,6 +168,7 @@ This `Directory.Build.targets` file stops the restore and the build when a direc
       <_FsToolkitErrorHandlingCentralVersion Include="@(PackageVersion)" Condition="'%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentral)' != ''" />
       <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentralVersion)" EffectiveVersion="%(_FsToolkitErrorHandlingCentralVersion.Version)" />
       <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' != 'true'" />
+      <_FsToolkitErrorHandlingVersion Include="@(_FsToolkitErrorHandlingCentral)" EffectiveVersion="" Condition="'$(ManagePackageVersionsCentrally)' == 'true' and '%(Identity)' != '' and '@(_FsToolkitErrorHandlingCentralVersion)' == ''" />
     </ItemGroup>
     <Error Condition="'@(_FsToolkitErrorHandlingVersion)' != '' and '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)' != '[$(FsToolkitErrorHandlingVersion)]'"
            Text="%(_FsToolkitErrorHandlingVersion.Identity) has version '%(_FsToolkitErrorHandlingVersion.EffectiveVersion)'. FsToolkit.ErrorHandling and FsToolkit.ErrorHandling.Sources must both have the exact version [$(FsToolkitErrorHandlingVersion)]." />
