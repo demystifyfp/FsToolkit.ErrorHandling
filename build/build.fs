@@ -703,6 +703,28 @@ let failOnDependencyDrift () =
             expected
             actual
 
+/// Packs FsToolkit.ErrorHandling.Sources into feedDir with a version that nuget.org does not have,
+/// so that a restore from nuget.org and feedDir can only take this package.
+let packSourcesForTest ctx (feedDir: string) =
+    Shell.cleanDirs [ feedDir ]
+    let version = $"0.0.0-local.{System.DateTime.UtcNow:yyMMddHHmmss}"
+
+    DotNet.pack
+        (fun p -> {
+            p with
+                OutputPath = Some feedDir
+                Configuration = configuration ctx.Context.AllExecutingTargets
+                MSBuildParams =
+                    {
+                        p.MSBuildParams with
+                            Properties = [ ("Version", version) ]
+                    }
+                    |> BuildParameters.common
+        })
+        sourcesProject
+
+    version
+
 let sourcesTest ctx =
     failOnTestFileDrift ()
     failOnDocsDrift ()
@@ -715,12 +737,18 @@ let sourcesTest ctx =
 
     Shell.deleteDir packagesDir
 
+    let feedDir =
+        rootDir
+        </> "obj/sources-test-feed"
+
+    let sourcesVersion = packSourcesForTest ctx feedDir
+
     let withFixtureParams (msbuildParams: MSBuild.CliArguments) =
         {
             msbuildParams with
                 Properties = [
                     ("RestorePackagesPath", packagesDir)
-                    ("FsToolkitErrorHandlingSourcesVersion", release.NugetVersion)
+                    ("FsToolkitErrorHandlingSourcesVersion", sourcesVersion)
                 ]
         }
         |> BuildParameters.common
@@ -746,7 +774,7 @@ let sourcesTest ctx =
                     // SDK 10.0.403 reads a URL source that follows a local folder source as a relative path (NU1301).
                     Sources = [
                         "https://api.nuget.org/v3/index.json"
-                        distDir
+                        feedDir
                     ]
                     MSBuildParams = withFixtureParams c.MSBuildParams
             })
@@ -829,8 +857,6 @@ let webSharperTest ctx =
         </> "obj/websharper-test-packages"
 
     // NuGet and the SDK do not write a package or its preprocessed content files again for a version that they already have.
-    Shell.cleanDirs [ feedDir ]
-
     Shell.deleteDir (
         packagesDir
         </> "fstoolkit.errorhandling.sources"
@@ -855,7 +881,7 @@ let webSharperTest ctx =
     ]
     |> Shell.cleanDirs
 
-    let sourcesVersion = $"0.0.0-ws.{System.DateTime.UtcNow:yyMMddHHmmss}"
+    let sourcesVersion = packSourcesForTest ctx feedDir
 
     let withSourcesParams (msbuildParams: MSBuild.CliArguments) =
         {
@@ -866,20 +892,6 @@ let webSharperTest ctx =
                 ]
         }
         |> BuildParameters.common
-
-    DotNet.pack
-        (fun p -> {
-            p with
-                OutputPath = Some feedDir
-                Configuration = configuration ctx.Context.AllExecutingTargets
-                MSBuildParams =
-                    {
-                        p.MSBuildParams with
-                            Properties = [ ("Version", sourcesVersion) ]
-                    }
-                    |> BuildParameters.common
-        })
-        sourcesProject
 
     let runnerProject =
         webSharperRunnerDir

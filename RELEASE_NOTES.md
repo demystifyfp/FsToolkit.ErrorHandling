@@ -5,6 +5,7 @@
     - fix: `List`, `Array`, and `Seq` functions raise `ArgumentNullException` directly, not through `nullArg`. WebSharper has no translation of `nullArg`. The exception is the same.
     - test: CI runs the `FsToolkit.ErrorHandling` tests under WebSharper in Node.js, with a proxy project that compiles `FsToolkit.ErrorHandling.Sources`.
     - docs: How to make a WebSharper proxy project from `FsToolkit.ErrorHandling.Sources`.
+    - build: `SourcesTest` and `WebSharperTest` pack `FsToolkit.ErrorHandling.Sources` with a unique local version, so that a restore cannot take the published package with the same version.
 
 ### 6.0.0-beta007 - November 17, 2026
 
