@@ -1,4 +1,4 @@
-### 6.0.0-beta008 - Unreleased
+### 6.0.0-beta008 - November 19, 2026
 
 - [Fix Array and Seq for WebSharper, and run the tests under WebSharper](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/389) Credits @TheAngryByrd
     - fix: `Array.traverseResultM`, `Array.traverseAsyncResultM`, `Seq.traverseResultM'`, and `Seq.traverseAsyncResultM'` keep the first error in a `voption`, not in `Unchecked.defaultof`. WebSharper can now compile them. The .NET-only `Seq.traverseTaskResultM'` gets the same change.
