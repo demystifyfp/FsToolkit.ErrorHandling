@@ -707,7 +707,7 @@ let failOnDependencyDrift () =
 /// so that a restore from nuget.org and feedDir can only take this package.
 let packSourcesForTest ctx (feedDir: string) =
     Shell.cleanDirs [ feedDir ]
-    let version = $"0.0.0-local.{System.DateTime.UtcNow:yyMMddHHmmss}"
+    let version = $"0.0.0-t.{System.DateTime.UtcNow:yyMMddHHmmss}"
 
     DotNet.pack
         (fun p -> {
@@ -724,6 +724,44 @@ let packSourcesForTest ctx (feedDir: string) =
         sourcesProject
 
     version
+
+let failOnPackageContentDrift (testPackage: string) =
+    let releasePackage =
+        distDir
+        </> $"FsToolkit.ErrorHandling.Sources.{release.NugetVersion}.nupkg"
+
+    let content (nupkg: string) =
+        use archive = System.IO.Compression.ZipFile.OpenRead nupkg
+        use sha = System.Security.Cryptography.SHA256.Create()
+
+        archive.Entries
+        |> Seq.filter (fun entry ->
+            entry.FullName.StartsWith("contentFiles/", System.StringComparison.Ordinal)
+            || entry.FullName.StartsWith("build/", System.StringComparison.Ordinal)
+        )
+        |> Seq.map (fun entry ->
+            use stream = entry.Open()
+            entry.FullName, System.Convert.ToHexString(sha.ComputeHash stream)
+        )
+        |> Seq.sort
+        |> Seq.toList
+
+    let expected = content releasePackage
+    let actual = content testPackage
+
+    if expected.IsEmpty then
+        failwithf "%s has no contentFiles or build entries." releasePackage
+
+    if
+        actual
+        <> expected
+    then
+        failwithf
+            "The contentFiles and build entries of %s must be the same as in %s, so that SourcesTest tests the files that the release ships.\nRelease: %A\nTest: %A"
+            testPackage
+            releasePackage
+            expected
+            actual
 
 let sourcesTest ctx =
     failOnTestFileDrift ()
@@ -742,6 +780,11 @@ let sourcesTest ctx =
         </> "obj/sources-test-feed"
 
     let sourcesVersion = packSourcesForTest ctx feedDir
+
+    failOnPackageContentDrift (
+        feedDir
+        </> $"FsToolkit.ErrorHandling.Sources.{sourcesVersion}.nupkg"
+    )
 
     let withFixtureParams (msbuildParams: MSBuild.CliArguments) =
         {
