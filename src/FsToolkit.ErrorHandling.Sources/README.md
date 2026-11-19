@@ -182,9 +182,9 @@ Paket does not make `PackageReference` items, so the check does not see a Paket 
 
 With WebSharper 10.1.10, some code compiles to JavaScript that does not behave as on .NET:
 
-- `use` in the `result`, `resultOption`, and `validation` computation expressions, `use` and `try`/`finally` in the `voption` computation expression, and some calls of `Validation.apply` compile to JavaScript that uses an undeclared variable.
-- `ValueOption.tryGetValue` calls `TryGetValue` as a JavaScript method. The object that `dict` makes does not have that method.
-- WebSharper compiles `()` to `null` in some places and to `undefined` in others. `=` then gives `false` for two `unit` values.
+- `use` in the `result`, `resultOption`, and `validation` computation expressions, `use` and `try`/`finally` in the `voption` computation expression, and some calls of `Validation.apply` compile to JavaScript that uses an undeclared variable ([dotnet-websharper/core#1623](https://github.com/dotnet-websharper/core/issues/1623)).
+- `ValueOption.tryGetValue` calls `TryGetValue` as a JavaScript method. The object that `dict` makes does not have that method ([dotnet-websharper/core#1621](https://github.com/dotnet-websharper/core/issues/1621)).
+- WebSharper compiles `()` to `null` in some places and to `undefined` in others. `=` then gives `false` for two `unit` values ([dotnet-websharper/core#1622](https://github.com/dotnet-websharper/core/issues/1622)).
 
 [WebSharperPending.fs](https://github.com/demystifyfp/FsToolkit.ErrorHandling/blob/master/tests/FsToolkit.ErrorHandling.WebSharper/TestAdapter/WebSharperPending.fs) lists each test that fails only with WebSharper.
 
