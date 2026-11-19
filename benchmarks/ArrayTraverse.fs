@@ -199,7 +199,7 @@ type ArrayTraverseBenchmarks() =
     let toResult x = if x < 0 then Error x else Ok(x + 1)
     let toAsyncResult x = async { return toResult x }
 
-    [<Params(0, 1, 5, 50)>]
+    [<Params(0, 1, 10, 100, 1000)>]
     member val Size = 0 with get, set
 
     [<Params(false, true)>]
