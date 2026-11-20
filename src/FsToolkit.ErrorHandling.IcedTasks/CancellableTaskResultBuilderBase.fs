@@ -19,6 +19,7 @@ module CancellableTaskResultBuilderBase =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
+    /// <exclude/>
     /// <summary>An awaiter whose result <c>let!</c> binds as it is.</summary>
     /// <remarks>
     /// The <c>Source</c> members of the cancellable builders wrap each awaiter whose result is not the builder's
@@ -1097,7 +1098,7 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module LowPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskResultBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1198,7 +1199,7 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module MedHighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskResultBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1206,7 +1207,9 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskAwaiter: TaskAwaiter<Result<'T, 'Error>>) : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
+            member inline _.Source
+                (taskAwaiter: TaskAwaiter<Result<'T, 'Error>>)
+                : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 taskAwaiter
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1214,7 +1217,9 @@ module CancellableTaskResultBuilderBase =
             /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskT: Task<Result<'T, 'Error>>) : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
+            member inline _.Source
+                (taskT: Task<Result<'T, 'Error>>)
+                : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 Awaitable.GetTaskAwaiter taskT
 
             member inline _.Source
@@ -1321,7 +1326,7 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module HighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskResultBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1350,7 +1355,8 @@ module CancellableTaskResultBuilderBase =
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
-                ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<Result<'T, 'Error>>)
+                ([<InlineIfLambda>] cancellableTaskAwaiter:
+                    CancellationToken -> TaskAwaiter<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun ct -> (cancellableTaskAwaiter ct))
 
@@ -1399,4 +1405,3 @@ module CancellableTaskResultBuilderBase =
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline this.Source(choice: Choice<'T, 'Error>) =
                 this.Source(ValueTask<_>(Result.ofChoice choice))
-

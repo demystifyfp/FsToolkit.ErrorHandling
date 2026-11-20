@@ -1004,7 +1004,7 @@ module CancellableValueTaskOptionCE =
     [<AutoOpen>]
     module LowPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableValueTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1104,7 +1104,7 @@ module CancellableValueTaskOptionCE =
     [<AutoOpen>]
     module MedHighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableValueTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1112,7 +1112,9 @@ module CancellableValueTaskOptionCE =
             /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskAwaiter: TaskAwaiter<Option<'T>>) : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
+            member inline _.Source
+                (taskAwaiter: TaskAwaiter<Option<'T>>)
+                : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 taskAwaiter
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1120,7 +1122,9 @@ module CancellableValueTaskOptionCE =
             /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskT: Task<Option<'T>>) : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
+            member inline _.Source
+                (taskT: Task<Option<'T>>)
+                : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 Awaitable.GetTaskAwaiter taskT
 
             member inline _.Source
@@ -1238,11 +1242,6 @@ module CancellableValueTaskOptionCE =
                 (fun ct -> PlainAwaiter(Awaitable.GetTaskAwaiter(task ct)))
 
 
-
-
-
-
-
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a CancellableValueTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1258,7 +1257,7 @@ module CancellableValueTaskOptionCE =
     [<AutoOpen>]
     module HighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableValueTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1287,7 +1286,8 @@ module CancellableValueTaskOptionCE =
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
-                ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<Option<'T>>)
+                ([<InlineIfLambda>] cancellableTaskAwaiter:
+                    CancellationToken -> TaskAwaiter<Option<'T>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 (fun ct -> (cancellableTaskAwaiter ct))
 

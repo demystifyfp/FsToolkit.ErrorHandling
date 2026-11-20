@@ -740,7 +740,11 @@ module CancellableTaskOptionBuilderBase =
 
                             false
                     else
-                        CancellableTaskOptionBuilderBase.BindDynamic(&sm, awaiterT.Awaiter, continuation)
+                        CancellableTaskOptionBuilderBase.BindDynamic(
+                            &sm,
+                            awaiterT.Awaiter,
+                            continuation
+                        )
                 //-- RESUMABLE CODE END
                 )
 
@@ -998,7 +1002,7 @@ module CancellableTaskOptionBuilderBase =
     [<AutoOpen>]
     module LowPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1099,7 +1103,7 @@ module CancellableTaskOptionBuilderBase =
     [<AutoOpen>]
     module MedHighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1107,7 +1111,9 @@ module CancellableTaskOptionBuilderBase =
             /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskAwaiter: TaskAwaiter<Option<'T>>) : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
+            member inline _.Source
+                (taskAwaiter: TaskAwaiter<Option<'T>>)
+                : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 taskAwaiter
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1115,7 +1121,9 @@ module CancellableTaskOptionBuilderBase =
             /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
-            member inline _.Source(taskT: Task<Option<'T>>) : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
+            member inline _.Source
+                (taskT: Task<Option<'T>>)
+                : Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 Awaitable.GetTaskAwaiter taskT
 
             member inline _.Source
@@ -1219,7 +1227,7 @@ module CancellableTaskOptionBuilderBase =
     [<AutoOpen>]
     module HighPriorityResult =
 
-        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
+        // Each Source here must rank above the plain Source that it mirrors and below the plain Sources of the next module.
         type CancellableTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
@@ -1248,7 +1256,8 @@ module CancellableTaskOptionBuilderBase =
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
-                ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<Option<'T>>)
+                ([<InlineIfLambda>] cancellableTaskAwaiter:
+                    CancellationToken -> TaskAwaiter<Option<'T>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 cancellableTaskAwaiter
 
@@ -1278,4 +1287,3 @@ module CancellableTaskOptionBuilderBase =
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline this.Source(option: Option<'T>) = this.Source(ValueTask<_>(option))
-
