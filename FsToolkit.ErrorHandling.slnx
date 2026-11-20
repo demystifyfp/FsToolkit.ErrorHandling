@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/doc/">
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path="RELEASE_NOTES.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FsToolkit.ErrorHandling.AsyncSeq/FsToolkit.ErrorHandling.AsyncSeq.fsproj" />
+    <Project Path="src/FsToolkit.ErrorHandling.IcedTasks/FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+    <Project Path="src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FsToolkit.ErrorHandling.AsyncSeq.Tests/FsToolkit.ErrorHandling.AsyncSeq.Tests.fsproj" />
+    <Project Path="tests/FsToolkit.ErrorHandling.IcedTasks.Tests/FsToolkit.ErrorHandling.IcedTasks.Tests.fsproj" />
+    <Project Path="tests/FsToolkit.ErrorHandling.Sources.Generator.Tests/FsToolkit.ErrorHandling.Sources.Generator.Tests.fsproj" />
+    <Project Path="tests/FsToolkit.ErrorHandling.Tests/FsToolkit.ErrorHandling.Tests.fsproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/FunctionMap/FunctionMap.fsproj" />
+  </Folder>
+  <Project Path="benchmarks/benchmarks.fsproj" />
+  <Project Path="build/build.fsproj" />
+</Solution>

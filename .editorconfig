@@ -26,12 +26,8 @@ fsharp_array_or_list_multiline_formatter=number_of_items
 fsharp_max_infix_operator_expression=10
 fsharp_multi_line_lambda_closing_newline=true
 
-# Visual Studio Solution Files
-[*.sln]
-indent_style = tab
-
 # XML project files
-[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj,sfproj}]
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj,sfproj,slnx}]
 indent_size = 2
 
 # XML config files

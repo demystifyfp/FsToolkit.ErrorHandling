@@ -9,7 +9,7 @@
                 "build",
                 "-c",
                 "Release",
-                "${workspaceFolder}/FsToolkit.ErrorHandling.sln",
+                "${workspaceFolder}/FsToolkit.ErrorHandling.slnx",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ]
