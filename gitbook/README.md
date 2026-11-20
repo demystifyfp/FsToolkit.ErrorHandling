@@ -9,16 +9,18 @@ With adding a reference to `FsToolkit.ErrorHandling.TaskResult` you will also ha
 It was inspired by [Chessie](https://github.com/fsprojects/Chessie) and Cvdm.ErrorHandling (the latter has now been merged into FsToolkit.ErrorHandling).
 
 FsToolkit.ErrorHandling targets .NET Standard 2.0 and .NET Framework 4.6.1 and supports Fable.
-![DUB](https://img.shields.io/dub/l/vibe-d.svg)
+[![License](https://img.shields.io/github/license/demystifyfp/FsToolkit.ErrorHandling)](https://github.com/demystifyfp/FsToolkit.ErrorHandling/blob/master/License)
 
 
 
 ### Nuget
 
-| Package name | Badge |
-| --- | --- |
-| FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling)
-| FsToolkit.ErrorHandling.TaskResult | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.TaskResult.svg)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.TaskResult)
+| Package name | Release | Prerelease |
+| --- | --- | --- |
+| FsToolkit.ErrorHandling | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling)](https://www.nuget.org/packages/FsToolkit.ErrorHandling) | [![NuGet](https://img.shields.io/nuget/vpre/FsToolkit.ErrorHandling)](https://www.nuget.org/packages/FsToolkit.ErrorHandling/absoluteLatest) |
+| FsToolkit.ErrorHandling.AsyncSeq | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq) | [![NuGet](https://img.shields.io/nuget/vpre/FsToolkit.ErrorHandling.AsyncSeq)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.AsyncSeq/absoluteLatest) |
+| FsToolkit.ErrorHandling.IcedTasks | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.IcedTasks)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks) | [![NuGet](https://img.shields.io/nuget/vpre/FsToolkit.ErrorHandling.IcedTasks)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.IcedTasks/absoluteLatest) |
+| FsToolkit.ErrorHandling.Sources | [![NuGet](https://img.shields.io/nuget/v/FsToolkit.ErrorHandling.Sources)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.Sources) | [![NuGet](https://img.shields.io/nuget/vpre/FsToolkit.ErrorHandling.Sources)](https://www.nuget.org/packages/FsToolkit.ErrorHandling.Sources/absoluteLatest) |
 
 
 ## Note
