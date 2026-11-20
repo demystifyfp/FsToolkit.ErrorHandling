@@ -1,7 +1,7 @@
 ### 6.0.0-beta009 - Unreleased
 
 - [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/PRNUMBER) Credits @TheAngryByrd
-    - BREAKING: `FsToolkit.ErrorHandling.JobResult` (`JobResult`, `JobOption`, `JobResultOption`, and the `List` and `Job` functions for Hopac) is no longer published. Hopac has had no release since 0.5.1 (July 2021). `6.0.0-beta008` and the 5.x versions stay on nuget.org. Move to the `task` or `async` builders, or stay on those versions.
+    - BREAKING: `FsToolkit.ErrorHandling.JobResult` (`JobResult`, `JobOption`, `JobResultOption`, and the `List`, `Result`, and `Job` functions for Hopac, such as `Result.sequenceJob`) is no longer published. Hopac has had no release since 0.5.1 (July 2021). `6.0.0-beta008` and the 5.x versions stay on nuget.org. Move to `taskResult` or `asyncResult`, `taskOption` or `asyncOption`, and `taskResultOption` or `asyncResultOption`, or stay on those versions.
 
 ### 6.0.0-beta008 - November 19, 2026
 

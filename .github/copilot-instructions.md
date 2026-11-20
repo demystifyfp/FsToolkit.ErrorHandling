@@ -47,13 +47,13 @@ Always run these commands before committing changes:
 ### Complete Development Workflow Validation
 Test the complete workflow with: `./build.sh CheckFormatCode && ./build.sh RunTests`
 - Total time: ~4.5-5 minutes
-- Must pass all 3422+ tests across F#, JavaScript, and Python platforms
+- Must pass all tests across F#, JavaScript, Python, and WebSharper (about 7,800)
 - **NEVER CANCEL** - Set timeout to 600+ seconds
 
 ### Manual Testing Scenarios
 After making changes, validate functionality by:
 1. **Build Validation**: Run `./build.sh Build` to ensure compilation succeeds across all target frameworks
-2. **Test Validation**: Run `./build.sh RunTests` to execute the complete test suite (835 JS tests + 2 Python tests + 3406+ F# tests)
+2. **Test Validation**: Run `./build.sh RunTests` to execute the complete test suite (5,216 F# tests, 879 JavaScript tests, 874 Python tests, 877 WebSharper tests)
 3. **Format Validation**: Run `./build.sh CheckFormatCode` to ensure code formatting compliance
 
 ### CI Build Requirements
@@ -168,10 +168,11 @@ gitbook/                       # Documentation source
 - **Cross-platform CI** (~10-15 minutes): Full matrix builds across OS/versions
 
 ### Test Coverage Distribution
-- **F# Tests**: ~3406 tests (comprehensive coverage)
-- **JavaScript Tests**: ~835 tests (via Fable compilation)
-- **Python Tests**: ~2 tests (limited Fable Python support)
-- **Total**: 4243+ tests across all platforms
+- **F# Tests**: 5,216 test runs (`DotnetTest`: each test project on `net10.0` and `net11.0`)
+- **JavaScript Tests**: 879 tests (via Fable compilation)
+- **Python Tests**: 874 tests (via Fable compilation)
+- **WebSharper Tests**: 877 tests (852 pass, 25 pending on WebSharper)
+- **Total**: about 7,800 test runs across all platforms
 
 ### Optimization Tips
 - Use specific targets for faster iteration during development

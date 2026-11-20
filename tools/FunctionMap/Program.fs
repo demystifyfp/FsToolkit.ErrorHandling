@@ -67,6 +67,7 @@ let allModules: list<Module> = [
     Module.Create "Option" "Option"
     Module.Create "ValueOption" "ValueOption"
     Module.Create "Async" "Async"
+    Module.Create "AsyncModule" "Async"
     Module.Create "FSharpAsync" "Async"
     Module.Create "ResultModule" "Result"
     Module.Create "Result" "Result"

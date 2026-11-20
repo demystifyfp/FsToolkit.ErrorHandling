@@ -10,7 +10,7 @@
 |awaitIAsyncResult|||FSharp.Core|||||
 |awaitTask|||FSharp.Core|||||
 |awaitWaitHandle|||FSharp.Core|||||
-|bind|FSharp.Core|FsToolkit||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
+|bind|FSharp.Core|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |bindNull|FsToolkit|FsToolkit||||||
 |bindRequireEmpty||||||FsToolkit|FsToolkit|
 |bindRequireEqual||||||FsToolkit|FsToolkit|
@@ -32,7 +32,7 @@
 |bindResult|||FsToolkit|||FsToolkit|FsToolkit|
 |cancelDefaultToken|||FSharp.Core|||||
 |catch|||FSharp.Core|||FsToolkit|FsToolkit|
-|catchWith||||||FsToolkit|FsToolkit|
+|catchWith|||FsToolkit|||FsToolkit|FsToolkit|
 |check||||FsToolkit||FsToolkit|FsToolkit|
 |choice|||FSharp.Core|||||
 |contains|FSharp.Core|FSharp.Core||FSharp.Core||||
@@ -58,6 +58,7 @@
 |getValue|FSharp.Core|FSharp.Core||||||
 |get_CancellationToken|||FSharp.Core|||||
 |get_DefaultCancellationToken|||FSharp.Core|||||
+|get_empty|||FsToolkit|||||
 |ignore|FsToolkit||FSharp.Core|FsToolkit||FsToolkit|FsToolkit|
 |ignoreError||||FsToolkit||FsToolkit|FsToolkit|
 |isError||||FsToolkit||||
@@ -65,7 +66,7 @@
 |isOk||||FsToolkit||||
 |isSome|FSharp.Core|FSharp.Core||||||
 |iterate|FSharp.Core|FSharp.Core||FSharp.Core||||
-|map|FSharp.Core|FsToolkit||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
+|map|FSharp.Core|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |map2|FSharp.Core|FSharp.Core|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |map3|FSharp.Core|FSharp.Core|FsToolkit|FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |mapError||||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
@@ -87,6 +88,8 @@
 |orElse|FSharp.Core|FSharp.Core||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |orElseWith|FSharp.Core|FSharp.Core||FsToolkit|FsToolkit|FsToolkit|FsToolkit|
 |parallel|||FSharp.Core|||||
+|parallelDoLimit|||FsToolkit|||||
+|parallelLimit|||FsToolkit|||||
 |parallelMap2|||FsToolkit|||||
 |parallelMap3|||FsToolkit|||||
 |req|||FsToolkit|FsToolkit||FsToolkit|FsToolkit|
@@ -110,6 +113,7 @@
 |requireValueNoneWith||||FsToolkit||FsToolkit|FsToolkit|
 |requireValueSome||||FsToolkit||FsToolkit|FsToolkit|
 |requireValueSomeWith||||FsToolkit||FsToolkit|FsToolkit|
+|result|||FsToolkit|||||
 |runSynchronously|||FSharp.Core|||||
 |sequenceAsync|FsToolkit|||FsToolkit||||
 |sequenceAsyncResult|FsToolkit|||||||
@@ -117,6 +121,7 @@
 |sequenceTask|FsToolkit|||FsToolkit||||
 |sequenceTaskResult|FsToolkit|||||||
 |sequential|||FSharp.Core|||||
+|sequentialDo|||FsToolkit|||||
 |setError||||FsToolkit||FsToolkit|FsToolkit|
 |singleton|||FsToolkit|||||
 |sleep|||FSharp.Core|||||
