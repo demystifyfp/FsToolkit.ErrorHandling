@@ -19,6 +19,7 @@
         <Compile Include="ValueTaskValueOptionCE.fs" />
         <Compile Include="CancellableValueTaskResultCE.fs" />
         <Compile Include="CancellableValueTaskOptionCE.fs" />
+        <Compile Include="BindInferenceTests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
     <ItemGroup>
