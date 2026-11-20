@@ -132,8 +132,8 @@ module CancellableTaskOptionCE =
 
         /// Specify a Source of CancellationToken -> Task<_> on the real type to allow type inference to work
         member inline _.Source
-            (x: CancellationToken -> Task<_>)
-            : CancellationToken -> Awaiter<TaskAwaiter<_>, _> =
+            (x: CancellationToken -> Task<Option<'T>>)
+            : CancellationToken -> Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
             fun ct -> Awaitable.GetTaskAwaiter(x ct)
 
     /// Contains methods to build CancellableTasks using the F# computation expression syntax

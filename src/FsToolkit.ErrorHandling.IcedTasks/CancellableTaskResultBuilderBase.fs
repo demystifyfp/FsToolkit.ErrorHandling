@@ -19,15 +19,17 @@ module CancellableTaskResultBuilderBase =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
-    /// <summary>An awaiter whose result <c>let!</c> binds as it is, without the <c>Result</c> case analysis.</summary>
+    /// <summary>An awaiter whose result <c>let!</c> binds as it is.</summary>
     /// <remarks>
-    /// <c>Source</c> wraps each awaiter whose result is not a <c>Result</c>.
-    /// Then an awaiter of a <c>Result</c> matches only one <c>Bind</c> overload,
-    /// and F# can infer the type of the bound value before it checks the continuation.
+    /// The <c>Source</c> members of the cancellable builders wrap each awaiter whose result is not the builder's
+    /// <c>Result</c> or <c>Option</c> type. Then an awaiter of a <c>Result</c> or an <c>Option</c> matches only one
+    /// <c>Bind</c> overload, and F# can infer the type of the bound value before it checks the continuation.
     /// </remarks>
     [<Struct; NoComparison; NoEquality>]
     type PlainAwaiter<'Awaiter> =
+        /// <summary>The awaiter.</summary>
         val Awaiter: 'Awaiter
+        /// <summary>Wraps an awaiter.</summary>
         new(awaiter) = { Awaiter = awaiter }
 
 
@@ -1095,27 +1097,47 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module LowPriorityResult =
 
-        // Sources of awaiters whose result is a Result. They rank above the generic plain Sources and below the Task-specific plain Sources.
+        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
         type CancellableTaskResultBuilderBase with
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a CancellationToken -> 'Awaitable into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source<'Awaitable, 'T, 'Error, 'Awaiter, 'TOverall
                 when 'Awaitable: (member GetAwaiter: unit -> Awaiter<'Awaiter, Result<'T, 'Error>>)>
                 ([<InlineIfLambda>] cancellableAwaiter: CancellationToken -> 'Awaiter)
                 : CancellationToken -> 'Awaiter =
                 (fun ct -> cancellableAwaiter ct)
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a CancellationToken -> 'Awaitable into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source<'Awaitable, 'T, 'Error, 'Awaiter, 'TOverall
                 when 'Awaitable: (member GetAwaiter: unit -> Awaiter<'Awaiter, Result<'T, 'Error>>)>
                 ([<InlineIfLambda>] cancellableAwaitable: CancellationToken -> 'Awaitable)
                 : CancellationToken -> 'Awaiter =
                 (fun ct -> Awaitable.GetAwaiter(cancellableAwaitable ct))
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a unit -> 'Awaitable into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source<'Awaitable, 'T, 'Error, 'Awaiter, 'TOverall
                 when 'Awaitable: (member GetAwaiter: unit -> Awaiter<'Awaiter, Result<'T, 'Error>>)>
                 ([<InlineIfLambda>] coldAwaitable: unit -> 'Awaitable)
                 : CancellationToken -> 'Awaiter =
                 (fun _ -> Awaitable.GetAwaiter(coldAwaitable ()))
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This is the identify function.</remarks>
+            ///
+            /// <returns>'Awaiter</returns>
             member inline _.Source<'T, 'Error, 'TResult2, 'Awaiter, 'TOverall
                 when 'Awaiter :> ICriticalNotifyCompletion
                 and 'Awaiter: (member get_IsCompleted: unit -> bool)
@@ -1124,12 +1146,16 @@ module CancellableTaskResultBuilderBase =
                 : 'Awaiter =
                 awaiter
 
+            /// <summary>Allows the computation expression to turn other types into 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a ^Awaitable into an 'Awaiter.</remarks>
+            ///
+            /// <returns>'Awaiter</returns>
             member inline _.Source<'Awaitable, 'T, 'Error, 'TResult2, 'Awaiter, 'TOverall
                 when 'Awaitable: (member GetAwaiter: unit -> Awaiter<'Awaiter, Result<'T, 'Error>>)>
                 (task: 'Awaitable)
                 : 'Awaiter =
                 Awaitable.GetAwaiter task
-
 
     [<AutoOpen>]
     module MedHighPriority =
@@ -1172,24 +1198,29 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module MedHighPriorityResult =
 
-        // Sources of Task-based Results.
+        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
         type CancellableTaskResultBuilderBase with
 
-            member inline _.Source
-                (taskAwaiter: TaskAwaiter<Result<'T, 'Error>>)
-                : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>'Awaiter</returns>
+            member inline _.Source(taskAwaiter: TaskAwaiter<Result<'T, 'Error>>) : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 taskAwaiter
 
-            member inline _.Source
-                (taskT: Task<Result<'T, 'Error>>)
-                : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>'Awaiter</returns>
+            member inline _.Source(taskT: Task<Result<'T, 'Error>>) : Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 Awaitable.GetTaskAwaiter taskT
 
             member inline _.Source
                 (cancellableTask: CancellationToken -> Task<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 fun ct -> Awaitable.GetTaskAwaiter(cancellableTask ct)
-
 
     /// <exclude/>
     [<AutoOpen>]
@@ -1253,7 +1284,7 @@ module CancellableTaskResultBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> TaskAwaiter<'T>)
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
-                (fun (_: CancellationToken) -> PlainAwaiter(task ()))
+                (fun (_: CancellationToken) -> PlainAwaiter((task ())))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1273,7 +1304,7 @@ module CancellableTaskResultBuilderBase =
             member inline _.Source
                 ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<'T>)
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
-                (fun ct -> PlainAwaiter(cancellableTaskAwaiter ct))
+                (fun ct -> PlainAwaiter((cancellableTaskAwaiter ct)))
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1290,35 +1321,48 @@ module CancellableTaskResultBuilderBase =
     [<AutoOpen>]
     module HighPriorityResult =
 
-        // Sources of Task-based Results and of other Result-like values.
+        // Sources whose result has the builder's own shape. Each one ranks above the plain Source it mirrors.
         type CancellableTaskResultBuilderBase with
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a ColdTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> TaskAwaiter<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun (_: CancellationToken) -> (task ()))
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a ColdTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
                 ([<InlineIfLambda>] task: unit -> Task<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun (_: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a CancellableTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
                 ([<InlineIfLambda>] cancellableTaskAwaiter: CancellationToken -> TaskAwaiter<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun ct -> (cancellableTaskAwaiter ct))
 
+            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
+            ///
+            /// <remarks>This turns a CancellableTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            ///
+            /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
                 ([<InlineIfLambda>] task: CancellationToken -> Task<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun ct -> Awaitable.GetTaskAwaiter(task ct))
-
-            /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
-            ///
-            /// <remarks>This turns a ColdTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
-            ///
-            /// <returns>CancellationToken -> 'Awaiter</returns>
-
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
@@ -1330,7 +1374,6 @@ module CancellableTaskResultBuilderBase =
                 : CancellationToken -> TaskAwaiter<Result<'T, 'Error>> =
                 this.Source(Async.AsCancellableTask asyncResult)
 
-
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a ColdTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1341,7 +1384,6 @@ module CancellableTaskResultBuilderBase =
                 : CancellationToken -> TaskAwaiter<Result<'T, 'Error>> =
                 this.Source(Async.map Result.ofChoice asyncChoice)
 
-
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a ColdTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1350,7 +1392,6 @@ module CancellableTaskResultBuilderBase =
             member inline this.Source(result: Result<'T, 'Error>) =
                 this.Source(ValueTask<_>(result))
 
-
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a ColdTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1358,3 +1399,4 @@ module CancellableTaskResultBuilderBase =
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline this.Source(choice: Choice<'T, 'Error>) =
                 this.Source(ValueTask<_>(Result.ofChoice choice))
+
