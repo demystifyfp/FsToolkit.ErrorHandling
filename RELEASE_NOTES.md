@@ -1,3 +1,9 @@
+### 6.0.0-beta010 - Unreleased
+
+- [Infer the type of a `let!` or `use!` value from a Result or Option source in the cancellable builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/PRNUMBER) Credits @TheAngryByrd
+    - Fixes [#369](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/369) in `cancellableTaskResult`, `backgroundCancellableTaskResult`, `cancellableValueTaskResult`, `cancellableTaskValidation`, `cancellableTaskOption`, `backgroundCancellableTaskOption`, and `cancellableValueTaskOption`. For a source such as `Task<Result<Node, string>>`, `use! node = ...` now compiles when `Node` implements `IDisposable`, and `let! node = ...` gives `node` a known type, so `node.Name` compiles.
+    - BREAKING (source): a type annotation can no longer bind the whole `Result` or `Option` of a source, for example `let! (r: Result<int, string>) = taskOfResult`. `taskResult` already rejects this code. To bind the whole value, map the source: `let! r = taskOfResult |> Task.map Ok`.
+
 ### 6.0.0-beta009 - November 20, 2026
 
 - [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/393) Credits @TheAngryByrd
