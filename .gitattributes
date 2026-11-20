@@ -7,7 +7,6 @@
 *.fs diff=csharp text=auto eol=lf
 *.fsi diff=csharp text=auto eol=lf
 *.fsx diff=csharp text=auto eol=lf
-*.sln text eol=crlf merge=union
 *.csproj merge=union
 *.vbproj merge=union
 *.fsproj merge=union

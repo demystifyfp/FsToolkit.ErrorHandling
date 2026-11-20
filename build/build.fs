@@ -50,7 +50,7 @@ let configuration (targets: Target list) =
     | "Release" -> DotNet.BuildConfiguration.Release
     | config -> DotNet.BuildConfiguration.Custom config
 
-let solutionFile = "FsToolkit.ErrorHandling.sln"
+let solutionFile = "FsToolkit.ErrorHandling.slnx"
 
 let rootDir =
     __SOURCE_DIRECTORY__
