@@ -1,3 +1,8 @@
+### 6.0.0-beta009 - Unreleased
+
+- [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/PRNUMBER) Credits @TheAngryByrd
+    - BREAKING: `FsToolkit.ErrorHandling.JobResult` (`JobResult`, `JobOption`, `JobResultOption`, and the `List` and `Job` functions for Hopac) is no longer published. Hopac has had no release since 0.5.1 (July 2021). `6.0.0-beta008` and the 5.x versions stay on nuget.org. Move to the `task` or `async` builders, or stay on those versions.
+
 ### 6.0.0-beta008 - November 19, 2026
 
 - [Fix Array and Seq for WebSharper, and run the tests under WebSharper](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/389) Credits @TheAngryByrd

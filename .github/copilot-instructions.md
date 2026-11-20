@@ -70,13 +70,11 @@ The GitHub Actions CI will fail if:
 src/                           # Source code for all packages
 ├── FsToolkit.ErrorHandling/          # Core library (Result, AsyncResult, etc.)
 ├── FsToolkit.ErrorHandling.AsyncSeq/ # AsyncSeq extensions  
-├── FsToolkit.ErrorHandling.JobResult/ # JobResult extensions
 └── FsToolkit.ErrorHandling.IcedTasks/ # IcedTasks extensions
 
 tests/                         # Test projects
 ├── FsToolkit.ErrorHandling.Tests/          # Core tests (majority of test coverage)
 ├── FsToolkit.ErrorHandling.AsyncSeq.Tests/ # AsyncSeq tests (limited Fable support)
-├── FsToolkit.ErrorHandling.JobResult.Tests/ # JobResult tests
 ├── FsToolkit.ErrorHandling.IcedTasks.Tests/ # IcedTasks tests
 └── FsToolkit.ErrorHandling.WebSharper/      # Runs the core tests under WebSharper (proxy, test adapter, runner)
 
