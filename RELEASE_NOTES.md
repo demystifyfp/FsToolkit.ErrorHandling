@@ -2,6 +2,8 @@
 
 - [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/393) Credits @TheAngryByrd
     - BREAKING: `FsToolkit.ErrorHandling.JobResult` (`JobResult`, `JobOption`, `JobResultOption`, and the `List`, `Result`, and `Job` functions for Hopac, such as `Result.sequenceJob`) is no longer published. Hopac has had no release since 0.5.1 (July 2021). `6.0.0-beta008` and the 5.x versions stay on nuget.org. Move to `taskResult` or `asyncResult`, `taskOption` or `asyncOption`, and `taskResultOption` or `asyncResultOption`, or stay on those versions.
+- [Update IcedTasks from 0.11.8 to 0.11.10](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/394) Credits @TheAngryByrd
+    - `FsToolkit.ErrorHandling.IcedTasks` depends on IcedTasks 0.11.10. On `net9.0`, IcedTasks 0.11.8 depended on the prerelease `FSharp.Core 9.0.300-beta.25181.1`. IcedTasks 0.11.10 depends on `FSharp.Core 9.0.300`. The FSharp.Core minimum of each target framework does not change.
 
 ### 6.0.0-beta008 - November 19, 2026
 
