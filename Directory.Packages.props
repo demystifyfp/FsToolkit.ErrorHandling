@@ -8,7 +8,7 @@
     <PackageVersion Include="FSharp.Core" Version="6.0.1" />
     <PackageVersion Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
     <PackageVersion Include="Fable.Core" Version="4.2.0" />
-    <PackageVersion Include="IcedTasks" Version="0.11.8" />
+    <PackageVersion Include="IcedTasks" Version="0.11.10" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
 
