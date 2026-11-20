@@ -5,7 +5,7 @@ The files compile inside your project. Your assembly does not get a reference to
 
 Use this package when you cannot add a binary dependency, for example in a library that must not expose FsToolkit.ErrorHandling to its consumers.
 
-The package contains only the source code of the `FsToolkit.ErrorHandling` package. It does not contain `FsToolkit.ErrorHandling.IcedTasks`, `FsToolkit.ErrorHandling.JobResult`, or `FsToolkit.ErrorHandling.AsyncSeq`.
+The package contains only the source code of the `FsToolkit.ErrorHandling` package. It does not contain `FsToolkit.ErrorHandling.IcedTasks` or `FsToolkit.ErrorHandling.AsyncSeq`.
 
 ## Requirements
 

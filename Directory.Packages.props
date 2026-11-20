@@ -6,7 +6,6 @@
   <ItemGroup>
     <!-- Core Dependencies -->
     <PackageVersion Include="FSharp.Core" Version="6.0.1" />
-    <PackageVersion Include="Hopac" Version="0.5.1" />
     <PackageVersion Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
     <PackageVersion Include="Fable.Core" Version="4.2.0" />
     <PackageVersion Include="IcedTasks" Version="0.11.8" />
@@ -15,7 +14,6 @@
 
     <!-- Test group dependencies -->
     <PackageVersion Include="Expecto" Version="10.2.3" />
-    <PackageVersion Include="Expecto.Hopac" Version="10.2.3" />
     <PackageVersion Include="Expecto.FsCheck" Version="10.2.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />

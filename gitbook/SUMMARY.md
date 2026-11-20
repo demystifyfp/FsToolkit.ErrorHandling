@@ -345,57 +345,6 @@
     * [map](cancellableValueTaskResult/map.md)
     * [zip](cancellableValueTaskResult/zip.md)
 
-* FsToolkit.ErrorHandling.JobResult
-  * Job
-    * [apply](job/apply.md)
-    * [map2](job/map2.md)
-    * [map3](job/map3.md)
-    * [result](job/result.md) (from Hopac)
-    * [zip](job/zip.md)
-
-  * JobOption
-    * [apply](jobOption/apply.md)
-    * [bind](jobOption/bind.md)
-    * [Computation Expression](jobOption/ce.md)
-    * [eitherBind](jobOption/eitherBind.md)
-    * [map](jobOption/map.md)
-
-  * JobResult
-    * [apply](jobResult/apply.md)
-    * [bind](jobResult/bind.md)
-    * [catchWith](jobResult/catchWith.md)
-    * [Computation Expression](jobResult/ce.md)
-    * [eitherBind](jobResult/eitherBind.md)
-    * [error](jobResult/error.md)
-    * [fromTask](jobResult/fromTask.md)
-    * [ignore](jobResult/ignore.md)
-    * [map](jobResult/map.md)
-    * [map2](jobResult/map2.md)
-    * [map3](jobResult/map3.md)
-    * [mapError](jobResult/mapError.md)
-    * [Operators](jobResult/operators.md)
-    * [Other Functions](jobResult/others.md)
-    * [zip](jobResult/zip.md)
-    * [zipError](jobResult/zipError.md)
-    * Lists
-      * [traverseJobResultM](list/traverseJobResultM.md)
-      * [sequenceJobResultM](list/sequenceJobResultM.md)
-      * [traverseJobResultA](list/traverseJobResultA.md)
-      * [sequenceJobResultA](list/sequenceJobResultA.md)
-    * Transforms
-      * [fromAsync](jobResult/fromAsync.md)
-      * [fromTask](jobResult/fromTask.md)
-      * [fromUnitTask](jobResult/fromUnitTask.md)
-
-  * JobResultOption
-    * [apply](jobResultOption/apply.md)
-    * [bind](jobResultOption/bind.md)
-    * [Computation Expression](jobResultOption/ce.md)
-    * [ignore](jobResultOption/ignore.md)
-    * [map](jobResultOption/map.md)
-    * [map2](jobResultOption/map2.md)
-    * [map3](jobResultOption/map3.md)
-
 * FsToolkit.ErrorHandling.Sources
   * [Source package](sources/sourcesPackage.md)
 

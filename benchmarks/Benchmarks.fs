@@ -3,7 +3,6 @@
 open BenchmarkDotNet.Attributes
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
-open Hopac
 
 let okF x = x + 2
 let errorF x = x - 4
@@ -1166,92 +1165,6 @@ type TaskValueOptionApplyBenchmarks() =
         FsToolkit.ErrorHandling.TaskValueOption.bind
             (fun x -> Task.FromResult(ValueSome(x + 1)))
             noneX
-
-module JobOptionOriginal =
-
-    let inline bind ([<InlineIfLambda>] f) (ar: Job<_>) =
-        job {
-            let! opt = ar
-
-            let t =
-                match opt with
-                | Some x -> f x
-                | None -> job { return None }
-
-            return! t
-        }
-
-    let inline some x = job { return Some x }
-
-    let inline apply f x =
-        bind (fun f' -> bind (fun x' -> some (f' x')) x) f
-
-[<MemoryDiagnoser>]
-type JobOptionApplyBenchmarks() =
-    let someF = Job.result (Some(fun x -> x + 1))
-    let someX = Job.result (Some 1)
-    let noneF: Job<(int -> int) option> = Job.result None
-    let noneX: Job<int option> = Job.result None
-
-    [<Benchmark(Baseline = true)>]
-    member _.JobOption_Original_Apply_SomeSome() =
-        JobOptionOriginal.apply someF someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Apply_SomeSome() =
-        FsToolkit.ErrorHandling.JobOption.apply someF someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Original_Apply_NoneFunction() =
-        JobOptionOriginal.apply noneF someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Apply_NoneFunction() =
-        FsToolkit.ErrorHandling.JobOption.apply noneF someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Original_Apply_NoneValue() =
-        JobOptionOriginal.apply someF noneX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Apply_NoneValue() =
-        FsToolkit.ErrorHandling.JobOption.apply someF noneX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Original_Some() =
-        JobOptionOriginal.some 1
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Some() =
-        FsToolkit.ErrorHandling.JobOption.some 1
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Original_Bind_Some() =
-        JobOptionOriginal.bind (fun x -> Job.result (Some(x + 1))) someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Bind_Some() =
-        FsToolkit.ErrorHandling.JobOption.bind (fun x -> Job.result (Some(x + 1))) someX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Original_Bind_None() =
-        JobOptionOriginal.bind (fun x -> Job.result (Some(x + 1))) noneX
-        |> Hopac.run
-
-    [<Benchmark>]
-    member _.JobOption_Current_Bind_None() =
-        FsToolkit.ErrorHandling.JobOption.bind (fun x -> Job.result (Some(x + 1))) noneX
-        |> Hopac.run
 
 module ListOriginal =
 

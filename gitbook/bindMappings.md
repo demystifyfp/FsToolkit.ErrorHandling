@@ -25,9 +25,6 @@ Each CE can bind to itself so we don't list that here to reduce clutter
 | AsyncValidation           | AsyncResult, Validation, Result, Choice, Async                                                                                             |
 | CancellableTaskResult     | ValueTaskResult, AsyncResult, TaskResult, AsyncChoice, CancellableTask, ColdTask, Result, Choice, Async, Task                              |
 | CancellableTaskValidation | AsyncValidation, ValueTaskResult, AsyncResult, TaskResult, AsyncChoice, CancellableTask, ColdTask, Validation, Result, Choice, Async, Task |
-| JopOption                 | TaskOption, AsyncOption, Job, Async, Task, Option                                                                                          |
-| JobResult                 | AsyncResult, TaskResult, Job, Result, Choice, Async, Task                                                                                  |
-| JobResultOption           |                                                                                                                                            |
 | Option                    | ValueOption, nullable object                                                                                                               |
 | Result                    | Choice                                                                                                                                     |
 | ResultOption              | Result, Choice, Option                                                                                                                     |

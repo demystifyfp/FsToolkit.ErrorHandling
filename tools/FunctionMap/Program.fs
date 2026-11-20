@@ -67,20 +67,18 @@ let allModules: list<Module> = [
     Module.Create "Option" "Option"
     Module.Create "ValueOption" "ValueOption"
     Module.Create "Async" "Async"
+    Module.Create "AsyncModule" "Async"
     Module.Create "FSharpAsync" "Async"
-    Module.Create "Job" "Job"
     Module.Create "ResultModule" "Result"
     Module.Create "Result" "Result"
     Module.Create "Validation" "Validation"
     Module.Create "AsyncResult" "AsyncResult"
     Module.Create "TaskResult" "TaskResult"
-    Module.Create "JobResult" "JobResult"
 ]
 
 let namespaceNormalizer = [
     Contains "FSharp.Core", "FSharp.Core"
     Contains "FsToolkit", "FsToolkit"
-    Contains "Hopac", "Hopac"
     Contains "FSharpAsync", "FSharp.Core"
 ]
 
@@ -145,9 +143,6 @@ let main argv =
     let types = [
         yield! Assembly.Load("FSharp.Core").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling").GetTypes()
-        yield! Assembly.Load("FsToolkit.ErrorHandling.TaskResult").GetTypes()
-        yield! Assembly.Load("Hopac").GetTypes()
-        yield! Assembly.Load("FsToolkit.ErrorHandling.JobResult").GetTypes()
         yield! Assembly.Load("FsToolkit.ErrorHandling.AsyncSeq").GetTypes()
     ]
 
