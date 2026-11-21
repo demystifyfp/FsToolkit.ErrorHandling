@@ -19,6 +19,7 @@ module CancellableTaskResultBuilderBase =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
+    /// <exclude/>
     /// <summary>An awaiter whose result <c>let!</c> binds as it is.</summary>
     /// <remarks>
     /// The <c>Source</c> members of the cancellable builders wrap each awaiter whose result is not the builder's
@@ -28,6 +29,7 @@ module CancellableTaskResultBuilderBase =
     /// <c>PlainAwaiter(awaiter)</c>, or <c>fun ct -> PlainAwaiter(awaiter)</c> for a cancellable source.
     /// </remarks>
     [<Struct; NoComparison; NoEquality>]
+    [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
     type PlainAwaiter<'Awaiter> =
         /// <summary>The awaiter.</summary>
         val Awaiter: 'Awaiter
