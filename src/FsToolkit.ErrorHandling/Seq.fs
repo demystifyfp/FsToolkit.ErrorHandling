@@ -15,11 +15,11 @@ open Microsoft.FSharp.Core.CompilerServices
 /// <param name="xs">The input sequence</param>
 /// <returns>If state and all elements in 'sequence' are Ok, a result with the elements in an array. Alternately, the first error encountered</returns>
 let inline traverseResultM'
-    (state: Result<#seq<'okOutput>, 'error>)
+    (state: Result<'okOutput seq, 'error>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-    (xs: #seq<'okInput>)
+    (xs: SeqNull<'okInput>)
     : Result<'okOutput[], 'error> =
-    if obj.ReferenceEquals(xs, null) then
+    if isNull xs then
         raise (System.ArgumentNullException(nameof xs))
 
     match state with
@@ -56,9 +56,7 @@ let inline traverseResultM'
 /// <param name="xs">The input sequence</param>
 /// <returns>A result with the ok elements in an array, or the first error occurring in the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultM'"/> but applying an initial state of 'Seq.empty'</remarks>
-let traverseResultM f
-    (xs: #seq<'okInput>)
-   = traverseResultM' (Ok Seq.empty) f xs
+let traverseResultM f xs = traverseResultM' (Ok Seq.empty) f xs
 
 /// <summary>
 /// Converts a sequence of results into a single result
@@ -66,9 +64,7 @@ let traverseResultM f
 /// <param name="xs">The input sequence</param>
 /// <returns>A result bearing all the results as an array, or the first error occurring in the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultM"/> but auto-applying the 'id' function</remarks>
-let sequenceResultM
-    (xs: #seq<_>)
-    = traverseResultM id xs
+let sequenceResultM xs = traverseResultM id xs
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -138,9 +134,7 @@ let inline traverseResultA'
 /// <param name="xs">The input sequence</param>
 /// <returns>A result with the ok elements in an array or an array of all errors from the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultA'"/> but applying an initial state of Seq.empty'</remarks>
-let traverseResultA f
-    (xs: #SeqNull<'okInput>)
-    = traverseResultA' (Ok Seq.empty) f xs
+let traverseResultA f (xs: #SeqNull<'okInput>) = traverseResultA' (Ok Seq.empty) f xs
 
 /// <summary>
 /// Converts a sequence of results into a single result
@@ -148,9 +142,7 @@ let traverseResultA f
 /// <param name="xs">The input sequence</param>
 /// <returns>A result with the elements in an array or an array of all errors from the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultA"/> but auto-applying the 'id' function</remarks>
-let sequenceResultA
-    (xs: #SeqNull<_>)
-    = traverseResultA id xs
+let sequenceResultA (xs: #SeqNull<_>) = traverseResultA id xs
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single async result

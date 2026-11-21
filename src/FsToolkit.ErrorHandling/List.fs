@@ -5,9 +5,9 @@ open Microsoft.FSharp.Core.CompilerServices
 [<RequireQualifiedAccess>]
 module List =
 
-    let inline traverseResultM'
+    let traverseResultM'
         state
-        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (f: 'okInput -> Result<'okOutput, 'error>)
         xs
         : Result<'okOutput list, 'error> =
         match xs with

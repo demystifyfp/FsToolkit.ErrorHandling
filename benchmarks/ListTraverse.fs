@@ -91,14 +91,9 @@ module Original =
 
 module private Candidates =
 
-    let traverseResultM1' state f
-        (xs: _ list | null)=
-        if isNull xs then raise (System.ArgumentNullException(nameof xs))
-        match xs with
-        | [] -> state
-        | xs ->
-            Seq.traverseResultM' state f xs
-            |> Result.map List.ofArray
+    let traverseResultM1' state f xs =
+        Seq.traverseResultM' state f xs
+        |> Result.map Array.toList
 
     let traverseResultM1 f xs = traverseResultM1' (Ok List.empty) f xs
 
