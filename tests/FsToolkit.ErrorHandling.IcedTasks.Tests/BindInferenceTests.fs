@@ -8,6 +8,7 @@ open IcedTasks
 open FsToolkit.ErrorHandling
 
 // The let! and use! lines compile only if F# infers the type of the bound value from the source.
+// Each test returns its computation from a function, so that F# compiles the static state machine.
 module BindInferenceTests =
 
     type Resource() =
@@ -48,7 +49,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 let! a =
                                     Task.FromResult((Ok(new Resource()): Result<Resource, string>))
@@ -101,7 +102,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 12) ""
                     }
@@ -110,13 +111,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -126,7 +127,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 let! stop = Task.FromResult((Error "stop": Result<int, string>))
@@ -136,7 +137,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -146,7 +147,7 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 use! r =
                                     Task.FromResult((Ok(resource): Result<AsyncResource, string>))
@@ -154,7 +155,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -162,7 +163,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -183,17 +184,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskResult { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 3) ""
                     }
@@ -202,14 +203,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             cancellableTaskResult {
                                 use! r = Task.FromResult((Error "stop": Result<Resource, string>))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -219,7 +220,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 let! a =
                                     Task.FromResult((Ok(new Resource()): Result<Resource, string>))
@@ -272,7 +273,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 12) ""
                     }
@@ -281,13 +282,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -297,7 +298,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 let! stop = Task.FromResult((Error "stop": Result<int, string>))
@@ -307,7 +308,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -317,7 +318,7 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 use! r =
                                     Task.FromResult((Ok(resource): Result<AsyncResource, string>))
@@ -325,7 +326,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -333,7 +334,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -354,17 +355,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 3) ""
                     }
@@ -373,14 +374,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskResult {
                                 use! r = Task.FromResult((Error "stop": Result<Resource, string>))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -390,7 +391,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 let! a =
                                     Task.FromResult((Ok(new Resource()): Result<Resource, string>))
@@ -443,7 +444,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 12) ""
                     }
@@ -452,13 +453,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -468,7 +469,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 let! stop = Task.FromResult((Error "stop": Result<int, string>))
@@ -478,7 +479,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -488,7 +489,7 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 use! r =
                                     Task.FromResult((Ok(resource): Result<AsyncResource, string>))
@@ -496,7 +497,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -504,7 +505,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -525,17 +526,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 3) ""
                     }
@@ -544,14 +545,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskResult {
                                 use! r = Task.FromResult((Error "stop": Result<Resource, string>))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -561,7 +562,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 let! a =
                                     Task.FromResult((Ok(new Resource()): Result<Resource, string>))
@@ -614,7 +615,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 12) ""
                     }
@@ -623,13 +624,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -639,7 +640,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 use! r = Task.FromResult((Ok(resource): Result<Resource, string>))
                                 let! stop = Task.FromResult((Error "stop": Result<int, string>))
@@ -649,7 +650,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -659,7 +660,7 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 use! r =
                                     Task.FromResult((Ok(resource): Result<AsyncResource, string>))
@@ -667,7 +668,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -675,7 +676,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -696,19 +697,19 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 return! fun _ -> Task.FromResult 3
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 3) ""
                     }
@@ -717,14 +718,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskResult {
                                 use! r = Task.FromResult((Error "stop": Result<Resource, string>))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error "stop") ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -734,7 +735,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 let! a =
                                     Task.FromResult(
@@ -800,7 +801,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 12) ""
                     }
@@ -809,7 +810,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 use! r =
                                     Task.FromResult(
@@ -819,7 +820,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -829,7 +830,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 use! r =
                                     Task.FromResult(
@@ -846,7 +847,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error [ "stop" ]) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -856,7 +857,7 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 use! r =
                                     Task.FromResult(
@@ -866,7 +867,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -874,7 +875,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -896,17 +897,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Ok 3) ""
                     }
@@ -915,7 +916,7 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             cancellableTaskValidation {
                                 use! r =
                                     Task.FromResult(
@@ -926,7 +927,7 @@ module BindInferenceTests =
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Error [ "stop" ]) ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -936,7 +937,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 let! a = Task.FromResult((Some(new Resource()): Resource option))
 
@@ -982,7 +983,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 12) ""
                     }
@@ -991,13 +992,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1007,7 +1008,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 let! stop = Task.FromResult((None: int option))
@@ -1017,7 +1018,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1027,13 +1028,13 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): AsyncResource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1041,7 +1042,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -1060,17 +1061,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableTaskOption { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 3) ""
                     }
@@ -1079,14 +1080,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             cancellableTaskOption {
                                 use! r = Task.FromResult((None: Resource option))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -1096,7 +1097,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 let! a = Task.FromResult((Some(new Resource()): Resource option))
 
@@ -1142,7 +1143,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 12) ""
                     }
@@ -1151,13 +1152,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1167,7 +1168,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 let! stop = Task.FromResult((None: int option))
@@ -1177,7 +1178,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1187,13 +1188,13 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 use! r = Task.FromResult((Some(resource): AsyncResource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1201,7 +1202,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -1220,17 +1221,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 3) ""
                     }
@@ -1239,14 +1240,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableTaskOption {
                                 use! r = Task.FromResult((None: Resource option))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -1256,7 +1257,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 let! a = Task.FromResult((Some(new Resource()): Resource option))
 
@@ -1302,7 +1303,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 12) ""
                     }
@@ -1311,13 +1312,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1327,7 +1328,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 let! stop = Task.FromResult((None: int option))
@@ -1337,7 +1338,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1347,13 +1348,13 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): AsyncResource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1361,7 +1362,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -1380,17 +1381,17 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption { return! fun _ -> Task.FromResult 3 }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 3) ""
                     }
@@ -1399,14 +1400,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             cancellableValueTaskOption {
                                 use! r = Task.FromResult((None: Resource option))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -1416,7 +1417,7 @@ module BindInferenceTests =
                 testCaseTask "let! infers the type of each source"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 let! a = Task.FromResult((Some(new Resource()): Resource option))
 
@@ -1462,7 +1463,7 @@ module BindInferenceTests =
                                     + l.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 12) ""
                     }
@@ -1471,13 +1472,13 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1487,7 +1488,7 @@ module BindInferenceTests =
                     task {
                         let resource = new Resource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): Resource option))
                                 let! stop = Task.FromResult((None: int option))
@@ -1497,7 +1498,7 @@ module BindInferenceTests =
                                     + stop
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1507,13 +1508,13 @@ module BindInferenceTests =
                     task {
                         let resource = AsyncResource()
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 use! r = Task.FromResult((Some(resource): AsyncResource option))
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
@@ -1521,7 +1522,7 @@ module BindInferenceTests =
                 testCaseTask "let! and return! take lambdas with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 let! a = fun ct -> Task.FromResult(new Resource())
 
@@ -1540,19 +1541,19 @@ module BindInferenceTests =
                                         )
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 2) ""
                     }
                 testCaseTask "return! takes a plain lambda with an unannotated parameter"
                 <| fun () ->
                     task {
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 return! fun _ -> Task.FromResult 3
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual (Some 3) ""
                     }
@@ -1561,14 +1562,14 @@ module BindInferenceTests =
                     task {
                         let ran = ref false
 
-                        let computation =
+                        let computation () =
                             backgroundCancellableValueTaskOption {
                                 use! r = Task.FromResult((None: Resource option))
                                 ran.Value <- true
                                 return r.Value
                             }
 
-                        let! actual = computation CancellationToken.None
+                        let! actual = computation () CancellationToken.None
 
                         Expect.equal actual None ""
                         Expect.isFalse ran.Value "The computation must stop at the use! line"
@@ -1577,7 +1578,7 @@ module BindInferenceTests =
             testCaseTask "A custom Source that returns PlainAwaiter binds the plain value"
             <| fun () ->
                 task {
-                    let computation =
+                    let computation () =
                         cancellableTaskResult {
                             let! box = { Value = 5 }
 
@@ -1586,7 +1587,7 @@ module BindInferenceTests =
                                 + 1
                         }
 
-                    let! actual = computation CancellationToken.None
+                    let! actual = computation () CancellationToken.None
 
                     Expect.equal actual (Ok 6: Result<int, string>) ""
                 }
