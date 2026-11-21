@@ -57,6 +57,7 @@ let allTests =
         TaskResultOptionTests.allTests
         TaskValidationTests.allTests
         TaskValidationCETests.allTests
+        TaskSourceKindTests.allTests
         #endif
     ]
 
