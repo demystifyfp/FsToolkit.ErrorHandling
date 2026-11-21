@@ -543,12 +543,17 @@ module CTVMergeSourcesExtensionsCT1CT2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
             (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
+                [<InlineIfLambda>] left: CancellationToken -> PlainAwaiter<'Awaiter1>,
+                [<InlineIfLambda>] right: CancellationToken -> PlainAwaiter<'Awaiter2>
             ) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources(
+                            (fun ct -> (left ct).Awaiter),
+                            (fun ct -> (right ct).Awaiter)
+                        )
+
                     return Validation.zip (Ok l1) (Ok r1)
                 }
             )
@@ -562,11 +567,13 @@ module CTVMergeSourcesExtensionsCV1CT2 =
         member inline this.MergeSources
             (
                 [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
-                [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
+                [<InlineIfLambda>] right: CancellationToken -> PlainAwaiter<'Awaiter2>
             ) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources(left, (fun ct -> (right ct).Awaiter))
+
                     return Validation.zip l1 (Ok r1)
                 }
             )
@@ -580,12 +587,14 @@ module CTVMergeSourcesExtensionsCT1CV2 =
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
             (
-                [<InlineIfLambda>] left: CancellationToken -> 'Awaiter1,
+                [<InlineIfLambda>] left: CancellationToken -> PlainAwaiter<'Awaiter1>,
                 [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2
             ) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources((fun ct -> (left ct).Awaiter), right)
+
                     return Validation.zip (Ok l1) r1
                 }
             )
@@ -616,11 +625,15 @@ module CTVMergeSourcesExtensionsCT1T2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
-            =
+            (
+                [<InlineIfLambda>] left: CancellationToken -> PlainAwaiter<'Awaiter1>,
+                right: PlainAwaiter<'Awaiter2>
+            ) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources((fun ct -> (left ct).Awaiter), right.Awaiter)
+
                     return Validation.zip (Ok l1) (Ok r1)
                 }
             )
@@ -632,11 +645,10 @@ module CTVMergeSourcesExtensionsCV1T2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
-            =
+            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: PlainAwaiter<'Awaiter2>) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right.Awaiter)
                     return Validation.zip l1 (Ok r1)
                 }
             )
@@ -648,11 +660,12 @@ module CTVMergeSourcesExtensionsCT1TV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            ([<InlineIfLambda>] left: CancellationToken -> 'Awaiter1, right: 'Awaiter2)
-            =
+            ([<InlineIfLambda>] left: CancellationToken -> PlainAwaiter<'Awaiter1>, right: 'Awaiter2) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources((fun ct -> (left ct).Awaiter), right)
+
                     return Validation.zip (Ok l1) r1
                 }
             )
@@ -680,11 +693,15 @@ module CTVMergeSourcesExtensionsT1CT2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
-            =
+            (
+                left: PlainAwaiter<'Awaiter1>,
+                [<InlineIfLambda>] right: CancellationToken -> PlainAwaiter<'Awaiter2>
+            ) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources(left.Awaiter, (fun ct -> (right ct).Awaiter))
+
                     return Validation.zip (Ok l1) (Ok r1)
                 }
             )
@@ -696,11 +713,12 @@ module CTVMergeSourcesExtensionsTV1CT2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
-            =
+            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> PlainAwaiter<'Awaiter2>) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) =
+                        cancellableTask.MergeSources(left, (fun ct -> (right ct).Awaiter))
+
                     return Validation.zip l1 (Ok r1)
                 }
             )
@@ -712,11 +730,10 @@ module CTVMergeSourcesExtensionsT1CV2 =
 
         [<NoEagerConstraintApplication>]
         member inline this.MergeSources
-            (left: 'Awaiter1, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2)
-            =
+            (left: PlainAwaiter<'Awaiter1>, [<InlineIfLambda>] right: CancellationToken -> 'Awaiter2) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left.Awaiter, right)
                     return Validation.zip (Ok l1) r1
                 }
             )
@@ -744,10 +761,12 @@ module CTVMergeSourcesExtensionsT1T2 =
     type CancellableTaskValidationBuilder with
 
         [<NoEagerConstraintApplication>]
-        member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
+        member inline this.MergeSources
+            (left: PlainAwaiter<'Awaiter1>, right: PlainAwaiter<'Awaiter2>)
+            =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left.Awaiter, right.Awaiter)
                     return Validation.zip (Ok l1) (Ok r1)
                 }
             )
@@ -758,10 +777,10 @@ module CTVMergeSourcesExtensionsTV1T2 =
     type CancellableTaskValidationBuilder with
 
         [<NoEagerConstraintApplication>]
-        member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
+        member inline this.MergeSources(left: 'Awaiter1, right: PlainAwaiter<'Awaiter2>) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right.Awaiter)
                     return Validation.zip l1 (Ok r1)
                 }
             )
@@ -772,10 +791,10 @@ module CTVMergeSourcesExtensionsT1TV2 =
     type CancellableTaskValidationBuilder with
 
         [<NoEagerConstraintApplication>]
-        member inline this.MergeSources(left: 'Awaiter1, right: 'Awaiter2) =
+        member inline this.MergeSources(left: PlainAwaiter<'Awaiter1>, right: 'Awaiter2) =
             this.Source(
                 cancellableTask {
-                    let! struct (l1, r1) = cancellableTask.MergeSources(left, right)
+                    let! struct (l1, r1) = cancellableTask.MergeSources(left.Awaiter, right)
                     return Validation.zip (Ok l1) r1
                 }
             )
