@@ -61,7 +61,9 @@ module Original =
 
 module private Candidates =
 
-    let traverseResultM1' state f xs =
+    let traverseResultM1' state f
+        (xs: _[] | null)=
+        if isNull xs then raise (System.ArgumentNullException(nameof xs))
         match xs with
         | [||] -> state
         | xs -> Seq.traverseResultM' state f xs

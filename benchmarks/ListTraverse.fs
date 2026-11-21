@@ -91,7 +91,9 @@ module Original =
 
 module private Candidates =
 
-    let traverseResultM1' state f xs =
+    let traverseResultM1' state f
+        (xs: _ list | null)=
+        if isNull xs then raise (System.ArgumentNullException(nameof xs))
         match xs with
         | [] -> state
         | xs ->
@@ -207,8 +209,8 @@ module private Candidates =
                     let mutable oks = ListCollector()
                     oks.AddMany initialSuccesses
                     let mutable errs = ListCollector()
-                    let mutable ok = true
 #endif
+                    let mutable ok = true
 
                     for x in xs do
                         match f x with
@@ -245,12 +247,13 @@ module private Candidates =
         ([<InlineIfLambda>] f: 'c -> Async<Result<'a, 'b>>)
         (xs: 'c list)
         : Async<Result<'a list, 'b list>> =
-#if FABLE_COMPILER
-        traverseAsyncResultA1' state f xs
-#else
         match xs with
         | [] -> state
         | xs ->
+#if FABLE_COMPILER
+            Seq.traverseAsyncResultA' state f xs
+            |> AsyncResult.eitherMap List.ofArray List.ofArray
+#else
 
             async {
                 match! state with
@@ -319,6 +322,7 @@ module private Candidates =
 #else
                     let mutable oks = ListCollector()
                     oks.AddMany initialSuccesses
+#endif
 
                     match xs with
                     | [] -> return Ok(oks.Close())
@@ -329,24 +333,24 @@ module private Candidates =
                             return Ok(oks.Close())
                         | Error e -> return Error e
                     | xs ->
-#endif
-                    use e = (List.toSeq xs).GetEnumerator()
 
-                    let mutable err = Unchecked.defaultof<'error>
-                    let mutable ok = true
+                        use e = (List.toSeq xs).GetEnumerator()
 
-                    while ok
-                          && e.MoveNext() do
-                        match! f e.Current with
-                        | Ok r -> oks.Add r
-                        | Error e ->
-                            ok <- false
-                            err <- e
+                        let mutable err = Unchecked.defaultof<'error>
+                        let mutable ok = true
+
+                        while ok
+                              && e.MoveNext() do
+                            match! f e.Current with
+                            | Ok r -> oks.Add r
+                            | Error e ->
+                                ok <- false
+                                err <- e
 
 #if FABLE_COMPILER
-                    return if ok then Ok(oks.ToArray()) else Error err
+                        return if ok then Ok(oks.ToArray()) else Error err
 #else
-                    return if ok then Ok(oks.Close()) else Error err
+                        return if ok then Ok(oks.Close()) else Error err
 #endif
             }
 
