@@ -15,8 +15,8 @@ open FsToolkit.ErrorHandling
 
 
 let traverseResultMTests =
-    testList "List.traverseResultM Tests" [
-        testCase "traverseResult with a list of valid data"
+    testList "List.traverseResultM" [
+        testCase "with a list of valid data"
         <| fun _ ->
             let tweets = [
                 "Hi"
@@ -32,7 +32,7 @@ let traverseResultMTests =
 
             Expect.equal actual expected "Should have a list of valid tweets"
 
-        testCase "traverseResultM with few invalid data"
+        testCase "with few invalid data"
         <| fun _ ->
             let tweets = [
                 ""
@@ -46,6 +46,32 @@ let traverseResultMTests =
                 actual
                 (Error emptyTweetErrMsg)
                 "traverse the list and return the first error"
+
+        testCase "stops after the first error"
+        <| fun _ ->
+            let mutable calls = []
+
+            let f x =
+                calls <- x :: calls
+
+                if x = 2 then Error "failure" else Ok x
+
+            let actual =
+                List.traverseResultM f [
+                    1
+                    2
+                    3
+                ]
+
+            Expect.equal actual (Error "failure") "Should return the first error"
+
+            Expect.equal
+                (List.rev calls)
+                [
+                    1
+                    2
+                ]
+                "Should not call f after the first error"
     ]
 
 let traverseOptionMTests =
@@ -150,8 +176,8 @@ let sequenceOptionMTests =
     ]
 
 let traverseResultATests =
-    testList "List.traverseResultA Tests" [
-        testCase "traverseResultA with a list of valid data"
+    testList "List.traverseResultA" [
+        testCase "with a list of valid data"
         <| fun _ ->
             let tweets = [
                 "Hi"
@@ -167,7 +193,7 @@ let traverseResultATests =
 
             Expect.equal actual expected "Should have a list of valid tweets"
 
-        testCase "traverseResultA with few invalid data"
+        testCase "with few invalid data"
         <| fun _ ->
             let tweets = [
                 ""
@@ -184,6 +210,88 @@ let traverseResultATests =
                     longerTweetErrMsg
                 ])
                 "traverse the list and return all the errors"
+
+        testCase "preserves the order of successful results"
+        <| fun _ ->
+            let actual =
+                List.traverseResultA (fun x -> Ok(x * 10)) [
+                    3
+                    1
+                    2
+                ]
+
+            Expect.equal
+                actual
+                (Ok [
+                    30
+                    10
+                    20
+                ])
+                "Should preserve input order"
+
+        testCase "accumulates errors after entering the Error state"
+        <| fun _ ->
+            let f x =
+                match x with
+                | 1 -> Error "first"
+                | 3 -> Error "third"
+                | _ -> Ok x
+
+            let actual =
+                List.traverseResultA f [
+                    1
+                    2
+                    3
+                ]
+
+            Expect.equal
+                actual
+                (Error [
+                    "first"
+                    "third"
+                ])
+                "Should preserve error order"
+
+        testCase "calls f on every element"
+        <| fun _ ->
+            let mutable calls = []
+
+            let f x =
+                calls <- x :: calls
+
+                if
+                    x = 2
+                    || x = 4
+                then
+                    Error(string x)
+                else
+                    Ok x
+
+            let actual =
+                List.traverseResultA f [
+                    1
+                    2
+                    3
+                    4
+                ]
+
+            Expect.equal
+                actual
+                (Error [
+                    "2"
+                    "4"
+                ])
+                "Should accumulate all errors"
+
+            Expect.equal
+                (List.rev calls)
+                [
+                    1
+                    2
+                    3
+                    4
+                ]
+                "Should call f for every element"
     ]
 
 
@@ -342,7 +450,7 @@ let traverseAsyncResultMTests =
 
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.traverseAsyncResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -422,8 +530,8 @@ let traverseAsyncResultATests =
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual = List.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
@@ -458,7 +566,7 @@ let sequenceAsyncResultMTests =
 
         testCaseAsync "sequenceAsyncResultM with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.map (notifyFailure (PostId newPostId)) userIds
@@ -532,8 +640,8 @@ let sequenceAsyncResultATests =
         testCaseAsync "sequenceAsyncResultA with few invalid data"
         <| async {
             let expected = [
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual =
@@ -653,7 +761,7 @@ let traverseTaskResultMTests =
 
         testCase "traverseResultA with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.traverseTaskResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -685,8 +793,8 @@ let traverseTaskResultATests =
         testCase "traverseResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual = List.traverseTaskResultA (notifyFailureTask (PostId newPostId)) userIds
@@ -718,7 +826,7 @@ let sequenceTaskResultMTests =
 
         testCase "sequenceTaskResultM with few invalid data"
         <| fun _ ->
-            let expected = $"error: %s{userId1.ToString()}"
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 List.map (notifyFailureTask (PostId newPostId)) userIds
@@ -752,8 +860,8 @@ let sequenceTaskResultATests =
         testCase "sequenceTaskResultA with few invalid data"
         <| fun _ ->
             let expected = [
-                $"error: %s{userId1.ToString()}"
-                $"error: %s{userId3.ToString()}"
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             ]
 
             let actual =
