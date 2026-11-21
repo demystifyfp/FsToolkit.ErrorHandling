@@ -66,6 +66,28 @@ type LocalReaderAwaiter(gate: Task, local: AsyncLocal<int>) =
         member _.UnsafeOnCompleted(continuation) =
             gate.ConfigureAwait(false).GetAwaiter().UnsafeOnCompleted(continuation)
 
+// A ValueTask backed by this source allows one GetResult call.
+type CountingValueTaskSource<'T>() =
+    [<DefaultValue(false)>]
+    val mutable private core: System.Threading.Tasks.Sources.ManualResetValueTaskSourceCore<'T>
+
+    member val GetResultCalls = 0 with get, set
+    member this.ValueTask = ValueTask<'T>(this, this.core.Version)
+    member this.SetResult(value: 'T) = this.core.SetResult value
+
+    interface System.Threading.Tasks.Sources.IValueTaskSource<'T> with
+        member this.GetResult(token) =
+            this.GetResultCalls <-
+                this.GetResultCalls
+                + 1
+
+            this.core.GetResult token
+
+        member this.GetStatus(token) = this.core.GetStatus token
+
+        member this.OnCompleted(continuation, state, token, flags) =
+            this.core.OnCompleted(continuation, state, token, flags)
+
 type LocalReader(gate: Task, local: AsyncLocal<int>) =
     member _.GetAwaiter() = LocalReaderAwaiter(gate, local)
 
@@ -451,6 +473,48 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending plain ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<int>()
+
+                    let computation =
+                        taskResult {
+                            let! a = source.ValueTask
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Result<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
+                }
+            testCaseTask "and! reads a pending Result ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<Result<int, string>>()
+
+                    let computation =
+                        taskResult {
+                            let! a = source.ValueTask
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(Ok 1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Result<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
                 }
             testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
             <| fun () ->
@@ -888,6 +952,48 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending plain ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<int>()
+
+                    let computation =
+                        backgroundTaskResult {
+                            let! a = source.ValueTask
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Result<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
+                }
+            testCaseTask "and! reads a pending Result ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<Result<int, string>>()
+
+                    let computation =
+                        backgroundTaskResult {
+                            let! a = source.ValueTask
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(Ok 1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Result<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
                 }
             testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
             <| fun () ->
@@ -1348,6 +1454,49 @@ let allTests =
 
                     Expect.equal outcome "MyCanceled: mine" ""
                 }
+            testCaseTask "and! reads a pending plain ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<int>()
+
+                    let computation =
+                        taskValidation {
+                            let! a = source.ValueTask
+                            and! b = (Validation.ok 2: Validation<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Validation<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
+                }
+            testCaseTask
+                "and! reads a pending Validation ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<Validation<int, string>>()
+
+                    let computation =
+                        taskValidation {
+                            let! a = source.ValueTask
+                            and! b = (Validation.ok 2: Validation<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(Ok 1)
+                    let! actual = computation
+                    Expect.equal actual (Ok 3: Validation<int, string>) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
+                }
             testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
             <| fun () ->
                 task {
@@ -1784,6 +1933,27 @@ let allTests =
 
                     Expect.equal outcome "MyCanceled: mine" ""
                 }
+            testCaseTask "and! reads a pending plain ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<int>()
+
+                    let computation =
+                        taskOption {
+                            let! a = source.ValueTask
+                            and! b = (Some 2)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(1)
+                    let! actual = computation
+                    Expect.equal actual (Some 3) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
+                }
             testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
             <| fun () ->
                 task {
@@ -2219,6 +2389,27 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending plain ValueTask from an IValueTaskSource one time"
+            <| fun () ->
+                task {
+                    let source = CountingValueTaskSource<int>()
+
+                    let computation =
+                        taskValueOption {
+                            let! a = source.ValueTask
+                            and! b = (ValueSome 2)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test completes it"
+
+                    source.SetResult(1)
+                    let! actual = computation
+                    Expect.equal actual (ValueSome 3) ""
+                    Expect.equal source.GetResultCalls 1 "GetResult must run one time"
                 }
             testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
             <| fun () ->
