@@ -575,11 +575,108 @@ module TaskValidationCEExtensionsLowPriority =
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
-            : TaskValidation<'T, 'Error> =
-            task {
-                let! r = t
-                return Ok r
-            }
+            : PlainAwaiter< ^Awaiter > =
+            PlainAwaiter((^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (t)))
+
+        [<NoEagerConstraintApplication>]
+        static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            (
+                sm: byref<_>,
+                awaiter: PlainAwaiter< ^Awaiter >,
+                continuation: ('TResult1 -> TaskValidationCode<'TOverall, 'Error, 'TResult2>)
+            ) : bool =
+
+            let mutable awaiter = awaiter.Awaiter
+
+            let cont =
+                (TaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
+                    let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
+                    (continuation result).Invoke(&sm)
+                ))
+
+            if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                cont.Invoke(&sm)
+            else
+                sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                false
+
+        [<NoEagerConstraintApplication>]
+        member inline _.Bind<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            (
+                awaiter: PlainAwaiter< ^Awaiter >,
+                continuation: ('TResult1 -> TaskValidationCode<'TOverall, 'Error, 'TResult2>)
+            ) : TaskValidationCode<'TOverall, 'Error, 'TResult2> =
+
+            TaskValidationCode<'TOverall, 'Error, _>(fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE CODE START
+                    let mutable awaiter = awaiter.Awaiter
+
+                    let mutable __stack_fin = true
+
+                    if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                        // This will yield with __stack_yield_fin = false
+                        // This will resume with __stack_yield_fin = true
+                        let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                        __stack_fin <- __stack_yield_fin
+
+                    if __stack_fin then
+                        let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
+                        (continuation result).Invoke(&sm)
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                        false
+                else
+                    TaskValidationBuilderBase.BindDynamic<
+                        'TResult1,
+                        'TResult2,
+                        ^Awaiter,
+                        'TOverall,
+                        'Error
+                     >(
+                        &sm,
+                        awaiter,
+                        continuation
+                    )
+            //-- RESUMABLE CODE END
+            )
+
+        [<NoEagerConstraintApplication>]
+        member inline this.ReturnFrom< ^Awaiter, 'T, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
+            (awaiter: PlainAwaiter< ^Awaiter >)
+            : TaskValidationCode<'T, 'Error, 'T> =
+
+            this.Bind(awaiter, (fun v -> this.Return v))
+
+        [<NoEagerConstraintApplication>]
+        member inline this.BindReturn< ^Awaiter, 'T, 'U, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> Validation<'T, 'Error>)>
+            (awaiter: ^Awaiter, f: 'T -> 'U)
+            : TaskValidationCode<'U, 'Error, 'U> =
+
+            this.Bind(awaiter, (fun x -> this.Return(f x)))
+
+        [<NoEagerConstraintApplication>]
+        member inline this.BindReturn< ^Awaiter, 'T, 'U, 'Error
+            when ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
+            (awaiter: PlainAwaiter< ^Awaiter >, f: 'T -> 'U)
+            : TaskValidationCode<'U, 'Error, 'U> =
+
+            this.Bind(awaiter, (fun x -> this.Return(f x)))
 
         member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskValidationCode<'TOverall, 'Error, 'T>)
@@ -612,6 +709,52 @@ module TaskValidationCEExtensionsHighPriority =
             =
             TaskValidation.zip t1 t2
 
+        member inline _.MergeSources
+            (t1: TaskValidation<'T, 'Error>, t2: ValueTaskAwaiter<Validation<'T1, 'Error>>)
+            =
+            TaskValidation.zip t1 (AwaiterTask.ofAwaiter t2)
+
+        member inline _.MergeSources
+            (t1: ValueTaskAwaiter<Validation<'T, 'Error>>, t2: TaskValidation<'T1, 'Error>)
+            =
+            TaskValidation.zip (AwaiterTask.ofAwaiter t1) t2
+
+        member inline _.MergeSources
+            (
+                t1: ValueTaskAwaiter<Validation<'T, 'Error>>,
+                t2: ValueTaskAwaiter<Validation<'T1, 'Error>>
+            ) =
+            TaskValidation.zip (AwaiterTask.ofAwaiter t1) (AwaiterTask.ofAwaiter t2)
+
+        member inline _.MergeSources
+            (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskValidation<'T1, 'Error>)
+            =
+            TaskValidation.zip (Task.map Ok (AwaiterTask.ofAwaiter t1.Awaiter)) t2
+
+        member inline _.MergeSources
+            (t1: TaskValidation<'T, 'Error>, t2: PlainAwaiter< ^Awaiter2 >)
+            =
+            TaskValidation.zip t1 (Task.map Ok (AwaiterTask.ofAwaiter t2.Awaiter))
+
+        member inline _.MergeSources
+            (t1: PlainAwaiter< ^Awaiter1 >, t2: ValueTaskAwaiter<Validation<'T1, 'Error>>)
+            =
+            TaskValidation.zip
+                (Task.map Ok (AwaiterTask.ofAwaiter t1.Awaiter))
+                (AwaiterTask.ofAwaiter t2)
+
+        member inline _.MergeSources
+            (t1: ValueTaskAwaiter<Validation<'T, 'Error>>, t2: PlainAwaiter< ^Awaiter2 >)
+            =
+            TaskValidation.zip
+                (AwaiterTask.ofAwaiter t1)
+                (Task.map Ok (AwaiterTask.ofAwaiter t2.Awaiter))
+
+        member inline _.MergeSources(t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >) =
+            TaskValidation.zip
+                (Task.map Ok (AwaiterTask.ofAwaiter t1.Awaiter))
+                (Task.map Ok (AwaiterTask.ofAwaiter t2.Awaiter))
+
         member inline _.Source(s: #seq<_>) = s
 
 [<AutoOpen>]
@@ -627,13 +770,11 @@ module TaskValidationCEExtensionsMediumPriority =
     // Medium priority extensions
     type TaskValidationBuilderBase with
 
-        member inline this.Source(t: Task<'T>) : TaskValidation<'T, 'Error> =
-            t
-            |> Task.map Ok
+        member inline this.Source(t: Task<'T>) : PlainAwaiter<TaskAwaiter<'T>> =
+            PlainAwaiter(t.GetAwaiter())
 
-        member inline this.Source(computation: Async<'T>) : TaskValidation<'T, 'Error> =
-            Async.StartImmediateAsTask computation
-            |> Task.map Ok
+        member inline this.Source(computation: Async<'T>) : PlainAwaiter<TaskAwaiter<'T>> =
+            PlainAwaiter((Async.StartImmediateAsTask computation).GetAwaiter())
 
         member inline _.Source
             (asyncResult: Async<Result<'ok, 'error>>)
@@ -644,10 +785,10 @@ module TaskValidationCEExtensionsMediumPriority =
         member inline _.Source(s: Task<Result<'ok, 'error>>) : TaskValidation<'ok, 'error> =
             TaskResult.mapError List.singleton s
 
-        member inline _.Source(result: Result<_, _>) : Task<Validation<_, _>> =
-            result
-            |> Validation.ofResult
-            |> Task.result
+        member inline _.Source
+            (result: Result<'T, 'Error>)
+            : ValueTaskAwaiter<Validation<'T, 'Error>> =
+            ValueTask<_>(Validation.ofResult result).GetAwaiter()
 
 [<AutoOpen>]
 module TaskValidationCEExtensionsResult =
@@ -673,13 +814,17 @@ module TaskValidationCEExtensionsHighPriority2 =
         member inline _.Source(asyncResult: Async<Validation<_, _>>) : Task<Validation<_, _>> =
             Async.StartImmediateAsTask asyncResult
 
-        member inline _.Source(t: ValueTask<Validation<_, _>>) : Task<Validation<_, _>> =
-            task { return! t }
+        member inline _.Source
+            (t: ValueTask<Validation<'T, 'Error>>)
+            : ValueTaskAwaiter<Validation<'T, 'Error>> =
+            t.GetAwaiter()
 
-        member inline _.Source(result: Validation<_, _>) : Task<Validation<_, _>> =
-            Task.result result
+        member inline _.Source
+            (result: Validation<'T, 'Error>)
+            : ValueTaskAwaiter<Validation<'T, 'Error>> =
+            ValueTask<_>(result).GetAwaiter()
 
-        member inline _.Source(result: Choice<_, _>) : Task<Validation<_, _>> =
-            result
-            |> Validation.ofChoice
-            |> Task.result
+        member inline _.Source
+            (result: Choice<'T, 'Error>)
+            : ValueTaskAwaiter<Validation<'T, 'Error>> =
+            ValueTask<_>(Validation.ofChoice result).GetAwaiter()
