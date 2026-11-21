@@ -7,6 +7,10 @@
     - BREAKING (source): F# now infers an unannotated source parameter as the builder's shape. `let f x = cancellableTaskResult { let! v = x in return v }` gives `x: CancellationToken -> Task<Result<'a, 'b>>`, not `CancellationToken -> Task<'a>`, as `taskResult` and `asyncResult` do. So `f (fun _ -> Task.FromResult(Ok 1))` now returns `Ok 1`, not `Ok (Ok 1)`. Annotate the parameter to keep the old type.
     - BREAKING (source): a custom `Source` extension on the builder base types that returns an awaiter of any other value must now return `PlainAwaiter(awaiter)`, or `fun ct -> PlainAwaiter(awaiter)` for a cancellable source. A direct call to `Bind` or `ReturnFrom` with such an awaiter must wrap it in the same way.
     - The changed members are `inline`, so assemblies that were compiled against an earlier version keep working. Recompile a library that wraps these builders in its own `inline` functions.
+- [Bind plain, Result, Validation, and Option values in the task builders without an extra Task](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/397) Credits @TheAngryByrd
+    - In `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, and their `background` variants, `let!` on a plain `Task<'T>`, `ValueTask<'T>`, `Async<'T>`, or other awaitable, and on a `Result`, `Choice`, `Validation`, `Option`, or `ValueTask` of one, no longer copies the value into a new `Task`. With 3 completed binds in `taskResult`, a plain `Task` source goes from 320 B and about 66 ns to 80 B and about 36 ns.
+    - BREAKING (binary): these `Source` members now return an awaiter (`PlainAwaiter<_>`, `ValueTaskAwaiter<_>`) or a `ValueTask<_>`, not a `Task<_>`. Recompile assemblies that inline these builders. A custom `BindReturn` or `MergeSources` extension, or a direct call to `Source`, that expects a `Task<_>` from these `Source` members must handle the new types.
+    - `taskResultOption` does not change.
 
 ### 6.0.0-beta009 - November 20, 2026
 
