@@ -5,9 +5,9 @@ open Microsoft.FSharp.Core.CompilerServices
 [<RequireQualifiedAccess>]
 module List =
 
-    let inline traverseResultM'
+    let traverseResultM'
         state
-        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (f: 'okInput -> Result<'okOutput, 'error>)
         xs
         : Result<'okOutput list, 'error> =
         match xs with
@@ -24,22 +24,21 @@ module List =
                 let mutable oks = ListCollector()
                 oks.AddMany initialSuccesses
 #endif
-                let mutable err = Unchecked.defaultof<'error>
-                let mutable ok = true
+                let mutable err: 'error voption = ValueNone
                 use e = (List.toSeq xs).GetEnumerator()
 
-                while ok
+                while err.IsNone
                       && e.MoveNext() do
                     match f e.Current with
                     | Ok r -> oks.Add r
-                    | Error e ->
-                        err <- e
-                        ok <- false
+                    | Error e -> err <- ValueSome e
 
+                match err with
+                | ValueSome e -> Error e
 #if FABLE_COMPILER
-                if ok then Ok(List.ofSeq oks) else Error err
+                | ValueNone -> Ok(List.ofSeq oks)
 #else
-                if ok then Ok(oks.Close()) else Error err
+                | ValueNone -> Ok(oks.Close())
 #endif
 
     let rec private traverseAsyncResultM'

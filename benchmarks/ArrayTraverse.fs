@@ -13,20 +13,19 @@ module Original =
         =
         let results = ResizeArray<'okOutput>(xs.Length)
         let mutable index = 0
-        let mutable error = Unchecked.defaultof<'error>
-        let mutable ok = true
+        let mutable error: 'error voption = ValueNone
 
-        while ok
+        while error.IsNone
               && index < xs.Length do
             match f xs[index] with
             | Ok value ->
                 results.Add value
                 index <- index + 1
-            | Error e ->
-                error <- e
-                ok <- false
+            | Error e -> error <- ValueSome e
 
-        if ok then Ok(results.ToArray()) else Error error
+        match error with
+        | ValueNone -> Ok(results.ToArray())
+        | ValueSome e -> Error e
 
     let inline traverseResultA
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
@@ -61,12 +60,10 @@ module Original =
 
 module private Candidates =
 
-    let traverseResultM1' state f
-        (xs: _[] | null)=
-        if isNull xs then raise (System.ArgumentNullException(nameof xs))
+    let traverseResultM1' state f xs =
         match xs with
         | [||] -> state
-        | xs -> Seq.traverseResultM' state f xs
+        | xs -> Seq.traverseResultM' (Result.map Seq.ofArray state) f xs
 
     let traverseResultM1 f xs = traverseResultM1' (Ok Array.empty) f xs
 

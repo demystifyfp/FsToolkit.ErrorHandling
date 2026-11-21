@@ -91,20 +91,15 @@ module Original =
 
 module private Candidates =
 
-    let traverseResultM1' state f
-        (xs: _ list | null)=
-        if isNull xs then raise (System.ArgumentNullException(nameof xs))
-        match xs with
-        | [] -> state
-        | xs ->
-            Seq.traverseResultM' state f xs
-            |> Result.map List.ofArray
+    let traverseResultM1' state f xs =
+        Seq.traverseResultM' state f xs
+        |> Result.map Array.toList
 
-    let traverseResultM1 f xs = traverseResultM1' (Ok List.empty) f xs
+    let traverseResultM1 f xs = traverseResultM1' (Ok []) f xs
 
-    let inline traverseResultM2'
+    let traverseResultM2'
         state
-        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (f: 'okInput -> Result<'okOutput, 'error>)
         xs
         : Result<'okOutput list, 'error> =
         match xs with
@@ -121,24 +116,23 @@ module private Candidates =
                 let mutable oks = ListCollector()
                 oks.AddMany initialSuccesses
 #endif
-                let mutable err = Unchecked.defaultof<'error>
-                let mutable ok = true
+                let mutable err: 'error voption = ValueNone
                 use e = (List.toSeq xs).GetEnumerator()
 
-                while ok
+                while err.IsNone
                       && e.MoveNext() do
                     match f e.Current with
                     | Ok r -> oks.Add r
-                    | Error e ->
-                        err <- e
-                        ok <- false
+                    | Error e -> err <- ValueSome e
 
+                match err with
+                | ValueSome e -> Error e
 #if FABLE_COMPILER
-                if ok then Ok(List.ofSeq oks) else Error err
+                | ValueNone -> Ok(List.ofSeq oks)
 #else
-                if ok then Ok(oks.Close()) else Error err
+                | ValueNone -> Ok(oks.Close())
 #endif
-    let traverseResultM2 f xs = traverseResultM2' (Ok List.empty) f xs
+    let traverseResultM2 f xs = traverseResultM2' (Ok []) f xs
 
     let inline traverseResultA1'
         (state: Result<'a list, 'b list>)
