@@ -19,24 +19,6 @@ module CancellableTaskResultBuilderBase =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
-    /// <exclude/>
-    /// <summary>An awaiter whose result <c>let!</c> binds as it is.</summary>
-    /// <remarks>
-    /// The <c>Source</c> members of the cancellable builders wrap each awaiter whose result is not the builder's
-    /// <c>Result</c> or <c>Option</c> type. Then an awaiter of a <c>Result</c> or an <c>Option</c> matches only one
-    /// <c>Bind</c> overload, and F# can infer the type of the bound value before it checks the continuation.
-    /// A custom <c>Source</c> extension that returns an awaiter of any other value must return it as
-    /// <c>PlainAwaiter(awaiter)</c>, or <c>fun ct -> PlainAwaiter(awaiter)</c> for a cancellable source.
-    /// </remarks>
-    [<Struct; NoComparison; NoEquality>]
-    [<System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)>]
-    type PlainAwaiter<'Awaiter> =
-        /// <summary>The awaiter.</summary>
-        val Awaiter: 'Awaiter
-        /// <summary>Wraps an awaiter.</summary>
-        new(awaiter) = { Awaiter = awaiter }
-
-
     /// The extra data stored in ResumableStateMachine for tasks
     [<Struct; NoComparison; NoEquality>]
     type CancellableTaskResultBuilderBaseStateMachineData<'T, 'Error, 'Builder> =
