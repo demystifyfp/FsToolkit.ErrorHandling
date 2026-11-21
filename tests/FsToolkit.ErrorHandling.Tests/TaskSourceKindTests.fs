@@ -44,6 +44,31 @@ let private pendingFault () : Task<int> =
         return failwith "boom"
     }
 
+type private MyCanceled(message: string) =
+    inherit OperationCanceledException(message)
+
+let private pendingCancel () : Task<int> =
+    task {
+        do! Task.Yield()
+        return raise (MyCanceled "mine")
+    }
+
+// Runs each posted callback on the thread pool, with this context set.
+type private PostContext() =
+    inherit SynchronizationContext()
+
+    override this.Post(callback, state) =
+        ThreadPool.QueueUserWorkItem(fun _ ->
+            let previous = SynchronizationContext.Current
+            SynchronizationContext.SetSynchronizationContext(this)
+
+            try
+                callback.Invoke(state)
+            finally
+                SynchronizationContext.SetSynchronizationContext(previous)
+        )
+        |> ignore
+
 let rec private innermost (e: exn) =
     match e with
     | :? AggregateException as a ->
@@ -359,6 +384,109 @@ let allTests =
 
                     Expect.equal outcome "canceled" ""
                 }
+            testCaseTask "and! keeps the exception object of a canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskResult {
+                            let! a = Task.FromException<int>(MyCanceled "mine")
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! keeps the exception object of a pending canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskResult {
+                            let! a = pendingCancel ()
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask
+                "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskResult {
+                                let! _ = gate.Task.ConfigureAwait(false)
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok false: Result<bool, string>) ""
+                }
+            testCaseTask "let! of a plain source resumes on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskResult {
+                                let! _ = gate.Task
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok true: Result<bool, string>) ""
+                }
         ]
         testList "backgroundTaskResult" [
             testCaseTask "and! takes a Task source and a Task source"
@@ -665,6 +793,109 @@ let allTests =
                         }
 
                     Expect.equal outcome "canceled" ""
+                }
+            testCaseTask "and! keeps the exception object of a canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        backgroundTaskResult {
+                            let! a = Task.FromException<int>(MyCanceled "mine")
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! keeps the exception object of a pending canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        backgroundTaskResult {
+                            let! a = pendingCancel ()
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask
+                "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            backgroundTaskResult {
+                                let! _ = gate.Task.ConfigureAwait(false)
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok false: Result<bool, string>) ""
+                }
+            testCaseTask "let! of a plain source does not capture the context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            backgroundTaskResult {
+                                let! _ = gate.Task
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok false: Result<bool, string>) ""
                 }
         ]
         testList "taskValidation" [
@@ -995,6 +1226,109 @@ let allTests =
 
                     Expect.equal outcome "canceled" ""
                 }
+            testCaseTask "and! keeps the exception object of a canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskValidation {
+                            let! a = Task.FromException<int>(MyCanceled "mine")
+                            and! b = (Validation.ok 2: Validation<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! keeps the exception object of a pending canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskValidation {
+                            let! a = pendingCancel ()
+                            and! b = (Validation.ok 2: Validation<int, string>)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask
+                "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskValidation {
+                                let! _ = gate.Task.ConfigureAwait(false)
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok false: Validation<bool, string>) ""
+                }
+            testCaseTask "let! of a plain source resumes on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskValidation {
+                                let! _ = gate.Task
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Ok true: Validation<bool, string>) ""
+                }
         ]
         testList "taskOption" [
             testCaseTask "and! takes a Task source and a Task source"
@@ -1301,6 +1635,109 @@ let allTests =
 
                     Expect.equal outcome "canceled" ""
                 }
+            testCaseTask "and! keeps the exception object of a canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskOption {
+                            let! a = Task.FromException<int>(MyCanceled "mine")
+                            and! b = (Some 2)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! keeps the exception object of a pending canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskOption {
+                            let! a = pendingCancel ()
+                            and! b = (Some 2)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask
+                "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskOption {
+                                let! _ = gate.Task.ConfigureAwait(false)
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Some false) ""
+                }
+            testCaseTask "let! of a plain source resumes on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskOption {
+                                let! _ = gate.Task
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (Some true) ""
+                }
         ]
         testList "taskValueOption" [
             testCaseTask "and! takes a Task source and a Task source"
@@ -1606,6 +2043,109 @@ let allTests =
                         }
 
                     Expect.equal outcome "canceled" ""
+                }
+            testCaseTask "and! keeps the exception object of a canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskValueOption {
+                            let! a = Task.FromException<int>(MyCanceled "mine")
+                            and! b = (ValueSome 2)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! keeps the exception object of a pending canceled source"
+            <| fun () ->
+                task {
+                    let computation () =
+                        taskValueOption {
+                            let! a = pendingCancel ()
+                            and! b = (ValueSome 2)
+                            return a + b
+                        }
+
+                    let! outcome =
+                        task {
+                            try
+                                let! _ = computation ()
+                                return "completed"
+                            with e ->
+                                return
+                                    (let e = innermost e in
+
+                                     e.GetType().Name
+                                     + ": "
+                                     + e.Message)
+                        }
+
+                    Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask
+                "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskValueOption {
+                                let! _ = gate.Task.ConfigureAwait(false)
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (ValueSome false) ""
+                }
+            testCaseTask "let! of a plain source resumes on the captured context"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<int>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = PostContext()
+                    let previous = SynchronizationContext.Current
+                    SynchronizationContext.SetSynchronizationContext(context)
+
+                    let computation =
+                        try
+                            taskValueOption {
+                                let! _ = gate.Task
+                                return obj.ReferenceEquals(SynchronizationContext.Current, context)
+                            }
+                        finally
+                            SynchronizationContext.SetSynchronizationContext(previous)
+
+                    gate.SetResult 1
+                    let! actual = computation
+                    Expect.equal actual (ValueSome true) ""
                 }
         ]
     ]

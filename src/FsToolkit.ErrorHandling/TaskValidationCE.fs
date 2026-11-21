@@ -538,7 +538,7 @@ module TaskValidationCEExtensionsLowPriority =
             )
 
         [<NoEagerConstraintApplication>]
-        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error
+        member inline this.ReturnFrom< ^Awaiter, 'T, 'Error
             when ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> Validation<'T, 'Error>)>

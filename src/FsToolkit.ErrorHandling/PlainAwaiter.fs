@@ -35,30 +35,19 @@ module AwaiterTask =
         and ^Awaiter: (member GetResult: unit -> 'T)>
         (awaiter: ^Awaiter)
         : Task<'T> =
-        let fail (source: TaskCompletionSource<'T>) (e: exn) =
-            match e with
-            | :? OperationCanceledException as e ->
-                source.TrySetCanceled(e.CancellationToken)
-                |> ignore
-            | e -> source.SetException e
+        // AsyncTaskMethodBuilder keeps the exception object of a canceled source. TaskCompletionSource keeps only the token.
+        let builder = ref (AsyncTaskMethodBuilder<'T>.Create())
+        let task = builder.contents.Task
 
-        let complete (source: TaskCompletionSource<'T>) =
+        let complete () =
             try
-                source.SetResult((^Awaiter: (member GetResult: unit -> 'T) awaiter))
+                builder.contents.SetResult((^Awaiter: (member GetResult: unit -> 'T) awaiter))
             with e ->
-                fail source e
+                builder.contents.SetException e
 
         if (^Awaiter: (member get_IsCompleted: unit -> bool) awaiter) then
-            try
-                Task.FromResult((^Awaiter: (member GetResult: unit -> 'T) awaiter))
-            with e ->
-                let source = TaskCompletionSource<'T>()
-                fail source e
-                source.Task
+            complete ()
         else
-            let source =
-                TaskCompletionSource<'T>(TaskCreationOptions.RunContinuationsAsynchronously)
+            (awaiter :> ICriticalNotifyCompletion).UnsafeOnCompleted(fun () -> complete ())
 
-            (awaiter :> ICriticalNotifyCompletion).UnsafeOnCompleted(fun () -> complete source)
-
-            source.Task
+        task
