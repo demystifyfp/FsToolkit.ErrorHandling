@@ -588,7 +588,7 @@ module TaskResultCEExtensionsLowPriority =
             (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (t))
 
         [<NoEagerConstraintApplication>]
-        member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T
             when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
             and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
