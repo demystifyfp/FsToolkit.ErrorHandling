@@ -1189,7 +1189,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a Task&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
             member inline _.Source
@@ -1199,7 +1199,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a Task&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a Task&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
             member inline _.Source
@@ -1328,7 +1328,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a ColdTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a ColdTask&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1338,7 +1338,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a ColdTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a ColdTask&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1355,7 +1355,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a CancellableTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a CancellableTask&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1366,7 +1366,7 @@ module CancellableTaskResultBuilderBase =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a CancellableTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a CancellableTask&lt;Result&lt;'T, 'Error&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source

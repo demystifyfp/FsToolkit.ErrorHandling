@@ -53,6 +53,22 @@ let private pendingCancel () : Task<int> =
         return raise (MyCanceled "mine")
     }
 
+// GetResult reads an AsyncLocal. OnCompleted flows the ExecutionContext. UnsafeOnCompleted runs the continuation without it.
+type LocalReaderAwaiter(gate: Task, local: AsyncLocal<int>) =
+    member _.IsCompleted = gate.IsCompleted
+    member _.GetResult() = local.Value
+
+    interface System.Runtime.CompilerServices.ICriticalNotifyCompletion with
+        member _.OnCompleted(continuation) =
+            gate.ContinueWith(fun (_: Task) -> continuation.Invoke())
+            |> ignore
+
+        member _.UnsafeOnCompleted(continuation) =
+            gate.ConfigureAwait(false).GetAwaiter().UnsafeOnCompleted(continuation)
+
+type LocalReader(gate: Task, local: AsyncLocal<int>) =
+    member _.GetAwaiter() = LocalReaderAwaiter(gate, local)
+
 // Runs each posted callback on the thread pool, with this context set.
 type private PostContext() =
     inherit SynchronizationContext()
@@ -435,6 +451,33 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let local = AsyncLocal<int>()
+                    local.Value <- 40
+
+                    let computation =
+                        taskResult {
+                            let! a = LocalReader(gate.Task, local)
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test releases it"
+
+                    local.Value <- 0
+                    gate.SetResult()
+                    let! actual = computation
+                    Expect.equal actual (Ok 42: Result<int, string>) ""
                 }
             testCaseTask
                 "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
@@ -845,6 +888,33 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let local = AsyncLocal<int>()
+                    local.Value <- 40
+
+                    let computation =
+                        backgroundTaskResult {
+                            let! a = LocalReader(gate.Task, local)
+                            and! b = (Ok 2: Result<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test releases it"
+
+                    local.Value <- 0
+                    gate.SetResult()
+                    let! actual = computation
+                    Expect.equal actual (Ok 42: Result<int, string>) ""
                 }
             testCaseTask
                 "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
@@ -1278,6 +1348,33 @@ let allTests =
 
                     Expect.equal outcome "MyCanceled: mine" ""
                 }
+            testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let local = AsyncLocal<int>()
+                    local.Value <- 40
+
+                    let computation =
+                        taskValidation {
+                            let! a = LocalReader(gate.Task, local)
+                            and! b = (Validation.ok 2: Validation<int, string>)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test releases it"
+
+                    local.Value <- 0
+                    gate.SetResult()
+                    let! actual = computation
+                    Expect.equal actual (Ok 42: Validation<int, string>) ""
+                }
             testCaseTask
                 "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
             <| fun () ->
@@ -1687,6 +1784,33 @@ let allTests =
 
                     Expect.equal outcome "MyCanceled: mine" ""
                 }
+            testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let local = AsyncLocal<int>()
+                    local.Value <- 40
+
+                    let computation =
+                        taskOption {
+                            let! a = LocalReader(gate.Task, local)
+                            and! b = (Some 2)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test releases it"
+
+                    local.Value <- 0
+                    gate.SetResult()
+                    let! actual = computation
+                    Expect.equal actual (Some 42) ""
+                }
             testCaseTask
                 "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"
             <| fun () ->
@@ -2095,6 +2219,33 @@ let allTests =
                         }
 
                     Expect.equal outcome "MyCanceled: mine" ""
+                }
+            testCaseTask "and! reads a pending custom source in the caller's ExecutionContext"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let local = AsyncLocal<int>()
+                    local.Value <- 40
+
+                    let computation =
+                        taskValueOption {
+                            let! a = LocalReader(gate.Task, local)
+                            and! b = (ValueSome 2)
+                            return a + b
+                        }
+
+                    Expect.isFalse
+                        computation.IsCompleted
+                        "The source must be pending when the test releases it"
+
+                    local.Value <- 0
+                    gate.SetResult()
+                    let! actual = computation
+                    Expect.equal actual (ValueSome 42) ""
                 }
             testCaseTask
                 "let! of a plain source with ConfigureAwait(false) does not resume on the captured context"

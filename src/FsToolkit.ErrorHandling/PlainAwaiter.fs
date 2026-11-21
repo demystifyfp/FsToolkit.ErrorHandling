@@ -48,6 +48,7 @@ module AwaiterTask =
         if (^Awaiter: (member get_IsCompleted: unit -> bool) awaiter) then
             complete ()
         else
-            (awaiter :> ICriticalNotifyCompletion).UnsafeOnCompleted(fun () -> complete ())
+            // OnCompleted runs complete in the caller's ExecutionContext. UnsafeOnCompleted does not.
+            (awaiter :> INotifyCompletion).OnCompleted(fun () -> complete ())
 
         task

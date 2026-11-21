@@ -1109,7 +1109,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a Task&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
             member inline _.Source
@@ -1119,7 +1119,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a Task&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a Task&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>'Awaiter</returns>
             member inline _.Source
@@ -1268,7 +1268,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a ColdTask&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a ColdTask&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1278,7 +1278,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a ColdTask&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a ColdTask&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1295,7 +1295,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a CancellableTask&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a CancellableTask&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1306,7 +1306,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a CancellableTask&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a CancellableTask&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
@@ -1316,7 +1316,7 @@ module CancellableValueTaskOptionCE =
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
-            /// <remarks>This turns a CancellableValueTask&lt;Option<'T>&gt; into a CancellationToken -> 'Awaiter.</remarks>
+            /// <remarks>This turns a CancellableValueTask&lt;Option&lt;'T&gt;&gt; into a CancellationToken -> 'Awaiter.</remarks>
             ///
             /// <returns>CancellationToken -> 'Awaiter</returns>
             member inline _.Source
