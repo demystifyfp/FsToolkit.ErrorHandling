@@ -77,6 +77,10 @@ module BindInferenceTests =
                                         )
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -87,10 +91,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Ok 8) ""
+                        Expect.equal actual (Ok 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -142,6 +150,58 @@ module BindInferenceTests =
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskResult {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(new Resource()): Result<Resource, string>)
+                                        )
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : Result<int, string>)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Ok 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskResult { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Ok 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            cancellableTaskResult {
+                                use! r = Task.FromResult((Error "stop": Result<Resource, string>))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Error "stop") ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
             testList "backgroundCancellableTaskResult" [
@@ -181,6 +241,10 @@ module BindInferenceTests =
                                         )
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -191,10 +255,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Ok 8) ""
+                        Expect.equal actual (Ok 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -246,6 +314,58 @@ module BindInferenceTests =
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            backgroundCancellableTaskResult {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(new Resource()): Result<Resource, string>)
+                                        )
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : Result<int, string>)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Ok 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            backgroundCancellableTaskResult { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Ok 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            backgroundCancellableTaskResult {
+                                use! r = Task.FromResult((Error "stop": Result<Resource, string>))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Error "stop") ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
             testList "cancellableValueTaskResult" [
@@ -285,6 +405,10 @@ module BindInferenceTests =
                                         )
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -295,10 +419,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Ok 8) ""
+                        Expect.equal actual (Ok 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -350,6 +478,58 @@ module BindInferenceTests =
 
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableValueTaskResult {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(new Resource()): Result<Resource, string>)
+                                        )
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Ok(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : Result<int, string>)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Ok 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableValueTaskResult { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Ok 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            cancellableValueTaskResult {
+                                use! r = Task.FromResult((Error "stop": Result<Resource, string>))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Error "stop") ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
             testList "cancellableTaskValidation" [
@@ -402,6 +582,10 @@ module BindInferenceTests =
                                         )
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -412,10 +596,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Ok 8) ""
+                        Expect.equal actual (Ok 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -481,6 +669,63 @@ module BindInferenceTests =
                         Expect.equal actual (Ok 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
                     }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskValidation {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Validation.ok (new Resource())
+                                            : Validation<Resource, string>)
+                                        )
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Validation.ok (
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : Validation<int, string>)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Ok 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskValidation { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Ok 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            cancellableTaskValidation {
+                                use! r =
+                                    Task.FromResult(
+                                        (Validation.error "stop": Validation<Resource, string>)
+                                    )
+
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Error [ "stop" ]) ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
+                    }
             ]
             testList "cancellableTaskOption" [
                 testCaseTask "let! infers the type of each source"
@@ -512,6 +757,10 @@ module BindInferenceTests =
                                         Task.FromResult((Some(new Resource()): Resource option))
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -522,10 +771,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Some 8) ""
+                        Expect.equal actual (Some 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -575,6 +828,56 @@ module BindInferenceTests =
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskOption {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult((Some(new Resource()): Resource option))
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Some(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : int option)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Some 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableTaskOption { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Some 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            cancellableTaskOption {
+                                use! r = Task.FromResult((None: Resource option))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual None ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
             testList "backgroundCancellableTaskOption" [
@@ -607,6 +910,10 @@ module BindInferenceTests =
                                         Task.FromResult((Some(new Resource()): Resource option))
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -617,10 +924,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Some 8) ""
+                        Expect.equal actual (Some 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -670,6 +981,56 @@ module BindInferenceTests =
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            backgroundCancellableTaskOption {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult((Some(new Resource()): Resource option))
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Some(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : int option)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Some 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            backgroundCancellableTaskOption { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Some 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            backgroundCancellableTaskOption {
+                                use! r = Task.FromResult((None: Resource option))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual None ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
             testList "cancellableValueTaskOption" [
@@ -702,6 +1063,10 @@ module BindInferenceTests =
                                         Task.FromResult((Some(new Resource()): Resource option))
 
                                 let! h = Task.FromResult(new Resource())
+                                let! i = ValueTask<Resource>(new Resource())
+                                let! j = async { return new Resource() }
+                                let! k = cancellableTask { return new Resource() }
+                                let! l = fun () -> Task.FromResult(new Resource())
 
                                 return
                                     a.Value
@@ -712,10 +1077,14 @@ module BindInferenceTests =
                                     + f.Value
                                     + g.Value
                                     + h.Value
+                                    + i.Value
+                                    + j.Value
+                                    + k.Value
+                                    + l.Value
                             }
                             |> runWith
 
-                        Expect.equal actual (Some 8) ""
+                        Expect.equal actual (Some 12) ""
                     }
                 testCaseTask "use! disposes an IDisposable"
                 <| fun () ->
@@ -765,6 +1134,56 @@ module BindInferenceTests =
 
                         Expect.equal actual (Some 1) ""
                         Expect.equal resource.Disposed 1 "The resource must be disposed once"
+                    }
+                testCaseTask "let! and return! take lambdas with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableValueTaskOption {
+                                let! a = fun ct -> Task.FromResult(new Resource())
+
+                                let! b =
+                                    fun _ ->
+                                        Task.FromResult((Some(new Resource()): Resource option))
+
+                                return!
+                                    fun _ ->
+                                        Task.FromResult(
+                                            (Some(
+                                                a.Value
+                                                + b.Value
+                                            )
+                                            : int option)
+                                        )
+                            }
+                            |> runWith
+
+                        Expect.equal actual (Some 2) ""
+                    }
+                testCaseTask "return! takes a plain lambda with an unannotated parameter"
+                <| fun () ->
+                    task {
+                        let! actual =
+                            cancellableValueTaskOption { return! fun _ -> Task.FromResult 3 }
+                            |> runWith
+
+                        Expect.equal actual (Some 3) ""
+                    }
+                testCaseTask "use! of a stopped source does not run the rest of the computation"
+                <| fun () ->
+                    task {
+                        let ran = ref false
+
+                        let! actual =
+                            cancellableValueTaskOption {
+                                use! r = Task.FromResult((None: Resource option))
+                                ran.Value <- true
+                                return r.Value
+                            }
+                            |> runWith
+
+                        Expect.equal actual None ""
+                        Expect.isFalse ran.Value "The computation must stop at the use! line"
                     }
             ]
         ]

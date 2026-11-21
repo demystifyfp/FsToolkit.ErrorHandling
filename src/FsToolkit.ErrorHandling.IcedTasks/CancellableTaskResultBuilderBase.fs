@@ -19,12 +19,13 @@ module CancellableTaskResultBuilderBase =
     /// CancellationToken -> Task<Result<'T, 'Error>>
     type CancellableTaskResult<'T, 'Error> = CancellableTask<Result<'T, 'Error>>
 
-    /// <exclude/>
     /// <summary>An awaiter whose result <c>let!</c> binds as it is.</summary>
     /// <remarks>
     /// The <c>Source</c> members of the cancellable builders wrap each awaiter whose result is not the builder's
     /// <c>Result</c> or <c>Option</c> type. Then an awaiter of a <c>Result</c> or an <c>Option</c> matches only one
     /// <c>Bind</c> overload, and F# can infer the type of the bound value before it checks the continuation.
+    /// A custom <c>Source</c> extension that returns an awaiter of any other value must return it as
+    /// <c>PlainAwaiter(awaiter)</c>, or <c>fun ct -> PlainAwaiter(awaiter)</c> for a cancellable source.
     /// </remarks>
     [<Struct; NoComparison; NoEquality>]
     type PlainAwaiter<'Awaiter> =
@@ -1301,6 +1302,14 @@ module CancellableTaskResultBuilderBase =
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
                 (fun (_: CancellationToken) -> PlainAwaiter(Awaitable.GetTaskAwaiter(task ())))
 
+
+    /// <exclude/>
+    [<AutoOpen>]
+    module HighPriorityCancellable =
+
+        // These Sources must rank above the Sources of unit functions in the module before this one, so that F# gives the parameter of an unannotated lambda the type CancellationToken.
+        type CancellableTaskResultBuilderBase with
+
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a CancellableTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1321,6 +1330,10 @@ module CancellableTaskResultBuilderBase =
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
                 (fun ct -> PlainAwaiter(Awaitable.GetTaskAwaiter(task ct)))
 
+            member inline _.Source
+                ([<InlineIfLambda>] cancellableValueTask: CancellationToken -> ValueTask<'T>)
+                : CancellationToken -> PlainAwaiter<ValueTaskAwaiter<'T>> =
+                (fun ct -> PlainAwaiter((cancellableValueTask ct).GetAwaiter()))
 
     /// <exclude/>
     [<AutoOpen>]
@@ -1349,6 +1362,13 @@ module CancellableTaskResultBuilderBase =
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun (_: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
 
+    /// <exclude/>
+    [<AutoOpen>]
+    module HighPriorityResultCancellable =
+
+        // These Sources must rank above the Sources of unit functions in the module before this one, so that F# gives the parameter of an unannotated lambda the type CancellationToken. The other Sources here call this.Source, so they must come after every twin.
+        type CancellableTaskResultBuilderBase with
+
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a CancellableTask&lt;Result<'T, 'Error>&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1369,6 +1389,14 @@ module CancellableTaskResultBuilderBase =
                 ([<InlineIfLambda>] task: CancellationToken -> Task<Result<'T, 'Error>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>> =
                 (fun ct -> Awaitable.GetTaskAwaiter(task ct))
+
+            member inline _.Source
+                ([<InlineIfLambda>] cancellableValueTask:
+                    CancellationToken -> ValueTask<Result<'T, 'Error>>)
+                : CancellationToken
+                      -> Awaiter<ValueTaskAwaiter<Result<'T, 'Error>>, Result<'T, 'Error>>
+                =
+                (fun ct -> (cancellableValueTask ct).GetAwaiter())
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///

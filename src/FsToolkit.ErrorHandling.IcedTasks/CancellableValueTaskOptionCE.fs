@@ -1221,6 +1221,14 @@ module CancellableValueTaskOptionCE =
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
                 (fun (_ct: CancellationToken) -> PlainAwaiter(Awaitable.GetTaskAwaiter(task ())))
 
+
+    /// <exclude/>
+    [<AutoOpen>]
+    module HighPriorityCancellable =
+
+        // These Sources must rank above the Sources of unit functions in the module before this one, so that F# gives the parameter of an unannotated lambda the type CancellationToken.
+        type CancellableValueTaskOptionBuilderBase with
+
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a CancellableTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1241,7 +1249,6 @@ module CancellableValueTaskOptionCE =
                 : CancellationToken -> PlainAwaiter<TaskAwaiter<'T>> =
                 (fun ct -> PlainAwaiter(Awaitable.GetTaskAwaiter(task ct)))
 
-
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
             /// <remarks>This turns a CancellableValueTask&lt;'T&gt; into a CancellationToken -> 'Awaiter.</remarks>
@@ -1251,7 +1258,6 @@ module CancellableValueTaskOptionCE =
                 ([<InlineIfLambda>] cancellableValueTask: CancellationToken -> ValueTask<'T>)
                 : CancellationToken -> PlainAwaiter<ValueTaskAwaiter<'T>> =
                 (fun ct -> PlainAwaiter((cancellableValueTask ct).GetAwaiter()))
-
 
     /// <exclude/>
     [<AutoOpen>]
@@ -1279,6 +1285,13 @@ module CancellableValueTaskOptionCE =
                 ([<InlineIfLambda>] task: unit -> Task<Option<'T>>)
                 : CancellationToken -> Awaiter<TaskAwaiter<Option<'T>>, Option<'T>> =
                 (fun (_ct: CancellationToken) -> Awaitable.GetTaskAwaiter(task ()))
+
+    /// <exclude/>
+    [<AutoOpen>]
+    module HighPriorityResultCancellable =
+
+        // These Sources must rank above the Sources of unit functions in the module before this one, so that F# gives the parameter of an unannotated lambda the type CancellationToken. The other Sources here call this.Source, so they must come after every twin.
+        type CancellableValueTaskOptionBuilderBase with
 
             /// <summary>Allows the computation expression to turn other types into CancellationToken -> 'Awaiter</summary>
             ///
