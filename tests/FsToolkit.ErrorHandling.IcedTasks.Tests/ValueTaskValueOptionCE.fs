@@ -3,6 +3,7 @@ module FsToolkit.ErrorHandling.IcedTasks.Tests.ValueTaskValueOptionCETests
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
+open ConfigureAwaitTestHelpers
 
 type private DynamicValueTaskValueOptionBuilder() =
     inherit ValueTaskValueOptionBuilderBase()
@@ -713,9 +714,116 @@ let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
         useStatic
         useDynamic
 
+let ``valueTaskValueOption ConfigureAwait Tests`` =
+    let case name expected start =
+        contextCase name (ValueSome expected) start
+
+    testList "valueTaskValueOption ConfigureAwait in let!, do!, return!, and and!" [
+        yield!
+            sourceCases
+                case
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(configure)
+
+                        if onContext context then return true else return false
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = ValueTask<unit>(gate).ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        do! (gate :> Task).ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+
+        valueCase "return! of a ConfiguredTaskAwaitable<'T>" (ValueSome 1)
+        <| fun () ->
+            (valueTaskValueOption { return! Task.FromResult(1).ConfigureAwait(false) }).AsTask()
+
+        valueCase
+            "let! of a ConfiguredTaskAwaitable of an option binds the whole option"
+            (ValueSome(ValueSome 1))
+        <| fun () ->
+            (valueTaskValueOption {
+                let! x = Task.FromResult(ValueSome 1).ConfigureAwait(false)
+                return x
+            })
+                .AsTask()
+
+        valueCase "and! of ConfiguredTaskAwaitable<'T> sources" (ValueSome 3)
+        <| fun () ->
+            (valueTaskValueOption {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a + b
+            })
+                .AsTask()
+
+        case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
+        <| fun context gate ->
+            (valueTaskValueOption {
+                let! () = gate.ConfigureAwait(false)
+                and! () = Task.FromResult(()).ConfigureAwait(false)
+                return onContext context
+            })
+                .AsTask()
+
+        yield!
+            failureCases
+                (fun gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(false)
+                        return "done"
+                    })
+                        .AsTask()
+                )
+                (fun local gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(false)
+                        return local.Value
+                    })
+                        .AsTask()
+                )
+                (ValueSome "caller")
+
+        for continueOnCapturedContext in
+            [
+                false
+                true
+            ] do
+            case
+                $"let! of a ConfiguredTaskAwaitable<'T> with ConfigureAwait(%b{continueOnCapturedContext}) in the dynamic state machine"
+                continueOnCapturedContext
+            <| fun context gate ->
+                (dynamicValueTaskValueOption {
+                    let! () = gate.ConfigureAwait(continueOnCapturedContext)
+
+                    if onContext context then return true else return false
+                })
+                    .AsTask()
+    ]
+
+
 [<Tests>]
 let allTests =
     testList "ValueTaskValueOption CE Tests" [
+        ``valueTaskValueOption ConfigureAwait Tests``
         ceTests
         ceTestsApplicative
         ``ValueTaskValueOptionCE while ValueNone async disposal Tests``
