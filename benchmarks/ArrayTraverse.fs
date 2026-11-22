@@ -97,13 +97,12 @@ module private Candidates =
         let mutable ok = true
 
         for x in xs do
-            match f x with
-            | Ok value ->
-                if ok then
-                    results.Add value
-            | Error e ->
-                error <- e
-                ok <- false
+            if ok then
+                match f x with
+                | Ok value -> results.Add value
+                | Error e ->
+                    error <- e
+                    ok <- false
 
         if ok then Ok(results.Close()) else Error error
 
@@ -111,21 +110,79 @@ module private Candidates =
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
         (xs: 'okInput[])
         =
-        let mutable error = Unchecked.defaultof<'error>
-        let mutable ok = true
-
+        let mutable error = ValueNone
         let res = [|
             for x in xs do
-                match f x with
-                | Ok value ->
-                    if ok then
-                        value
-                | Error e ->
-                    error <- e
-                    ok <- false
+                if error.IsNone then
+                    match f x with
+                    | Ok value -> yield value
+                    | Error e -> error <- ValueSome e
         |]
 
-        if ok then Ok res else Error error
+        match error with ValueSome e -> Error e | ValueNone -> Ok res
+    let inline traverseResultM5
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then Original.traverseResultM f xs else
+
+        let mutable results = ArrayCollector()
+        let mutable index = 0
+        let mutable error: 'error voption = ValueNone
+
+        while error.IsNone
+              && index < xs.Length do
+            match f xs[index] with
+            | Ok value ->
+                results.Add value
+                index <- index + 1
+            | Error e -> error <- ValueSome e
+
+        match error with
+        | ValueNone -> Ok(results.Close())
+        | ValueSome e -> Error e
+    let inline traverseResultM6
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then Original.traverseResultM f xs else
+
+        let mutable results = ArrayCollector()
+        let mutable error: 'error voption = ValueNone
+
+        for x in xs do
+            if error.IsNone then
+                match f x with
+                | Ok value -> results.Add value
+                | Error e -> error <- ValueSome e
+
+        match error with
+        | ValueNone -> Ok(results.Close())
+        | ValueSome e -> Error e
+    let  inline traverseResultM7
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then Original.traverseResultM f xs else
+        traverseResultM2 f xs
+    let inline traverseResultM8
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then Original.traverseResultM f xs else
+        traverseResultM3 f xs
+
+    let inline traverseResultM9
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then Original.traverseResultM f xs else
+        traverseResultM4 f xs
 
     let inline traverseResultA1'
         (state: Result<'a[], 'b[]>)
@@ -189,6 +246,51 @@ module private Candidates =
                     if ok then Ok(oks.Close()) else Error(errs.Close())
 #endif
     let traverseResultA2 f xs = traverseResultA2' (Ok Array.empty) f xs
+    let inline traverseResultA3
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        let oks = ResizeArray<'okOutput>(xs.Length)
+        let mutable errors: ResizeArray<'error> voption = ValueNone
+
+        for x in xs do
+            match f x with
+            | Ok value when errors.IsNone -> oks.Add value
+            | Ok _ -> ()
+            | Error e when errors.IsSome -> errors.Value.Add e
+            | Error e ->
+                let buffer = ResizeArray<'error>(xs.Length - oks.Count)
+                errors <- ValueSome buffer
+                buffer.Add e
+
+        match errors with
+        | ValueNone -> Ok(oks.ToArray())
+        | ValueSome errors -> Error(errors.ToArray())
+    let inline traverseResultA4
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then traverseResultA3 f xs else
+        let mutable oks = ArrayCollector()
+        let mutable errors = ArrayCollector()
+        let mutable ok = true
+
+        for x in xs do
+            match f x with
+            | Ok value when ok -> oks.Add value
+            | Ok _ -> ()
+            | Error e ->
+                errors.Add e
+                ok <- false
+        if ok then Ok(oks.Close()) else Error(errors.Close())
+    let inline traverseResultA5
+        ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
+        (xs: 'okInput[])
+        =
+        if xs.Length = 0 then Ok Array.empty
+        elif xs.Length > 2 then traverseResultA3 f xs else
+        Seq.traverseResultA f xs
 
 [<MemoryDiagnoser>]
 [<GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)>]
@@ -198,7 +300,7 @@ type ArrayTraverseBenchmarks() =
     let toResult x = if x < 0 then Error x else Ok(x + 1)
     let toAsyncResult x = async { return toResult x }
 
-    [<Params(0, 1, 10, 100, 1000)>]
+    [<Params(0, 1, 2, 3, 5, 7, 10, 100, 1000)>]
     member val Size = 0 with get, set
 
     [<Params(false, true)>]
@@ -244,6 +346,26 @@ type ArrayTraverseBenchmarks() =
     [<BenchmarkCategory("ResultM")>]
     member _.TraverseResultM4() =
         Candidates.traverseResultM4 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultM")>]
+    member _.TraverseResultM5() =
+        Candidates.traverseResultM5 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultM")>]
+    member _.TraverseResultM6() =
+        Candidates.traverseResultM6 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultM")>]
+    member _.TraverseResultM7() =
+        Candidates.traverseResultM7 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultM")>]
+    member _.TraverseResultM8() =
+        Candidates.traverseResultM8 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultM")>]
+    member _.TraverseResultM9() =
+        Candidates.traverseResultM9 toResult inputs
 
     [<Benchmark(Baseline = true)>]
     [<BenchmarkCategory("ResultA")>]
@@ -259,3 +381,17 @@ type ArrayTraverseBenchmarks() =
     [<BenchmarkCategory("ResultA")>]
     member _.TraverseResultA2() =
         Candidates.traverseResultA2 toResult inputs
+
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultA")>]
+    member _.TraverseResultA3() =
+        Candidates.traverseResultA3 toResult inputs
+
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultA")>]
+    member _.TraverseResultA4() =
+        Candidates.traverseResultA4 toResult inputs
+    [<Benchmark>]
+    [<BenchmarkCategory("ResultA")>]
+    member _.TraverseResultA5() =
+        Candidates.traverseResultA5 toResult inputs
