@@ -628,6 +628,8 @@ module TaskValueOptionCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun x -> this.Return(f x)))
 
+        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+
 
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskValueOptionCode<'TOverall, 'T>)
@@ -722,8 +724,7 @@ module TaskValueOptionCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskValueOption<'T1>)
             =
             TaskValueOption.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return ValueSome r }
-                : TaskValueOption<'T>)
+                (taskValueOption { let! r = t1 in return r }: TaskValueOption<'T>)
                 t2
 
         [<NoEagerConstraintApplication>]
@@ -735,8 +736,7 @@ module TaskValueOptionCEExtensionsHighPriority =
             =
             TaskValueOption.zip
                 t1
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return ValueSome r }
-                : TaskValueOption<'T1>)
+                (taskValueOption { let! r = t2 in return r }: TaskValueOption<'T1>)
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1
@@ -749,10 +749,8 @@ module TaskValueOptionCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
             =
             TaskValueOption.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return ValueSome r }
-                : TaskValueOption<'T>)
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return ValueSome r }
-                : TaskValueOption<'T1>)
+                (taskValueOption { let! r = t1 in return r }: TaskValueOption<'T>)
+                (taskValueOption { let! r = t2 in return r }: TaskValueOption<'T1>)
 
         member inline _.Source(s: #seq<_>) = s
 

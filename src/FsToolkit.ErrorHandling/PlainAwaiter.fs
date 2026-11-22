@@ -17,16 +17,3 @@ type PlainAwaiter<'Awaiter> =
     val Awaiter: 'Awaiter
     /// <summary>Wraps an awaiter.</summary>
     new(awaiter) = { Awaiter = awaiter }
-
-/// <exclude/>
-/// <summary>An awaitable that gives an awaiter that already exists.</summary>
-/// <remarks>The <c>MergeSources</c> members use it to await a <c>PlainAwaiter</c> in <c>task { }</c>.</remarks>
-[<Struct; NoComparison; NoEquality>]
-[<EditorBrowsable(EditorBrowsableState.Never)>]
-type AwaiterAwaitable<'Awaiter> =
-    /// <summary>The awaiter.</summary>
-    val Awaiter: 'Awaiter
-    /// <summary>Wraps an awaiter.</summary>
-    new(awaiter) = { Awaiter = awaiter }
-    /// <summary>Gives the awaiter.</summary>
-    member this.GetAwaiter() = this.Awaiter

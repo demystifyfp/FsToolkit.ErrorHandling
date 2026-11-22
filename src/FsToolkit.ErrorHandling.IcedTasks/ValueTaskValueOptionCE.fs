@@ -514,6 +514,8 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun x -> this.Return(f x)))
 
+        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> ValueTaskValueOptionCode<'TOverall, 'T>)
             =
@@ -604,8 +606,7 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: ValueTaskValueOption<'T1>)
             =
             ValueTaskValueOption.zip
-                (valueTask { let! r = AwaiterAwaitable(t1.Awaiter) in return ValueSome r }
-                : ValueTaskValueOption<'T>)
+                (valueTaskValueOption { let! r = t1 in return r }: ValueTaskValueOption<'T>)
                 t2
 
         [<NoEagerConstraintApplication>]
@@ -617,8 +618,7 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
             =
             ValueTaskValueOption.zip
                 t1
-                (valueTask { let! r = AwaiterAwaitable(t2.Awaiter) in return ValueSome r }
-                : ValueTaskValueOption<'T1>)
+                (valueTaskValueOption { let! r = t2 in return r }: ValueTaskValueOption<'T1>)
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1
@@ -631,10 +631,8 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
             =
             ValueTaskValueOption.zip
-                (valueTask { let! r = AwaiterAwaitable(t1.Awaiter) in return ValueSome r }
-                : ValueTaskValueOption<'T>)
-                (valueTask { let! r = AwaiterAwaitable(t2.Awaiter) in return ValueSome r }
-                : ValueTaskValueOption<'T1>)
+                (valueTaskValueOption { let! r = t1 in return r }: ValueTaskValueOption<'T>)
+                (valueTaskValueOption { let! r = t2 in return r }: ValueTaskValueOption<'T1>)
 
         member inline this.ReturnFrom
             (task: ValueTaskValueOption<'T>)

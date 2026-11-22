@@ -629,6 +629,8 @@ module TaskOptionCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun x -> this.Return(f x)))
 
+        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+
 
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
@@ -721,9 +723,7 @@ module TaskOptionCEExtensionsHighPriority =
             and ^Awaiter1: (member GetResult: unit -> 'T)>
             (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskOption<'T1>)
             =
-            TaskOption.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Some r }: TaskOption<'T>)
-                t2
+            TaskOption.zip (taskOption { let! r = t1 in return r }: TaskOption<'T>) t2
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter2, 'T, 'T1
@@ -732,9 +732,7 @@ module TaskOptionCEExtensionsHighPriority =
             and ^Awaiter2: (member GetResult: unit -> 'T1)>
             (t1: TaskOption<'T>, t2: PlainAwaiter< ^Awaiter2 >)
             =
-            TaskOption.zip
-                t1
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Some r }: TaskOption<'T1>)
+            TaskOption.zip t1 (taskOption { let! r = t2 in return r }: TaskOption<'T1>)
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1
@@ -747,8 +745,8 @@ module TaskOptionCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
             =
             TaskOption.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Some r }: TaskOption<'T>)
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Some r }: TaskOption<'T1>)
+                (taskOption { let! r = t1 in return r }: TaskOption<'T>)
+                (taskOption { let! r = t2 in return r }: TaskOption<'T1>)
 
         member inline _.Source(s: #seq<_>) = s
 

@@ -669,6 +669,8 @@ module TaskValidationCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun x -> this.Return(f x)))
 
+        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+
         member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskValidationCode<'TOverall, 'Error, 'T>)
             =
@@ -708,8 +710,7 @@ module TaskValidationCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskValidation<'T1, 'Error>)
             =
             TaskValidation.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Ok r }
-                : TaskValidation<'T, 'Error>)
+                (taskValidation { let! r = t1 in return r }: TaskValidation<'T, 'Error>)
                 t2
 
         [<NoEagerConstraintApplication>]
@@ -721,8 +722,7 @@ module TaskValidationCEExtensionsHighPriority =
             =
             TaskValidation.zip
                 t1
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Ok r }
-                : TaskValidation<'T1, 'Error>)
+                (taskValidation { let! r = t2 in return r }: TaskValidation<'T1, 'Error>)
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1, 'Error
@@ -735,10 +735,8 @@ module TaskValidationCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
             =
             TaskValidation.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Ok r }
-                : TaskValidation<'T, 'Error>)
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Ok r }
-                : TaskValidation<'T1, 'Error>)
+                (taskValidation { let! r = t1 in return r }: TaskValidation<'T, 'Error>)
+                (taskValidation { let! r = t2 in return r }: TaskValidation<'T1, 'Error>)
 
         member inline _.Source(s: #seq<_>) = s
 

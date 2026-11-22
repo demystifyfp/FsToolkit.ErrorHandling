@@ -688,6 +688,8 @@ module TaskResultCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun x -> this.Return(f x)))
 
+        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+
         member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskResultCode<'TOverall, 'Error, 'T>)
             =
@@ -724,10 +726,7 @@ module TaskResultCEExtensionsHighPriority =
             and ^Awaiter1: (member GetResult: unit -> 'T)>
             (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskResult<'T1, 'Error>)
             =
-            TaskResult.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Ok r }
-                : TaskResult<'T, 'Error>)
-                t2
+            TaskResult.zip (taskResult { let! r = t1 in return r }: TaskResult<'T, 'Error>) t2
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter2, 'T, 'T1, 'Error
@@ -736,10 +735,7 @@ module TaskResultCEExtensionsHighPriority =
             and ^Awaiter2: (member GetResult: unit -> 'T1)>
             (t1: TaskResult<'T, 'Error>, t2: PlainAwaiter< ^Awaiter2 >)
             =
-            TaskResult.zip
-                t1
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Ok r }
-                : TaskResult<'T1, 'Error>)
+            TaskResult.zip t1 (taskResult { let! r = t2 in return r }: TaskResult<'T1, 'Error>)
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1, 'Error
@@ -752,10 +748,8 @@ module TaskResultCEExtensionsHighPriority =
             (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
             =
             TaskResult.zip
-                (task { let! r = AwaiterAwaitable(t1.Awaiter) in return Ok r }
-                : TaskResult<'T, 'Error>)
-                (task { let! r = AwaiterAwaitable(t2.Awaiter) in return Ok r }
-                : TaskResult<'T1, 'Error>)
+                (taskResult { let! r = t1 in return r }: TaskResult<'T, 'Error>)
+                (taskResult { let! r = t2 in return r }: TaskResult<'T1, 'Error>)
 
         member inline _.Source(s: #seq<_>) = s
 
