@@ -25,6 +25,7 @@
         <Compile Include="TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+        <Compile Include="TaskConfigureAwaitTests.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="Async.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="FSharpCore11ShimBehavior.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
         <Compile Include="Req.fs" />

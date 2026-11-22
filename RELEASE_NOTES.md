@@ -1,3 +1,11 @@
+### 6.0.0-beta010 - Unreleased
+
+- [Honor ConfigureAwait(false) in let! and do! of the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398) Credits @TheAngryByrd
+    - fix: in `taskResult`, `taskValidation`, `taskOption`, and `taskValueOption`, the code after `let!` or `do!` of a plain awaitable with `ConfigureAwait(false)` now continues without the captured `SynchronizationContext`, as in `task { }`. Before, it continued on the captured context. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
+    - Behavior change: code that touches a UI control after such a `let!` must remove `ConfigureAwait(false)`.
+    - The `Source` member for a plain awaitable now returns `PlainAwaitable<_>`, not a task. Code that calls this `Source` directly must change.
+    - `and!` does not change. It continues on the captured context, as before.
+
 ### 6.0.0-beta009 - November 20, 2026
 
 - [Drop FsToolkit.ErrorHandling.JobResult and the Hopac dependency](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/393) Credits @TheAngryByrd
