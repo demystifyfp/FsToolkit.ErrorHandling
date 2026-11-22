@@ -2,7 +2,9 @@ module ConfigureAwaitTestHelpers
 
 open Expecto
 open System
+open System.Runtime.CompilerServices
 open System.Threading
+open System.Threading.Channels
 open System.Threading.Tasks
 
 type ThreadPoolPostContext() =
@@ -24,6 +26,13 @@ type ThreadPoolPostContext() =
         |> ignore
 
     override this.CreateCopy() = this
+
+let private deadline = TimeSpan.FromSeconds 30.
+
+type GetAwaiterProbe(onGetAwaiter: unit -> unit) =
+    member _.GetAwaiter() =
+        onGetAwaiter ()
+        Task.FromResult(()).GetAwaiter()
 
 let runWithPendingGate (start: SynchronizationContext -> Task<unit> -> Task<'T>) : Task<'T> =
     let gate =
@@ -49,7 +58,7 @@ let contextCase name (expected: 'T) (start: SynchronizationContext -> Task<unit>
     testCaseTask name
     <| fun () ->
         task {
-            let! actual = runWithPendingGate start
+            let! actual = (runWithPendingGate start).WaitAsync(deadline)
 
             Expect.equal
                 actual
@@ -61,7 +70,7 @@ let valueCase name (expected: 'T) (computation: unit -> Task<'T>) =
     testCaseTask name
     <| fun () ->
         task {
-            let! actual = computation ()
+            let! actual = (computation ()).WaitAsync(deadline)
             Expect.equal actual expected "The computation must return the awaited values"
         }
 
@@ -85,20 +94,18 @@ let failureCases
                 let error = InvalidOperationException "source failed"
                 let running = startPending letBang (fun gate -> gate.SetException error)
 
-                let! thrown =
-                    task {
-                        try
-                            let! _ = running
-                            return None
-                        with e ->
-                            return Some e
-                    }
+                let! _ = Task.WhenAny(running).WaitAsync(deadline)
 
-                match thrown with
-                | Some e when obj.ReferenceEquals(e, error) -> ()
-                | other ->
+                match running.Exception with
+                | null -> failtest $"The task must fault, not %A{running.Status}"
+                | e when
+                    e.InnerExceptions.Count = 1
+                    && obj.ReferenceEquals(e.InnerExceptions[0], error)
+                    ->
+                    ()
+                | e ->
                     failtest
-                        $"The computation must throw the exception of the source, not %A{other}"
+                        $"The task must fault with the exception of the source, not %A{e.InnerExceptions}"
             }
 
         testCaseTask "let! of a canceled ConfiguredTaskAwaitable<'T> gives a canceled task"
@@ -106,14 +113,7 @@ let failureCases
             task {
                 let running = startPending letBang (fun gate -> gate.SetCanceled())
 
-                let! _ =
-                    task {
-                        try
-                            let! _ = running
-                            return ()
-                        with _ ->
-                            return ()
-                    }
+                let! _ = Task.WhenAny(running).WaitAsync(deadline)
 
                 Expect.isTrue
                     running.IsCanceled
@@ -125,7 +125,10 @@ let failureCases
             task {
                 let local = AsyncLocal<string>()
                 local.Value <- "caller"
-                let! actual = startPending (readLocal local) (fun gate -> gate.SetResult())
+
+                let! actual =
+                    (startPending (readLocal local) (fun gate -> gate.SetResult()))
+                        .WaitAsync(deadline)
 
                 Expect.equal
                     actual
@@ -169,3 +172,19 @@ let sourceCases
                 continueOnCapturedContext
                 (doBangTask continueOnCapturedContext)
     ]
+
+let pooledValueTaskCase name (expected: 'T) (bind: ConfiguredValueTaskAwaitable<int> -> Task<'T>) =
+    testCaseTask name
+    <| fun () ->
+        task {
+            let channel =
+                Channel.CreateUnbounded<int>(UnboundedChannelOptions(SingleReader = true))
+
+            let running = bind (channel.Reader.ReadAsync().ConfigureAwait(false))
+
+            channel.Writer.TryWrite 1
+            |> ignore
+
+            let! actual = running.WaitAsync(deadline)
+            Expect.equal actual expected "The computation must read the pooled source one time"
+        }

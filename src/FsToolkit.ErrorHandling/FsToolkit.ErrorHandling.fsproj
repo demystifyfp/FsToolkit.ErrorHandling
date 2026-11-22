@@ -29,7 +29,7 @@
     <Compile Include="Task.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
-    <Compile Include="PlainAwaitable.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="PlainAwaiter.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="Validation.fs" />

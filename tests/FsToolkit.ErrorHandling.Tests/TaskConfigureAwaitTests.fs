@@ -44,12 +44,14 @@ let private taskResultTests =
         valueCase "return! of a ConfiguredTaskAwaitable<'T>" (Ok 1: Result<int, string>)
         <| fun () -> taskResult { return! Task.FromResult(1).ConfigureAwait(false) }
 
-        valueCase "and! of ConfiguredTaskAwaitable<'T> sources" (Ok 3: Result<int, string>)
+        valueCase
+            "and! of ConfiguredTaskAwaitable<'T> sources keeps the order"
+            (Ok(1, 2): Result<_, string>)
         <| fun () ->
             taskResult {
                 let! a = Task.FromResult(1).ConfigureAwait(false)
                 and! b = Task.FromResult(2).ConfigureAwait(false)
-                return a + b
+                return a, b
             }
 
         case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
@@ -90,6 +92,56 @@ let private taskResultTests =
 
                     if onContext context then return true else return false
                 }
+
+        valueCase
+            "and! of a ConfiguredTaskAwaitable<'T> and a source of the builder's type keeps the order"
+            (Ok(1, 2): Result<_, string>)
+        <| fun () ->
+            taskResult {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(Ok 2: Result<int, string>)
+                return a, b
+            }
+
+        valueCase
+            "and! of a source of the builder's type and a ConfiguredTaskAwaitable<'T> keeps the order"
+            (Ok(1, 2): Result<_, string>)
+        <| fun () ->
+            taskResult {
+                let! a = Task.FromResult(Ok 1: Result<int, string>)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            }
+
+        valueCase
+            "and! gets the awaiter of the left source before it evaluates the right source"
+            (Ok true: Result<_, string>)
+        <| fun () ->
+            let started = ref false
+
+            taskResult {
+                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
+                and! seen = Task.FromResult(started.Value)
+                return seen
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time"
+            (Ok 2: Result<_, string>)
+        <| fun source ->
+            taskResult {
+                let! x = source
+                return x + 1
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time in the dynamic state machine"
+            (Ok 2: Result<_, string>)
+        <| fun source ->
+            TestHelpers.dynamicTaskResult {
+                let! x = source
+                return x + 1
+            }
     ]
 
 let private taskValidationTests =
@@ -129,12 +181,14 @@ let private taskValidationTests =
         valueCase "return! of a ConfiguredTaskAwaitable<'T>" (Ok 1: Validation<int, string>)
         <| fun () -> taskValidation { return! Task.FromResult(1).ConfigureAwait(false) }
 
-        valueCase "and! of ConfiguredTaskAwaitable<'T> sources" (Ok 3: Validation<int, string>)
+        valueCase
+            "and! of ConfiguredTaskAwaitable<'T> sources keeps the order"
+            (Ok(1, 2): Validation<_, string>)
         <| fun () ->
             taskValidation {
                 let! a = Task.FromResult(1).ConfigureAwait(false)
                 and! b = Task.FromResult(2).ConfigureAwait(false)
-                return a + b
+                return a, b
             }
 
         case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
@@ -175,6 +229,56 @@ let private taskValidationTests =
 
                     if onContext context then return true else return false
                 }
+
+        valueCase
+            "and! of a ConfiguredTaskAwaitable<'T> and a source of the builder's type keeps the order"
+            (Ok(1, 2): Validation<_, string>)
+        <| fun () ->
+            taskValidation {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(Ok 2: Validation<int, string>)
+                return a, b
+            }
+
+        valueCase
+            "and! of a source of the builder's type and a ConfiguredTaskAwaitable<'T> keeps the order"
+            (Ok(1, 2): Validation<_, string>)
+        <| fun () ->
+            taskValidation {
+                let! a = Task.FromResult(Ok 1: Validation<int, string>)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            }
+
+        valueCase
+            "and! gets the awaiter of the left source before it evaluates the right source"
+            (Ok true: Validation<_, string>)
+        <| fun () ->
+            let started = ref false
+
+            taskValidation {
+                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
+                and! seen = Task.FromResult(started.Value)
+                return seen
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time"
+            (Ok 2: Validation<_, string>)
+        <| fun source ->
+            taskValidation {
+                let! x = source
+                return x + 1
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time in the dynamic state machine"
+            (Ok 2: Validation<_, string>)
+        <| fun source ->
+            TestHelpers.dynamicTaskValidation {
+                let! x = source
+                return x + 1
+            }
     ]
 
 let private taskOptionTests =
@@ -222,12 +326,12 @@ let private taskOptionTests =
                 return x
             }
 
-        valueCase "and! of ConfiguredTaskAwaitable<'T> sources" (Some 3)
+        valueCase "and! of ConfiguredTaskAwaitable<'T> sources keeps the order" (Some(1, 2))
         <| fun () ->
             taskOption {
                 let! a = Task.FromResult(1).ConfigureAwait(false)
                 and! b = Task.FromResult(2).ConfigureAwait(false)
-                return a + b
+                return a, b
             }
 
         case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
@@ -268,6 +372,56 @@ let private taskOptionTests =
 
                     if onContext context then return true else return false
                 }
+
+        valueCase
+            "and! of a ConfiguredTaskAwaitable<'T> and a source of the builder's type keeps the order"
+            (Some(1, 2))
+        <| fun () ->
+            taskOption {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(Some 2)
+                return a, b
+            }
+
+        valueCase
+            "and! of a source of the builder's type and a ConfiguredTaskAwaitable<'T> keeps the order"
+            (Some(1, 2))
+        <| fun () ->
+            taskOption {
+                let! a = Task.FromResult(Some 1)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            }
+
+        valueCase
+            "and! gets the awaiter of the left source before it evaluates the right source"
+            (Some true)
+        <| fun () ->
+            let started = ref false
+
+            taskOption {
+                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
+                and! seen = Task.FromResult(started.Value)
+                return seen
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time"
+            (Some 2)
+        <| fun source ->
+            taskOption {
+                let! x = source
+                return x + 1
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time in the dynamic state machine"
+            (Some 2)
+        <| fun source ->
+            TestHelpers.dynamicTaskOption {
+                let! x = source
+                return x + 1
+            }
     ]
 
 let private taskValueOptionTests =
@@ -316,12 +470,12 @@ let private taskValueOptionTests =
                 return x
             }
 
-        valueCase "and! of ConfiguredTaskAwaitable<'T> sources" (ValueSome 3)
+        valueCase "and! of ConfiguredTaskAwaitable<'T> sources keeps the order" (ValueSome(1, 2))
         <| fun () ->
             taskValueOption {
                 let! a = Task.FromResult(1).ConfigureAwait(false)
                 and! b = Task.FromResult(2).ConfigureAwait(false)
-                return a + b
+                return a, b
             }
 
         case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
@@ -362,6 +516,56 @@ let private taskValueOptionTests =
 
                     if onContext context then return true else return false
                 }
+
+        valueCase
+            "and! of a ConfiguredTaskAwaitable<'T> and a source of the builder's type keeps the order"
+            (ValueSome(1, 2))
+        <| fun () ->
+            taskValueOption {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(ValueSome 2)
+                return a, b
+            }
+
+        valueCase
+            "and! of a source of the builder's type and a ConfiguredTaskAwaitable<'T> keeps the order"
+            (ValueSome(1, 2))
+        <| fun () ->
+            taskValueOption {
+                let! a = Task.FromResult(ValueSome 1)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            }
+
+        valueCase
+            "and! gets the awaiter of the left source before it evaluates the right source"
+            (ValueSome true)
+        <| fun () ->
+            let started = ref false
+
+            taskValueOption {
+                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
+                and! seen = Task.FromResult(started.Value)
+                return seen
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time"
+            (ValueSome 2)
+        <| fun source ->
+            taskValueOption {
+                let! x = source
+                return x + 1
+            }
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time in the dynamic state machine"
+            (ValueSome 2)
+        <| fun source ->
+            TestHelpers.dynamicTaskValueOption {
+                let! x = source
+                return x + 1
+            }
     ]
 
 let allTests =

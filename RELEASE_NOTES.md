@@ -1,10 +1,12 @@
 ### 6.0.0-beta010 - Unreleased
 
-- [Honor ConfigureAwait(false) in let! and do! of the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398) Credits @TheAngryByrd
-    - fix: in `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, and `valueTaskValueOption`, the code after `let!` or `do!` of a plain awaitable with `ConfigureAwait(false)` now continues without the captured `SynchronizationContext`, as in `task { }`. Before, it continued on the captured context. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
-    - Behavior change: code that touches a UI control after such a `let!` must remove `ConfigureAwait(false)`.
-    - The `Source` member for a plain awaitable now returns `PlainAwaitable<_>`, not a task. Code that calls this `Source` directly must change.
-    - `and!` does not change. It continues on the captured context, as before.
+- [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398) Credits @TheAngryByrd
+    - fix: in `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, `valueTaskValueOption`, and their `background` variants, a bind (`let!`, `do!`, `use!`, `match!`) of a plain awaitable now awaits the awaiter of that awaitable, as `task { }` does. Before, the builder awaited a new task that wrapped the awaitable. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
+    - Behavior change: when such an awaitable has `ConfigureAwait(false)` and is not complete, the code after the bind resumes without the captured `SynchronizationContext`. Before, it resumed on the captured context. UI code that touches a control after such a bind must remove `ConfigureAwait(false)` or return to the UI thread itself.
+    - Behavior change: the `GetAwaiter` member of a custom awaitable now runs in the computation expression, as in `task { }`. An `AsyncLocal` value that it sets is now visible to the code after the bind.
+    - `and!` does not change. It continues on the captured context, as `and!` in `task { }` does.
+    - BREAKING (source and binary): the `Source` member for a plain awaitable now returns `PlainAwaiter<_>`, not a task. In `taskResult` and `taskValidation`, it also has one type parameter less. Code that calls this `Source` directly, and compiled quotations of such a call, must change.
+    - The changed members are `inline`. Assemblies that were compiled against an earlier version keep the old behavior until they are compiled again.
 
 ### 6.0.0-beta009 - November 20, 2026
 
