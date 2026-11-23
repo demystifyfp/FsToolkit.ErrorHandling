@@ -547,7 +547,6 @@ module TaskValidationCEExtensionsLowPriority =
 
             this.Bind(awaiter, (fun v -> this.Return v))
 
-
         [<NoEagerConstraintApplication>]
         member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
             when ^Awaiter :> ICriticalNotifyCompletion
@@ -556,7 +555,6 @@ module TaskValidationCEExtensionsLowPriority =
             (t: ^Awaiter)
             : ^Awaiter =
             t
-
 
         [<NoEagerConstraintApplication>]
         member inline this.Source< ^TaskLike, ^Awaiter, 'T, 'Error
@@ -575,21 +573,23 @@ module TaskValidationCEExtensionsLowPriority =
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
-            : PlainAwaiter< ^Awaiter > =
-            PlainAwaiter((^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (t)))
+            : PlainAwaitable< ^TaskLike > =
+            PlainAwaitable(t)
 
         [<NoEagerConstraintApplication>]
-        static member inline BindDynamic<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-            when ^Awaiter :> ICriticalNotifyCompletion
+        static member inline BindDynamic<'TResult1, 'TResult2, ^TaskLike, ^Awaiter, 'TOverall, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'TResult1)>
             (
                 sm: byref<_>,
-                awaiter: PlainAwaiter< ^Awaiter >,
+                awaitable: PlainAwaitable< ^TaskLike >,
                 continuation: ('TResult1 -> TaskValidationCode<'TOverall, 'Error, 'TResult2>)
             ) : bool =
 
-            let mutable awaiter = awaiter.Awaiter
+            let mutable awaiter =
+                (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (awaitable.Awaitable))
 
             let cont =
                 (TaskValidationResumptionFunc<'TOverall, 'Error>(fun sm ->
@@ -605,19 +605,21 @@ module TaskValidationCEExtensionsLowPriority =
                 false
 
         [<NoEagerConstraintApplication>]
-        member inline _.Bind<'TResult1, 'TResult2, ^Awaiter, 'TOverall, 'Error
-            when ^Awaiter :> ICriticalNotifyCompletion
+        member inline _.Bind<'TResult1, 'TResult2, ^TaskLike, ^Awaiter, 'TOverall, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'TResult1)>
             (
-                awaiter: PlainAwaiter< ^Awaiter >,
+                awaitable: PlainAwaitable< ^TaskLike >,
                 continuation: ('TResult1 -> TaskValidationCode<'TOverall, 'Error, 'TResult2>)
             ) : TaskValidationCode<'TOverall, 'Error, 'TResult2> =
 
             TaskValidationCode<'TOverall, 'Error, _>(fun sm ->
                 if __useResumableCode then
                     //-- RESUMABLE CODE START
-                    let mutable awaiter = awaiter.Awaiter
+                    let mutable awaiter =
+                        (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (awaitable.Awaitable))
 
                     let mutable __stack_fin = true
 
@@ -637,39 +639,39 @@ module TaskValidationCEExtensionsLowPriority =
                     TaskValidationBuilderBase.BindDynamic<
                         'TResult1,
                         'TResult2,
+                        ^TaskLike,
                         ^Awaiter,
                         'TOverall,
                         'Error
                      >(
                         &sm,
-                        awaiter,
+                        awaitable,
                         continuation
                     )
             //-- RESUMABLE CODE END
             )
 
         [<NoEagerConstraintApplication>]
-        member inline this.ReturnFrom< ^Awaiter, 'T, 'Error
-            when ^Awaiter :> ICriticalNotifyCompletion
+        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'T)>
-            (awaiter: PlainAwaiter< ^Awaiter >)
+            (awaitable: PlainAwaitable< ^TaskLike >)
             : TaskValidationCode<'T, 'Error, 'T> =
 
-            this.Bind(awaiter, (fun v -> this.Return v))
-
+            this.Bind(awaitable, (fun v -> this.Return v))
 
         [<NoEagerConstraintApplication>]
-        member inline this.BindReturn< ^Awaiter, 'T, 'U, 'Error
-            when ^Awaiter :> ICriticalNotifyCompletion
+        member inline this.BindReturn< ^TaskLike, ^Awaiter, 'T, 'U, 'Error
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'T)>
-            (awaiter: PlainAwaiter< ^Awaiter >, f: 'T -> 'U)
+            (awaitable: PlainAwaitable< ^TaskLike >, f: 'T -> 'U)
             : TaskValidationCode<'U, 'Error, 'U> =
 
-            this.Bind(awaiter, (fun x -> this.Return(f x)))
-
-        member inline _.Source(awaiter: PlainAwaiter<'Awaiter>) : PlainAwaiter<'Awaiter> = awaiter
+            this.Bind(awaitable, (fun x -> this.Return(f x)))
 
         member inline _.Using<'Resource, 'TOverall, 'T, 'Error when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskValidationCode<'TOverall, 'Error, 'T>)
@@ -703,40 +705,44 @@ module TaskValidationCEExtensionsHighPriority =
             TaskValidation.zip t1 t2
 
         [<NoEagerConstraintApplication>]
-        member inline _.MergeSources< ^Awaiter1, 'T, 'T1, 'Error
-            when ^Awaiter1 :> ICriticalNotifyCompletion
+        member inline _.MergeSources< ^TaskLike1, ^Awaiter1, 'T, 'T1, 'Error
+            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
+            and ^Awaiter1 :> ICriticalNotifyCompletion
             and ^Awaiter1: (member get_IsCompleted: unit -> bool)
             and ^Awaiter1: (member GetResult: unit -> 'T)>
-            (t1: PlainAwaiter< ^Awaiter1 >, t2: TaskValidation<'T1, 'Error>)
+            (t1: PlainAwaitable< ^TaskLike1 >, t2: TaskValidation<'T1, 'Error>)
             =
             TaskValidation.zip
-                (taskValidation { let! r = t1 in return r }: TaskValidation<'T, 'Error>)
+                (task { let! r = t1.Awaitable in return Ok r }: TaskValidation<'T, 'Error>)
                 t2
 
         [<NoEagerConstraintApplication>]
-        member inline _.MergeSources< ^Awaiter2, 'T, 'T1, 'Error
-            when ^Awaiter2 :> ICriticalNotifyCompletion
-            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter2: (member GetResult: unit -> 'T1)>
-            (t1: TaskValidation<'T, 'Error>, t2: PlainAwaiter< ^Awaiter2 >)
-            =
-            TaskValidation.zip
-                t1
-                (taskValidation { let! r = t2 in return r }: TaskValidation<'T1, 'Error>)
-
-        [<NoEagerConstraintApplication>]
-        member inline _.MergeSources< ^Awaiter1, ^Awaiter2, 'T, 'T1, 'Error
-            when ^Awaiter1 :> ICriticalNotifyCompletion
-            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter1: (member GetResult: unit -> 'T)
+        member inline _.MergeSources< ^TaskLike2, ^Awaiter2, 'T, 'T1, 'Error
+            when ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
             and ^Awaiter2 :> ICriticalNotifyCompletion
             and ^Awaiter2: (member get_IsCompleted: unit -> bool)
             and ^Awaiter2: (member GetResult: unit -> 'T1)>
-            (t1: PlainAwaiter< ^Awaiter1 >, t2: PlainAwaiter< ^Awaiter2 >)
+            (t1: TaskValidation<'T, 'Error>, t2: PlainAwaitable< ^TaskLike2 >)
             =
             TaskValidation.zip
-                (taskValidation { let! r = t1 in return r }: TaskValidation<'T, 'Error>)
-                (taskValidation { let! r = t2 in return r }: TaskValidation<'T1, 'Error>)
+                t1
+                (task { let! r = t2.Awaitable in return Ok r }: TaskValidation<'T1, 'Error>)
+
+        [<NoEagerConstraintApplication>]
+        member inline _.MergeSources< ^TaskLike1, ^Awaiter1, ^TaskLike2, ^Awaiter2, 'T, 'T1, 'Error
+            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
+            and ^Awaiter1 :> ICriticalNotifyCompletion
+            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter1: (member GetResult: unit -> 'T)
+            and ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
+            and ^Awaiter2 :> ICriticalNotifyCompletion
+            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter2: (member GetResult: unit -> 'T1)>
+            (t1: PlainAwaitable< ^TaskLike1 >, t2: PlainAwaitable< ^TaskLike2 >)
+            =
+            TaskValidation.zip
+                (task { let! r = t1.Awaitable in return Ok r }: TaskValidation<'T, 'Error>)
+                (task { let! r = t2.Awaitable in return Ok r }: TaskValidation<'T1, 'Error>)
 
         member inline _.Source(s: #seq<_>) = s
 

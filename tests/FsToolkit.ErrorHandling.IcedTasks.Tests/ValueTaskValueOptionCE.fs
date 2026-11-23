@@ -841,15 +841,21 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
                 .AsTask()
 
         valueCase
-            "and! gets the awaiter of the left source before it evaluates the right source"
-            (ValueSome true)
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (ValueSome(0, 1))
         <| fun () ->
-            let started = ref false
+            let calls = ref 0
 
             (valueTaskValueOption {
-                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
-                and! seen = Task.FromResult(started.Value)
-                return seen
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
             })
                 .AsTask()
 
@@ -870,6 +876,26 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
             (dynamicValueTaskValueOption {
                 let! x = source
                 return x + 1
+            })
+                .AsTask()
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (ValueSome "")
+        <| fun watch right ->
+            (valueTaskValueOption {
+                let! _ = watch
+                and! b = right ()
+                return b
+            })
+                .AsTask()
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            (valueTaskValueOption {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
             })
                 .AsTask()
     ]

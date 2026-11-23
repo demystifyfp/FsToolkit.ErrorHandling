@@ -34,6 +34,30 @@ type GetAwaiterProbe(onGetAwaiter: unit -> unit) =
         onGetAwaiter ()
         Task.FromResult(()).GetAwaiter()
 
+type WatchAwaiter(gate: Task<int>, events: ResizeArray<string>) =
+    member _.IsCompleted = gate.IsCompleted
+
+    member _.GetResult() =
+        events.Add "read"
+        gate.GetAwaiter().GetResult()
+
+    interface ICriticalNotifyCompletion with
+        member _.OnCompleted(continuation) =
+            events.Add "register"
+            gate.GetAwaiter().OnCompleted(continuation)
+
+        member _.UnsafeOnCompleted(continuation) =
+            events.Add "register"
+            gate.GetAwaiter().UnsafeOnCompleted(continuation)
+
+type Watch(gate: Task<int>, events: ResizeArray<string>) =
+    member _.GetAwaiter() =
+        events.Add "acquire"
+        WatchAwaiter(gate, events)
+
+type ThrowingGetAwaiter(error: exn) =
+    member _.GetAwaiter() : TaskAwaiter<int> = raise error
+
 let runWithPendingGate (start: SynchronizationContext -> Task<unit> -> Task<'T>) : Task<'T> =
     let gate =
         TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
@@ -187,4 +211,44 @@ let pooledValueTaskCase name (expected: 'T) (bind: ConfiguredValueTaskAwaitable<
 
             let! actual = running.WaitAsync(deadline)
             Expect.equal actual expected "The computation must read the pooled source one time"
+        }
+
+let leftWatchCase name (expected: 'T) (merge: Watch -> (unit -> Task<string>) -> Task<'T>) =
+    testCaseTask name
+    <| fun () ->
+        task {
+            let gate =
+                TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let events = ResizeArray<string>()
+
+            let running =
+                merge
+                    (Watch(gate.Task, events))
+                    (fun () -> Task.FromResult(String.Join(",", events)))
+
+            gate.SetResult 1
+            let! actual = running.WaitAsync(deadline)
+            Expect.equal actual expected "The value is what the right source saw of the left source"
+        }
+
+let leftFaultCase name (merge: Task<int> -> ThrowingGetAwaiter -> Task<'T>) =
+    testCaseTask name
+    <| fun () ->
+        task {
+            let left = FormatException "left"
+            let right = OperationCanceledException "right"
+            let running = merge (Task.FromException<int> left) (ThrowingGetAwaiter right)
+            let! _ = Task.WhenAny(running).WaitAsync(deadline)
+
+            match running.Exception with
+            | null -> failtest $"The task must fault, not %A{running.Status}"
+            | e when
+                e.InnerExceptions.Count = 1
+                && obj.ReferenceEquals(e.InnerExceptions[0], left)
+                ->
+                ()
+            | e ->
+                failtest
+                    $"The task must fault with the exception of the left source, not %A{e.InnerExceptions}"
         }

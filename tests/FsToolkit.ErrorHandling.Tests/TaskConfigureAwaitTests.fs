@@ -114,15 +114,21 @@ let private taskResultTests =
             }
 
         valueCase
-            "and! gets the awaiter of the left source before it evaluates the right source"
-            (Ok true: Result<_, string>)
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (Ok(0, 1): Result<_, string>)
         <| fun () ->
-            let started = ref false
+            let calls = ref 0
 
             taskResult {
-                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
-                and! seen = Task.FromResult(started.Value)
-                return seen
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
             }
 
         pooledValueTaskCase
@@ -142,6 +148,26 @@ let private taskResultTests =
                 let! x = source
                 return x + 1
             }
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (Ok "": Result<_, string>)
+        <| fun watch right ->
+            (taskResult {
+                let! _ = watch
+                and! b = right ()
+                return b
+            }
+            : Task<Result<string, string>>)
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            (taskResult {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
+            }
+            : Task<Result<int, string>>)
     ]
 
 let private taskValidationTests =
@@ -251,15 +277,21 @@ let private taskValidationTests =
             }
 
         valueCase
-            "and! gets the awaiter of the left source before it evaluates the right source"
-            (Ok true: Validation<_, string>)
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (Ok(0, 1): Validation<_, string>)
         <| fun () ->
-            let started = ref false
+            let calls = ref 0
 
             taskValidation {
-                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
-                and! seen = Task.FromResult(started.Value)
-                return seen
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
             }
 
         pooledValueTaskCase
@@ -279,6 +311,26 @@ let private taskValidationTests =
                 let! x = source
                 return x + 1
             }
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (Ok "": Validation<_, string>)
+        <| fun watch right ->
+            (taskValidation {
+                let! _ = watch
+                and! b = right ()
+                return b
+            }
+            : Task<Validation<string, string>>)
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            (taskValidation {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
+            }
+            : Task<Validation<int, string>>)
     ]
 
 let private taskOptionTests =
@@ -394,15 +446,21 @@ let private taskOptionTests =
             }
 
         valueCase
-            "and! gets the awaiter of the left source before it evaluates the right source"
-            (Some true)
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (Some(0, 1))
         <| fun () ->
-            let started = ref false
+            let calls = ref 0
 
             taskOption {
-                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
-                and! seen = Task.FromResult(started.Value)
-                return seen
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
             }
 
         pooledValueTaskCase
@@ -421,6 +479,24 @@ let private taskOptionTests =
             TestHelpers.dynamicTaskOption {
                 let! x = source
                 return x + 1
+            }
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (Some "")
+        <| fun watch right ->
+            taskOption {
+                let! _ = watch
+                and! b = right ()
+                return b
+            }
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            taskOption {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
             }
     ]
 
@@ -538,15 +614,21 @@ let private taskValueOptionTests =
             }
 
         valueCase
-            "and! gets the awaiter of the left source before it evaluates the right source"
-            (ValueSome true)
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (ValueSome(0, 1))
         <| fun () ->
-            let started = ref false
+            let calls = ref 0
 
             taskValueOption {
-                let! () = GetAwaiterProbe(fun () -> started.Value <- true)
-                and! seen = Task.FromResult(started.Value)
-                return seen
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
             }
 
         pooledValueTaskCase
@@ -565,6 +647,24 @@ let private taskValueOptionTests =
             TestHelpers.dynamicTaskValueOption {
                 let! x = source
                 return x + 1
+            }
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (ValueSome "")
+        <| fun watch right ->
+            taskValueOption {
+                let! _ = watch
+                and! b = right ()
+                return b
+            }
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            taskValueOption {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
             }
     ]
 

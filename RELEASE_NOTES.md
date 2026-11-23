@@ -2,10 +2,11 @@
 
 - [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398) Credits @TheAngryByrd
     - fix: in `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, `valueTaskValueOption`, and their `background` variants, a bind (`let!`, `do!`, `use!`, `match!`) of a plain awaitable now awaits the awaiter of that awaitable, as `task { }` does. Before, the builder awaited a new task that wrapped the awaitable. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
-    - Behavior change: when such an awaitable has `ConfigureAwait(false)` and is not complete, the code after the bind resumes without the captured `SynchronizationContext`. Before, it resumed on the captured context. UI code that touches a control after such a bind must remove `ConfigureAwait(false)` or return to the UI thread itself.
+    - Behavior change: when such an awaitable has `ConfigureAwait(false)` and is not complete, the builder does not request a return to the captured `SynchronizationContext` after the bind. Before, it did. UI code that touches a control after such a bind must remove `ConfigureAwait(false)` or return to the UI thread itself.
     - Behavior change: the `GetAwaiter` member of a custom awaitable now runs in the computation expression, as in `task { }`. An `AsyncLocal` value that it sets is now visible to the code after the bind.
-    - `and!` does not change. It continues on the captured context, as `and!` in `task { }` does.
-    - BREAKING (source and binary): the `Source` member for a plain awaitable now returns `PlainAwaiter<_>`, not a task. In `taskResult` and `taskValidation`, it also has one type parameter less. Code that calls this `Source` directly, and compiled quotations of such a call, must change.
+    - Behavior change: `and!` of a plain awaitable now calls its `GetAwaiter` after F# evaluates all `and!` operands, as `and!` in `task { }` does. Before, it called `GetAwaiter` and registered its continuation before F# evaluated the next operand. Only a custom awaitable with side effects in these members can see the difference.
+    - `and!` still continues on the captured context, as `and!` in `task { }` does.
+    - BREAKING (source and binary): the `Source` member for a plain awaitable now returns `PlainAwaitable<_>`, not a task. In `taskResult` and `taskValidation`, it also has one type parameter less. Code that calls this `Source` directly, and compiled quotations of such a call, must change.
     - The changed members are `inline`. Assemblies that were compiled against an earlier version keep the old behavior until they are compiled again.
 
 ### 6.0.0-beta009 - November 20, 2026
