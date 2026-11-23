@@ -56,6 +56,22 @@ let private taskResultTests =
                         return Ok(Option.get observed.Value)
                     }
                 )
+                (fun configure context gate ->
+                    taskResult {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    }
+                )
+                (fun configure context gate ->
+                    taskResult {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
+                    }
+                )
 
         valueCase "return! of a ConfiguredTaskAwaitable<'T>" (Ok 1: Result<int, string>)
         <| fun () -> taskResult { return! Task.FromResult(1).ConfigureAwait(false) }
@@ -227,6 +243,15 @@ let private taskResultTests =
 
                 return calls.Value
             }
+
+        yield!
+            backgroundContextCases "backgroundTaskResult" (fun v -> (Ok v: Result<bool, string>))
+            <| fun configure context gate ->
+                backgroundTaskResult {
+                    SynchronizationContext.SetSynchronizationContext context
+                    let! () = gate.ConfigureAwait(configure)
+                    return onContext context
+                }
     ]
 
 let private taskValidationTests =
@@ -276,6 +301,22 @@ let private taskValidationTests =
 
                         let! _ = running
                         return Ok(Option.get observed.Value)
+                    }
+                )
+                (fun configure context gate ->
+                    taskValidation {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    }
+                )
+                (fun configure context gate ->
+                    taskValidation {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
                     }
                 )
 
@@ -451,6 +492,17 @@ let private taskValidationTests =
 
                 return calls.Value
             }
+
+        yield!
+            backgroundContextCases
+                "backgroundTaskValidation"
+                (fun v -> (Ok v: Validation<bool, string>))
+            <| fun configure context gate ->
+                backgroundTaskValidation {
+                    SynchronizationContext.SetSynchronizationContext context
+                    let! () = gate.ConfigureAwait(configure)
+                    return onContext context
+                }
     ]
 
 let private taskOptionTests =
@@ -499,6 +551,22 @@ let private taskOptionTests =
 
                         let! _ = running
                         return Some(Option.get observed.Value)
+                    }
+                )
+                (fun configure context gate ->
+                    taskOption {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    }
+                )
+                (fun configure context gate ->
+                    taskOption {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
                     }
                 )
 
@@ -677,6 +745,15 @@ let private taskOptionTests =
 
                 return calls.Value
             }
+
+        yield!
+            backgroundContextCases "backgroundTaskOption" Some
+            <| fun configure context gate ->
+                backgroundTaskOption {
+                    SynchronizationContext.SetSynchronizationContext context
+                    let! () = gate.ConfigureAwait(configure)
+                    return onContext context
+                }
     ]
 
 let private taskValueOptionTests =
@@ -726,6 +803,22 @@ let private taskValueOptionTests =
 
                         let! _ = running
                         return ValueSome(Option.get observed.Value)
+                    }
+                )
+                (fun configure context gate ->
+                    taskValueOption {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    }
+                )
+                (fun configure context gate ->
+                    taskValueOption {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
                     }
                 )
 
@@ -904,6 +997,15 @@ let private taskValueOptionTests =
 
                 return calls.Value
             }
+
+        yield!
+            backgroundContextCases "backgroundTaskValueOption" ValueSome
+            <| fun configure context gate ->
+                backgroundTaskValueOption {
+                    SynchronizationContext.SetSynchronizationContext context
+                    let! () = gate.ConfigureAwait(configure)
+                    return onContext context
+                }
     ]
 
 let allTests =

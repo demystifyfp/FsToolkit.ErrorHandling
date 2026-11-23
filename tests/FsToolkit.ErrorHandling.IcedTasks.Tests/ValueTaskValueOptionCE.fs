@@ -768,6 +768,24 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
                         return ValueSome(Option.get observed.Value)
                     }
                 )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
+                    })
+                        .AsTask()
+                )
 
         valueCase "return! of a ConfiguredTaskAwaitable<'T>" (ValueSome 1)
         <| fun () ->

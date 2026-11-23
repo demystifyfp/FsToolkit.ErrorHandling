@@ -63,6 +63,10 @@ type GatedProbe(name: string, gate: Task<int>, log: ResizeArray<string>) =
         log.Add name
         gate.GetAwaiter()
 
+type TestResource() =
+    interface IDisposable with
+        member _.Dispose() = ()
+
 let runWithPendingGate (start: SynchronizationContext -> Task<unit> -> Task<'T>) : Task<'T> =
     let gate =
         TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
@@ -173,6 +177,8 @@ let sourceCases
     (letBangValueTask: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     (doBangTask: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     (returnBangThenFinally: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
+    (useBang: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
+    (matchBang: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     =
     [
         for continueOnCapturedContext in
@@ -206,6 +212,16 @@ let sourceCases
                 $"return! of a ConfiguredTaskAwaitable<'T> with {configured}, then finally"
                 continueOnCapturedContext
                 (returnBangThenFinally continueOnCapturedContext)
+
+            case
+                $"use! of a ConfiguredTaskAwaitable<'T> with {configured}"
+                continueOnCapturedContext
+                (useBang continueOnCapturedContext)
+
+            case
+                $"match! of a ConfiguredTaskAwaitable<'T> with {configured}"
+                continueOnCapturedContext
+                (matchBang continueOnCapturedContext)
     ]
 
 let pooledValueTaskCase name (expected: 'T) (bind: ConfiguredValueTaskAwaitable<int> -> Task<'T>) =
@@ -294,3 +310,53 @@ let threeOperandCase
 
             Expect.equal actual expected "The computation must return the awaited values"
         }
+
+let backgroundContextCases
+    (builder: string)
+    (wrap: bool -> 'T)
+    (start: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
+    =
+    [
+        for continueOnCapturedContext in
+            [
+                false
+                true
+            ] do
+            testCaseTask
+                $"let! of a ConfiguredTaskAwaitable<'T> with ConfigureAwait(%b{continueOnCapturedContext}), context set inside {builder}"
+            <| fun () ->
+                task {
+                    let gate =
+                        TaskCompletionSource<unit>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let context = ThreadPoolPostContext()
+
+                    let started =
+                        TaskCompletionSource<Task<'T>>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let thread =
+                        Thread(fun () ->
+                            try
+                                started.SetResult(
+                                    start continueOnCapturedContext context gate.Task
+                                )
+                            with e ->
+                                started.SetException e
+                        )
+
+                    thread.IsBackground <- true
+                    thread.Start()
+                    let! running = started.Task.WaitAsync(deadline)
+                    gate.SetResult()
+                    let! actual = running.WaitAsync(deadline)
+
+                    Expect.equal
+                        actual
+                        (wrap continueOnCapturedContext)
+                        "The value shows whether the code after the bind continued on the context that the computation set"
+                }
+    ]
