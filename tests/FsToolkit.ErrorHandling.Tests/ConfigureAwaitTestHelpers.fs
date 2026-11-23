@@ -172,6 +172,7 @@ let sourceCases
     (letBangThenReturn: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     (letBangValueTask: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     (doBangTask: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
+    (returnBangThenFinally: bool -> SynchronizationContext -> Task<unit> -> Task<'T>)
     =
     [
         for continueOnCapturedContext in
@@ -200,6 +201,11 @@ let sourceCases
                 $"do! of a ConfiguredTaskAwaitable with {configured}"
                 continueOnCapturedContext
                 (doBangTask continueOnCapturedContext)
+
+            case
+                $"return! of a ConfiguredTaskAwaitable<'T> with {configured}, then finally"
+                continueOnCapturedContext
+                (returnBangThenFinally continueOnCapturedContext)
     ]
 
 let pooledValueTaskCase name (expected: 'T) (bind: ConfiguredValueTaskAwaitable<int> -> Task<'T>) =

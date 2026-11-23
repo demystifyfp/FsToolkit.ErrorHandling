@@ -751,6 +751,23 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
                     })
                         .AsTask()
                 )
+                (fun configure context gate ->
+                    let observed = ref None
+
+                    task {
+                        let running =
+                            (valueTaskValueOption {
+                                try
+                                    return! gate.ConfigureAwait(configure)
+                                finally
+                                    observed.Value <- Some(onContext context)
+                            })
+                                .AsTask()
+
+                        let! _ = running
+                        return ValueSome(Option.get observed.Value)
+                    }
+                )
 
         valueCase "return! of a ConfiguredTaskAwaitable<'T>" (ValueSome 1)
         <| fun () ->
@@ -900,7 +917,7 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
                 .AsTask()
 
         threeOperandCase
-            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            "and! of three custom awaitables starts each operand before any operand completes"
             (ValueSome 3)
         <| fun p1 p2 p3 ->
             (valueTaskValueOption {
