@@ -168,6 +168,49 @@ let private taskResultTests =
                 return a + b
             }
             : Task<Result<int, string>>)
+
+        threeOperandCase
+            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            (Ok 3: Result<_, string>)
+        <| fun p1 p2 p3 ->
+            taskResult {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            }
+
+        valueCase "let! gets the awaiter of a plain awaitable one time" (Ok 1: Result<_, string>)
+        <| fun () ->
+            let calls = ref 0
+
+            taskResult {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (Ok 1: Result<_, string>)
+        <| fun () ->
+            let calls = ref 0
+
+            TestHelpers.dynamicTaskResult {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
     ]
 
 let private taskValidationTests =
@@ -331,6 +374,51 @@ let private taskValidationTests =
                 return a + b
             }
             : Task<Validation<int, string>>)
+
+        threeOperandCase
+            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            (Ok 3: Validation<_, string>)
+        <| fun p1 p2 p3 ->
+            taskValidation {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            }
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time"
+            (Ok 1: Validation<_, string>)
+        <| fun () ->
+            let calls = ref 0
+
+            taskValidation {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (Ok 1: Validation<_, string>)
+        <| fun () ->
+            let calls = ref 0
+
+            TestHelpers.dynamicTaskValidation {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
     ]
 
 let private taskOptionTests =
@@ -497,6 +585,49 @@ let private taskOptionTests =
                 let! a = left.ConfigureAwait(false)
                 and! b = right
                 return a + b
+            }
+
+        threeOperandCase
+            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            (Some 3)
+        <| fun p1 p2 p3 ->
+            taskOption {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            }
+
+        valueCase "let! gets the awaiter of a plain awaitable one time" (Some 1)
+        <| fun () ->
+            let calls = ref 0
+
+            taskOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (Some 1)
+        <| fun () ->
+            let calls = ref 0
+
+            TestHelpers.dynamicTaskOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
             }
     ]
 
@@ -665,6 +796,49 @@ let private taskValueOptionTests =
                 let! a = left.ConfigureAwait(false)
                 and! b = right
                 return a + b
+            }
+
+        threeOperandCase
+            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            (ValueSome 3)
+        <| fun p1 p2 p3 ->
+            taskValueOption {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            }
+
+        valueCase "let! gets the awaiter of a plain awaitable one time" (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            taskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            }
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            TestHelpers.dynamicTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
             }
     ]
 

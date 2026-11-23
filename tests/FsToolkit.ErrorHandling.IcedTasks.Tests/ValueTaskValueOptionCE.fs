@@ -898,6 +898,52 @@ let ``valueTaskValueOption ConfigureAwait Tests`` =
                 return a + b
             })
                 .AsTask()
+
+        threeOperandCase
+            "and! of three ConfiguredTaskAwaitable sources gets every awaiter before it awaits one"
+            (ValueSome 3)
+        <| fun p1 p2 p3 ->
+            (valueTaskValueOption {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            })
+                .AsTask()
+
+        valueCase "let! gets the awaiter of a plain awaitable one time" (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            (valueTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            })
+                .AsTask()
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            (dynamicValueTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            })
+                .AsTask()
     ]
 
 

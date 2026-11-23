@@ -58,6 +58,11 @@ type Watch(gate: Task<int>, events: ResizeArray<string>) =
 type ThrowingGetAwaiter(error: exn) =
     member _.GetAwaiter() : TaskAwaiter<int> = raise error
 
+type GatedProbe(name: string, gate: Task<int>, log: ResizeArray<string>) =
+    member _.GetAwaiter() =
+        log.Add name
+        gate.GetAwaiter()
+
 let runWithPendingGate (start: SynchronizationContext -> Task<unit> -> Task<'T>) : Task<'T> =
     let gate =
         TaskCompletionSource<unit>(TaskCreationOptions.RunContinuationsAsynchronously)
@@ -251,4 +256,35 @@ let leftFaultCase name (merge: Task<int> -> ThrowingGetAwaiter -> Task<'T>) =
             | e ->
                 failtest
                     $"The task must fault with the exception of the left source, not %A{e.InnerExceptions}"
+        }
+
+let threeOperandCase
+    name
+    (expected: 'T)
+    (merge: GatedProbe -> GatedProbe -> GatedProbe -> Task<'T>)
+    =
+    testCaseTask name
+    <| fun () ->
+        task {
+            let gate =
+                TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let log = ResizeArray<string>()
+
+            let running =
+                merge
+                    (GatedProbe("1", gate.Task, log))
+                    (GatedProbe("2", gate.Task, log))
+                    (GatedProbe("3", gate.Task, log))
+
+            let startedBeforeCompletion = String.Join(",", log)
+            gate.SetResult 1
+            let! actual = running.WaitAsync(deadline)
+
+            Expect.equal
+                startedBeforeCompletion
+                "2,3,1"
+                "Each operand must get its awaiter before any operand completes. F# nests the merges, so the last pair is first"
+
+            Expect.equal actual expected "The computation must return the awaited values"
         }
