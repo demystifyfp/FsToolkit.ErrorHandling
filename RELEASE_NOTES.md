@@ -1,6 +1,6 @@
 ### 6.0.0-beta010 - Unreleased
 
-- [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398) Credits @TheAngryByrd
+- [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/399) Credits @TheAngryByrd
     - fix: in `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, `valueTaskValueOption`, and their `background` variants, a bind (`let!`, `do!`, `use!`, `match!`) of a plain awaitable now awaits the awaiter of that awaitable, as `task { }` does. Before, the builder awaited a new task that wrapped the awaitable. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
     - Behavior change: when such an awaitable has `ConfigureAwait(false)` and is not complete, the builder does not request a return to the captured `SynchronizationContext` after the bind. Before, it did. UI code that touches a control after such a bind must remove `ConfigureAwait(false)` or return to the UI thread itself.
     - Behavior change: in `let!`, `do!`, `use!`, and `match!`, the `GetAwaiter` member of a custom awaitable now runs in the computation expression, as in `task { }`. An `AsyncLocal` value that it sets is now visible to the code after the bind. In `and!`, `GetAwaiter` still runs in a separate task.
