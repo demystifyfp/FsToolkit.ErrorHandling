@@ -416,21 +416,14 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
             this.Bind(task, (fun v -> this.Return v))
 
         [<NoEagerConstraintApplication>]
-        member inline this.Source< ^TaskLike, ^Awaiter, 'T
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
-            and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter: (member GetResult: unit -> 'T)>
+        member inline this.Source< ^TaskLike, ^Awaiter, 'T when Awaitable< ^TaskLike, ^Awaiter, 'T >>
             (t: ^TaskLike)
             : PlainAwaitable< ^TaskLike > =
             PlainAwaitable(t)
 
         [<NoEagerConstraintApplication>]
         static member inline BindDynamic< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
-            and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            when Awaitable< ^TaskLike, ^Awaiter, 'TResult1 >>
             (
                 sm: byref<_>,
                 awaitable: PlainAwaitable< ^TaskLike >,
@@ -455,10 +448,7 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
         [<NoEagerConstraintApplication>]
         member inline _.Bind< ^TaskLike, 'TResult1, 'TResult2, ^Awaiter, 'TOverall
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
-            and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            when Awaitable< ^TaskLike, ^Awaiter, 'TResult1 >>
             (
                 awaitable: PlainAwaitable< ^TaskLike >,
                 continuation: ('TResult1 -> ValueTaskValueOptionCode<'TOverall, 'TResult2>)
@@ -501,10 +491,7 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
         [<NoEagerConstraintApplication>]
         member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
-            and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter: (member GetResult: unit -> 'T)>
+            when Awaitable< ^TaskLike, ^Awaiter, 'T >>
             (awaitable: PlainAwaitable< ^TaskLike >)
             : ValueTaskValueOptionCode<'T, 'T> =
 
@@ -512,10 +499,7 @@ module ValueTaskValueOptionCEExtensionsLowPriority =
 
         [<NoEagerConstraintApplication>]
         member inline this.BindReturn< ^TaskLike, ^Awaiter, 'T, 'U
-            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
-            and ^Awaiter :> ICriticalNotifyCompletion
-            and ^Awaiter: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter: (member GetResult: unit -> 'T)>
+            when Awaitable< ^TaskLike, ^Awaiter, 'T >>
             (awaitable: PlainAwaitable< ^TaskLike >, [<InlineIfLambda>] f: 'T -> 'U)
             : ValueTaskValueOptionCode<'U, 'U> =
 
@@ -605,10 +589,7 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^TaskLike1, ^Awaiter1, 'T, 'T1
-            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
-            and ^Awaiter1 :> ICriticalNotifyCompletion
-            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter1: (member GetResult: unit -> 'T)>
+            when Awaitable< ^TaskLike1, ^Awaiter1, 'T >>
             (t1: PlainAwaitable< ^TaskLike1 >, t2: ValueTaskValueOption<'T1>)
             =
             ValueTaskValueOption.zip
@@ -617,10 +598,7 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^TaskLike2, ^Awaiter2, 'T, 'T1
-            when ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
-            and ^Awaiter2 :> ICriticalNotifyCompletion
-            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter2: (member GetResult: unit -> 'T1)>
+            when Awaitable< ^TaskLike2, ^Awaiter2, 'T1 >>
             (t1: ValueTaskValueOption<'T>, t2: PlainAwaitable< ^TaskLike2 >)
             =
             ValueTaskValueOption.zip
@@ -630,14 +608,7 @@ module ValueTaskValueOptionCEExtensionsHighPriority =
 
         [<NoEagerConstraintApplication>]
         member inline _.MergeSources< ^TaskLike1, ^Awaiter1, ^TaskLike2, ^Awaiter2, 'T, 'T1
-            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
-            and ^Awaiter1 :> ICriticalNotifyCompletion
-            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter1: (member GetResult: unit -> 'T)
-            and ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
-            and ^Awaiter2 :> ICriticalNotifyCompletion
-            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
-            and ^Awaiter2: (member GetResult: unit -> 'T1)>
+            when Awaitable< ^TaskLike1, ^Awaiter1, 'T > and Awaitable< ^TaskLike2, ^Awaiter2, 'T1 >>
             (t1: PlainAwaitable< ^TaskLike1 >, t2: PlainAwaitable< ^TaskLike2 >)
             =
             ValueTaskValueOption.zip
