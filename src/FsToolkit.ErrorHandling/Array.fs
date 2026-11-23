@@ -6,21 +6,24 @@ module Array =
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
         (xs: 'okInput[])
         =
-        let results = ResizeArray<'okOutput>(xs.Length)
-        let mutable index = 0
-        let mutable error: 'error voption = ValueNone
+        if xs.Length = 0 then
+            Ok Array.empty
+        else
+            let oks = ResizeArray<'okOutput>(xs.Length)
+            let mutable error: 'error voption = ValueNone
+            let mutable index = 0
 
-        while error.IsNone
-              && index < xs.Length do
-            match f xs[index] with
-            | Ok value ->
-                results.Add value
-                index <- index + 1
-            | Error e -> error <- ValueSome e
+            while error.IsNone
+                  && index < xs.Length do
+                match f xs[index] with
+                | Ok value ->
+                    oks.Add value
+                    index <- index + 1
+                | Error e -> error <- ValueSome e
 
-        match error with
-        | ValueNone -> Ok(results.ToArray())
-        | ValueSome e -> Error e
+            match error with
+            | ValueNone -> Ok(oks.ToArray())
+            | ValueSome e -> Error e
 
     let sequenceResultM xs = traverseResultM id xs
 
@@ -52,32 +55,32 @@ module Array =
         ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
         (xs: 'okInput[])
         =
-        let oks = ResizeArray<'okOutput>(xs.Length)
-        let mutable errors: ResizeArray<'error> option = None
-        let mutable ok = true
-
-        for x in xs do
-            match f x with
-            | Ok value when ok -> oks.Add value
-            | Ok _ -> ()
-            | Error e ->
-                let errorBuffer =
-                    match errors with
-                    | Some errors -> errors
-                    | None ->
-                        let buffer = ResizeArray<'error>()
-                        errors <- Some buffer
-                        buffer
-
-                errorBuffer.Add e
-                ok <- false
-
-        if ok then
-            Ok(oks.ToArray())
+        if xs.Length = 0 then
+            Ok Array.empty
         else
+            let oks = ResizeArray<'okOutput>(xs.Length)
+            let mutable errors: ResizeArray<'error> voption = ValueNone
+            let mutable index = 0
+
+            while index < xs.Length do
+                match f xs[index] with
+                | Ok value when errors.IsNone -> oks.Add value
+                | Error e when errors.IsSome -> errors.Value.Add e
+                | Ok _ -> ()
+                | Error e ->
+                    let remaining =
+                        xs.Length
+                        - oks.Count
+
+                    let buffer = ResizeArray<'error>(remaining)
+                    buffer.Add e
+                    errors <- ValueSome buffer
+
+                index <- index + 1
+
             match errors with
-            | Some errors -> Error(errors.ToArray())
-            | None -> Error [||]
+            | ValueNone -> Ok(oks.ToArray())
+            | ValueSome errors -> Error(errors.ToArray())
 
     let sequenceResultA xs = traverseResultA id xs
 
@@ -177,11 +180,11 @@ module Array =
         if ok then Some(results.ToArray()) else None
 
     /// <summary>
-    /// Applies the monadic function <paramref name="id"/> to each element in the input array <paramref name="xs"/>,
+    /// Applies the monadic function <c>id</c> to each element in the input array <paramref name="xs"/>,
     /// and returns the result as an option. If any element in the list is None, the entire result will be None.
     /// </summary>
     /// <param name="xs">The input array.</param>
-    /// <returns>An option containing the result of applying <paramref name="id"/> to each element in <paramref name="xs"/>.</returns>
+    /// <returns>An option containing the result of applying <c>id</c> to each element in <paramref name="xs"/>.</returns>
     let sequenceOptionM xs = traverseOptionM id xs
 
     let traverseAsyncOptionM f (xs: _[]) =
@@ -233,7 +236,7 @@ module Array =
         if ok then ValueSome(results.ToArray()) else ValueNone
 
     /// <summary>
-    /// Applies the <paramref name="id"/> function to each element in the input array <paramref name="xs"/>,
+    /// Applies the <c>id</c> function to each element in the input array <paramref name="xs"/>,
     /// and returns the result as a value option. If any element in the list is ValueNone, the entire result will be ValueNone.
     /// </summary>
     /// <param name="xs">The input array.</param>
