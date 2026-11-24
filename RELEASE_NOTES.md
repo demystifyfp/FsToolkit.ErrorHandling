@@ -1,4 +1,4 @@
-### 6.0.0-beta010 - Unreleased
+### 6.0.0-beta010 - November 23, 2026
 
 - [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/399) Credits @TheAngryByrd
     - fix: in `taskResult`, `taskValidation`, `taskOption`, `taskValueOption`, `valueTaskValueOption`, and their `background` variants, a bind (`let!`, `do!`, `use!`, `match!`, `return!`) of a plain awaitable now awaits the awaiter of that awaitable, as `task { }` does. Before, the builder awaited a new task that wrapped the awaitable. Fixes [#398](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/398).
