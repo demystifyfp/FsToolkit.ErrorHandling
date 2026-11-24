@@ -76,7 +76,7 @@ let sequenceResultM xs = traverseResultM id xs
 let inline traverseResultA'
     (state: Result<#seq<'okOutput>, #seq<'error>>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
-    (xs: 'okInput SeqNull)
+    (xs: SeqNull<'okInput>)
     =
 
     if isNull xs then

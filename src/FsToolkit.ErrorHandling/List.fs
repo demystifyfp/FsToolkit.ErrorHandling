@@ -5,7 +5,7 @@ open Microsoft.FSharp.Core.CompilerServices
 [<RequireQualifiedAccess>]
 module List =
 
-    let traverseResultM'
+    let private traverseResultM'
         state
         (f: 'okInput -> Result<'okOutput, 'error>)
         xs
