@@ -546,12 +546,96 @@ module TaskOptionCEExtensionsLowPriority =
             and ^Awaiter: (member get_IsCompleted: unit -> bool)
             and ^Awaiter: (member GetResult: unit -> 'T)>
             (t: ^TaskLike)
-            : TaskOption<'T> =
+            : PlainAwaitable< ^TaskLike > =
 
-            task {
-                let! r = t
-                return Some r
-            }
+            PlainAwaitable(t)
+
+        [<NoEagerConstraintApplication>]
+        static member inline BindDynamic<'TResult1, 'TResult2, ^TaskLike, ^Awaiter, 'TOverall
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            (
+                sm: byref<_>,
+                awaitable: PlainAwaitable< ^TaskLike >,
+                continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>)
+            ) : bool =
+
+            let mutable awaiter =
+                (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (awaitable.Awaitable))
+
+            let cont =
+                (TaskOptionResumptionFunc<'TOverall>(fun sm ->
+                    let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
+                    (continuation result).Invoke(&sm)
+                ))
+
+            if (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                cont.Invoke(&sm)
+            else
+                sm.ResumptionDynamicInfo.ResumptionData <- (awaiter :> ICriticalNotifyCompletion)
+                sm.ResumptionDynamicInfo.ResumptionFunc <- cont
+                false
+
+        [<NoEagerConstraintApplication>]
+        member inline _.Bind<'TResult1, 'TResult2, ^TaskLike, ^Awaiter, 'TOverall
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'TResult1)>
+            (
+                awaitable: PlainAwaitable< ^TaskLike >,
+                continuation: ('TResult1 -> TaskOptionCode<'TOverall, 'TResult2>)
+            ) : TaskOptionCode<'TOverall, 'TResult2> =
+
+            TaskOptionCode<'TOverall, _>(fun sm ->
+                if __useResumableCode then
+                    //-- RESUMABLE TaskOptionCode START
+                    let mutable awaiter =
+                        (^TaskLike: (member GetAwaiter: unit -> ^Awaiter) (awaitable.Awaitable))
+
+                    let mutable __stack_fin = true
+
+                    if not (^Awaiter: (member get_IsCompleted: unit -> bool) (awaiter)) then
+                        // This will yield with __stack_yield_fin = false
+                        // This will resume with __stack_yield_fin = true
+                        let __stack_yield_fin = ResumableCode.Yield().Invoke(&sm)
+                        __stack_fin <- __stack_yield_fin
+
+                    if __stack_fin then
+                        let result = (^Awaiter: (member GetResult: unit -> 'TResult1) (awaiter))
+                        (continuation result).Invoke(&sm)
+                    else
+                        sm.Data.MethodBuilder.AwaitUnsafeOnCompleted(&awaiter, &sm)
+                        false
+                else
+                    TaskOptionBuilderBase.BindDynamic(&sm, awaitable, continuation)
+            //-- RESUMABLE TaskOptionCode END
+            )
+
+        [<NoEagerConstraintApplication>]
+        member inline this.ReturnFrom< ^TaskLike, ^Awaiter, 'T
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
+            (awaitable: PlainAwaitable< ^TaskLike >)
+            : TaskOptionCode<'T, 'T> =
+
+            this.Bind(awaitable, (fun v -> this.Return v))
+
+        [<NoEagerConstraintApplication>]
+        member inline this.BindReturn< ^TaskLike, ^Awaiter, 'T, 'U
+            when ^TaskLike: (member GetAwaiter: unit -> ^Awaiter)
+            and ^Awaiter :> ICriticalNotifyCompletion
+            and ^Awaiter: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter: (member GetResult: unit -> 'T)>
+            (awaitable: PlainAwaitable< ^TaskLike >, [<InlineIfLambda>] f: 'T -> 'U)
+            : TaskOptionCode<'U, 'U> =
+
+            this.Bind(awaitable, (fun x -> this.Return(f x)))
+
 
         member inline _.Using<'Resource, 'TOverall, 'T when 'Resource :> IDisposableNull>
             (resource: 'Resource, body: 'Resource -> TaskOptionCode<'TOverall, 'T>)
@@ -636,6 +720,42 @@ module TaskOptionCEExtensionsHighPriority =
 
         member inline this.ReturnFrom(task: TaskOption<'T>) : TaskOptionCode<'T, 'T> =
             this.Bind(task, (fun v -> this.Return v))
+
+        [<NoEagerConstraintApplication>]
+        member inline _.MergeSources< ^TaskLike1, ^Awaiter1, 'T, 'T1
+            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
+            and ^Awaiter1 :> ICriticalNotifyCompletion
+            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter1: (member GetResult: unit -> 'T)>
+            (t1: PlainAwaitable< ^TaskLike1 >, t2: TaskOption<'T1>)
+            =
+            TaskOption.zip (task { let! r = t1.Awaitable in return Some r }: TaskOption<'T>) t2
+
+        [<NoEagerConstraintApplication>]
+        member inline _.MergeSources< ^TaskLike2, ^Awaiter2, 'T, 'T1
+            when ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
+            and ^Awaiter2 :> ICriticalNotifyCompletion
+            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter2: (member GetResult: unit -> 'T1)>
+            (t1: TaskOption<'T>, t2: PlainAwaitable< ^TaskLike2 >)
+            =
+            TaskOption.zip t1 (task { let! r = t2.Awaitable in return Some r }: TaskOption<'T1>)
+
+        [<NoEagerConstraintApplication>]
+        member inline _.MergeSources< ^TaskLike1, ^Awaiter1, ^TaskLike2, ^Awaiter2, 'T, 'T1
+            when ^TaskLike1: (member GetAwaiter: unit -> ^Awaiter1)
+            and ^Awaiter1 :> ICriticalNotifyCompletion
+            and ^Awaiter1: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter1: (member GetResult: unit -> 'T)
+            and ^TaskLike2: (member GetAwaiter: unit -> ^Awaiter2)
+            and ^Awaiter2 :> ICriticalNotifyCompletion
+            and ^Awaiter2: (member get_IsCompleted: unit -> bool)
+            and ^Awaiter2: (member GetResult: unit -> 'T1)>
+            (t1: PlainAwaitable< ^TaskLike1 >, t2: PlainAwaitable< ^TaskLike2 >)
+            =
+            TaskOption.zip
+                (task { let! r = t1.Awaitable in return Some r }: TaskOption<'T>)
+                (task { let! r = t2.Awaitable in return Some r }: TaskOption<'T1>)
 
         member inline _.Source(s: #seq<_>) = s
 

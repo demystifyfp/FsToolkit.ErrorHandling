@@ -3,6 +3,7 @@ module FsToolkit.ErrorHandling.IcedTasks.Tests.ValueTaskValueOptionCETests
 open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
+open ConfigureAwaitTestHelpers
 
 type private DynamicValueTaskValueOptionBuilder() =
     inherit ValueTaskValueOptionBuilderBase()
@@ -713,9 +714,278 @@ let ``ValueTaskValueOptionCE async disposal outcome Tests`` =
         useStatic
         useDynamic
 
+let ``valueTaskValueOption ConfigureAwait Tests`` =
+    let case name expected start =
+        contextCase name (ValueSome expected) start
+
+    testList "valueTaskValueOption ConfigureAwait in let!, do!, return!, and and!" [
+        yield!
+            sourceCases
+                case
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(configure)
+
+                        if onContext context then return true else return false
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        let! () = ValueTask<unit>(gate).ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        do! (gate :> Task).ConfigureAwait(configure)
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    let observed = ref None
+
+                    task {
+                        let running =
+                            (valueTaskValueOption {
+                                try
+                                    return! gate.ConfigureAwait(configure)
+                                finally
+                                    observed.Value <- Some(onContext context)
+                            })
+                                .AsTask()
+
+                        let! _ = running
+                        return ValueSome(Option.get observed.Value)
+                    }
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        use! _resource =
+                            gate
+                                .ContinueWith(fun (_: Task<unit>) -> new TestResource())
+                                .ConfigureAwait(configure)
+
+                        return onContext context
+                    })
+                        .AsTask()
+                )
+                (fun configure context gate ->
+                    (valueTaskValueOption {
+                        match! gate.ConfigureAwait(configure) with
+                        | () -> return onContext context
+                    })
+                        .AsTask()
+                )
+
+        valueCase "return! of a ConfiguredTaskAwaitable<'T>" (ValueSome 1)
+        <| fun () ->
+            (valueTaskValueOption { return! Task.FromResult(1).ConfigureAwait(false) }).AsTask()
+
+        valueCase
+            "let! of a ConfiguredTaskAwaitable of an option binds the whole option"
+            (ValueSome(ValueSome 1))
+        <| fun () ->
+            (valueTaskValueOption {
+                let! x = Task.FromResult(ValueSome 1).ConfigureAwait(false)
+                return x
+            })
+                .AsTask()
+
+        valueCase "and! of ConfiguredTaskAwaitable<'T> sources keeps the order" (ValueSome(1, 2))
+        <| fun () ->
+            (valueTaskValueOption {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            })
+                .AsTask()
+
+        case "and! of ConfiguredTaskAwaitable<'T> sources with ConfigureAwait(false)" true
+        <| fun context gate ->
+            (valueTaskValueOption {
+                let! () = gate.ConfigureAwait(false)
+                and! () = Task.FromResult(()).ConfigureAwait(false)
+                return onContext context
+            })
+                .AsTask()
+
+        yield!
+            failureCases
+                (fun gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(false)
+                        return "done"
+                    })
+                        .AsTask()
+                )
+                (fun local gate ->
+                    (valueTaskValueOption {
+                        let! () = gate.ConfigureAwait(false)
+                        return local.Value
+                    })
+                        .AsTask()
+                )
+                (ValueSome "caller")
+
+        for continueOnCapturedContext in
+            [
+                false
+                true
+            ] do
+            case
+                $"let! of a ConfiguredTaskAwaitable<'T> with ConfigureAwait(%b{continueOnCapturedContext}) in the dynamic state machine"
+                continueOnCapturedContext
+            <| fun context gate ->
+                (dynamicValueTaskValueOption {
+                    let! () = gate.ConfigureAwait(continueOnCapturedContext)
+
+                    if onContext context then return true else return false
+                })
+                    .AsTask()
+
+        valueCase
+            "and! of a ConfiguredTaskAwaitable<'T> and a source of the builder's type keeps the order"
+            (ValueSome(1, 2))
+        <| fun () ->
+            (valueTaskValueOption {
+                let! a = Task.FromResult(1).ConfigureAwait(false)
+                and! b = ValueTask<_>(ValueSome 2)
+                return a, b
+            })
+                .AsTask()
+
+        valueCase
+            "and! of a source of the builder's type and a ConfiguredTaskAwaitable<'T> keeps the order"
+            (ValueSome(1, 2))
+        <| fun () ->
+            (valueTaskValueOption {
+                let! a = ValueTask<_>(ValueSome 1)
+                and! b = Task.FromResult(2).ConfigureAwait(false)
+                return a, b
+            })
+                .AsTask()
+
+        valueCase
+            "and! gets the awaiter of the left source one time, after it evaluates the right source"
+            (ValueSome(0, 1))
+        <| fun () ->
+            let calls = ref 0
+
+            (valueTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                and! seen = Task.FromResult(calls.Value)
+                return seen, calls.Value
+            })
+                .AsTask()
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time"
+            (ValueSome 2)
+        <| fun source ->
+            (valueTaskValueOption {
+                let! x = source
+                return x + 1
+            })
+                .AsTask()
+
+        pooledValueTaskCase
+            "let! of a pending pooled ValueTask<'T> reads the source one time in the dynamic state machine"
+            (ValueSome 2)
+        <| fun source ->
+            (dynamicValueTaskValueOption {
+                let! x = source
+                return x + 1
+            })
+                .AsTask()
+
+        leftWatchCase
+            "and! gets the awaiter of the left source after it evaluates the right source, as in task"
+            (ValueSome "")
+        <| fun watch right ->
+            (valueTaskValueOption {
+                let! _ = watch
+                and! b = right ()
+                return b
+            })
+                .AsTask()
+
+        leftFaultCase "and! keeps the fault of the left source when the right GetAwaiter throws"
+        <| fun left right ->
+            (valueTaskValueOption {
+                let! a = left.ConfigureAwait(false)
+                and! b = right
+                return a + b
+            })
+                .AsTask()
+
+        threeOperandCase
+            "and! of three custom awaitables starts each operand before any operand completes"
+            (ValueSome 3)
+        <| fun p1 p2 p3 ->
+            (valueTaskValueOption {
+                let! a = p1
+                and! b = p2
+                and! c = p3
+                return a + b + c
+            })
+                .AsTask()
+
+        valueCase "let! gets the awaiter of a plain awaitable one time" (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            (valueTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            })
+                .AsTask()
+
+        valueCase
+            "let! gets the awaiter of a plain awaitable one time in the dynamic state machine"
+            (ValueSome 1)
+        <| fun () ->
+            let calls = ref 0
+
+            (dynamicValueTaskValueOption {
+                let! () =
+                    GetAwaiterProbe(fun () ->
+                        calls.Value <-
+                            calls.Value
+                            + 1
+                    )
+
+                return calls.Value
+            })
+                .AsTask()
+    ]
+
+
 [<Tests>]
 let allTests =
     testList "ValueTaskValueOption CE Tests" [
+        ``valueTaskValueOption ConfigureAwait Tests``
         ceTests
         ceTestsApplicative
         ``ValueTaskValueOptionCE while ValueNone async disposal Tests``
