@@ -14,6 +14,7 @@
     <Project Path="tests/FsToolkit.ErrorHandling.IcedTasks.Tests/FsToolkit.ErrorHandling.IcedTasks.Tests.fsproj" />
     <Project Path="tests/FsToolkit.ErrorHandling.Sources.Generator.Tests/FsToolkit.ErrorHandling.Sources.Generator.Tests.fsproj" />
     <Project Path="tests/FsToolkit.ErrorHandling.Tests/FsToolkit.ErrorHandling.Tests.fsproj" />
+    <Project Path="tests/FsToolkit.ErrorHandling.Tests.RuntimeAsync/FsToolkit.ErrorHandling.Tests.RuntimeAsync.fsproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/FunctionMap/FunctionMap.fsproj" />

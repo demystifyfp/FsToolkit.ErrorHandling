@@ -3,6 +3,9 @@ namespace Contoso.Consumer
 open System
 open System.Threading.Tasks
 open Contoso.Internal.ErrorHandling
+#if FSTK_RUNTIME_ASYNC
+open Contoso.Internal.ErrorHandling.Polyfill.RuntimeTask
+#endif
 
 module Library =
 

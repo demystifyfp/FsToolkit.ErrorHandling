@@ -843,6 +843,13 @@ let sourcesTest ctx =
     // A multi-target rebuild skips NuGet content preprocessing in the inner builds unless the package targets repair it.
     buildConsumer [ "--no-incremental" ]
 
+    buildConsumer [
+        "--framework"
+        "net11.0"
+        "--no-incremental"
+        "-p:TestRuntimeAsync=true"
+    ]
+
     DotNet.test
         (fun c -> {
             c with

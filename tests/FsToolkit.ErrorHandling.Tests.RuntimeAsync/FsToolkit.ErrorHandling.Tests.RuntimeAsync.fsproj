@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net11.0</TargetFrameworks>
+        <LangVersion>preview</LangVersion>
+        <OtherFlags>$(OtherFlags) --warnon:3517</OtherFlags>
+        <DefineConstants>$(DefineConstants);TEST_RUNTIME_ASYNC</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../src/FsToolkit.ErrorHandling/FsToolkit.ErrorHandling.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/ConfigureAwaitTestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskConfigureAwaitTests.fs" />
+        <Compile Include="RuntimeAsyncTestHelpers.fs" />
+        <Compile Include="StateMachineProbes.fs" />
+        <Compile Include="RuntimeAsyncProbes.fs" />
+        <Compile Include="TaskResultRuntimeAsync.fs" />
+        <Compile Include="Main.fs" />
+    </ItemGroup>
+</Project>

@@ -1,3 +1,7 @@
+### 6.0.0-beta011 - Unreleased
+
+- [Add a preview runtime-async `taskResult` for .NET 11](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/392) Credits @TheAngryByrd
+
 ### 6.0.0-beta010 - November 23, 2026
 
 - [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/399) Credits @TheAngryByrd

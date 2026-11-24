@@ -6,6 +6,10 @@
     <NoWarn>$(NoWarn);FS1204;FS3511;FS3513;FS0057</NoWarn>
     <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0' And '$(FABLE_COMPILER)' != 'true'">
+    <LangVersion>preview</LangVersion>
+    <DefineConstants>$(DefineConstants);FSTK_RUNTIME_ASYNC</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Nullness.fs" />
     <Compile Include="Req.fs" />
@@ -31,6 +35,7 @@
     <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="PlainAwaitable.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskResultRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="Validation.fs" />
     <Compile Include="ValidationOp.fs" />

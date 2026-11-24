@@ -190,6 +190,7 @@
     * [check](taskResult/check.md)
     * [catchWith](taskResult/catchWith.md)
     * [Computation Expression](taskResult/ce.md)
+    * [Runtime-async taskResult (preview)](taskResult/runtime-async.md)
     * [eitherBind](taskResult/eitherBind.md)
     * [error](taskResult/error.md)
     * [ignore](taskResult/ignore.md)
