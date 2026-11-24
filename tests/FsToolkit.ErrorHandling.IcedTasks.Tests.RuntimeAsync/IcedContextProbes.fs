@@ -7,14 +7,18 @@ open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
 open ConfigureAwaitTestHelpers
 
 let private readResult (computation: CancellationToken -> Task<Result<'T, 'Error>>) =
+    let running = computation CancellationToken.None
+
     task {
-        let! result = computation CancellationToken.None
+        let! result = running
         return Result.defaultWith (fun _ -> failwith "Expected Ok") result
     }
 
 let private readOption (computation: CancellationToken -> Task<'T option>) =
+    let running = computation CancellationToken.None
+
     task {
-        let! result = computation CancellationToken.None
+        let! result = running
         return Option.get result
     }
 
@@ -88,6 +92,7 @@ let slotCases: (string * bool * (AsyncLocal<int> -> Task<unit> -> Task<int>)) li
         cancellableTaskResult {
             try
                 for _ in [ 1 ] do
+                    slot.Value <- 30
                     do! gate
                     slot.Value <- 42
             finally
@@ -114,6 +119,7 @@ let slotCases: (string * bool * (AsyncLocal<int> -> Task<unit> -> Task<int>)) li
         cancellableTaskOption {
             try
                 for _ in [ 1 ] do
+                    slot.Value <- 30
                     do! gate
                     slot.Value <- 42
             finally
@@ -140,6 +146,7 @@ let slotCases: (string * bool * (AsyncLocal<int> -> Task<unit> -> Task<int>)) li
         cancellableTaskValidation {
             try
                 for _ in [ 1 ] do
+                    slot.Value <- 30
                     do! gate
                     slot.Value <- 42
             finally

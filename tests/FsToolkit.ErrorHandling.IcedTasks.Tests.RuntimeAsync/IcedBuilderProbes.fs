@@ -1263,118 +1263,101 @@ let coldAwaiters: (string * (unit -> Task<string>) * (unit -> Task<string>)) lis
     )
 ]
 
-let private cancelingSequence (cts: CancellationTokenSource) (moves: int ref) =
-    { new System.Collections.Generic.IAsyncEnumerable<int> with
-        member _.GetAsyncEnumerator(_) =
-            { new System.Collections.Generic.IAsyncEnumerator<int> with
-                member _.MoveNextAsync() =
-                    moves.Value <-
-                        moves.Value
-                        + 1
-
-                    if moves.Value = 1 then
-                        cts.Cancel()
-                        ValueTask<bool>(true)
-                    else
-                        ValueTask<bool>(false)
-
-                member _.Current = 1
-                member _.DisposeAsync() = ValueTask()
-            }
-    }
-
-/// The first MoveNextAsync cancels the invocation token and gives an item.
 let asyncSequenceCancellation
-    : (string * (CancellationTokenSource -> int ref -> int ref -> Task<string>)) list = [
+    : (string *
+      (CancellationToken
+              -> System.Collections.Generic.IAsyncEnumerable<int>
+              -> int ref
+              -> Task<string>)) list = [
     "cancellableTaskResult",
-    fun cts moves calls ->
+    fun token source calls ->
         cancellableTaskResult {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runWith cts.Token
+        |> runWith token
         |> render
     "backgroundCancellableTaskResult",
-    fun cts moves calls ->
+    fun token source calls ->
         backgroundCancellableTaskResult {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runWith cts.Token
+        |> runWith token
         |> render
     "cancellableValueTaskResult",
-    fun cts moves calls ->
+    fun token source calls ->
         cancellableValueTaskResult {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runValueWith cts.Token
+        |> runValueWith token
         |> render
     "backgroundCancellableValueTaskResult",
-    fun cts moves calls ->
+    fun token source calls ->
         backgroundCancellableValueTaskResult {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runValueWith cts.Token
+        |> runValueWith token
         |> render
     "cancellableTaskValidation",
-    fun cts moves calls ->
+    fun token source calls ->
         cancellableTaskValidation {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runWith cts.Token
+        |> runWith token
         |> render
     "cancellableTaskOption",
-    fun cts moves calls ->
+    fun token source calls ->
         cancellableTaskOption {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runWith cts.Token
+        |> runWith token
         |> render
     "backgroundCancellableTaskOption",
-    fun cts moves calls ->
+    fun token source calls ->
         backgroundCancellableTaskOption {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runWith cts.Token
+        |> runWith token
         |> render
     "cancellableValueTaskOption",
-    fun cts moves calls ->
+    fun token source calls ->
         cancellableValueTaskOption {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runValueWith cts.Token
+        |> runValueWith token
         |> render
     "backgroundCancellableValueTaskOption",
-    fun cts moves calls ->
+    fun token source calls ->
         backgroundCancellableValueTaskOption {
-            for _ in cancelingSequence cts moves do
+            for _ in source do
                 calls.Value <-
                     calls.Value
                     + 1
         }
-        |> runValueWith cts.Token
+        |> runValueWith token
         |> render
 ]
 

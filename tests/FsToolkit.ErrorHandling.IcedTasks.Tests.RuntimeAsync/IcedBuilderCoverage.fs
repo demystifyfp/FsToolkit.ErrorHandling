@@ -429,6 +429,16 @@ let private coldAwaiterTests =
                 }
     ]
 
+let private asyncSequence moveNext dispose =
+    { new System.Collections.Generic.IAsyncEnumerable<int> with
+        member _.GetAsyncEnumerator(_) =
+            { new System.Collections.Generic.IAsyncEnumerator<int> with
+                member _.Current = 1
+                member _.MoveNextAsync() = moveNext ()
+                member _.DisposeAsync() = dispose ()
+            }
+    }
+
 let private asyncSequenceCancellationTests =
     testList "Cancellation during an IAsyncEnumerable loop" [
         for name, start in IcedBuilderProbes.asyncSequenceCancellation do
@@ -438,9 +448,76 @@ let private asyncSequenceCancellationTests =
                     use cts = new CancellationTokenSource()
                     let moves = ref 0
                     let calls = ref 0
-                    let! _ = expectCanceled (start cts moves calls) cts.Token
+
+                    let moveNext () =
+                        moves.Value <-
+                            moves.Value
+                            + 1
+
+                        cts.Cancel()
+                        ValueTask<bool>(moves.Value = 1)
+
+                    let source = asyncSequence moveNext (fun () -> ValueTask())
+                    let! _ = expectCanceled (start cts.Token source calls) cts.Token
                     Expect.equal calls.Value 0 "The body must not run after the cancellation"
                     Expect.equal moves.Value 1 "The loop must stop after the cancellation"
+                }
+
+            testCaseTask $"%s{name} waits for disposal after cancellation during a pending move"
+            <| fun () ->
+                task {
+                    use cts = new CancellationTokenSource()
+                    let moving = newGate ()
+
+                    let moved =
+                        TaskCompletionSource<bool>(
+                            TaskCreationOptions.RunContinuationsAsynchronously
+                        )
+
+                    let disposal = TestHelpers.ObservedDisposalSource()
+                    let calls = ref 0
+
+                    let moveNext () =
+                        if moving.TrySetResult(()) then
+                            ValueTask<bool>(moved.Task)
+                        else
+                            failtest "The loop requested another item after cancellation"
+
+                    let disposing = newGate ()
+
+                    let dispose () =
+                        disposing.SetResult(())
+                        disposal.ValueTask()
+
+                    let running = start cts.Token (asyncSequence moveNext dispose) calls
+
+                    try
+                        do! moving.Task.WaitAsync(deadline)
+                        cts.Cancel()
+
+                        Expect.isFalse
+                            running.IsCompleted
+                            "The invocation must wait for MoveNextAsync"
+
+                        Expect.isFalse
+                            disposing.Task.IsCompleted
+                            "Disposal must follow MoveNextAsync"
+
+                        moved.SetResult(true)
+                        do! disposal.ContinuationRegistered.WaitAsync(deadline)
+
+                        Expect.isFalse
+                            running.IsCompleted
+                            "The invocation must wait for DisposeAsync"
+                    finally
+                        moved.TrySetResult(true)
+                        |> ignore
+
+                        disposal.Complete TestHelpers.DisposalSucceeds
+
+                    let! _ = expectCanceled running cts.Token
+                    Expect.equal disposal.GetResultCalls 1 "The builder must consume disposal once"
+                    Expect.equal calls.Value 0 "The canceled loop must skip the item"
                 }
     ]
 
@@ -544,7 +621,22 @@ let private contextTests =
                             }
                         )
 
-                    let! actual = onPostingContext (fun _ gate -> preview slot gate)
+                    let gate = newGate ()
+                    let running = preview slot gate.Task
+                    let callerAfterStart = slot.Value
+                    let completedOnStart = running.IsCompleted
+                    gate.SetResult(())
+                    let! actual = running.WaitAsync(deadline)
+
+                    Expect.equal
+                        completedOnStart
+                        (not suspends)
+                        "The probe must take the requested path"
+
+                    Expect.equal
+                        callerAfterStart
+                        21
+                        "Starting the builder must preserve the caller slot"
 
                     Expect.equal
                         expected
