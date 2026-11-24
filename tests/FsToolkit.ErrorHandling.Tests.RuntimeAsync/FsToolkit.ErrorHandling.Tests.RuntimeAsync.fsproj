@@ -13,13 +13,26 @@
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/SampleDomain.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestData.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskResultCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValueOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/BackgroundTaskValueOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskValidationCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResultOption.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskResult.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/ConfigureAwaitTestHelpers.fs" />
         <Compile Include="../FsToolkit.ErrorHandling.Tests/TaskConfigureAwaitTests.fs" />
         <Compile Include="RuntimeAsyncTestHelpers.fs" />
         <Compile Include="StateMachineProbes.fs" />
+        <Compile Include="BuilderCoverage.fs" />
+        <Compile Include="CoreBuilderProbes.fs" />
         <Compile Include="RuntimeAsyncProbes.fs" />
         <Compile Include="TaskResultRuntimeAsync.fs" />
+        <Compile Include="CoreBuilderCoverage.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 </Project>

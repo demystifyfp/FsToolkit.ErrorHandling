@@ -1,0 +1,10 @@
+<Project>
+  <Target Name="FsToolkitConfigureRuntimeAsync" BeforeTargets="BeforeCompile;CoreCompile"
+          Condition="'$(LangVersion)' == 'preview' and $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net11.0'))">
+    <PropertyGroup>
+      <!-- Roslyn splits Features on semicolons, commas, and spaces, trims each entry, and uses the last value for a name. -->
+      <_FsToolkitCompilerFeatures>;$([System.Text.RegularExpressions.Regex]::Replace('$(Features)', '\s*[;, ]\s*', ';').Trim());</_FsToolkitCompilerFeatures>
+      <DefineConstants Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(_FsToolkitCompilerFeatures)', '(?s);runtime-async=on(?=;)(?!.*;runtime-async[=;])'))">$(DefineConstants);FSTK_RUNTIME_ASYNC</DefineConstants>
+    </PropertyGroup>
+  </Target>
+</Project>

@@ -12,6 +12,21 @@ open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers
 open FsToolkit.ErrorHandling
 
+/// <exclude/>
+module RuntimeTaskScheduling =
+
+    [<NoDynamicInvocation>]
+    let inline runBackground (code: unit -> 'T) : Task<'T> =
+        let run () : Task<'T> = __runtimeAsyncReturn (code ())
+
+        if
+            isNull SynchronizationContext.Current
+            && obj.ReferenceEquals(TaskScheduler.Current, TaskScheduler.Default)
+        then
+            run ()
+        else
+            Task.Run<'T>(Func<Task<'T>>(run))
+
 /// <summary>Contains the members that prepare and combine runtime-async result computations.</summary>
 [<AutoOpen>]
 module RuntimeTaskResultBase =
@@ -409,12 +424,24 @@ module RuntimeTaskResultBase =
         member inline _.Run(code: unit -> Result<'T, 'Error>) : Task<Result<'T, 'Error>> =
             __runtimeAsyncReturn (code ())
 
-/// <summary>Contains the opt-in runtime-async <c>taskResult</c> builder.</summary>
+    /// <summary>Builds a runtime-async result computation on the default task scheduler.</summary>
+    type RuntimeBackgroundTaskResultBuilder() =
+        inherit RuntimeTaskResultBuilderBase()
+
+        /// <summary>Starts the computation on the thread pool when the caller has a context or a custom scheduler.</summary>
+        [<NoDynamicInvocation>]
+        member inline _.Run(code: unit -> Result<'T, 'Error>) : Task<Result<'T, 'Error>> =
+            RuntimeTaskScheduling.runBackground code
+
+/// <summary>Contains the opt-in runtime-async task result builders.</summary>
 [<AutoOpen>]
 module RuntimeTaskResults =
 
     /// <summary>Builds a task of a result with .NET runtime async.</summary>
     /// <remarks>Requires .NET 11 or later and <c>LangVersion</c> <c>preview</c>. Open <c>FsToolkit.ErrorHandling.Polyfill.RuntimeTask</c> after <c>FsToolkit.ErrorHandling</c>.</remarks>
     let taskResult = RuntimeTaskResultBuilder()
+
+    /// <summary>Builds a runtime-async task result on the default task scheduler.</summary>
+    let backgroundTaskResult = RuntimeBackgroundTaskResultBuilder()
 
 #endif

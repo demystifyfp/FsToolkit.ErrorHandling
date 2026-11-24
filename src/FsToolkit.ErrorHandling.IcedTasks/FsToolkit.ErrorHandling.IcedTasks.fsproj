@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Library</OutputType>
@@ -7,6 +7,11 @@
         <DebugType>portable</DebugType>
         <NoWarn>$(NoWarn);FS3511;FS3513</NoWarn>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <LangVersion>preview</LangVersion>
+        <Features>$(Features);runtime-async=on</Features>
+    </PropertyGroup>
+    <Import Project="../FsToolkit.ErrorHandling.Sources/build/FsToolkit.RuntimeAsync.targets" />
     <ItemGroup>
         <Compile Include="CancellableTaskResultBuilderBase.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
@@ -19,6 +24,11 @@
         <Compile Include="ValueTaskValueOptionOp.fs" />
         <Compile Include="CancellableValueTaskResultCE.fs" />
         <Compile Include="CancellableValueTaskOptionCE.fs" />
+        <Compile Include="CancellableTaskResultRuntimeCE.fs" />
+        <Compile Include="CancellableTaskValidationRuntimeCE.fs" />
+        <Compile Include="CancellableTaskOptionRuntimeCE.fs" />
+        <Compile Include="CancellableValueTaskOptionRuntimeCE.fs" />
+        <Compile Include="ValueTaskValueOptionRuntimeCE.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />

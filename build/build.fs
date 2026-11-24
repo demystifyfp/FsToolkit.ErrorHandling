@@ -846,6 +846,18 @@ let sourcesTest ctx =
     buildConsumer [
         "--framework"
         "net11.0"
+        "-p:TestRuntimeAsync=multiline-off"
+    ]
+
+    buildConsumer [
+        "--framework"
+        "net11.0"
+        "-p:Features=runtime-async=on"
+    ]
+
+    buildConsumer [
+        "--framework"
+        "net11.0"
         "--no-incremental"
         "-p:TestRuntimeAsync=true"
     ]

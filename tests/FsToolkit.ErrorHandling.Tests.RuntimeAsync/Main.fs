@@ -6,8 +6,17 @@ open Expecto
 let allTests =
     testList "All Tests" [
         TaskResultCETests.allTests
-        TaskConfigureAwaitTests.taskResultTests
+        BackgroundTaskResultCETests.allTests
+        TaskOptionCETests.allTests
+        TaskValueOptionCETests.allTests
+        BackgroundTaskOptionCETests.allTests
+        BackgroundTaskValueOptionCETests.allTests
+        TaskValidationCETests.allTests
+        TaskResultOptionTests.allTests
+        TaskResultTests.allTests
+        TaskConfigureAwaitTests.allTests
         TaskResultRuntimeAsyncTests.allTests
+        CoreBuilderCoverage.allTests
     ]
 
 [<EntryPoint>]

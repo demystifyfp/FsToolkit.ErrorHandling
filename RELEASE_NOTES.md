@@ -1,6 +1,7 @@
 ### 6.0.0-beta011 - Unreleased
 
-- [Add a preview runtime-async `taskResult` for .NET 11](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/392) Credits @TheAngryByrd
+- [Add preview runtime-async task builders for .NET 11](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/392) Credits @TheAngryByrd
+    - The preview cancellable builders check the invocation token after each successful asynchronous move. If cancellation occurs during the move, the builder disposes the enumerator and skips the loop body. With a bind-free body, the existing builders can continue until the enumerator stops supplying items.
 
 ### 6.0.0-beta010 - November 23, 2026
 

@@ -2,6 +2,9 @@ module TaskValidationCETests
 
 open Expecto
 open FsToolkit.ErrorHandling
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 open System.Threading.Tasks
 
 let ``TaskValidationCE return Tests`` =

@@ -9,6 +9,9 @@ open System.Threading
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.CancellableTaskValidation
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 
 module ValidationCompileTests =
     // Just having these compile is a test in itself
@@ -2072,7 +2075,6 @@ module CancellableTaskValidationCE =
                 }
             ]
         ]
-
 
     let ``CancellableTaskValidationCE inference checks`` =
         testList "CancellableTaskValidationCE inference checks" [

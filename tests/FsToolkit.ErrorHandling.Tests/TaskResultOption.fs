@@ -5,6 +5,9 @@ open Expecto
 open SampleDomain
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.TaskResultOption
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 open System
 open TestHelpers
 

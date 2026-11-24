@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="FsToolkit.RuntimeAsync.targets" />
   <PropertyGroup>
     <FsToolkitErrorHandlingNamespace Condition="'$(FsToolkitErrorHandlingNamespace)' == ''">FsToolkit.ErrorHandling</FsToolkitErrorHandlingNamespace>
     <FsToolkitErrorHandlingVisibility Condition="'$(FsToolkitErrorHandlingVisibility)' == ''">internal</FsToolkitErrorHandlingVisibility>
