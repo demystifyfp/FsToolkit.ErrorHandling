@@ -9,6 +9,11 @@
     <WarnOn>FS0052</WarnOn>
     <PackageTags>$(PackageTags), fable-library, fable-dotnet, fable-javascript, fable-python</PackageTags>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0' And '$(FABLE_COMPILER)' != 'true'">
+    <LangVersion>preview</LangVersion>
+    <Features>$(Features);runtime-async=on</Features>
+  </PropertyGroup>
+  <Import Project="../FsToolkit.ErrorHandling.Sources/build/FsToolkit.RuntimeAsync.targets" />
   <ItemGroup>
     <Compile Include="Nullness.fs" />
     <Compile Include="Req.fs" />
@@ -34,6 +39,7 @@
     <Compile Include="TaskResult.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="PlainAwaitable.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskResultRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="Validation.fs" />
     <Compile Include="ValidationOp.fs" />
@@ -44,6 +50,7 @@
     <Compile Include="TaskValidation.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValidationOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValidationCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskValidationRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="AsyncOption.fs" />
     <Compile Include="AsyncOptionCE.fs" />
     <Compile Include="AsyncOptionOp.fs" />
@@ -51,6 +58,8 @@
     <Compile Include="TaskValueOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValueOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskOptionRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskValueOptionRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskValueOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="AsyncResultOption.fs" />
@@ -58,6 +67,7 @@
     <Compile Include="AsyncResultOptionOp.fs" />
     <Compile Include="TaskResultOption.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOptionCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
+    <Compile Include="TaskResultOptionRuntimeCE.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="TaskResultOptionOp.fs" Condition="'$(FABLE_COMPILER)' != 'true'" />
     <Compile Include="ParallelAsyncResult.fs" />
     <Compile Include="ParallelAsyncResultCE.fs" />

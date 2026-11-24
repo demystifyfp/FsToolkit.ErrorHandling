@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Library</OutputType>
@@ -10,6 +10,11 @@
         <!-- FS3513: Resumable code invocation. Suppress this warning if you are defining new low-level resumable code in terms of existing resumable code. -->
         <NoWarn>$(NoWarn);FS3513;FS0052</NoWarn>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <LangVersion>preview</LangVersion>
+        <Features>$(Features);runtime-async=on</Features>
+    </PropertyGroup>
+    <Import Project="../FsToolkit.ErrorHandling.Sources/build/FsToolkit.RuntimeAsync.targets" />
     <ItemGroup>
         <Compile Include="CancellableTaskResultBuilderBase.fs" />
         <Compile Include="CancellableTaskResultCE.fs" />
@@ -22,6 +27,11 @@
         <Compile Include="ValueTaskValueOptionOp.fs" />
         <Compile Include="CancellableValueTaskResultCE.fs" />
         <Compile Include="CancellableValueTaskOptionCE.fs" />
+        <Compile Include="CancellableTaskResultRuntimeCE.fs" />
+        <Compile Include="CancellableTaskValidationRuntimeCE.fs" />
+        <Compile Include="CancellableTaskOptionRuntimeCE.fs" />
+        <Compile Include="CancellableValueTaskOptionRuntimeCE.fs" />
+        <Compile Include="ValueTaskValueOptionRuntimeCE.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\FsToolkit.ErrorHandling\FsToolkit.ErrorHandling.fsproj" />

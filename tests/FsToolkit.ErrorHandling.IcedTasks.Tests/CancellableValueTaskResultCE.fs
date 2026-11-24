@@ -4,6 +4,9 @@ open Expecto
 open System.Threading
 open IcedTasks
 open FsToolkit.ErrorHandling
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 
 module ValueTaskResultCompileTests =
     // Just having these compile is a test in itself

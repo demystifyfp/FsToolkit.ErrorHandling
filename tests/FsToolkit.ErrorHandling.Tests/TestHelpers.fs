@@ -36,6 +36,30 @@ module TestHelpers =
         }
 
 #if !FABLE_COMPILER
+#if TEST_RUNTIME_ASYNC
+    // Runtime-async builders have no dynamic path, so the dynamic cases run the opt-in builders.
+    let dynamicTaskResult = Polyfill.RuntimeTask.RuntimeTaskResults.taskResult
+
+    let dynamicBackgroundTaskResult =
+        Polyfill.RuntimeTask.RuntimeTaskResults.backgroundTaskResult
+
+    let dynamicTaskOption = Polyfill.RuntimeTask.RuntimeTaskOptions.taskOption
+
+    let dynamicBackgroundTaskOption =
+        Polyfill.RuntimeTask.RuntimeTaskOptions.backgroundTaskOption
+
+    let dynamicTaskValueOption =
+        Polyfill.RuntimeTask.RuntimeTaskValueOptions.taskValueOption
+
+    let dynamicBackgroundTaskValueOption =
+        Polyfill.RuntimeTask.RuntimeTaskValueOptions.backgroundTaskValueOption
+
+    let dynamicTaskValidation =
+        Polyfill.RuntimeTask.RuntimeTaskValidations.taskValidation
+
+    let dynamicBackgroundTaskValidation =
+        Polyfill.RuntimeTask.RuntimeTaskValidations.backgroundTaskValidation
+#else
     type DynamicTaskResultBuilder() =
         inherit TaskResultBuilderBase()
 
@@ -94,6 +118,7 @@ module TestHelpers =
     let dynamicTaskValidation = DynamicTaskValidationBuilder()
 
     let dynamicBackgroundTaskValidation = DynamicBackgroundTaskValidationBuilder()
+#endif
 
     let assertWhileShortCircuitWaitsForAsyncDisposal
         (expected: 'Result)

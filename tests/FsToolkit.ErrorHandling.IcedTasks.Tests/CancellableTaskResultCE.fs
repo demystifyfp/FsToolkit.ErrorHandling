@@ -5,6 +5,9 @@ open System.Threading
 open System.Threading.Tasks
 open FsToolkit.ErrorHandling
 open IcedTasks
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 
 module CompileTests =
     // Just having these compile is a test in itself

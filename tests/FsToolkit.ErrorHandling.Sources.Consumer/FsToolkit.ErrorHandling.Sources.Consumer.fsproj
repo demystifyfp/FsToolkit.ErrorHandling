@@ -10,6 +10,21 @@
     <OtherFlags>$(OtherFlags) --warnon:21,52,1178,1182,3366,3387,3388,3389,3390,3517,3559,3560</OtherFlags>
     <FsToolkitErrorHandlingNamespace>Contoso.Internal.ErrorHandling</FsToolkitErrorHandlingNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TestRuntimeAsync)' == 'true' and '$(TargetFramework)' == 'net11.0'">
+    <LangVersion>preview</LangVersion>
+    <Features>$(Features);runtime-async=on</Features>
+    <DefineConstants>$(DefineConstants);TEST_RUNTIME_ASYNC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TestRuntimeAsync)' == 'multiline-off'">
+    <LangVersion>preview</LangVersion>
+    <Features>$(Features);runtime-async=on;
+      runtime-async=off</Features>
+  </PropertyGroup>
+  <Target Name="CheckRuntimeAsyncDisabled" AfterTargets="FsToolkitConfigureRuntimeAsync"
+          Condition="'$(TestRuntimeAsync)' == 'multiline-off'">
+    <Error Condition="$(DefineConstants.Contains('FSTK_RUNTIME_ASYNC'))"
+           Text="The last runtime-async feature setting must disable the preview builders." />
+  </Target>
   <ItemGroup>
     <PackageVersion Include="FsToolkit.ErrorHandling.Sources" Version="[$(FsToolkitErrorHandlingSourcesVersion)]" />
     <PackageReference Include="FsToolkit.ErrorHandling.Sources" PrivateAssets="all" />

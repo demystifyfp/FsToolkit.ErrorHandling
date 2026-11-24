@@ -52,6 +52,16 @@ Then open the namespace that you set:
 open Contoso.Internal.ErrorHandling
 ```
 
+### Runtime-async task builders
+
+For a `net11.0` target with `LangVersion` set to `preview`, add this compiler feature to your project.
+
+```xml
+<Features>$(Features);runtime-async=on</Features>
+```
+
+Open `Polyfill.RuntimeTask` under your configured source namespace after you open the namespace itself.
+
 ### Visibility
 
 With `internal`, the types and modules are not visible outside your assembly. Your public API cannot use them. For example, a public function cannot return a `TaskResultBuilder`. The compiler gives error FS0410. A public `inline` function cannot call a function of this package. The compiler gives error FS1113. Type abbreviations, such as `Validation<'ok, 'error>`, are not affected, because the compiler replaces each abbreviation with the type that it names.

@@ -6,6 +6,9 @@ open TestData
 open TestHelpers
 open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Operator.TaskResult
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 open System
 open System.Threading.Tasks
 

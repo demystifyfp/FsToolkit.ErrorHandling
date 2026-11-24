@@ -2,11 +2,14 @@ module TaskConfigureAwaitTests
 
 open Expecto
 open FsToolkit.ErrorHandling
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+#endif
 open ConfigureAwaitTestHelpers
 open System.Threading
 open System.Threading.Tasks
 
-let private taskResultTests =
+let taskResultTests =
     let case name expected start =
         contextCase name (Ok expected: Result<bool, string>) start
 

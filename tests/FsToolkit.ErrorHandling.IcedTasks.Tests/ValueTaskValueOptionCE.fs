@@ -4,6 +4,12 @@ open Expecto
 open FsToolkit.ErrorHandling
 open System.Threading.Tasks
 open ConfigureAwaitTestHelpers
+#if TEST_RUNTIME_ASYNC
+open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
+
+// Runtime-async builders have no dynamic path, so the dynamic cases run the opt-in builder.
+let private dynamicValueTaskValueOption = valueTaskValueOption
+#else
 
 type private DynamicValueTaskValueOptionBuilder() =
     inherit ValueTaskValueOptionBuilderBase()
@@ -12,6 +18,7 @@ type private DynamicValueTaskValueOptionBuilder() =
         ValueTaskValueOptionBuilder.RunDynamic(code)
 
 let private dynamicValueTaskValueOption = DynamicValueTaskValueOptionBuilder()
+#endif
 
 module TestFuncs =
     let testFunctionTO<'Dto> () =

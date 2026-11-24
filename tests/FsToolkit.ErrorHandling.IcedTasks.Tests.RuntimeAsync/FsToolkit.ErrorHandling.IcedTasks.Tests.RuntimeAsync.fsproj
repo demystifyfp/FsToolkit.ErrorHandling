@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net11.0</TargetFrameworks>
+        <LangVersion>preview</LangVersion>
+        <DefineConstants>$(DefineConstants);TEST_RUNTIME_ASYNC</DefineConstants>
+        <!-- Error FS3261 : Nullness warning: The types 'System.IAsyncDisposable' and 'System.IAsyncDisposable | null' do not have compatible nullability. -->
+        <NoWarn>$(NoWarn);FS3261;FS0052</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../src/FsToolkit.ErrorHandling.IcedTasks/FsToolkit.ErrorHandling.IcedTasks.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/SampleDomain.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/TestData.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expect.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/Expecto.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/TestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests/ConfigureAwaitTestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskResultCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskValidationCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/ValueTaskValueOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableValueTaskResultCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableValueTaskOptionCE.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests.RuntimeAsync/RuntimeAsyncTestHelpers.fs" />
+        <Compile Include="../FsToolkit.ErrorHandling.Tests.RuntimeAsync/BuilderCoverage.fs" />
+        <Compile Include="IcedStateMachineProbes.fs" />
+        <Compile Include="IcedBuilderProbes.fs" />
+        <Compile Include="IcedContextProbes.fs" />
+        <Compile Include="IcedBuilderCoverage.fs" />
+        <Compile Include="Main.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskOptionCE.fs;../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskResultCE.fs;../FsToolkit.ErrorHandling.IcedTasks.Tests/CancellableTaskValidationCE.fs" LogicalName="companion-tests/%(Filename)%(Extension)" />
+    </ItemGroup>
+</Project>

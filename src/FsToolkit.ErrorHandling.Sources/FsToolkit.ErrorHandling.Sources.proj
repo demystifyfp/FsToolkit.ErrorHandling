@@ -14,6 +14,7 @@
     <None Remove="$(MSBuildThisFileDirectory)../../README.md" />
     <None Include="README.md" Pack="true" PackagePath="/" />
     <None Include="build/FsToolkit.ErrorHandling.Sources.targets" Pack="true" PackagePath="build/" />
+    <None Include="build/FsToolkit.RuntimeAsync.targets" Pack="true" PackagePath="build/" />
     <GeneratedSource Include="$(GeneratedSourcesDir)*.fs.pp" />
     <None Include="@(GeneratedSource)" Pack="true" PackagePath="contentFiles/fs/any/FsToolkit.ErrorHandling/" BuildAction="Compile" />
   </ItemGroup>
