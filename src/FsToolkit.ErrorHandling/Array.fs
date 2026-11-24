@@ -1,5 +1,7 @@
 namespace FsToolkit.ErrorHandling
 
+open Microsoft.FSharp.Core.CompilerServices
+
 [<RequireQualifiedAccess>]
 module Array =
     let inline traverseResultM
@@ -59,29 +61,40 @@ module Array =
             Ok Array.empty
         else
             let oks = ResizeArray<'okOutput>(xs.Length)
+#if FABLE_COMPILER
             let mutable errors: ResizeArray<'error> voption = ValueNone
-            let mutable index = 0
+#else
+            let mutable errors = ArrayCollector()
+#endif
+            let mutable ok = true
 
-            while index < xs.Length do
-                match f xs[index] with
-                | Ok value when errors.IsNone -> oks.Add value
-                | Error e when errors.IsSome -> errors.Value.Add e
+            for x in xs do
+                match f x with
+                | Ok value when ok -> oks.Add value
                 | Ok _ -> ()
                 | Error e ->
-                    let remaining =
-                        xs.Length
-                        - oks.Count
+#if FABLE_COMPILER
+                    if ok then
+                        let remaining =
+                            xs.Length
+                            - oks.Count
 
-                    let buffer = ResizeArray<'error>(remaining)
-                    buffer.Add e
-                    errors <- ValueSome buffer
+                        errors <- ValueSome(ResizeArray<'error>(remaining))
 
-                index <- index + 1
+                    errors.Value.Add e
+#else
+                    errors.Add e
+#endif
+                    ok <- false
 
-            match errors with
-            | ValueNone -> Ok(oks.ToArray())
-            | ValueSome errors -> Error(errors.ToArray())
-
+            if ok then
+                Ok(oks.ToArray())
+            else
+#if FABLE_COMPILER
+                Error(errors.Value.ToArray())
+#else
+                Error(errors.Close())
+#endif
     let sequenceResultA xs = traverseResultA id xs
 
     let inline traverseValidationA

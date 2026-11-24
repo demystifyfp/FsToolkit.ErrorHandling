@@ -1,6 +1,6 @@
 ### 6.0.0-beta011 - tba
 
-- [`List.traverseResultA`, `traverseAsyncResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
+- [`List+Array.traverseResultA`, `List+Array.traverseResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
     - Resolves [#167](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/167)
 
 ### 6.0.0-beta010 - November 23, 2026
