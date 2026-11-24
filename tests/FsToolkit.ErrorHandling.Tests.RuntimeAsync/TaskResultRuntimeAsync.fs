@@ -15,6 +15,7 @@ open RuntimeAsyncTestHelpers
 type private R = Result<int, string>
 
 module private ForwardedSource =
+    [<NoComparison>]
     type Input = Input of Task<R>
 
     type RuntimeTaskResultBuilder with
@@ -27,6 +28,7 @@ module private ForwardedSource =
             return value + 1
         }
 
+    [<NoComparison>]
     type BaseInput = BaseInput of Task<R>
 
     type RuntimeTaskResultBuilderBase with

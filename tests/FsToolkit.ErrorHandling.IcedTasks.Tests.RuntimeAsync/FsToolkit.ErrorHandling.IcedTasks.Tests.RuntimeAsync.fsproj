@@ -5,7 +5,7 @@
         <LangVersion>preview</LangVersion>
         <DefineConstants>$(DefineConstants);TEST_RUNTIME_ASYNC</DefineConstants>
         <!-- Error FS3261 : Nullness warning: The types 'System.IAsyncDisposable' and 'System.IAsyncDisposable | null' do not have compatible nullability. -->
-        <NoWarn>$(NoWarn);FS3261</NoWarn>
+        <NoWarn>$(NoWarn);FS3261;FS0052</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="../../src/FsToolkit.ErrorHandling.IcedTasks/FsToolkit.ErrorHandling.IcedTasks.fsproj" />

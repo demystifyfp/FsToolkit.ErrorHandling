@@ -91,7 +91,7 @@ let eitherTests =
                 createPostSuccess validCreatePostRequest
                 |> AsyncResult.eitherBind (fun (PostId id) -> id.ToString()) string
 
-            Expect.same (newPostId.ToString()) actual
+            Expect.same (string newPostId) actual
         }
 
         testCaseAsync "eitherBind with Async(Error x)"

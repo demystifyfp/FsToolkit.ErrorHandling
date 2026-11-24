@@ -1,7 +1,10 @@
-### 6.0.0-beta011 - Unreleased
+### 6.0.0-beta011 - November 24, 2026
 
 - [Add preview runtime-async task builders for .NET 11](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/392) Credits @TheAngryByrd
     - The preview cancellable builders check the invocation token after each successful asynchronous move. If cancellation occurs during the move, the builder disposes the enumerator and skips the loop body. With a bind-free body, the existing builders can continue until the enumerator stops supplying items.
+
+- [`Array+List+Seq.traverseResultA`, `Array+List+Seq.traverseResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
+    - Resolves [#167](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/167)
 
 ### 6.0.0-beta010 - November 23, 2026
 

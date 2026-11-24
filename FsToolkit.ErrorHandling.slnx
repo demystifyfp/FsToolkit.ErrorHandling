@@ -1,6 +1,15 @@
 <Solution>
-  <Folder Name="/doc/">
+  <Folder Name="/config/">
+    <File Path=".fantomasignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Directory.Solution.targets" />
     <File Path="global.json" />
+    <File Path="package-lock.json" />
+    <File Path="package.json" />
+  </Folder>
+  <Folder Name="/doc/">
+    <File Path="AGENTS.md" />
     <File Path="README.md" />
     <File Path="RELEASE_NOTES.md" />
   </Folder>

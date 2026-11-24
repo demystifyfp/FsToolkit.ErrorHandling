@@ -22,11 +22,7 @@
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <NoWarn>$(NoWarn);FS2003</NoWarn>
-    </PropertyGroup>
-
-        <ItemGroup>
+  <ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
   <Choose>

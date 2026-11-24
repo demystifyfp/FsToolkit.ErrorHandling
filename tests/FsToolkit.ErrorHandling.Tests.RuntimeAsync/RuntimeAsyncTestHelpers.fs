@@ -35,7 +35,8 @@ let faultAfter (gate: Task<unit>) (error: exn) : Task<'T> =
     )
 
 let isRuntimeAsync (method: MethodBase) =
-    method.MethodImplementationFlags.HasFlag MethodImplAttributes.Async
+    (method.MethodImplementationFlags
+     &&& MethodImplAttributes.Async) = MethodImplAttributes.Async
 
 let isStateMachine (t: Type) =
     typeof<IAsyncStateMachine>.IsAssignableFrom t
@@ -309,6 +310,7 @@ let runGated (start: Task<unit> -> Task<'T>) : Task<'T> =
         return! running.WaitAsync(deadline)
     }
 
+[<NoEquality; NoComparison>]
 type Probe = {
     Name: string
     Method: string
@@ -504,6 +506,7 @@ let private fieldsOf (t: Type) =
     |> List.ofArray
 
 /// A member in the given types that references a legacy builder type, with the method when the reference is in code.
+[<NoComparison>]
 type LegacyReference = {
     Owner: Type
     Method: MethodBase option
@@ -613,6 +616,7 @@ let moduleTypes (moduleType: Type) =
 
 let moduleOf (marker: Type) = nonNull marker.DeclaringType
 
+[<NoEquality; NoComparison>]
 type BuilderProbe = {
     Builder: string
     Value: obj

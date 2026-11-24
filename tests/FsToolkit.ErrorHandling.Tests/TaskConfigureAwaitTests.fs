@@ -6,7 +6,6 @@ open FsToolkit.ErrorHandling
 open FsToolkit.ErrorHandling.Polyfill.RuntimeTask
 #endif
 open ConfigureAwaitTestHelpers
-open System
 open System.Threading
 open System.Threading.Tasks
 

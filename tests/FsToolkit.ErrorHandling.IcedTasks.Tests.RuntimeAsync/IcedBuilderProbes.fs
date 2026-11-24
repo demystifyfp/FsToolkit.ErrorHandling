@@ -206,6 +206,7 @@ let all: BuilderProbe list = [
 ]
 
 /// Each start gets a token, a flag that the body sets, a gate before the cold bind, and a count of cold source calls.
+[<NoEquality; NoComparison>]
 type CancelProbe = {
     Builder: string
     Start: CancellationToken -> bool ref -> Task<unit> -> int ref -> Task
@@ -523,6 +524,7 @@ let private runValueWith (ct: CancellationToken) (computation: CancellationToken
     (computation ct).AsTask()
 
 /// Shapes that FS3918 rejected in earlier candidates: a let! in a for loop with a mutable, a let! in a while loop, and a use whose DisposeAsync suspends after a suspension.
+[<NoEquality; NoComparison>]
 type Regression = {
     Builder: string
     Expected: string * string * string

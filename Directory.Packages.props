@@ -24,9 +24,9 @@
     <PackageVersion Include="WebSharper.MathJS" Version="10.1.0.667" />
 
     <!-- Benchmarks group dependencies -->
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.0" />
-    <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.15.0" />
-    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.16.0-preview.2" />
+    <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.16.0-preview.2" />
+    <PackageVersion Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.16.0-preview.2" />
 
     <!-- Build group dependencies -->
     <PackageVersion Include="Fake.Core.Target" Version="6.2.0" />
@@ -49,5 +49,4 @@
     <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.15.0" />
   </ItemGroup>
 
-  
 </Project>

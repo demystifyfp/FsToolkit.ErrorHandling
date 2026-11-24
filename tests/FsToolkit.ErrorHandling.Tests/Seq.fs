@@ -348,7 +348,7 @@ let traverseAsyncResultMTests =
 
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 Seq.traverseAsyncResultM (notifyNewPostFailure (PostId newPostId)) userIds
@@ -536,8 +536,8 @@ let traverseTaskResultATests =
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
             let expected = [|
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             |]
 
             let! actual =
@@ -592,7 +592,7 @@ let sequenceAsyncResultMTests =
 
         testCaseAsync "sequenceAsyncResultM with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 Seq.map (notifyFailure (PostId newPostId)) userIds
@@ -631,8 +631,8 @@ let traverseAsyncResultATests =
         testCaseAsync "traverseResultA with few invalid data"
         <| async {
             let expected = [|
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             |]
 
             let! actual = Seq.traverseAsyncResultA (notifyFailure (PostId newPostId)) userIds
@@ -686,7 +686,7 @@ let sequenceTaskResultMTests =
 
         testCaseAsync "sequenceTaskResultM with few invalid data"
         <| async {
-            let expected = sprintf "error: %s" (userId1.ToString())
+            let expected = $"error: %O{userId1}"
 
             let actual =
                 userIds
@@ -770,8 +770,8 @@ let sequenceAsyncResultATests =
         testCaseAsync "sequenceAsyncResultA with few invalid data"
         <| async {
             let expected = [|
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             |]
 
             let! actual =
@@ -825,8 +825,8 @@ let sequenceTaskResultATests =
         testCaseAsync "sequenceTaskResultA with few invalid data"
         <| async {
             let expected = [|
-                sprintf "error: %s" (userId1.ToString())
-                sprintf "error: %s" (userId3.ToString())
+                $"error: %O{userId1}"
+                $"error: %O{userId3}"
             |]
 
             let! actual =
