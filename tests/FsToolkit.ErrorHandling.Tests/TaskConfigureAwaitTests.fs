@@ -3,7 +3,6 @@ module TaskConfigureAwaitTests
 open Expecto
 open FsToolkit.ErrorHandling
 open ConfigureAwaitTestHelpers
-open System
 open System.Threading
 open System.Threading.Tasks
 

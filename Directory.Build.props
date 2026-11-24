@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
     <DisableCheckingDuplicateNuGetItems>true</DisableCheckingDuplicateNuGetItems>
-    <NoWarn>$(NoWarn);FS2003;NU1903;NU1904;FS0057</NoWarn>
+    <!-- error FS0057: This construct is experimental. Experimental library feature, -->
+    <NoWarn>$(NoWarn);FS0057</NoWarn>
+    <WarningLevel>5</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <!--
       Changing the LangVersion based on TFM because F# 9 brings in new features that older SDK's can't support.
       See https://github.com/dotnet/fsharp/issues/14313 for an example.
@@ -14,6 +15,4 @@
     <LangVersion Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0')) ">9.0</LangVersion>
     <Nullable Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)','net9.0')) And '$(FABLE_COMPILER)' != 'true' ">enable</Nullable>
   </PropertyGroup>
-
-
 </Project>

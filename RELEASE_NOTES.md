@@ -1,3 +1,8 @@
+### 6.0.0-beta011 - tba
+
+- [`Array+List+Seq.traverseResultA`, `Array+List+Seq.traverseResultM`: Performance/memory tuning](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/383) Credits @bartelink
+    - Resolves [#167](https://github.com/demystifyfp/FsToolkit.ErrorHandling/issues/167)
+
 ### 6.0.0-beta010 - November 23, 2026
 
 - [Honor ConfigureAwait(false) in the task builders](https://github.com/demystifyfp/FsToolkit.ErrorHandling/pull/399) Credits @TheAngryByrd

@@ -332,7 +332,8 @@ module Task =
                     // Where cancellation was requested on the outer ct, but none of the inners saw and/or honored it by throwing TCE,
                     // res may only be partially complete so we certainly can't return it
                     // we instead yield a TaskCanceledException to honor standard Task Cancellation semantics
-                    innerCts.Token.ThrowIfCancellationRequested()
+                    let t = innerCts.Token
+                    t.ThrowIfCancellationRequested()
                     return res
                 }
 #endif

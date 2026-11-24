@@ -26,7 +26,12 @@ let inline traverseResultM'
     | Error e -> Error e
     | Ok initialSuccesses ->
 
+#if FABLE_COMPILER
         let oks = ResizeArray(initialSuccesses)
+#else
+        let mutable oks = ArrayCollector()
+        oks.AddMany initialSuccesses
+#endif
         let mutable err: 'error voption = ValueNone
         use e = xs.GetEnumerator()
 
@@ -37,7 +42,11 @@ let inline traverseResultM'
             | Error e -> err <- ValueSome e
 
         match err with
+#if FABLE_COMPILER
         | ValueNone -> Ok(oks.ToArray())
+#else
+        | ValueNone -> Ok(oks.Close())
+#endif
         | ValueSome e -> Error e
 
 /// <summary>
@@ -65,7 +74,7 @@ let sequenceResultM xs = traverseResultM id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>If no Errors encountered, an Ok result bearing an array of the ok elements from the 'state' followed by those gathered from the sequence, or an Error bearing an array of all errors from the 'state' and/or those in the sequence</returns>
 let inline traverseResultA'
-    (state: Result<'okOutput seq, 'error seq>)
+    (state: Result<#seq<'okOutput>, #seq<'error>>)
     ([<InlineIfLambda>] f: 'okInput -> Result<'okOutput, 'error>)
     (xs: SeqNull<'okInput>)
     =
@@ -75,29 +84,48 @@ let inline traverseResultA'
 
     match state with
     | Error failuresToDate ->
-        let errs = ResizeArray failuresToDate
+#if FABLE_COMPILER
+        let errs = ResizeArray(failuresToDate)
+#else
+        let mutable errs = ArrayCollector()
+        errs.AddMany failuresToDate
+#endif
 
         for x in xs do
             match f x with
             | Error e -> errs.Add e
             | Ok _ -> () // as the initial state was failure, oks are irrelevant
 
+#if FABLE_COMPILER
         Error(errs.ToArray())
+#else
+        Error(errs.Close())
+#endif
     | Ok initialSuccesses ->
 
-        let oks = ResizeArray initialSuccesses
+#if FABLE_COMPILER
+        let oks = ResizeArray(initialSuccesses)
         let errs = ResizeArray()
+#else
+        let mutable oks = ArrayCollector()
+        oks.AddMany initialSuccesses
+        let mutable errs = ArrayCollector()
+#endif
+        let mutable ok = true
 
         for x in xs do
             match f x with
-            | Ok r when errs.Count = 0 -> oks.Add r
+            | Ok r when ok -> oks.Add r
             | Ok _ -> () // no point saving results we won't use given the end result will be Error
-            | Error e -> errs.Add e
+            | Error e ->
+                errs.Add e
+                ok <- false
 
-        if errs.Count = 0 then
-            Ok(oks.ToArray())
-        else
-            Error(errs.ToArray())
+#if FABLE_COMPILER
+        if ok then Ok(oks.ToArray()) else Error(errs.ToArray())
+#else
+        if ok then Ok(oks.Close()) else Error(errs.Close())
+#endif
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single result
@@ -106,7 +134,7 @@ let inline traverseResultA'
 /// <param name="xs">The input sequence</param>
 /// <returns>A result with the ok elements in an array or an array of all errors from the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultA'"/> but applying an initial state of Seq.empty'</remarks>
-let traverseResultA f xs = traverseResultA' (Ok Seq.empty) f xs
+let traverseResultA f (xs: #SeqNull<'okInput>) = traverseResultA' (Ok Seq.empty) f xs
 
 /// <summary>
 /// Converts a sequence of results into a single result
@@ -114,7 +142,7 @@ let traverseResultA f xs = traverseResultA' (Ok Seq.empty) f xs
 /// <param name="xs">The input sequence</param>
 /// <returns>A result with the elements in an array or an array of all errors from the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseResultA"/> but auto-applying the 'id' function</remarks>
-let sequenceResultA xs = traverseResultA id xs
+let sequenceResultA (xs: #SeqNull<_>) = traverseResultA id xs
 
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single async result
@@ -124,7 +152,7 @@ let sequenceResultA xs = traverseResultA id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An async result with the ok elements in an array or the first error encountered in the state or the sequence</returns>
 let inline traverseAsyncResultM'
-    (state: Async<Result<'okOutput seq, 'error>>)
+    (state: Async<Result<#seq<'okOutput>, 'error>>)
     ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
     (xs: SeqNull<'okInput>)
     : Async<Result<'okOutput[], 'error>> =
@@ -135,7 +163,12 @@ let inline traverseAsyncResultM'
         match! state with
         | Error e -> return Error e
         | Ok initialSuccesses ->
-            let oks = ResizeArray initialSuccesses
+#if FABLE_COMPILER
+            let oks = ResizeArray(initialSuccesses)
+#else
+            let mutable oks = ArrayCollector()
+            oks.AddMany initialSuccesses
+#endif
             let mutable err: 'error voption = ValueNone
             use e = xs.GetEnumerator()
 
@@ -147,7 +180,11 @@ let inline traverseAsyncResultM'
 
             return
                 match err with
+#if FABLE_COMPILER
                 | ValueNone -> Ok(oks.ToArray())
+#else
+                | ValueNone -> Ok(oks.Close())
+#endif
                 | ValueSome e -> Error e
     }
 
@@ -159,7 +196,7 @@ let inline traverseAsyncResultM'
 /// <returns>An async result with the ok elements in an array or the first error occurring in the sequence</returns>
 /// <remarks>This function is equivalent to <see cref="traverseAsyncResultM'"/> but applying an initial state of 'Seq.empty'</remarks>
 let traverseAsyncResultM f xs =
-    traverseAsyncResultM' (async { return Ok Seq.empty }) f xs
+    traverseAsyncResultM' (async { return Ok Array.empty }) f xs
 
 /// <summary>
 /// Converts a sequence of async results into a single async result
@@ -233,7 +270,7 @@ let sequenceTaskResultM xs = traverseTaskResultM id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An async result with the ok elements in an array or an array of all errors from the state and the original sequence</returns>
 let inline traverseAsyncResultA'
-    (state: Async<Result<'okOutput seq, 'error seq>>)
+    (state: Async<Result<#seq<'okOutput>, #seq<'error>>>)
     ([<InlineIfLambda>] f: 'okInput -> Async<Result<'okOutput, 'error>>)
     (xs: SeqNull<'okInput>)
     : Async<Result<'okOutput[], 'error[]>> =
@@ -242,29 +279,48 @@ let inline traverseAsyncResultA'
     async {
         match! state with
         | Error failuresToDate ->
-            let errs = ResizeArray failuresToDate
+#if FABLE_COMPILER
+            let errs = ResizeArray(failuresToDate) in
+#else
+            let mutable errs = ArrayCollector()
+            errs.AddMany failuresToDate
+#endif
 
             for x in xs do
                 match! f x with
                 | Ok _ -> () // as the initial state was failure, oks are irrelevant
                 | Error e -> errs.Add e
 
+#if FABLE_COMPILER
             return Error(errs.ToArray())
+#else
+            return Error(errs.Close())
+#endif
         | Ok initialSuccesses ->
 
-            let oks = ResizeArray initialSuccesses
+#if FABLE_COMPILER
+            let oks = ResizeArray(initialSuccesses)
             let errs = ResizeArray()
+#else
+            let mutable oks = ArrayCollector()
+            oks.AddMany initialSuccesses
+            let mutable errs = ArrayCollector()
+#endif
+            let mutable ok = true
 
             for x in xs do
                 match! f x with
-                | Ok r when errs.Count = 0 -> oks.Add r
+                | Ok r when ok -> oks.Add r
                 | Ok _ -> () // no point saving results we won't use given the end result will be Error
-                | Error e -> errs.Add e
+                | Error e ->
+                    ok <- false
+                    errs.Add e
 
-            if errs.Count = 0 then
-                return Ok(oks.ToArray())
-            else
-                return Error(errs.ToArray())
+#if FABLE_COMPILER
+            return if ok then Ok(oks.ToArray()) else Error(errs.ToArray())
+#else
+            return if ok then Ok(oks.Close()) else Error(errs.Close())
+#endif
     }
 
 /// <summary>
@@ -286,7 +342,6 @@ let traverseAsyncResultA f xs =
 let sequenceAsyncResultA xs = traverseAsyncResultA id xs
 
 #if !FABLE_COMPILER
-
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single task result
 /// </summary>
@@ -359,7 +414,7 @@ let sequenceTaskResultA xs = traverseTaskResultA id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An option containing Some array of elements or None if any of the function applications return None</returns>
 let inline traverseOptionM'
-    (state: seq<'okOutput> option)
+    (state: #seq<'okOutput> option)
     ([<InlineIfLambda>] f: 'okInput -> 'okOutput option)
     (xs: SeqNull<'okInput>)
     : 'okOutput[] option =
@@ -406,7 +461,7 @@ let sequenceOptionM xs = traverseOptionM id xs
 /// <param name="xs">The input sequence</param>
 /// <returns>An async option containing Some array of elements or None if any of the function applications return None</returns>
 let inline traverseAsyncOptionM'
-    (state: Async<seq<'okOutput> option>)
+    (state: Async<#seq<'okOutput> option>)
     ([<InlineIfLambda>] f: 'okInput -> Async<'okOutput option>)
     (xs: SeqNull<'okInput>)
     : Async<'okOutput[] option> =
@@ -449,7 +504,6 @@ let traverseAsyncOptionM f xs =
 let sequenceAsyncOptionM xs = traverseAsyncOptionM id xs
 
 #if !FABLE_COMPILER
-
 /// <summary>
 /// Applies a function to each element of a sequence and returns a single voption
 /// </summary>
